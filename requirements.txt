@@ -7,6 +7,7 @@ kiwisolver==1.4.5
 matplotlib==3.9.2
 numpy==1.23.5
 opencv-python==4.10.0.84
+# opendrop @ file:///home/samsike/Masters/YearLong/opendrop/build/opendrop-3.3.2-cp310-abi3-linux_x86_64.whl#sha256=0d1b17ab911033942eb2249bb43d2cafcf402075f03fc1721e15fafbd5d0bc33
 packaging==24.1
 pillow==10.4.0
 pycairo==1.26.1

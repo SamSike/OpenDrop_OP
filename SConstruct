@@ -1,4 +1,5 @@
 import os
+import re
 
 env = Environment(
     NAME='opendrop',
@@ -14,12 +15,13 @@ env = Environment(
     BUILDDIR='./build',
 )
 
-mpich_dir = os.getenv('MPICH_DIR', '/usr/include/mpich-x86_64/')
-boost_include_dir = os.getenv(
-    'BOOST_INCLUDE_DIR', '/opt/homebrew/Cellar/boost')
-env.Append(CPPPATH=[boost_include_dir, mpich_dir])
+# env.Append(CPPPATH=['/usr/include/mpich-x86_64/'])
+# boost_include_dir = os.getenv('BOOST_INCLUDE_DIR', '/opt/homebrew/Cellar/boost')
+boost_include_dir = os.getenv('BOOST_INCLUDE_DIR', '/opt/homebrew/Cellar/boost/1.86.0/include/')
+# export BOOST_INCLUDE_DIR=/opt/homebrew/Cellar/boost/1.86.0/include/
+env.Append(CPPPATH=[boost_include_dir])
 
-
+# /opt/homebrew/Cellar/boost/1.86.0/
 AddOption(
     '--build-dir',
     dest='build_dir',
@@ -40,6 +42,9 @@ env.Tool('gitversion')
 env.Tool('python')
 env.Tool('pydist')
 
+env['VERSION'] = '3.3.2'
+env['PYTHONPLATFORM'] = env['PYTHONPLATFORM'].replace('-', '_')
+
 package_files = SConscript('opendrop/SConscript', exports='env')
 wheel = env.WheelPackage(
     '$BUILDDIR',
@@ -50,6 +55,8 @@ wheel = env.WheelPackage(
     platform_tag=env['PYTHONPLATFORM'],
 )
 Alias('bdist_wheel', wheel)
+
+print(env['PYTHONPLATFORM'])
 
 c_tests = SConscript('tests/c/SConscript', exports='env')
 Alias('tests', c_tests)
