@@ -45,7 +45,7 @@ def register_component(
 
     template = Gio.resources_lookup_data(template_path, Gio.ResourceLookupFlags.NONE).get_data().decode()
     component_spec = ComponentSpec(presenter_class, template, modules, auto_bind)
-
+    print("template: ",template_path)
     template_info = TemplateInfo(template)
     host_name = template_info.name
     host_parent = template_info.parent
