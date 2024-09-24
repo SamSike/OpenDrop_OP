@@ -93,11 +93,22 @@ class OpendropApplication(Gtk.Application):
 
         self._clear_current_window()
 
-        self._current_window = cast(Gtk.Window, self._cf.create('IFTExperiment'))
-        self._current_window.show()
+        # Create a new Gtk.Window to hold the IFTExperiment box
+        self._current_window = Gtk.Window(title="IFT Experiment")
+        
+        # Create an instance of IFTExperiment (which is a GtkBox)
+        ift_experiment = self._cf.create('IFTExperiment')
 
+        # Add the IFTExperiment instance to the window
+        self._current_window.add(ift_experiment)
+        
+        # Show the current window
+        self._current_window.show_all()  # Show the window and all its children
+
+        # Connect the destroy signal to navigate back to the main menu
         self._current_window.connect('destroy', self._goto_main_menu)
 
+        # Add the window to the application's window manager (if needed)
         self.add_window(self._current_window)
 
     def _goto_conan(self, *_) -> None:

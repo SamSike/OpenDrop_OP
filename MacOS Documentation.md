@@ -94,3 +94,4 @@ scons bdist_wheel
 ```bash
 python3.10 -m opendrop
 ```
+scons --clean && scons bdist_wheel && python3.10 -m opendrop

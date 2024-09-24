@@ -82,7 +82,10 @@ def register_component(
         'do_get_property': _component_get_property,
         'do_set_property': _component_set_property,
     }
-
+    print("host_name: "+host_name)
+    print(host_parent)
+    print("namespace")
+    print(namespace)
     host_type = GObjectMeta(host_name, (host_parent,), namespace)
 
     # Not really necessary, but make it explicit that creating a new GObject subclass has a side-effect that
@@ -164,8 +167,9 @@ def _component_init(self, **properties) -> None:
             lambda _, *args, signal_name=signal_name: self.emit(signal_name, *args)
         )
 
+    
     presenter.host = self
-
+    print("host assign: ",presenter.host)
     # Create template builder.
     builder = Gtk.Builder()
     builder.expose_object('@', presenter)

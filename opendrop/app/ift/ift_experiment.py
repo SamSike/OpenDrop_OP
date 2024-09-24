@@ -42,17 +42,17 @@ from .services.session import IFTSession, IFTSessionModule
     template_path='./ift_experiment.ui',
     modules=[IFTSessionModule],
 )
-class IFTExperimentPresenter(Presenter[Gtk.Assistant]):
+class IFTExperimentPresenter(Presenter[Gtk.Box]):
     action_area = TemplateChild('action_area')  # type: TemplateChild[Gtk.Stack]
     analysis_footer = TemplateChild('analysis_footer')
-
+    notebook = TemplateChild("notebook")
     report_page = TemplateChild('report_page')
 
     @inject
     def __init__(self, session: IFTSession, progress_helper: IFTAnalysisProgressHelper) -> None:
         self.session = session
         self.progress_helper = progress_helper
-
+        
         session.bind_property('analyses', self.progress_helper, 'analyses', GObject.BindingFlags.SYNC_CREATE)
 
     def after_view_init(self) -> None:
@@ -80,30 +80,30 @@ class IFTExperimentPresenter(Presenter[Gtk.Assistant]):
 
     def prepare(self, *_) -> None:
         # Update footer to show current page's action widgets.
-        cur_page = self.host.get_current_page()
+        cur_page = self.notebook.get_current_page()
         self.action_area.set_visible_child_name(str(cur_page))
 
     def next_page(self, *_) -> None:
-        cur_page = self.host.get_current_page()
+        cur_page = self.notebook.get_current_page()
         if cur_page == 0:
-            self.host.next_page()
+            self.notebook.next_page()
         elif cur_page == 1:
             self.start_analyses()
-            self.host.next_page()
+            self.notebook.next_page()
         else:
             # Ignore, on last page.
             return
 
     def previous_page(self, *_) -> None:
-        cur_page = self.host.get_current_page()
+        cur_page = self.notebook.get_current_page()
         if cur_page == 0:
             # Ignore, on first page.
             return
         elif cur_page == 1:
-            self.host.previous_page()
+            self.notebook.prev_page()
         elif cur_page == 2:
             self.clear_analyses()
-            self.host.previous_page()
+            self.notebook.prev_page()
 
     def start_analyses(self) -> None:
         self.session.start_analyses()
