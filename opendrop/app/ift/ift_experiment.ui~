@@ -1,0 +1,248 @@
+<!-- Generated with glade 3.38.1 -->
+<interface>
+  <requires lib="gtk+" version="3.20"/>
+  <template class="IFTExperiment" parent="GtkBox">
+    <property name="width-request">800</property>
+    <property name="height-request">600</property>
+    <property name="can-focus">False</property>
+    <property name="orientation">vertical</property>
+
+
+    <child>
+      <object class="GtkBox" id="progress_bar_box">
+        <property name="orientation">horizontal</property>
+        <property name="spacing">5</property>
+        <property name="visible">True</property>
+        <property name="can-focus">False"</property>
+
+        <!-- Stage 1: Acquisition (Solid Circle) -->
+        <child>
+          <object class="GtkEventBox" id="eventbox_acquisition">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkImage" id="image_acquisition">
+                <property name="file">path/to/solid_circle.png</property> <!-- Path to solid circle image -->
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label_acquisition">
+            <property name="label">Acquisition</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+        </child>
+
+        <!-- Stage 2: Preparation (Open Circle) -->
+        <child>
+          <object class="GtkEventBox" id="eventbox_preparation">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkImage" id="image_preparation">
+                <property name="file">path/to/open_circle.png</property> <!-- Path to open circle image -->
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label_preparation">
+            <property name="label">Preparation</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+        </child>
+
+        <!-- Stage 3: Analysis (Open Circle) -->
+        <child>
+          <object class="GtkEventBox" id="eventbox_analysis">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkImage" id="image_analysis">
+                <property name="file">path/to/open_circle.png</property> <!-- Path to open circle image -->
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label_analysis">
+            <property name="label">Analysis</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+        </child>
+
+        <!-- Stage 4: Output (Open Circle) -->
+        <child>
+          <object class="GtkEventBox" id="eventbox_output">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkImage" id="image_output">
+                <property name="file">path/to/open_circle.png</property> <!-- Path to open circle image -->
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label_output">
+            <property name="label">Output</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+        </child>
+      </object>
+    </child>
+
+
+    <!-- Main content area for different stages -->
+    <child>
+      <object class="GtkStack" id="stack">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+
+        <!-- Stage 1: Acquisition -->
+        <child>
+          <object class="GtkBox" id="acquisition_box">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="ImageAcquisition">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <!-- Stage 2: Preparation -->
+        <child>
+          <object class="GtkGrid" id="preparation_grid">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="IFTPhysicalParametersForm">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparator">
+                <property name="visible">True</property>
+                <property name="orientation">vertical</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="IFTImageProcessing">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+
+        <!-- Stage 3: Analysis -->
+        <child>
+          <object class="IFTReport" id="report_page">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+        </child>
+
+        <!-- Stage 4: Output -->
+        <child>
+          <object class="GtkBox" id="output_page">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Output will be displayed here.</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+
+
+
+    <child>
+      <object class="GtkBox">
+        <property name="halign">fill</property>
+        <property name="valign">end</property>
+        <property name="can-focus">False</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkStack" id="action_area">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="LinearFooter">
+                <property name="visible">True</property>
+                <property name="previous-label">Back</property> <!-- Label for Back button -->
+                <property name="next-label">Next</property>
+                <signal name="next" handler="next_page"/> <!-- Signal for Next -->
+                <signal name="previous" handler="previous_page"/> <!-- Signal for Back -->
+              </object>
+              <packing>
+                <property name="name">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="LinearFooter">
+                <property name="visible">True</property>
+                <property name="next-label">Analysis</property> <!-- Label for Next button -->
+                <signal name="next" handler="next_page"/> <!-- Signal for Next -->
+                <signal name="previous" handler="previous_page"/> <!-- Signal for Back -->
+              </object>
+              <packing>
+                <property name="name">1</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="AnalysisFooter" id="analysis_footer">
+                <property name="visible">True</property>
+                <signal name="save" handler="save_analyses"/>
+                <signal name="stop" handler="cancel_analyses"/>
+                <signal name="previous" handler="previous_page"/>
+              </object>
+              <packing>
+                <property name="name">2</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+          </packing>
+        </child>
+      </object>
+    </child>  
+
+  </template>
+</interface>

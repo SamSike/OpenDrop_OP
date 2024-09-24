@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.1 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <template class="IFTExperiment" parent="GtkBox">
@@ -7,37 +7,224 @@
     <property name="height-request">600</property>
     <property name="can-focus">False</property>
     <property name="orientation">vertical</property>
-
     <child>
-      <object class="GtkNotebook" id="notebook">
+      <object class="GtkBox" id="progress_bar_box">
+        <property name="visible">True</property>
         <property name="can-focus">False</property>
-
+        <property name="spacing">5</property>
+        <property name="homogeneous">True</property>
         <child>
-          <!-- First Tab: Image Acquisition -->
-          <object class="GtkBox">
+          <object class="GtkEventBox" id="eventbox_acquisition">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
+            <property name="halign">center</property>
+            <property name="margin-top">10</property>
+            <property name="margin-bottom">10</property>
             <child>
-              <object class="ImageAcquisition">
+              <!-- n-columns=2 n-rows=1 -->
+              <object class="GtkGrid">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
+                <child>
+                  <object class="GtkImage" id="image_acquisition">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="stock">gtk-yes</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_acquisition">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label">Acquisition</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
               </object>
             </child>
           </object>
           <packing>
-            <property name="tab-label" translatable="yes">Acquisition</property>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
           </packing>
         </child>
-
         <child>
-          <!-- Second Tab: Preparation -->
-          <object class="GtkGrid">
+          <object class="GtkEventBox" id="eventbox_preparation">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">center</property>
+            <property name="margin-top">10</property>
+            <property name="margin-bottom">10</property>
+            <child>
+              <!-- n-columns=2 n-rows=1 -->
+              <object class="GtkGrid">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <child>
+                  <object class="GtkImage" id="image_preparation">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="icon-name">media-record</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_preparation">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label">Preparation</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEventBox" id="eventbox_analysis">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">center</property>
+            <property name="margin-top">10</property>
+            <property name="margin-bottom">10</property>
+            <child>
+              <!-- n-columns=2 n-rows=1 -->
+              <object class="GtkGrid">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <child>
+                  <object class="GtkImage" id="image_analysis">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="icon-name">media-record</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_analysis">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label">Analysis</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEventBox" id="eventbox_output">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">center</property>
+            <property name="margin-top">10</property>
+            <property name="margin-bottom">10</property>
+            <child>
+              <!-- n-columns=2 n-rows=1 -->
+              <object class="GtkGrid">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <child>
+                  <object class="GtkImage" id="image_output">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="icon-name">media-record</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_output">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label">Output</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">6</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkStack" id="stack">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <child>
+          <object class="GtkBox" id="acquisition_box">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="ImageAcquisition">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+                <property name="name">0</property>
+          </packing>
+        </child>
+        <child>
+          <!-- n-columns=3 n-rows=3 -->
+          <object class="GtkGrid" id="preparation_grid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <child>
               <object class="IFTPhysicalParametersForm">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
@@ -47,6 +234,7 @@
             <child>
               <object class="GtkSeparator">
                 <property name="visible">True</property>
+                <property name="can-focus">False</property>
                 <property name="orientation">vertical</property>
               </object>
               <packing>
@@ -57,7 +245,7 @@
             <child>
               <object class="IFTImageProcessing">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
               </object>
               <packing>
                 <property name="left-attach">2</property>
@@ -66,28 +254,50 @@
             </child>
           </object>
           <packing>
-            <property name="tab-label" translatable="yes">Preparation</property>
+            <property name="position">1</property>
+            <property name="name">1</property>
           </packing>
         </child>
-
         <child>
-          <!-- Third Tab: Report (Analysis) -->
           <object class="IFTReport" id="report_page">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
           </object>
           <packing>
-            <property name="tab-label" translatable="yes">Analysis</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="output_page">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="can-focus">False</property>
+                <property name="label">Output will be displayed here.</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="position">3</property>
           </packing>
         </child>
       </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
     </child>
-
     <child>
       <object class="GtkBox">
-        <property name="halign">fill</property>
-        <property name="valign">end</property>
         <property name="can-focus">False</property>
+        <property name="valign">end</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkStack" id="action_area">
@@ -96,7 +306,7 @@
             <child>
               <object class="LinearFooter">
                 <property name="visible">True</property>
-                <property name="previous-label">Back</property> <!-- Label for Back button -->
+                <property name="previous-label">Back To Exit</property> <!-- Label for Back button -->
                 <property name="next-label">Next</property>
                 <signal name="next" handler="next_page"/> <!-- Signal for Next -->
                 <signal name="previous" handler="previous_page"/> <!-- Signal for Back -->
@@ -120,9 +330,9 @@
             <child>
               <object class="AnalysisFooter" id="analysis_footer">
                 <property name="visible">True</property>
+                <signal name="previous" handler="previous_page"/>
                 <signal name="save" handler="save_analyses"/>
                 <signal name="stop" handler="cancel_analyses"/>
-                <signal name="previous" handler="previous_page"/>
               </object>
               <packing>
                 <property name="name">2</property>
@@ -133,10 +343,15 @@
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
+            <property name="position">0</property>
           </packing>
         </child>
       </object>
-    </child>  
-
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
   </template>
 </interface>

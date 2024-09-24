@@ -45,19 +45,24 @@ from .services.session import IFTSession, IFTSessionModule
 class IFTExperimentPresenter(Presenter[Gtk.Box]):
     action_area = TemplateChild('action_area')  # type: TemplateChild[Gtk.Stack]
     analysis_footer = TemplateChild('analysis_footer')
-    notebook = TemplateChild("notebook")
+    stack = TemplateChild("stack")
+    progress_bar_box = TemplateChild("progress_bar_box")
     report_page = TemplateChild('report_page')
+    image_preparation = TemplateChild("image_preparation")
+    image_analysis = TemplateChild("image_analysis")
+    image_output = TemplateChild("image_output")
 
     @inject
     def __init__(self, session: IFTSession, progress_helper: IFTAnalysisProgressHelper) -> None:
         self.session = session
         self.progress_helper = progress_helper
-        
         session.bind_property('analyses', self.progress_helper, 'analyses', GObject.BindingFlags.SYNC_CREATE)
+        
 
     def after_view_init(self) -> None:
         self.session.bind_property('analyses', self.report_page, 'analyses', GObject.BindingFlags.SYNC_CREATE)
-
+        # self.stack.set_visible_child_name(str(0))
+        # Example: Retrieve child name by instance
         self.progress_helper.bind_property(
             'status', self.analysis_footer, 'status', GObject.BindingFlags.SYNC_CREATE,
             lambda binding, x: {
@@ -77,34 +82,51 @@ class IFTExperimentPresenter(Presenter[Gtk.Box]):
         self.progress_helper.bind_property(
             'est-complete', self.analysis_footer, 'time-complete', GObject.BindingFlags.SYNC_CREATE
         )
-
     def prepare(self, *_) -> None:
         # Update footer to show current page's action widgets.
-        cur_page = self.notebook.get_current_page()
+        cur_page = self.stack.get_visible_child_name()
+        self.stack.set_visible_child_name(str(cur_page))
         self.action_area.set_visible_child_name(str(cur_page))
 
     def next_page(self, *_) -> None:
-        cur_page = self.notebook.get_current_page()
-        if cur_page == 0:
-            self.notebook.next_page()
-        elif cur_page == 1:
+        cur_page = self.stack.get_visible_child_name()
+        if cur_page == "0":
+            self.stack.set_visible_child_name("1")
+            self.action_area.set_visible_child_name("1")
+            self.image_preparation.set_from_icon_name("gtk-yes", Gtk.IconSize.BUTTON)
+        elif cur_page == "1":
+            # cannot procced to the next page until collect the images
             self.start_analyses()
-            self.notebook.next_page()
+            self.stack.set_visible_child_name("2")
+            self.action_area.set_visible_child_name("2")
+            self.image_analysis.set_from_icon_name("gtk-yes", Gtk.IconSize.BUTTON)
+        elif cur_page == "2":
+            self.clear_analyses()
+            self.stack.set_visible_child_name("3")
+            self.action_area.set_visible_child_name("3") 
+            self.image_output.set_from_icon_name("gtk-yes", Gtk.IconSize.BUTTON)
         else:
             # Ignore, on last page.
             return
 
     def previous_page(self, *_) -> None:
-        cur_page = self.notebook.get_current_page()
-        if cur_page == 0:
+        cur_page = self.stack.get_visible_child_name()
+        if cur_page == "0":
             # Ignore, on first page.
             return
-        elif cur_page == 1:
-            self.notebook.prev_page()
-        elif cur_page == 2:
+        elif cur_page == "1":
+            self.stack.set_visible_child_name("0")
+            self.action_area.set_visible_child_name("0")
+            self.image_preparation.set_from_icon_name("media-record", Gtk.IconSize.BUTTON) 
+        elif cur_page == "2":
             self.clear_analyses()
-            self.notebook.prev_page()
-
+            self.stack.set_visible_child_name("1")
+            self.action_area.set_visible_child_name("1")
+            self.image_analysis.set_from_icon_name("media-record", Gtk.IconSize.BUTTON)  # Set icon to media-record
+        elif cur_page == "3":
+            self.stack.set_visible_child_name("2")
+            self.action_area.set_visible_child_name("2")   
+            self.image_output.set_from_icon_name("media-record", Gtk.IconSize.BUTTON)  # Set icon to media-record
     def start_analyses(self) -> None:
         self.session.start_analyses()
 
