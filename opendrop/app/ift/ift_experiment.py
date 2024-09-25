@@ -112,18 +112,22 @@ class IFTExperimentPresenter(Presenter[Gtk.Box]):
     def previous_page(self, *_) -> None:
         cur_page = self.stack.get_visible_child_name()
         if cur_page == "0":
+            print("Page 0")
             # Ignore, on first page.
             return
         elif cur_page == "1":
+            print("Page 1")
             self.stack.set_visible_child_name("0")
             self.action_area.set_visible_child_name("0")
             self.image_preparation.set_from_icon_name("media-record", Gtk.IconSize.BUTTON) 
         elif cur_page == "2":
+            print("Page 2")
             self.clear_analyses()
             self.stack.set_visible_child_name("1")
             self.action_area.set_visible_child_name("1")
             self.image_analysis.set_from_icon_name("media-record", Gtk.IconSize.BUTTON)  # Set icon to media-record
         elif cur_page == "3":
+            print("Page 3")
             self.stack.set_visible_child_name("2")
             self.action_area.set_visible_child_name("2")   
             self.image_output.set_from_icon_name("media-record", Gtk.IconSize.BUTTON)  # Set icon to media-record
@@ -137,7 +141,7 @@ class IFTExperimentPresenter(Presenter[Gtk.Box]):
         if hasattr(self, 'cancel_dialog'): return
 
         self.cancel_dialog = YesNoDialog(
-            parent=self.host,
+            parent=self.host.get_toplevel(),
             message_format='Confirm stop analysis?',
         )
 

@@ -87,9 +87,10 @@ class ImageAcquisitionConfiguratorPresenter(Presenter[Gtk.Bin]):
         self._acquirer = acquirer
         self.update_configurator()
 
+    # components 
     def load_local_storage_configurator(self) -> None:
         self.remove_configurator()
-
+        print("configurator.py: load_local_storage_configurator")
         self.configurator_component = local_storage_cs.factory(
             acquirer=self._acquirer
         ).create()

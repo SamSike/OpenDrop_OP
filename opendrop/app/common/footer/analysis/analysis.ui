@@ -58,16 +58,14 @@
                 <property name="fill">False</property>
               </packing>
             </child>
-            <child>
+             <child>
               <object class="GtkButton">
-                <property name="label">gtk-save</property>
-                <property name="use_stock">True</property>
-                <property name="always_show_image">True</property>
-                <property name="visible">True</property>
-                <property name="sensitive" bind-source="@" bind-property="save-enabled" bind-flags="sync-create"/>
+                <property name="label" translatable="yes">Next</property>
+                <property name="visible" bind-source="@" bind-property="next-visible" bind-flags="sync-create"/>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="save_clicked"/>
+                <!-- Signal to handle 'next' action -->
+                <signal name="clicked" handler="next_clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>

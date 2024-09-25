@@ -124,6 +124,13 @@ class AnalysisFooterPresenter(Presenter):
     @install
     @GObject.Signal
     def previous(self) -> None:
+        print("previous")
+        pass
+
+    @install
+    @GObject.Signal
+    def next(self) -> None:
+        print("next")
         pass
 
     def save_clicked(self, *_) -> None:
@@ -133,4 +140,8 @@ class AnalysisFooterPresenter(Presenter):
         self.emit('stop')
 
     def previous_clicked(self, *_) -> None:
+        print("previous_clicked")
         self.emit('previous')
+    def next_clicked(self, *_) -> None:
+        print("next_clicked")
+        self.emit('next')

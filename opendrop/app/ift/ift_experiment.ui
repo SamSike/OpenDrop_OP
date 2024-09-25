@@ -265,6 +265,7 @@
           </object>
           <packing>
             <property name="position">2</property>
+            <property name="name">2</property>
           </packing>
         </child>
         <child>
@@ -285,6 +286,7 @@
           </object>
           <packing>
             <property name="position">3</property>
+            <property name="name">3</property>
           </packing>
         </child>
       </object>
@@ -330,13 +332,27 @@
             <child>
               <object class="AnalysisFooter" id="analysis_footer">
                 <property name="visible">True</property>
-                <signal name="previous" handler="previous_page"/>
-                <signal name="save" handler="save_analyses"/>
+                <!-- <signal name="save" handler="save_analyses"/> -->
                 <signal name="stop" handler="cancel_analyses"/>
+                <signal name="previous" handler="previous_page"/> 
+                <signal name="next" handler="next_page"/>
               </object>
               <packing>
                 <property name="name">2</property>
                 <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="LinearFooter">
+                <property name="visible">True</property>
+                <property name="previous-label">Back</property> <!-- Label for Back button -->
+                <property name="next-label">New Application</property>
+                <signal name="next" handler="next_page"/> <!-- Signal for Next -->
+                <signal name="previous" handler="previous_page"/> <!-- Signal for Back -->
+              </object>
+              <packing>
+                <property name="name">3</property>
+                <property name="position">3</property>
               </packing>
             </child>
           </object>
