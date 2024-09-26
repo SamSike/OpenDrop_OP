@@ -25,5 +25,4 @@
 # should have received a copy of the GNU General Public License along
 # with this software.  If not, see <https://www.gnu.org/licenses/>.
 
-
-from .component import local_storage_cs
+from . import local_storage
