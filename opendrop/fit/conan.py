@@ -6,6 +6,8 @@ import numpy as np
 from opendrop.geometry import Line2, Vector2
 from opendrop.utility.misc import rotation_mat2d
 from opendrop.fit import line_fit, circle_fit
+from opendrop.fit.conan_ml.circular_fit import circular_fit
+
 
 
 __all__ = ('ContactAngleFitResult', 'contact_angle_fit')
@@ -38,7 +40,7 @@ class ContactAngleFitResult(NamedTuple):
     right_mask: Optional[np.ndarray]
 
 
-def contact_angle_fit(data: np.ndarray, baseline: Line2) -> ContactAngleFitResult:
+def contact_angle_fit(data: np.ndarray, baseline: Line2, method: str = 'line') -> ContactAngleFitResult:
     # Drop points in (x, y) image coordinates.
     xy = data
 
@@ -62,14 +64,14 @@ def contact_angle_fit(data: np.ndarray, baseline: Line2) -> ContactAngleFitResul
 
     rc = rz[0].mean()
 
-    left_mask  = rz[0] < rc
+    left_mask = rz[0] < rc
     right_mask = ~left_mask
 
-    left_rz  = rz[:, left_mask]
+    left_rz = rz[:, left_mask]
     right_rz = rz[:, right_mask]
-    
+
     # Approximates for left and right contact points.
-    left_contact_rz  = left_rz[:, 0]
+    left_contact_rz = left_rz[:, 0]
     right_contact_rz = right_rz[:, 0]
 
     left_dists = np.linalg.norm(left_rz - np.reshape(left_contact_rz, (2, 1)), axis=0)
@@ -78,9 +80,9 @@ def contact_angle_fit(data: np.ndarray, baseline: Line2) -> ContactAngleFitResul
     base_width = right_contact_rz[0] - left_contact_rz[0]
 
     # Fit an arc to points near the contact using base_width as a distance scale.
-    left_mask[left_mask]   &= left_dists  < 0.25 * base_width
+    left_mask[left_mask] &= left_dists < 0.25 * base_width
     right_mask[right_mask] &= right_dists < 0.25 * base_width
-    left_rz  = rz[:, left_mask]
+    left_rz = rz[:, left_mask]
     right_rz = rz[:, right_mask]
 
     left_angle = None
@@ -96,33 +98,61 @@ def contact_angle_fit(data: np.ndarray, baseline: Line2) -> ContactAngleFitResul
     right_arclengths = None
     right_residuals = None
 
-    left_arc_fit = _arc_fit(left_rz)
-    right_arc_fit = _arc_fit(right_rz)
+    # Fit as the selected method
+    if method == 'line':
+        left_arc_fit = _arc_fit(left_rz)
+        right_arc_fit = _arc_fit(right_rz)
+    elif method == 'circle':
+        left_arc_fit = _arc_circular_fit(left_rz)
+        right_arc_fit = _arc_circular_fit(right_rz)
+    elif method == 'circular':
+        left_fit_result = circular_fit(left_rz.T)
+        right_fit_result = circular_fit(right_rz.T)
+        left_arc_fit = _process_circular_fit(left_fit_result, left_rz, left=True)
+        right_arc_fit = _process_circular_fit(right_fit_result, right_rz, left=False)
+    else:
+        raise ValueError(f"Unknown method: {method}. Available options are 'line', 'circle', 'circular'.")
 
+    # Process left_arc_fit
     if left_arc_fit is not None:
         left_angle = left_arc_fit.angle
         if left_arc_fit.contact is not None:
-            left_contact_xy = Vector2(Q.T @ [left_arc_fit.contact, 0] + baseline.pt0)
+            if isinstance(left_arc_fit.contact, Vector2):
+                left_contact_xy = Vector2(Q.T @ [left_arc_fit.contact.x, left_arc_fit.contact.y] + baseline.pt0)
+            elif isinstance(left_arc_fit.contact, (list, tuple, np.ndarray)) and len(left_arc_fit.contact) == 2:
+                left_contact_xy = Vector2(Q.T @ np.array(left_arc_fit.contact) + baseline.pt0)
+            else:
+                left_contact_xy = Vector2(Q.T @ np.array([left_arc_fit.contact, 0]) + baseline.pt0)
         else:
-            # Use initial guess.
             left_contact_xy = Vector2(Q.T @ left_contact_rz + baseline.pt0)
         left_curvature = left_arc_fit.curvature
         if left_arc_fit.arc_center is not None:
-            left_arc_center_xy = Vector2(Q.T @ left_arc_fit.arc_center + baseline.pt0)
+            if isinstance(left_arc_fit.arc_center, Vector2):
+                left_arc_center_xy = Vector2(Q.T @ [left_arc_fit.arc_center.x, left_arc_fit.arc_center.y] + baseline.pt0)
+            else:
+                left_arc_center_xy = Vector2(Q.T @ np.array(left_arc_fit.arc_center) + baseline.pt0)
         left_arclengths = left_arc_fit.arclengths
         left_residuals = left_arc_fit.residuals
 
+    # Process right_arc_fit
     if right_arc_fit is not None:
         if right_arc_fit.angle is not None:
             right_angle = PI - right_arc_fit.angle
         if right_arc_fit.contact is not None:
-            right_contact_xy = Vector2(Q.T @ [right_arc_fit.contact, 0] + baseline.pt0)
+            if isinstance(right_arc_fit.contact, Vector2):
+                right_contact_xy = Vector2(Q.T @ [right_arc_fit.contact.x, right_arc_fit.contact.y] + baseline.pt0)
+            elif isinstance(right_arc_fit.contact, (list, tuple, np.ndarray)) and len(right_arc_fit.contact) == 2:
+                right_contact_xy = Vector2(Q.T @ np.array(right_arc_fit.contact) + baseline.pt0)
+            else:
+                right_contact_xy = Vector2(Q.T @ np.array([right_arc_fit.contact, 0]) + baseline.pt0)
         else:
-            # Use initial guess.
             right_contact_xy = Vector2(Q.T @ right_contact_rz + baseline.pt0)
         right_curvature = right_arc_fit.curvature
         if right_arc_fit.arc_center is not None:
-            right_arc_center_xy = Vector2(Q.T @ right_arc_fit.arc_center + baseline.pt0)
+            if isinstance(right_arc_fit.arc_center, Vector2):
+                right_arc_center_xy = Vector2(Q.T @ [right_arc_fit.arc_center.x, right_arc_fit.arc_center.y] + baseline.pt0)
+            else:
+                right_arc_center_xy = Vector2(Q.T @ np.array(right_arc_fit.arc_center) + baseline.pt0)
         right_arclengths = right_arc_fit.arclengths
         right_residuals = right_arc_fit.residuals
 
@@ -142,6 +172,7 @@ def contact_angle_fit(data: np.ndarray, baseline: Line2) -> ContactAngleFitResul
         left_mask[z_ix_inv],
         right_mask[z_ix_inv],
     )
+
 
 
 class _ArcFitResult(NamedTuple):
@@ -249,3 +280,86 @@ def _arc_circular_fit(data: np.ndarray) -> Optional[_ArcFitResult]:
         arclengths,
         residuals,
     )
+
+def _process_circular_fit(fit_result, data: np.ndarray, left: bool):
+    """
+    Processes the result from the 'circular' fitting method (conan_ml) and calculates arc parameters.
+
+    Parameters:
+    - fit_result: tuple
+        The result returned by the circular_fit function.
+    - data: np.ndarray
+        The (r, z) coordinates of the data points for one side.
+    - left: bool
+        True if processing the left side; False for the right side.
+
+    Returns:
+    - _ArcFitResult
+        The result of the arc fitting process.
+    """
+
+    # Unpack the results from circular_fit.
+    CA = fit_result[0]
+    center = fit_result[1]        # Center coordinates (xc, yc).
+    radius = fit_result[2]        # Radius of the fitted circle.
+    contact_points = fit_result[3]  # Contact points (intercepts): [(x1, y1), (x2, y2)].
+    error_metrics = fit_result[4]  # Dictionary of error metrics (not used here).
+    timings = fit_result[5]        # Timings (not used here).
+
+    xc, yc = center
+    R = radius
+
+    # Select the appropriate contact point based on the side.
+    contact = contact_points[0] if left else contact_points[1]
+
+    # Calculate the angle at the contact point.
+    q = np.arctan2(contact[1] - yc, contact[0] - xc)
+
+    # Calculate the contact angle.
+    angle = (q + np.pi / 2) % np.pi
+
+    # Calculate the curvature.
+    curvature = 1 / R
+    # Adjust the curvature sign based on the relative position.
+    if (xc > contact[0]) == left:
+        curvature *= -1
+
+    # Calculate residuals (differences between data point distances and radius).
+    distances = np.sqrt((data[0] - xc)**2 + (data[1] - yc)**2)
+    residuals = distances - R
+
+    # Calculate the angle theta for each data point.
+    theta = np.arctan2(data[1] - yc, data[0] - xc)
+
+    # Calculate the angle difference between each data point and the contact point.
+    delta_theta = np.unwrap(theta - q)
+
+    # Adjust delta_theta to start from zero.
+    delta_theta -= delta_theta[0]
+
+    # Ensure delta_theta increases positively.
+    if delta_theta[-1] < 0:
+        delta_theta = -delta_theta
+
+    # Convert angle differences to arclengths along the circle.
+    arclengths = delta_theta * R
+
+    return _ArcFitResult(
+        contact=contact,
+        angle=angle,
+        curvature=curvature,
+        arc_center=center,
+        arclengths=arclengths,
+        residuals=residuals
+    )
+
+    # Possible solution:
+    """
+    In the '_process_circular_fit' method, the arclengths are adjusted to start from zero at the contact point, whereas in the '_arc_circular_fit' method, there might be an offset based on how the arclengths are calculated.
+
+    To align the arclengths across methods, you might consider adding an offset to the arclengths in the '_process_circular_fit' method to match the starting point used in the '_arc_circular_fit' method.
+    """
+
+
+
+
