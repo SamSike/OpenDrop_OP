@@ -25,45 +25,47 @@ import time
 
 
 # This function replicates circular fit from Conan-ML
-def circular_fit(drop: np.ndarray, display: bool = False):
-    # Preprocess data from the input `drop`
-    CPs = [drop[0], drop[-1]]
+# Missing intersects, use original instead (line 1058)
+
+# def circular_fit(drop: np.ndarray, display: bool = False):
+#     # Preprocess data from the input `drop`
+#     CPs = [drop[0], drop[-1]]
     
-    # Calculate baseline and other parameters
-    x, y = drop[:, 0], drop[:, 1]
-    slope = (CPs[1][1] - CPs[0][1]) / (CPs[1][0] - CPs[0][0])
-    baseline = [(CPs[0][0], CPs[0][1]), slope]
-    c = CPs[0][1] - (slope * CPs[0][0])
+#     # Calculate baseline and other parameters
+#     x, y = drop[:, 0], drop[:, 1]
+#     slope = (CPs[1][1] - CPs[0][1]) / (CPs[1][0] - CPs[0][0])
+#     baseline = [(CPs[0][0], CPs[0][1]), slope]
+#     c = CPs[0][1] - (slope * CPs[0][0])
 
-    x_m = min(x) + (max(x) - min(x)) / 2
-    y_m = min(y) + ((max(y) - min(y)) / 2)
+#     x_m = min(x) + (max(x) - min(x)) / 2
+#     y_m = min(y) + ((max(y) - min(y)) / 2)
 
-    def calc_R(xc, yc):
-        return np.sqrt((x - xc)**2 + (y - yc)**2)
+#     def calc_R(xc, yc):
+#         return np.sqrt((x - xc)**2 + (y - yc)**2)
 
-    def f_2(c):
-        Ri = calc_R(*c)
-        return Ri - Ri.mean()
+#     def f_2(c):
+#         Ri = calc_R(*c)
+#         return Ri - Ri.mean()
 
-    center_estimate = x_m, y_m
-    center_2, _ = opt.leastsq(f_2, center_estimate)
+#     center_estimate = x_m, y_m
+#     center_2, _ = opt.leastsq(f_2, center_estimate)
 
-    xc_2, yc_2 = center_2
-    Ri_2 = np.sqrt((x - xc_2)**2 + (y - yc_2)**2)
-    R_2 = Ri_2.mean()
+#     xc_2, yc_2 = center_2
+#     Ri_2 = np.sqrt((x - xc_2)**2 + (y - yc_2)**2)
+#     R_2 = Ri_2.mean()
 
-    if display:
-        print('Center: ', center_2)
-        print('Radius: ', R_2)
+#     if display:
+#         print('Center: ', center_2)
+#         print('Radius: ', R_2)
 
-        # Visualize the result
-        circle = plt.Circle((xc_2, yc_2), R_2, color='r', fill=False)
-        fig, ax = plt.subplots()
-        ax.plot(x, y, 'b-')
-        ax.add_artist(circle)
-        plt.show()
+#         # Visualize the result
+#         circle = plt.Circle((xc_2, yc_2), R_2, color='r', fill=False)
+#         fig, ax = plt.subplots()
+#         ax.plot(x, y, 'b-')
+#         ax.add_artist(circle)
+#         plt.show()
 
-    return xc_2, yc_2, R_2
+#     return xc_2, yc_2, R_2
 
 
 
