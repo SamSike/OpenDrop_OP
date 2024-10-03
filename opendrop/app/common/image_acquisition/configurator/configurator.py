@@ -34,6 +34,7 @@ from injector import inject
 from opendrop.app.common.services.acquisition import (
     GenicamAcquirer,
     ImageAcquirer,
+    Flea3Acquirer,
     LocalStorageAcquirer,
     USBCameraAcquirer,
 )
@@ -60,12 +61,15 @@ class ImageAcquisitionConfiguratorPresenter(Presenter[Gtk.Bin]):
         self.update_configurator()
 
     def update_configurator(self):
-        if not self.view_ready: return
+        if not self.view_ready:
+            return
 
         acquirer = self._acquirer
         if acquirer is None:
             self.remove_configurator()
         elif isinstance(acquirer, LocalStorageAcquirer):
+            self.load_local_storage_configurator()
+        elif isinstance(acquirer, Flea3Acquirer):
             self.load_local_storage_configurator()
         elif isinstance(acquirer, USBCameraAcquirer):
             self.load_usb_camera_configurator()
@@ -96,6 +100,17 @@ class ImageAcquisitionConfiguratorPresenter(Presenter[Gtk.Bin]):
 
         self.configurator_component.view_rep.show()
         self.host.add(self.configurator_component.view_rep)
+
+    def load_flea3_configurator(self) -> None:
+        self.remove_configurator()
+
+        configurator = self.cf.create(
+            'ImageAcquisitionConfiguratorFlea3',
+            acquirer=self._acquirer,
+            visible=True,
+        )
+
+        self.host.add(configurator)
 
     def load_usb_camera_configurator(self) -> None:
         self.remove_configurator()

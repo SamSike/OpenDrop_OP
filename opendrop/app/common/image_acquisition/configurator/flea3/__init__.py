@@ -26,10 +26,4 @@
 # with this software.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from .base import ImageAcquirer, InputImage
-from .camera import CameraAcquirer
-from .image_sequence import ImageSequenceAcquirer
-from .flea3 import Flea3Acquirer
-from .local_storage import LocalStorageAcquirer
-from .usb_camera import USBCameraAcquirer
-from .genicam import GenicamAcquirer
+from .component import local_storage_cs
