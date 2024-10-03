@@ -32,6 +32,19 @@ from gi.repository import Gtk, GObject
 
 
 class FileChooserButton(Gtk.Button):
+    __gtype_name__ = "FileChooserButton"
+    _FILE_INPUT_FILTER = Gtk.FileFilter()
+
+    # OpenCV supported image types
+    _FILE_INPUT_FILTER.add_mime_type('image/bmp')
+    _FILE_INPUT_FILTER.add_mime_type('image/png')
+    _FILE_INPUT_FILTER.add_mime_type('image/jpeg')
+    _FILE_INPUT_FILTER.add_mime_type('image/jp2')
+    _FILE_INPUT_FILTER.add_mime_type('image/tiff')
+    _FILE_INPUT_FILTER.add_mime_type('image/webp')
+    _FILE_INPUT_FILTER.add_mime_type('image/x‑portable‑anymap')
+    _FILE_INPUT_FILTER.add_mime_type('image/vnd.radiance')
+
     def __init__(
             self,
             label: str = 'Choose files',
@@ -47,9 +60,9 @@ class FileChooserButton(Gtk.Button):
         self._file_paths: Tuple[str] = tuple()
 
         self.dialog_title = dialog_title
-        self.file_filter = file_filter
+        # self.file_filter = file_filter
         self.select_multiple = select_multiple
-
+        self.file_filter = FileChooserButton._FILE_INPUT_FILTER
         self._active_dialog: Optional[Gtk.FileChooserNative] = None
 
     def do_clicked(self) -> None:
@@ -66,7 +79,8 @@ class FileChooserButton(Gtk.Button):
 
         self._active_dialog.props.modal = True
         self._active_dialog.props.select_multiple = True
-        self._active_dialog.props.filter = self.file_filter
+        # add filter to the dialog
+        self._active_dialog.add_filter(self.file_filter)
 
         def hdl_file_chooser_dialog_response(dialog: Gtk.FileChooserDialog, response: Gtk.ResponseType):
             if response == Gtk.ResponseType.ACCEPT:
@@ -81,6 +95,15 @@ class FileChooserButton(Gtk.Button):
 
         self._active_dialog.connect('response', hdl_file_chooser_dialog_response)
         self._active_dialog.show()
+
+    
+    # @GObject.Property(type=str)
+    # def dialog_title(self) -> str:
+    #     return self.dialog_title
+
+    # @dialog_title.setter
+    # def dialog_title(self, value: str) -> None:
+    #     self.dialog_title = value
 
     @GObject.Property
     def file_paths(self) -> Tuple[str]:

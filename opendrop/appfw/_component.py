@@ -45,7 +45,7 @@ def register_component(
 
     template = Gio.resources_lookup_data(template_path, Gio.ResourceLookupFlags.NONE).get_data().decode()
     component_spec = ComponentSpec(presenter_class, template, modules, auto_bind)
-    print("template: ",template_path)
+    # print("template: ",template_path)
     template_info = TemplateInfo(template)
     host_name = template_info.name
     host_parent = template_info.parent
@@ -82,10 +82,10 @@ def register_component(
         'do_get_property': _component_get_property,
         'do_set_property': _component_set_property,
     }
-    print("host_name: "+host_name)
-    print(host_parent)
-    print("namespace")
-    print(namespace)
+    # print("host_name: "+host_name)
+    # print(host_parent)
+    # print("namespace")
+    # print(namespace)
     host_type = GObjectMeta(host_name, (host_parent,), namespace)
 
     # Not really necessary, but make it explicit that creating a new GObject subclass has a side-effect that
@@ -169,7 +169,7 @@ def _component_init(self, **properties) -> None:
 
     
     presenter.host = self
-    print("host assign: ",presenter.host)
+    # print("host assign: ",presenter.host)
     # Create template builder.
     builder = Gtk.Builder()
     builder.expose_object('@', presenter)

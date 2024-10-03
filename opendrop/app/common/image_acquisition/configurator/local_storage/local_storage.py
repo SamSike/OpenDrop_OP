@@ -44,49 +44,58 @@ from opendrop.widgets.file_chooser_button import FileChooserButton
 
 
 class ImageAcquisitionConfiguratorLocalStoragePresenter(Presenter):
-    file_chooser_button: TemplateChild[Gtk.FileChooserButton] = TemplateChild('file_chooser_button')
+    file_chooser_button: TemplateChild[FileChooserButton] = TemplateChild('file_chooser_button')
     frame_interval_entry: TemplateChild[FloatEntry] = TemplateChild('frame_interval_entry')
+    frame_interval_grid: TemplateChild[Gtk.Label] = TemplateChild('frame_interval_grid')
+   
 
     @inject
     def __init__(self, cf: ComponentFactory) -> None:
         self.cf = cf
         self.event_connections = ()
+        
        
     def after_view_init(self) -> None:
-        self.bn_selected_image_paths = self.file_chooser_button.get_filenames()
-
+        self.bn_selected_image_paths = GObjectPropertyBindable(self.file_chooser_button, 'file-paths')
+        self.bn_frame_interval_sensitive =  GObjectPropertyBindable(self.frame_interval_entry, 'sensitive')
+        self.bn_frame_interval_visible =  GObjectPropertyBindable(self.frame_interval_entry, 'visible')
+        self.bn_frame_interval_visibility =  GObjectPropertyBindable(self.frame_interval_grid, 'visible')
+        print("bn_frame_interval_sensitive: ",self.bn_frame_interval_sensitive.get())
+        print("bn_frame_interval_visibility: ",self.bn_frame_interval_visibility.get())
+        # self.file_chooser_button
         self.event_connections = [
             self.acquirer.bn_last_loaded_paths.on_changed.connect(self._hdl_model_last_loaded_paths_changed),
-            self.acquirer.bn_frame_interval.on_changed.connect(self.acquirer_frame_interval_changed),
-            self.file_chooser_button.connect("file-set", self._hdl_view_selected_image_paths_changed)
+            # self.acquirer.bn_frame_interval.on_changed.connect(self.acquirer_frame_interval_changed),
+            self.bn_selected_image_paths.on_changed.connect(self._hdl_view_selected_image_paths_changed)
+        
         ]
 
         self._hdl_model_last_loaded_paths_changed()
-        self.acquirer_frame_interval_changed()
-        self._update_frame_interval_sensitivity()
-
-    def acquirer_frame_interval_changed(self) -> None:
-        self.notify('frame-interval')
-
-    def _update_frame_interval_sensitivity(self) -> None:
-        # Check the number of loaded images
-        if len(self.acquirer.bn_last_loaded_paths.get()) == 1:
-            self.frame_interval_entry.set_sensitive(False)  # Disable if only one image
-        else:
-            self.frame_interval_entry.set_sensitive(True)   # Enable if more than one image
+        # self.acquirer_frame_interval_changed()
 
     def _hdl_model_last_loaded_paths_changed(self) -> None:
-        self._update_frame_interval_sensitivity()
+        print("_hdl_model_last_loaded_paths_changed",len(self._acquirer.bn_images.get()))
+        if len(self._acquirer.bn_images.get()) <= 1:
+            self.bn_frame_interval_visibility.set(False)
+            self.bn_frame_interval_sensitive.set(False)
+            self.bn_frame_interval_visible.set(False)
+            # self.notify('frame_interval_enabled')
+        else:
+           self.bn_frame_interval_visibility.set(True)
+           self.bn_frame_interval_sensitive.set(True)
+           self.bn_frame_interval_visible.set(True)
+        #    self.notify('frame_interval_enabled')
 
         last_loaded_paths = self._acquirer.bn_last_loaded_paths.get()
-        selected_image_paths = self.bn_selected_image_paths
+        selected_image_paths = self.bn_selected_image_paths.get()
 
         if set(last_loaded_paths) != set(selected_image_paths):
-            self.bn_selected_image_paths = last_loaded_paths
+            self.bn_selected_image_paths.set(last_loaded_paths)
 
     def _hdl_view_selected_image_paths_changed(self) -> None:
+        print("_hdl_view_selected_image_paths_changed")
         last_loaded_paths = self._acquirer.bn_last_loaded_paths.get()
-        selected_image_paths = self.bn_selected_image_paths
+        selected_image_paths = self.bn_selected_image_paths.get()
 
         if set(last_loaded_paths) == set(selected_image_paths):
             return

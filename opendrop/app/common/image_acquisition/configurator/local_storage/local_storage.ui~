@@ -32,10 +32,11 @@
               </packing>
             </child>
             <child>
-              <object class="FileChooserButton" id="file_chooser_button">
+              <object class="GtkFileChooserButton" id="file_chooser_button">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="label">Choose files</property>
+                <property name="title">Choose files</property>
+                <property name="width-chars">14</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -51,8 +52,8 @@
           </packing>
         </child>
         <child>
-          <object class="GtkLabel" id = "frame_interval_grid">
-            <property name="visible">False</property>
+          <object class="GtkLabel">
+            <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="label" translatable="yes">Frame interval (s):</property>
             <property name="xalign">0</property>
@@ -63,19 +64,12 @@
           </packing>
         </child>
         <child>
-        <!-- frame_interval_lbl = Gtk.Label('Frame interval (s):')
-        self._widget.attach(frame_interval_lbl, 0, 1, 1, 1)
-
-        frame_interval_inp_container = Gtk.Grid()
-        self._widget.attach_next_to(frame_interval_inp_container, frame_interval_lbl, Gtk.PositionType.RIGHT, 1, 1)
-
-        self._frame_interval_inp = FloatEntry(lower=0, width_chars=6, invisible_char='\0', caps_lock_warning=False)
-        self._frame_interval_inp.get_style_context().add_class('small-pad')
-        frame_interval_inp_container.add(self._frame_interval_inp) -->
           <object class="FloatEntry" id="frame_interval_entry">
-            <property name="visible">False</property>
-            <property name="value" bind-source="@" bind-property="frame_interval" bind-flags="bidirectional|sync-create"/>
-            <property name="sensitive">True</property>
+            <property name="visible">True</property>
+            <property name="invisible-char"/>
+            <property name="value" bind-source="@" bind-property="frame-interval" bind-flags="sync-create|bidirectional"/>
+            <property name="sensitive" bind-source="@" bind-property="frame-interval-enabled" bind-flags="sync-create"/>
+            <property name="visibility" bind-source="@" bind-property="frame-interval-enabled" bind-flags="sync-create"/>
             <property name="can_focus">True</property>
             <property name="halign">start</property>
             <property name="width_chars">6</property>
@@ -130,15 +124,6 @@
             <property name="left-attach">2</property>
             <property name="top-attach">1</property>
           </packing>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
         </child>
       </object>
     </child>

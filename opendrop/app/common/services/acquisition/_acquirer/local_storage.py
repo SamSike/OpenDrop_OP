@@ -57,6 +57,6 @@ class LocalStorageAcquirer(ImageSequenceAcquirer):
             image.flags.writeable = False
 
             images.append(image)
-
+        # print("images: ",images)
         self.bn_images.set(images)
         self.bn_last_loaded_paths.set(tuple(image_paths))
