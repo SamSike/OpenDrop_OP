@@ -60,8 +60,7 @@ class ImageAcquisitionConfiguratorLocalStoragePresenter(Presenter):
         self.bn_frame_interval_sensitive =  GObjectPropertyBindable(self.frame_interval_entry, 'sensitive')
         self.bn_frame_interval_visible =  GObjectPropertyBindable(self.frame_interval_entry, 'visible')
         self.bn_frame_interval_visibility =  GObjectPropertyBindable(self.frame_interval_grid, 'visible')
-        print("bn_frame_interval_sensitive: ",self.bn_frame_interval_sensitive.get())
-        print("bn_frame_interval_visibility: ",self.bn_frame_interval_visibility.get())
+  
         # self.file_chooser_button
         self.event_connections = [
             self.acquirer.bn_last_loaded_paths.on_changed.connect(self._hdl_model_last_loaded_paths_changed),
@@ -74,7 +73,7 @@ class ImageAcquisitionConfiguratorLocalStoragePresenter(Presenter):
         # self.acquirer_frame_interval_changed()
 
     def _hdl_model_last_loaded_paths_changed(self) -> None:
-        print("_hdl_model_last_loaded_paths_changed",len(self._acquirer.bn_images.get()))
+        # print("_hdl_model_last_loaded_paths_changed",len(self._acquirer.bn_images.get()))
         if len(self._acquirer.bn_images.get()) <= 1:
             self.bn_frame_interval_visibility.set(False)
             self.bn_frame_interval_sensitive.set(False)
@@ -93,7 +92,7 @@ class ImageAcquisitionConfiguratorLocalStoragePresenter(Presenter):
             self.bn_selected_image_paths.set(last_loaded_paths)
 
     def _hdl_view_selected_image_paths_changed(self) -> None:
-        print("_hdl_view_selected_image_paths_changed")
+        # print("_hdl_view_selected_image_paths_changed")
         last_loaded_paths = self._acquirer.bn_last_loaded_paths.get()
         selected_image_paths = self.bn_selected_image_paths.get()
 
@@ -108,6 +107,8 @@ class ImageAcquisitionConfiguratorLocalStoragePresenter(Presenter):
 
         for ec in self.__event_connections:
             ec.disconnect()
+    
+    # <property name="value" bind-source="@" bind-property="frame_interval" bind-flags="bidirectional|sync-create"/>
     @GObject.Property(flags=GObject.ParamFlags.READWRITE|GObject.ParamFlags.EXPLICIT_NOTIFY)
     def frame_interval(self) -> Optional[float]:
         return self.acquirer.bn_frame_interval.get()

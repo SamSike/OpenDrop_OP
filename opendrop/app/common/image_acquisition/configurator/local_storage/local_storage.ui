@@ -63,15 +63,6 @@
           </packing>
         </child>
         <child>
-        <!-- frame_interval_lbl = Gtk.Label('Frame interval (s):')
-        self._widget.attach(frame_interval_lbl, 0, 1, 1, 1)
-
-        frame_interval_inp_container = Gtk.Grid()
-        self._widget.attach_next_to(frame_interval_inp_container, frame_interval_lbl, Gtk.PositionType.RIGHT, 1, 1)
-
-        self._frame_interval_inp = FloatEntry(lower=0, width_chars=6, invisible_char='\0', caps_lock_warning=False)
-        self._frame_interval_inp.get_style_context().add_class('small-pad')
-        frame_interval_inp_container.add(self._frame_interval_inp) -->
           <object class="FloatEntry" id="frame_interval_entry">
             <property name="visible">False</property>
             <property name="value" bind-source="@" bind-property="frame_interval" bind-flags="bidirectional|sync-create"/>

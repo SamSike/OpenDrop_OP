@@ -26,36 +26,16 @@
 # with this software.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import math
-from abc import ABC, abstractmethod
-from typing import Sequence, Optional, Tuple
-
-import numpy as np
+from gi.repository import Gtk
 
 
-class ImageAcquirer(ABC):
-    @abstractmethod
-    def acquire_images(self) -> Sequence['InputImage']:
-        """Implementation of acquire_images()"""
-    @abstractmethod
-    def acquire_interval(self) -> bool:
-        """Implementation of acquire_images()"""
+class InfoDialog(Gtk.MessageDialog):
+    def __init__(self, **options) -> None:
+        super().__init__(
+            flags=Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            type=Gtk.MessageType.WARNING,
+            buttons=Gtk.ButtonsType.OK,
+            resizable=False,
+            **options
+        )
 
-    @abstractmethod
-    def get_image_size_hint(self) -> Optional[Tuple[int, int]]:
-        """Implementation of get_image_size_hint()"""
-
-    def destroy(self) -> None:
-        """Destroy this object, perform any necessary cleanup tasks."""
-
-
-class InputImage(ABC):
-    est_ready = math.nan
-    is_replicated = False
-
-    @abstractmethod
-    async def read(self) -> Tuple[np.ndarray, float]:
-        """Return the image and timestamp."""
-
-    def cancel(self) -> None:
-        pass

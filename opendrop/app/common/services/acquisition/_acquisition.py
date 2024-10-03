@@ -88,6 +88,13 @@ class ImageAcquisitionService:
             raise ValueError('No acquirer chosen yet')
 
         return self._acquirer.acquire_images()
+    
+    # ImageSequenceAcquirer
+    def acquire_interval(self) -> bool:
+        if self._acquirer is None:
+            raise ValueError('No acquirer chosen yet')
+
+        return self._acquirer.acquire_interval()
 
     def get_image_size_hint(self) -> Optional[Tuple[int, int]]:
         """Return the size that the acquired images will have. If a sensible size cannot be determined, return None.

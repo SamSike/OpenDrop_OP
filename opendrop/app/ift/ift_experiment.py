@@ -32,6 +32,7 @@ from injector import inject
 from opendrop.app.common.footer.analysis import AnalysisFooterStatus
 from opendrop.appfw import Presenter, TemplateChild, component
 from opendrop.widgets.yes_no_dialog import YesNoDialog
+from opendrop.widgets.info_dialog import InfoDialog
 
 from .analysis_saver import ift_save_dialog_cs
 from .services.progress import IFTAnalysisProgressHelper
@@ -89,8 +90,25 @@ class IFTExperimentPresenter(Presenter[Gtk.Box]):
         self.action_area.set_visible_child_name(str(cur_page))
 
     def next_page(self, *_) -> None:
+
         cur_page = self.stack.get_visible_child_name()
         if cur_page == "0":
+            # the frame interval is none if mutiple image choose
+            if(not self.session._image_acquisition.acquire_interval()):
+               
+                self.frame_interval_dialog = InfoDialog(
+                    parent=self.host.get_toplevel(),
+                    message_format='The frame interval is missing',
+                )
+                def hdl_response(dialog: Gtk.Dialog, response: Gtk.ResponseType) -> None:
+                    del self.frame_interval_dialog
+
+                    if response == Gtk.ResponseType.OK:
+                        dialog.destroy()
+
+                self.frame_interval_dialog.connect('response', hdl_response)
+                self.frame_interval_dialog.show()
+                return  # Stop proceeding to the next page
             self.stack.set_visible_child_name("1")
             self.action_area.set_visible_child_name("1")
             self.image_preparation.set_from_icon_name("gtk-yes", Gtk.IconSize.BUTTON)
@@ -165,6 +183,18 @@ class IFTExperimentPresenter(Presenter[Gtk.Box]):
         self.cancel_dialog.connect('response', hdl_response)
 
         self.cancel_dialog.show()
+
+    # def show_dialog(self, title: str, message: str) -> None:
+    #     dialog = Gtk.MessageDialog(
+    #         transient_for=self.host,
+    #         flags=0,
+    #         message_type=Gtk.MessageType.INFO,
+    #         buttons=Gtk.ButtonsType.OK,
+    #         text=title,
+    #     )
+    #     dialog.format_secondary_text(message)
+    #     dialog.run()
+    #     dialog.destroy()
 
     def save_analyses(self, *_) -> None:
         if hasattr(self, 'save_dialog_component'): return
