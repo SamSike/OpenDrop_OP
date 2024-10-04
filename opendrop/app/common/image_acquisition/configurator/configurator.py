@@ -36,6 +36,7 @@ from opendrop.app.common.services.acquisition import (
     ImageAcquirer,
     LocalStorageAcquirer,
     USBCameraAcquirer,
+    Flea3Acquirer,
 )
 from opendrop.appfw import Presenter, ComponentFactory, TemplateChild, component, install
 
@@ -71,6 +72,8 @@ class ImageAcquisitionConfiguratorPresenter(Presenter[Gtk.Bin]):
             self.load_usb_camera_configurator()
         elif isinstance(acquirer, GenicamAcquirer):
             self.load_genicam_configurator()
+        elif isinstance(acquirer, Flea3Acquirer):
+            self.load_flea3_configurator()
         else:
             raise ValueError(
                 "No configurator available for acquirer '{}'"
@@ -121,6 +124,17 @@ class ImageAcquisitionConfiguratorPresenter(Presenter[Gtk.Bin]):
 
         configurator = self.cf.create(
             'ImageAcquisitionConfiguratorGenicam',
+            acquirer=self._acquirer,
+            visible=True,
+        )
+
+        self.host.add(configurator)
+
+    def load_flea3_configurator(self) -> None:
+        self.remove_configurator()
+
+        configurator = self.cf.create(
+            'ImageAcquisitionConfiguratorFlea3',
             acquirer=self._acquirer,
             visible=True,
         )

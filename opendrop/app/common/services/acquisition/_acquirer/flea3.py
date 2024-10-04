@@ -25,5 +25,30 @@
 # should have received a copy of the GNU General Public License along
 # with this software.  If not, see <https://www.gnu.org/licenses/>.
 
+from pathlib import Path
+from typing import Union, MutableSequence
 
-from . import configurator, usb_camera, genicam, local_storage,flea3
+import cv2
+import subprocess
+import numpy as np
+
+from opendrop.utility.bindable import VariableBindable
+from .image_sequence import ImageSequenceAcquirer
+
+
+class Flea3Acquirer(ImageSequenceAcquirer):
+    def __init__(self) -> None:
+        super().__init__()
+        self.bn_last_loaded_paths = VariableBindable(tuple())  # type: VariableBindable[Sequence[Path]]
+
+    def load_image(self, color_image: int = 0, file_name: Union[Path, str] = 'FCG.pgm'):
+        subprocess.call(["./FCGrab"])
+        image = cv2.imread(file_name, color_image)
+
+        if image is None:
+            raise ValueError(f"Failed to load image from '{file_name}'")
+
+        image.flags.writeable = False
+        images: MutableSequence[np.ndarray] = [image]
+        self.bn_images.set(images)
+        self.bn_last_loaded_paths.set(tuple(file_name))

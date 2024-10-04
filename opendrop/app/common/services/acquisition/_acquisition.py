@@ -31,7 +31,7 @@ from typing import Optional, Tuple, Sequence
 
 from injector import singleton
 
-from ._acquirer import ImageAcquirer, InputImage, LocalStorageAcquirer, USBCameraAcquirer, GenicamAcquirer
+from ._acquirer import ImageAcquirer, InputImage, LocalStorageAcquirer, USBCameraAcquirer, GenicamAcquirer,Flea3Acquirer
 from opendrop.utility.bindable import AccessorBindable
 
 
@@ -55,6 +55,8 @@ class ImageAcquisitionService:
             return AcquirerType.USB_CAMERA
         elif isinstance(acquirer, GenicamAcquirer):
             return AcquirerType.GENICAM
+        elif isinstance(acquirer, Flea3Acquirer):
+            return AcquirerType.FLEA3
         else:
             raise ValueError(
                 "Unknown acquirer '{}'"
@@ -75,6 +77,8 @@ class ImageAcquisitionService:
             new_acquirer = USBCameraAcquirer()
         elif acquirer_type is AcquirerType.GENICAM:
             new_acquirer = GenicamAcquirer()
+        elif acquirer_type is AcquirerType.FLEA3:
+            new_acquirer = Flea3Acquirer()
         else:
             raise ValueError(
                 "Unknown acquirer type '{}'"
@@ -124,6 +128,7 @@ class AcquirerType(Enum):
     LOCAL_STORAGE = ('Filesystem',)
     USB_CAMERA = ('cv2.VideoCapture',)
     GENICAM = ('GenICam',)
+    FLEA3 = ('Flea3')
 
     def __init__(self, display_name: str) -> None:
         self.display_name = display_name

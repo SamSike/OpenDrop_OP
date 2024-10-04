@@ -32,3 +32,4 @@ from .image_sequence import ImageSequenceAcquirer
 from .local_storage import LocalStorageAcquirer
 from .usb_camera import USBCameraAcquirer
 from .genicam import GenicamAcquirer
+from .flea3 import Flea3Acquirer
