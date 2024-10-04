@@ -94,7 +94,7 @@ class ImageAcquisitionService:
         return self._acquirer.acquire_images()
     
     # ImageSequenceAcquirer
-    def acquire_interval(self) -> bool:
+    def acquire_interval(self) -> tuple[bool, str]:
         if self._acquirer is None:
             raise ValueError('No acquirer chosen yet')
 

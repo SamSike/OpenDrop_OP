@@ -94,11 +94,12 @@ class IFTExperimentPresenter(Presenter[Gtk.Box]):
         cur_page = self.stack.get_visible_child_name()
         if cur_page == "0":
             # the frame interval is none if mutiple image choose
-            if(not self.session._image_acquisition.acquire_interval()):
+            result, message = self.session._image_acquisition.acquire_interval()
+            if(not result):
                
                 self.frame_interval_dialog = InfoDialog(
                     parent=self.host.get_toplevel(),
-                    message_format='The frame interval is missing',
+                    message_format = message,
                 )
                 def hdl_response(dialog: Gtk.Dialog, response: Gtk.ResponseType) -> None:
                     del self.frame_interval_dialog

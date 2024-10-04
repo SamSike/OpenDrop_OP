@@ -38,7 +38,7 @@ class ImageAcquirer(ABC):
     def acquire_images(self) -> Sequence['InputImage']:
         """Implementation of acquire_images()"""
     @abstractmethod
-    def acquire_interval(self) -> bool:
+    def acquire_interval(self) -> tuple[bool, str]:
         """Implementation of acquire_images()"""
 
     @abstractmethod
