@@ -40,13 +40,23 @@ class Flea3Acquirer(ImageSequenceAcquirer):
     def __init__(self) -> None:
         super().__init__()
 
-    def load_image(self, color_image: int = 0, file_name: Union[Path, str] = 'FCG.pgm'):
-        subprocess.call(["./FCGrab"])
-        image = cv2.imread(file_name, color_image)
 
-        if image is None:
-            raise ValueError(f"Failed to load image from '{file_name}'")
+def load_image(self, color_image: int = cv2.IMREAD_COLOR, file_name: Union[Path, str] = 'FCG.pgm'):
+    '''
+    color_image: 
+        cv2.IMREAD_UNCHANGED    (-1)
+        cv2.IMREAD_GRAYSCALE    (0)
+        cv2.IMREAD_COLOR        (1) (default) (BGR colors)
+        cv2.IMREAD_ANYDEPTH     (2)
+        cv2.IMREAD_ANYCOLOR     (4)
+    '''
 
-        image.flags.writeable = False
-        images: MutableSequence[np.ndarray] = [image]
-        self.bn_images.set(images)
+    subprocess.call(["./FCGrab"])
+    image = cv2.imread(str(file_name), color_image)
+
+    if image is None:
+        raise ValueError(f"Failed to load image from '{file_name}'")
+
+    image.flags.writeable = False
+    images: MutableSequence[np.ndarray] = [image]
+    self.bn_images.set(images)
