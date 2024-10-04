@@ -49,9 +49,11 @@ class ImageSequenceAcquirer(ImageAcquirer):
         frame_interval = self.bn_frame_interval.get()
         
         # Check if the 'frame_interval' is None or less than or equal to zero
-        if frame_interval is None and len(images) == 0:
+        if frame_interval is None:
+            if len(images) > 1:
+                return False
             # Return False if it's invalid
-            return False
+            return True
         else:
             # Return True if it's valid
             return True

@@ -48,6 +48,21 @@ class CameraAcquirer(ImageAcquirer):
         self.bn_num_frames = VariableBindable(1)
         self.bn_frame_interval = VariableBindable(None)  # type: Bindable[Optional[float]]
 
+    def acquire_interval(self) -> bool:
+        images = self.bn_camera.get()
+        # Get the value of 'frame_interval'
+        frame_interval = self.bn_frame_interval.get()
+        
+        # Check if the 'frame_interval' is None or less than or equal to zero
+        if frame_interval is None:
+            if len(images) > 1:
+                return False
+            # Return False if it's invalid
+            return True
+        else:
+            # Return True if it's valid
+            return True
+        
     def acquire_images(self) -> Sequence[InputImage]:
         camera = self.bn_camera.get()
 
