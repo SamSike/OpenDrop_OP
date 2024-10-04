@@ -20,8 +20,10 @@
             <child>
               <object class="LinearFooter">
                 <property name="visible">True</property>
-                <property name="previous-label"></property>
-                <signal name="next" handler="next_page"/>
+                <property name="previous-label">Back To Exit</property> <!-- Label for Back button -->
+                <property name="next-label">Next</property>
+                <signal name="next" handler="next_page"/> <!-- Signal for Next -->
+                <signal name="previous" handler="previous_page"/> <!-- Signal for Back -->
               </object>
               <packing>
                 <property name="name">0</property>

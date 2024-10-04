@@ -32,6 +32,7 @@ from injector import inject
 from opendrop.app.common.footer.analysis import AnalysisFooterStatus
 from opendrop.appfw import Presenter, TemplateChild, component
 from opendrop.widgets.yes_no_dialog import YesNoDialog
+from opendrop.widgets.info_dialog import InfoDialog
 
 from .save_dialog import conan_save_dialog_cs
 from .services.progress import ConanAnalysisProgressHelper
@@ -88,6 +89,21 @@ class ConanExperimentPresenter(Presenter[Gtk.Assistant]):
     def next_page(self, *_) -> None:
         cur_page = self.host.get_current_page()
         if cur_page == 0:
+            result, message = self.session._image_acquisition.acquire_interval()
+            if(not result):
+                self.frame_interval_dialog = InfoDialog(
+                    parent=self.host.get_toplevel(),
+                    message_format = message,
+                )
+                def hdl_response(dialog: Gtk.Dialog, response: Gtk.ResponseType) -> None:
+                    del self.frame_interval_dialog
+
+                    if response == Gtk.ResponseType.OK:
+                        dialog.destroy()
+
+                self.frame_interval_dialog.connect('response', hdl_response)
+                self.frame_interval_dialog.show()
+                return 
             self.host.next_page()
         elif cur_page == 1:
             self.start_analyses()
@@ -99,6 +115,7 @@ class ConanExperimentPresenter(Presenter[Gtk.Assistant]):
     def previous_page(self, *_) -> None:
         cur_page = self.host.get_current_page()
         if cur_page == 0:
+            result, message = self.session._image_acquisition.acquire_interval()
             # Ignore, on first page.
             return
         elif cur_page == 1:
