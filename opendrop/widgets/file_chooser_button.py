@@ -42,8 +42,10 @@ class FileChooserButton(Gtk.Button):
     _FILE_INPUT_FILTER.add_mime_type('image/jp2')
     _FILE_INPUT_FILTER.add_mime_type('image/tiff')
     _FILE_INPUT_FILTER.add_mime_type('image/webp')
-    _FILE_INPUT_FILTER.add_mime_type('image/x‑portable‑anymap')
-    _FILE_INPUT_FILTER.add_mime_type('image/x-portable-graymap')  # PGM format (Portable GrayMap)
+    _FILE_INPUT_FILTER.add_mime_type('image/x-pgm') 
+    _FILE_INPUT_FILTER.add_mime_type('image/x-portable-anymap')  # PAM format
+    _FILE_INPUT_FILTER.add_mime_type('image/x-portable-graymap')  # Correct for PGM
+    _FILE_INPUT_FILTER.add_mime_type('image/x-portable-bitmap')  # PBM format
     _FILE_INPUT_FILTER.add_mime_type('image/vnd.radiance')
 
 

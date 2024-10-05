@@ -41,7 +41,7 @@ class Flea3Acquirer(ImageSequenceAcquirer):
         super().__init__()
         self.bn_last_loaded_paths = VariableBindable(tuple())  # type: VariableBindable[Sequence[Path]]
 
-    def load_image(self, color_image: int = 0, file_name: Union[Path, str] = 'FCG.pgm'):
+    def load_image_paths(self, color_image: int = 0, file_name: Union[Path, str] = 'FCG.pgm'):
         subprocess.call(["./FCGrab"])
         image = cv2.imread(file_name, color_image)
 
