@@ -1,4 +1,4 @@
-from gi.repository import GObject
+from gi.repository import GObject,Gtk
 
 from opendrop.appfw import Presenter, component, install
 
@@ -11,6 +11,11 @@ class MainMenuPresenter(Presenter):
     def version_text(self) -> str:
         from opendrop import __version__ as version
         return 'Version: {}'.format(version)
+    
+    def exit_btn_clicked(self, *_) -> None:
+        self.exit_application.emit()
+
+
 
     def ift_btn_clicked(self, *_) -> None:
         self.ift.emit()
@@ -25,3 +30,8 @@ class MainMenuPresenter(Presenter):
     @install
     @GObject.Signal
     def conan(self) -> None: pass
+
+    @install
+    @GObject.Signal
+    def exit_application(self) -> None: pass  # Define the exit signal
+

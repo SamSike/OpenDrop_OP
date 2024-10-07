@@ -20,7 +20,7 @@
             <property name="can-focus">False</property>
             <property name="halign">baseline</property>
             <property name="margin-right">1</property>
-            <property name="spacing">320</property>
+            <property name="spacing">1</property>
             <child>
               <object class="GtkButton">
                 <property name="visible">True</property>
@@ -66,6 +66,28 @@
               </packing>
             </child>
             <child>
+              <object class="GtkButton" id="exit">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="clicked" handler="exit_btn_clicked" swapped="no"/>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="pixel-size">15</property>
+                    <property name="icon-name">edit-delete</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack-type">end</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkButton">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -83,6 +105,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
+                <property name="pack-type">end</property>
                 <property name="position">2</property>
               </packing>
             </child>

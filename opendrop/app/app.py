@@ -82,6 +82,7 @@ class OpendropApplication(Gtk.Application):
         self._current_window = cast(Gtk.Window, self._cf.create('MainMenu'))
         self._current_window.show()
 
+        self._current_window.connect('exit_application', self.quit_application)  # Connect the exit signal
         self._current_window.connect('ift', self._goto_ift)
         self._current_window.connect('conan', self._goto_conan)
 
@@ -128,3 +129,6 @@ class OpendropApplication(Gtk.Application):
         if self._current_window is None: return
         self._current_window.destroy()
         self._current_window = None
+    def quit_application(self, *_) -> None:
+        self.quit()
+    
