@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import cv2
 from scipy.optimize import leastsq
-from circular_fit_module import circular_fit, circular_fit_img, extract_edges_CV, circle_fit_errors
+from modules.circular_fit import circular_fit, circular_fit_img, extract_edges_CV, circle_fit_errors
 
 # Generate circular test data
 def generate_circle_points(center, radius, num_points=100):
