@@ -198,7 +198,7 @@ def cheeky_pause():
 
     button = tkinter.Button(frame)
     button['text'] ="Good-bye."
-    button['command'] = root.destroy()#close_window(root)
+    button['command'] = root.quit#close_window(root)
     button.pack()
 
     root.mainloop()
