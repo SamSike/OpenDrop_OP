@@ -6,7 +6,6 @@ of conan - conan-ML_cv1.1/modules/select_regions.py"""
 
 from sklearn.cluster import OPTICS # for clustering algorithm
 import scipy.optimize as opt
-import numba
 from scipy.spatial import distance
 from scipy.integrate import solve_ivp
 import numpy as np
@@ -748,24 +747,106 @@ def rot( a ):
           [ +np.sin( a ), +np.cos( a ) ] ]
     )
 
-def fit_ellipse( x, y ):
+def normalize_data(x, y):
+    """
+    Normalize input data to the range [-1, 1].
+
+    Parameters:
+    x (array-like): x-coordinates of the input points
+    y (array-like): y-coordinates of the input points
+
+    Returns:
+    tuple: Containing:
+        - x_norm (numpy.ndarray): Normalized x-coordinates
+        - y_norm (numpy.ndarray): Normalized y-coordinates
+        - x_center (float): x-coordinate of the center of the original data
+        - y_center (float): y-coordinate of the center of the original data
+        - x_scale (float): Scaling factor for x-coordinates
+        - y_scale (float): Scaling factor for y-coordinates
+    """
+    x = np.asarray(x)
+    y = np.asarray(y)
+
+    # Compute center and range for each dimension
+    x_center, y_center = np.mean(x), np.mean(y)
+    x_range, y_range = np.ptp(x), np.ptp(y)
+
+    # Compute scaling factors
+    x_scale = max(abs(x.min() - x_center), abs(x.max() - x_center))
+    y_scale = max(abs(y.min() - y_center), abs(y.max() - y_center))
+
+    # Normalize the data
+    x_norm = (x - x_center) / x_scale
+    y_norm = (y - y_center) / y_scale
+
+    return x_norm, y_norm, x_center, y_center, x_scale, y_scale
+
+def denormalize_ellipse(a, x_center, y_center, x_scale, y_scale):
+    """
+    Convert the ellipse parameters from normalized space back to the original coordinate space.
+
+    Parameters:
+    a (numpy.ndarray): Ellipse parameters in normalized space [A, B, C, D, E, F]
+    x_center (float): x-coordinate of the center of the original data
+    y_center (float): y-coordinate of the center of the original data
+    x_scale (float): Scaling factor for x-coordinates
+    y_scale (float): Scaling factor for y-coordinates
+
+    Returns:
+    numpy.ndarray: Denormalized ellipse parameters [A', B', C', D', E', F']
+
+    The returned parameters correspond to the general ellipse equation:
+    A'x^2 + B'xy + C'y^2 + D'x + E'y + F' = 0
+    in the original coordinate space.
+    """
+    A, B, C, D, E, F = a
+
+    # Denormalize the parameters
+    A_prime = A / x_scale**2
+    B_prime = B / (x_scale * y_scale)
+    C_prime = C / y_scale**2
+    D_prime = (-2*A*x_center/x_scale**2 - B*y_center/(x_scale*y_scale) + D/x_scale)
+    E_prime = (-B*x_center/(x_scale*y_scale) - 2*C*y_center/y_scale**2 + E/y_scale)
+    F_prime = (A*x_center**2/x_scale**2 + B*x_center*y_center/(x_scale*y_scale) +
+               C*y_center**2/y_scale**2 - D*x_center/x_scale - E*y_center/y_scale + F)
+
+    return np.array([A_prime, B_prime, C_prime, D_prime, E_prime, F_prime])
+
+def fit_ellipse( x_original, y_original ):
     """
     main fit from the original publication:
     http://nicky.vanforeest.com/misc/fitEllipse/fitEllipse.html
+
+    Fit an ellipse to the given points.
+
+    Parameters:
+    x_original (array-like): x-coordinates of the points
+    y_original (array-like): y-coordinates of the points
+
+    Returns:
+    numpy.ndarray: Ellipse parameters [A, B, C, D, E, F] for the equation
+                   Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0
     """
+    # convert x and y to coordinate space in range [-1,1] for better ellipse fitting
+    x, y, x_center, y_center, x_scale, y_scale = normalize_data(x_original, y_original)
     x = x[ :, np.newaxis ]
     y = y[ :, np.newaxis ]
+
     D =  np.hstack( ( x * x, x * y, y * y, x, y, np.ones_like( x ) ) )
     S = np.dot( D.T, D )
     C = np.zeros( [ 6, 6 ] )
     C[ 0, 2 ] = +2
     C[ 2, 0 ] = +2
     C[ 1, 1 ] = -1
+
     E, V =  np.linalg.eig( np.dot( np.linalg.inv( S ), C ) )
-    n = np.argmax( np.abs( E ) )
-    #n = np.argmax( E )
-    a = V[ :, n ]
-    return a
+    #n = np.argmax( np.abs( E ) )
+    n = np.argmax( E )
+    avec = V[ :, n ]
+
+    # convert ellipse values back to original coordinate space
+    a_original = denormalize_ellipse(avec, x_center, y_center, x_scale, y_scale)
+    return a_original
 
 def ell_parameters( a ):
     """
@@ -797,9 +878,9 @@ def ell_parameters( a ):
     """
     now it is in the form xT A x - 1 = 0
     and we know that A is a rotation of the matrix
-        ( 1 / a²   0 )
+        ( 1 / aÂ²   0 )
     B = (            )
-        ( 0   1 / b² )
+        ( 0   1 / bÂ² )
     where a and b are the semi axes of the ellipse
     it is hence A = ST B S
     We note that rotation does not change the eigenvalues, which are
@@ -817,7 +898,7 @@ def ell_parameters( a ):
     # ~B = np.dot( np.transpose(V), np.dot( Anew, V ) ) ### debug only
     phi = np.arccos( V[ 0, 0 ] )
     """
-    checking the sin for changes in sign to detect angles above 180°
+    checking the sin for changes in sign to detect angles above 180Â°
     """
     if V[ 0, 1 ] < 0:
         phi = 2 * np.pi - phi
@@ -830,7 +911,7 @@ def ell_parameters( a ):
 
     return np.sqrt( 1. / E ), phi * RAD, -t
     """
-    That's it. One might put some additional work/thought in the 180°
+    That's it. One might put some additional work/thought in the 180Â°
     and cw vs ccw thing, as it is a bit messy.
     """
 
@@ -1051,26 +1132,40 @@ def ellipse_fit_img(img,display=False):
     if display:
         print('centre points: '+str(t))
         print('a and b: '+str(a)+', '+str(b))
-        print('phi (°): '+str(phi_deg))
+        print('phi (Â°): '+str(phi_deg))
 
         #plot
         fig = plt.figure()
         ax = fig.add_subplot( 1, 1, 1 )
-        ax.add_patch( ell )
         ax.scatter(x ,y)
+        ax.add_patch( ell )
         ax.plot(baseline_x,baseline_y)
         ax.plot(CPs[0][0], CPs[0][1], 'yo')
         ax.plot(CPs[1][0], CPs[1][1], 'go')
         ax.plot()
         plt.title('Fitted ellipse')
+        plt.gca().invert_yaxis()
+        plt.axis('equal')
         plt.imshow(img)
         plt.show()
         plt.close()
 
     # Find intercepts, and gradients at intercepts
     outputs = ellipse_line_intersection(t[0], t[1], a, b, math.radians(phi_deg), CPs[0][0], CPs[0][1], CPs[1][0], CPs[1][1])
-    left, right = list(sorted(outputs, key=lambda x: x[0]))
-    m_left, m_right = left[2], right[2]
+    if outputs == None:
+        mid_x = (CPs[0][0] + CPs[1][0]) / 2
+        mid_y = (CPs[0][1] + CPs[1][1]) / 2
+        CPs_midpoint = np.array([mid_x, mid_y])
+
+        gap, closest = ellipse_closest_point(CPs_midpoint[0], CPs_midpoint[1], t[0], t[1], a, b, phi_deg, n=1000, display=False)
+        print('gap between CPs_midpoint and closest point of ellipse: ', gap)
+        if gap < 2: # incase ellipse fit misses intercept
+            left = closest
+            right = closest
+            outputs = [[left[0], left[1], 0], [right[0], right[1], 0]]
+    else:
+        left, right = list(sorted(outputs, key=lambda x: x[0]))
+    #m_left, m_right = left[2], right[2]
     intercepts = [[left[0],left[1]],[right[0],right[1]]]
 
     CA = []
@@ -1084,10 +1179,11 @@ def ellipse_fit_img(img,display=False):
         elif output[1] > t[1] and first == False: #high CA angle right
             CA.append(abs(math.degrees(np.arctan(m))))
         elif output[1] < t[1] and first == True: #low CA angle left
-            CA.append(math.degrees(np.arctan(m)))
+            CA.append(abs(np.rad2deg(np.arctan(m))))
         elif output[1] < t[1] and first == False: #low CA angle right
-            CA.append(math.degrees(np.pi+np.arctan(m)))
-
+            CA.append(abs(np.rad2deg(np.pi+np.arctan(m))))
+        else:
+            CA.append(90)
 
         first = False
 
@@ -1145,30 +1241,42 @@ def ellipse_fit(drop,display=False):
         facecolor=( 1, 0, 0, 0 ), edgecolor=( 1, 0, 0, 1 ), label='Fitted ellipse')
 
     if display:
-        print('drop contour: ',drop)
         print('centre points: '+str(t))
         print('a and b: '+str(a)+', '+str(b))
-        print('phi (°): '+str(phi_deg))
+        print('phi (Â°): '+str(phi_deg))
 
         if 1:#plot
             fig = plt.figure()
             ax = fig.add_subplot( 1, 1, 1 )
-            ax.add_patch( ell )
             ax.scatter(x ,y, label='contour')
+            ax.add_patch( ell )
             ax.plot(baseline_x,baseline_y, label='baseline')
             ax.plot(CPs[0][0], CPs[0][1], 'yo', label='left contact point')
             ax.plot(CPs[1][0], CPs[1][1], 'go', label='right contact point')
             ax.plot()
             ax.legend()
             plt.title('Fitted ellipse')
+            plt.gca().invert_yaxis()
             plt.axis('equal')
             plt.show()
             plt.close()
 
     # Find intercepts, and gradients at intercepts
-    outputs = ellipse_line_intersection(t[0], t[1], a, b, math.radians(phi_deg), CPs[0][0], CPs[0][1], CPs[1][0], CPs[1][1])
-    left, right = list(sorted(outputs, key=lambda x: x[0]))
-    m_left, m_right = left[2], right[2]
+    outputs = ellipse_line_intersection(t[0], t[1], a, b, math.radians(phi_deg), CPs[0][0], CPs[0][1], CPs[1][0], CPs[1][1], display=True)
+    if outputs == None:
+        mid_x = (CPs[0][0] + CPs[1][0]) / 2
+        mid_y = (CPs[0][1] + CPs[1][1]) / 2
+        CPs_midpoint = np.array([mid_x, mid_y])
+
+        gap, closest = ellipse_closest_point(CPs_midpoint[0], CPs_midpoint[1], t[0], t[1], a, b, phi_deg, n=1000, display=False)
+        print('gap between CPs_midpoint and closest point of ellipse: ', gap)
+        if gap < 2: # incase ellipse fit misses intercept
+            left = closest
+            right = closest
+            outputs = [[left[0], left[1], 0], [right[0], right[1], 0]]
+    else:
+        left, right = list(sorted(outputs, key=lambda x: x[0]))
+    #m_left, m_right = left[2], right[2]
     intercepts = [[left[0],left[1]],[right[0],right[1]]]
 
     CA = []
@@ -1182,9 +1290,11 @@ def ellipse_fit(drop,display=False):
         elif output[1] > t[1] and first == False: #high CA angle right
             CA.append(abs(math.degrees(np.arctan(m))))
         elif output[1] < t[1] and first == True: #low CA angle left
-            CA.append(math.degrees(np.arctan(m)))
+            CA.append(abs(np.rad2deg(np.arctan(m))))
         elif output[1] < t[1] and first == False: #low CA angle right
-            CA.append(math.degrees(np.pi+np.arctan(m)))
+            CA.append(abs(np.rad2deg(np.pi+np.arctan(m))))
+        else:
+            CA.append(90)
 
 
         first = False

@@ -1051,10 +1051,12 @@ def YL_fit_errors(contour, YL_points, display=False):
 
     error_measures = {}
 
-    error_measures['MAE'] = sum([abs(error) for error in errors])/len(errors)
-    error_measures['MSE'] = sum([error**2 for error in errors])/len(errors)
-    error_measures['RMSE'] = np.sqrt(sum([error**2 for error in errors])/len(errors))
-    error_measures['Maximum error'] = max(errors)
+    if len(errors) != 0:
+        error_measures['MAE'] = sum([abs(error) for error in errors])/len(errors)
+        error_measures['MSE'] = sum([error**2 for error in errors])/len(errors)
+        error_measures['RMSE'] = np.sqrt(sum([error**2 for error in errors])/len(errors))
+        error_measures['Maximum error'] = max(errors)
+    
 
     return error_measures
 

@@ -33,15 +33,17 @@ def set_drop_region(experimental_drop, experimental_setup):
         experimental_drop.cropped_image, (left,right,top,bottom) = auto_crop(experimental_drop.image)
 
         if 1: #show found drop
-            plt.title('original image')
-            plt.imshow(experimental_drop.image)
-            plt.show()
-            plt.close()
+            if experimental_drop.image.size != 0:
+                plt.title('original image')
+                plt.imshow(experimental_drop.image)
+                plt.show()
+                plt.close()
 
-            plt.title('cropped image')
-            plt.imshow(experimental_drop.cropped_image)
-            plt.show()
-            plt.close()
+            if experimental_drop.cropped_image.size != 0:
+                plt.title('cropped image')
+                plt.imshow(experimental_drop.cropped_image)
+                plt.show()
+                plt.close()
         experimental_setup.drop_region = [(left, top),(right,bottom)]
     elif experimental_setup.drop_ID_method == "User-selected":
         experimental_setup.drop_region = user_ROI(experimental_drop.image, 'Select drop region', scale, screen_position)
