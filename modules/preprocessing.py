@@ -1195,13 +1195,13 @@ def tilt_correction(img, baseline, user_set_baseline=False):
 
     return rotate_img_crop
 
-def isolate_contour(img_orig, DISPLAY=False):
+def isolate_contour(img_orig, display=False):
     """
     Isolate the contour of a drop and its surrounding surface from an input image.
 
     Args:
         img_orig (numpy.ndarray): The input image containing the drop and surface.
-        DISPLAY (bool, optional): Whether to display intermediate results and plots. Defaults to False.
+        display (bool, optional): Whether to display intermediate results and plots. Defaults to False.
 
     Returns:
         tuple: A tuple containing two numpy arrays:
@@ -1215,11 +1215,11 @@ def isolate_contour(img_orig, DISPLAY=False):
     4. Attempts to find a surface line (baseline) using the `hough_baseline` function.
     5. If a baseline is found, performs tilt correction on the input image.
     6. Attempts to find a circular drop using the `hough_circle` function.
-    7. Displays the identified shapes of interest (baseline and circle) if `DISPLAY` is True.
+    7. Displays the identified shapes of interest (baseline and circle) if `display` is True.
     8. Crops the image based on the detected baseline and circle, with some padding.
     9. Extracts edges from the cropped image and clusters them using `cluster_OPTICS`.
     10. Determines an approximate contour for the drop only, based on the detected baseline or circle.
-    11. If `DISPLAY` is True, plots the contours of the drop and surface, as well as the drop only.
+    11. If `display` is True, plots the contours of the drop and surface, as well as the drop only.
     12. Returns the contours of the drop and surface (`longest`), and the approximate contour of the drop only (`drop_only`).
     """
     ### declare flags
@@ -1267,7 +1267,7 @@ def isolate_contour(img_orig, DISPLAY=False):
             maxkey = keys[1]
             longest_contour = np.array(groups[maxkey])
 
-    if DISPLAY:
+    if display:
         plt.title('image with longest found contour that is not the needle')
         plt.imshow(img_orig)
         #plt.plot(edges[:,0],edges[:,1])
@@ -1281,7 +1281,7 @@ def isolate_contour(img_orig, DISPLAY=False):
     for x,y in longest_contour:
         canny_input[y, x] = 255 #y,x because image coordinates
 
-    if DISPLAY:
+    if display:
         plt.title('canny input')
         plt.imshow(canny_input)
         plt.axis('equal')
@@ -1316,7 +1316,7 @@ def isolate_contour(img_orig, DISPLAY=False):
 
         hough_line = hough_baseline(canny_input, display=False)
         BASELINE = np.array(hough_line)
-        if DISPLAY:
+        if display:
             plt.title('Hough baseline after tilt')
             plt.imshow(img)
             plt.plot(BASELINE[:,0], BASELINE[:,1],'r')
@@ -1333,7 +1333,7 @@ def isolate_contour(img_orig, DISPLAY=False):
     except:
         print('Hough circle failed to identify a drop')
 
-    if DISPLAY:
+    if display:
         plt.title('Identified shapes of interest')
         plt.imshow(img)
         try:
@@ -1482,7 +1482,7 @@ def isolate_contour(img_orig, DISPLAY=False):
 
     gray = cv2.cvtColor(img_crop, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    if DISPLAY:
+    if display:
         print('cropped threshold value: ', ret)
         plt.title('drop region')
         plt.imshow(thresh)
@@ -1504,7 +1504,7 @@ def isolate_contour(img_orig, DISPLAY=False):
     div_line = min(filtered_coords[:,1]) + (max(filtered_coords[:,1]) - min(filtered_coords[:,1]))*0.5
     drop_only = np.array([[x, y] for x, y in filtered_coords if y < div_line])
 
-    if DISPLAY:
+    if display:
         plt.imshow(img_processed)
         plt.plot(filtered_coords[:,0],filtered_coords[:,1],'r,')
         plt.plot(drop_only[:,0],drop_only[:,1], 'b.')
@@ -2459,7 +2459,7 @@ def CPID(contour, display=False):
         restriction1 = max(0, widest_index1 - 2*n_pts)
         restriction2 = min(len(contour), widest_index2 + 2*n_pts)
         restricted_contour = contour[restriction1 : restriction2]
-        if 1:
+        if display:
             plt.title('plot restricted contour')
             plt.plot(restricted_contour[:,0], restricted_contour[:,1], '.')
             plt.plot(widest_points[:,0], widest_points[:,1], '.', label='widest points')
@@ -2620,14 +2620,14 @@ def preprocess(img, display=False):
     """This code serves as a discrete instance of image preprocessing before contact
     angle fit software is implemented.
     """
-    img_processed, longest_contour, drop_guess, info = isolate_contour(img,DISPLAY=display)
+    img_processed, longest_contour, drop_guess, info = isolate_contour(img,display=display)
 
     CPs_chosen = CP_ID_static(longest_contour, drop_guess, info, display=display)
 
     if 0: #if info['line'].any() == None:
         # this is only sometimes appropriate, best to assume a decent image is taken
         img = tilt_correction(img, CPs_chosen)
-        img_processed, longest_contour, drop_guess, info = isolate_contour(img,DISPLAY=display)
+        img_processed, longest_contour, drop_guess, info = isolate_contour(img,display=display)
         CPs_chosen = CP_ID_static(longest_contour, drop_guess, info, display=display)
 
     if display:

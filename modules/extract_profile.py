@@ -7,19 +7,19 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import OPTICS # DS 7/6/21 - for clustering algorithm
 # import time
 # import datetime
-from .preprocessing import extract_edges_CV
+from modules.preprocessing import isolate_contour, extract_edges_CV
 
 BLUR_SIZE = 3
 VERSION_CV2 = cv2.__version__
 
 def extract_drop_profile(raw_experiment, user_inputs):
     if user_inputs.threshold_method == "User-selected":
-        # profile_edges = detect_edges(raw_experiment.cropped_image, raw_experiment, user_inputs.drop_region)
-        # profile, raw_experiment.ret = detect_edges(raw_experiment.cropped_image, raw_experiment, user_inputs.drop_region)
-        raw_experiment.contour, raw_experiment.ret = detect_edges(raw_experiment.cropped_image, raw_experiment, user_inputs.drop_region, 1, user_inputs.threshold_val)
+        # profile_edges = detect_edges(raw_experiment.image, raw_experiment, user_inputs.drop_region)
+        # profile, raw_experiment.ret = detect_edges(raw_experiment.image, raw_experiment, user_inputs.drop_region)
+        raw_experiment.contour, raw_experiment.ret = detect_edges(raw_experiment.image, raw_experiment, user_inputs.drop_region, 1, user_inputs.threshold_val)
 
         if 1:
-            plt.imshow(raw_experiment.cropped_image)
+            plt.imshow(raw_experiment.image)
             plt.plot(raw_experiment.contour[:,0],raw_experiment.contour[:,1],'r,')
             plt.title('Extracted drop profile\nTheshold value of : '+str(raw_experiment.ret))
             plt.axis('equal')
@@ -28,18 +28,18 @@ def extract_drop_profile(raw_experiment, user_inputs):
 
     elif user_inputs.threshold_method == "Automated":
         if raw_experiment.ret  == None:
-            raw_experiment.contour, raw_experiment.ret = extract_edges_CV(raw_experiment.cropped_image, return_thresholed_value=True)
-
+            img_processed, longest_contour, drop_guess, info = isolate_contour(raw_experiment.image)
+            raw_experiment.contour = longest_contour
             if 1:
-                plt.imshow(raw_experiment.cropped_image)
+                plt.imshow(raw_experiment.image)
                 plt.plot(raw_experiment.contour[:,0],raw_experiment.contour[:,1],'r,')
                 plt.title('Extracted drop profile\nTheshold value of : '+str(raw_experiment.ret))
                 plt.axis('equal')
                 plt.show()
                 plt.close()
         else:
-            # if a threshold value has been selected then use this
-            raw_experiment.contour = extract_edges_CV(raw_experiment.cropped_image, threshold_val=raw_experiment.ret, return_thresholed_value=False)
+            # if a threshold value has been selected then use the original method
+            raw_experiment.contour = extract_edges_CV(raw_experiment.image, threshold_val=raw_experiment.ret, return_thresholed_value=False)
 
 
 
