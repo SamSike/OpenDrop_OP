@@ -14,7 +14,7 @@ from .ca_analysis import CaAnalysis
 from .output_page import OutputPage
 
 from modules.ca_data_processor import CaDataProcessor
-from modules.pd_data_processor import pdDataProcessor
+from modules.pd_data_processor import PdDataProcessor
 from utils.enums import *
 from modules.ExtractData import ExtractedData
 from modules.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
@@ -40,7 +40,7 @@ class FunctionWindow(CTk):
         self.configure(fg_color=self.FG_COLOR)
 
         self.ca_processor = CaDataProcessor()
-        self.pd_processor = pdDataProcessor()
+        self.pd_processor = PdDataProcessor()
 
         user_input_data = ExperimentalSetup()
         experimental_drop = ExperimentalDrop()

@@ -17,7 +17,7 @@ from tkinter import font as tkFont
 
 import timeit
 
-class pdDataProcessor:
+class PdDataProcessor:
     def process_data(self, fitted_drop_data, user_input_data, callback):
 
         analysis_methods = dict(user_input_data.analysis_methods_pd)
