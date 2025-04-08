@@ -2,8 +2,6 @@ import customtkinter as ctk
 from PIL import ImageTk, Image
 from utils.image_handler import ImageHandler
 import os
-from modules.select_regions import set_drop_region,set_surface_line, correct_tilt,user_ROI
-from modules.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
 from tkinter import messagebox
 from modules.read_image import get_image
 

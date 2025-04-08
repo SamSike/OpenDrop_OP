@@ -13,7 +13,7 @@ from __future__ import print_function
 # # from modules.user_set_regions
 
 
-from modules.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
+from modules.classes import ExperimentalSetup, DropData
 #from modules.PlotManager import PlotManager
 from modules.ExtractData import ExtractedData
 
@@ -27,7 +27,7 @@ from modules.initialise_parameters import initialise_parameters
 from utils.enums import *
 #from modules.analyse_needle import calculate_needle_diameter
 #from modules.fit_data import fit_experimental_drop
-from modules.fits import perform_fits
+from modules.CA.fit.fits import perform_fits
 #from modules.generate_data import generate_full_data
 # from modules. import add_data_to_lists
 

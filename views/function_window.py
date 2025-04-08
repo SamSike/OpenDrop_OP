@@ -14,10 +14,10 @@ from .ca_analysis import CaAnalysis
 from .output_page import OutputPage
 
 from modules.CA.ca_data_processor import CaDataProcessor
-from modules.IFT.pd_data_processor import PdDataProcessor
+from modules.IFT.ift_data_processor import IFTDataProcessor
 from utils.enums import *
 from modules.ExtractData import ExtractedData
-from modules.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
+from modules.classes import ExperimentalSetup, CAExperimentalDrop
 from views.helper.theme import LIGHT_MODE
 
 from views.helper.validation import validate_user_input_data_ift,validate_user_input_data_cm,validate_frame_interval
@@ -40,10 +40,10 @@ class FunctionWindow(CTk):
         self.configure(fg_color=self.FG_COLOR)
 
         self.ca_processor = CaDataProcessor()
-        self.pd_processor = PdDataProcessor()
+        self.pd_processor = IFTDataProcessor()
 
         user_input_data = ExperimentalSetup()
-        experimental_drop = ExperimentalDrop()
+        ca_experimental_drop = CAExperimentalDrop()
 
         user_input_data.screen_resolution = [
             self.winfo_screenwidth(), self.winfo_screenheight()]
@@ -51,7 +51,7 @@ class FunctionWindow(CTk):
         user_input_data.save_images_boole = False
         user_input_data.create_folder_boole = False
         
-        self.widgets(function_type, user_input_data,experimental_drop,fitted_drop_data)
+        self.widgets(function_type, user_input_data, ca_experimental_drop, fitted_drop_data)
 
         self.stages = list(Stage)
         self.current_stage = Stage.ACQUISITION

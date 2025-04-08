@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # coding=utf-8
-from .de_YoungLaplace import ylderiv
-from .de_YoungLaplace import dataderiv
+from .CA.fit.de_YoungLaplace import ylderiv
+from .CA.fit.de_YoungLaplace import dataderiv
 #from .interpolation_function import cubic_interpolation_function
 from scipy.integrate import odeint
 
 import numpy as np
 
 from utils.config import *
+
+GRAVITY = 9.81
 
 class Tolerances(object):
     def __init__(self, delta_tol, gradient_tol, maximum_fitting_steps, objective_tol, arclength_tol, maximum_arclength_steps, needle_tol, needle_steps):
@@ -37,10 +39,13 @@ class Tolerances(object):
 
 class ExperimentalSetup(object):
     def __init__(self):
+        # share variables
         self.screen_resolution = None
         self.drop_ID_method = 'Automated'
         self.threshold_method = 'Automated'
-        self.needle_region_choice = 'Automated'
+        self.output_directory = None
+
+        # variables for ca
         self.threshold_val = None
         self.baseline_method = 'Automated'
         self.edgefinder = None
@@ -50,7 +55,6 @@ class ExperimentalSetup(object):
         self.pixel_mm = None
         self.residuals_boole = None
         self.profiles_boole = None
-        self.interfacial_tension_boole = None
         self.image_source = "Local images"
         self.number_of_frames = None
         self.wait_time = None
@@ -64,18 +68,28 @@ class ExperimentalSetup(object):
         self.frame_interval = 0
         self.analysis_method_fields_cm = {}
         self.analysis_methods_ca = {TANGENT_FIT: False, POLYNOMIAL_FIT: False, CIRCLE_FIT: False, ELLIPSE_FIT: False, YL_FIT: False, ML_MODEL: False}
-        self.analysis_methods_pd = {INTERFACIAL_TENSION: True}
         self.statistical_output = {}
         self.statistical_output_cm = {}
-        self.ift_drop_region = None
-        self.ift_needle_region = None
         self.ca_drop_region = None
         self.ca_baseline_region = None
         self.cv2_capture_num = None
         self.genlcam_capture_num = None
-        self.output_directory = None
+        
+        # variables for IFT
+        self.interfacial_tension_boole = None
+        self.needle_region_choice = 'Automated'
+        self.ift_drop_region = None
+        self.ift_needle_region = None
+        self.analysis_methods_ift = {INTERFACIAL_TENSION: True}
+        self.drop_density= None
+        self.continuous_density= None
+        self.needle_diameter = None
+        self.pixel_scale = None
+        self.gravity = GRAVITY
+        self.ift_thresh1 = 80.0
+        self.ift_thresh1 = 160.0
 
-class ExperimentalDrop(object):
+class CAExperimentalDrop(object):
     def __init__(self):
         self.image = None
         self.cropped_image = None

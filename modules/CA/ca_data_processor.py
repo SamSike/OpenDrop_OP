@@ -1,4 +1,4 @@
-from modules.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
+from modules.classes import ExperimentalSetup, CAExperimentalDrop, DropData, Tolerances
 #from modules.PlotManager import PlotManager
 from modules.ExtractData import ExtractedData
 from modules.read_image import get_image
@@ -6,7 +6,7 @@ from modules.select_regions import set_drop_region,set_surface_line, correct_til
 from modules.extract_profile import extract_drop_profile
 from utils.enums import *
 from utils.config import *
-from modules.fits import perform_fits
+from modules.CA.fit.fits import perform_fits
 
 import matplotlib.pyplot as plt
 
@@ -31,7 +31,7 @@ class CaDataProcessor:
 
         n_frames = user_input_data.number_of_frames
         extracted_data = ExtractedData(n_frames, fitted_drop_data.parameter_dimensions)
-        raw_experiment = ExperimentalDrop()
+        raw_experiment = CAExperimentalDrop()
 
         #if user_input_data.interfacial_tension_boole:
         #    plots = PlotManager(user_input_data.wait_time, n_frames)
@@ -45,7 +45,7 @@ class CaDataProcessor:
             input_file = user_input_data.import_files[i]
             print("\nProceccing " + input_file)
             time_start = timeit.default_timer()
-            raw_experiment = ExperimentalDrop()
+            raw_experiment = CAExperimentalDrop()
             get_image(raw_experiment, user_input_data, i) # save image in here...
             set_drop_region(raw_experiment, user_input_data,i+1)
             # extract_drop_profile(raw_experiment, user_input_data)
