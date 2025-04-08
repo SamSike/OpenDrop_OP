@@ -25,7 +25,7 @@ from utils.config import *
 
 MAX_IMAGE_TO_SCREEN_RATIO = 0.8
 
-def set_drop_region(experimental_drop, experimental_setup):
+def set_drop_region(experimental_drop, experimental_setup,index):
     # select the drop and needle regions in the image
     screen_size = experimental_setup.screen_resolution
     image_size = experimental_drop.image.shape
@@ -34,20 +34,21 @@ def set_drop_region(experimental_drop, experimental_setup):
     if experimental_setup.drop_ID_method == "Automated":
         from .preprocessing import auto_crop
         experimental_drop.cropped_image, (left,right,top,bottom) = auto_crop(experimental_drop.image)
-
+        print("experimental_drop.cropped_image",experimental_drop.cropped_image is None)
         if 1: #show found drop
-            plt.title('original image')
+        
+            plt.title(f"Original image {index}")
             plt.imshow(experimental_drop.image)
             plt.show()
             plt.close()
 
-            plt.title('cropped image')
+            plt.title(f"Cropped image {index}")
             plt.imshow(experimental_drop.cropped_image)
             plt.show()
             plt.close()
         experimental_setup.drop_region = [(left, top),(right,bottom)]
     elif experimental_setup.drop_ID_method == "User-selected":
-        experimental_setup.drop_region = user_ROI(experimental_drop.image, 'Select drop region', scale, screen_position)
+        experimental_setup.drop_region = user_ROI(experimental_drop.image, f"Select drop region for Image {index}", scale, screen_position)
         experimental_drop.cropped_image = image_crop(experimental_drop.image, experimental_setup.drop_region)
  #   experimental_setup.needle_region = user_line(experimental_drop.image, 'Select needle region', scale, screen_position)
 
@@ -59,25 +60,25 @@ def set_surface_line(experimental_drop, experimental_setup):
     # message = []
 
     # 
-    if experimental_drop.cropped_image is None:
-        if experimental_setup.drop_ID_method == "User-selected":
-            msgbox.showwarning("Warning", "Please select the drop region")
-            set_drop_region(experimental_drop, experimental_setup)
-            return  
-        # autuomatic
-        else: 
-            set_drop_region(experimental_drop, experimental_setup)
+    # if experimental_drop.cropped_image is None:
+    #     if experimental_setup.drop_ID_method == "User-selected":
+    #         msgbox.showwarning("Warning", "Please select the drop region")
+    #         set_drop_region(experimental_drop, experimental_setup)
+    #         return  
+    #     # autuomatic
+    #     else: 
+    #         set_drop_region(experimental_drop, experimental_setup)
 
-    if experimental_setup.threshold_method == "User-selected":
-        if experimental_setup.threshold_val is None:
-            threshold = simpledialog.askinteger("Input Required", "Enter the threshold value:")
-            if threshold is None:  # User pressed "Cancel"
-                msgbox.showwarning("Warning", "Threshold is required to continue.")
-                return  
-            experimental_setup.threshold_val = threshold
+    # if experimental_setup.threshold_method == "User-selected":
+    #     if experimental_setup.threshold_val is None:
+    #         threshold = simpledialog.askinteger("Input Required", "Enter the threshold value:")
+    #         if threshold is None:  # User pressed "Cancel"
+    #             msgbox.showwarning("Warning", "Threshold is required to continue.")
+    #             return  
+    #         experimental_setup.threshold_val = threshold
     
     
-    extract_drop_profile(experimental_drop, experimental_setup)
+    # extract_drop_profile(experimental_drop, experimental_setup)
     
     if experimental_setup.baseline_method == "Automated":
         experimental_drop.drop_contour, experimental_drop.contact_points = prepare_hydrophobic(experimental_drop.contour)
