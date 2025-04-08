@@ -7,6 +7,7 @@ from modules.extract_profile import extract_drop_profile
 from utils.enums import *
 from utils.config import *
 from modules.fits import perform_fits
+from utils.geometry import Rect2
 
 import matplotlib.pyplot as plt
 
