@@ -53,7 +53,7 @@ def extract_pendant_features(
         thresh2: float = 160.0,
         labels: bool = False,
 ) -> PendantFeatures:
-    from fit import needle_fit
+    from .fit import needle_fit
 
     if drop_region is not None:
         drop_image = image[drop_region.y0:drop_region.y1+1, drop_region.x0:drop_region.x1+1]
@@ -240,7 +240,7 @@ def _largest_connected_component(gray: np.ndarray) -> np.ndarray:
 
 
 def find_pendant_apex(data: Tuple[np.ndarray, np.ndarray]) -> Optional[tuple]:
-    from fit import circle_fit
+    from .fit import circle_fit
 
     x, y = data
 

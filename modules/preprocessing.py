@@ -17,9 +17,13 @@ import matplotlib.pyplot as plt
 import cv2
 import math #for tilt_correction
 from scipy import misc, ndimage #for tilt_correction
-from utils.geometry import Rect2
 
-def auto_crop(img, low=50, high=150, apertureSize=3, verbose=0): # DS 08/06/23
+def find_image_edge(img, low=50, high=150, apertureSize=3):
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(gray,low,high,apertureSize = apertureSize)
+    return edges
+
+def auto_crop(img, verbose=0): # DS 08/06/23
     '''
     Automatically identify where the crop should be placed within the original
     image
@@ -44,11 +48,7 @@ def auto_crop(img, low=50, high=150, apertureSize=3, verbose=0): # DS 08/06/23
     if verbose >=1:
         print('Performing auto-cropping, please wait...')
 
-    # find edges in the image
-    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(gray,low,high,apertureSize = apertureSize)
-
-    center, radius, [left, right, top, bottom] = find_drop_region(img, edges, verbose)
+    center, radius, [left, right, top, bottom] = find_drop_region(img, verbose)
 
     img = img[top:bottom,:]
     edges = cv2.Canny(img,50,150,apertureSize = 3)
@@ -177,7 +177,9 @@ def auto_crop(img, low=50, high=150, apertureSize=3, verbose=0): # DS 08/06/23
 
     return new_img, bounds
 
-def find_drop_region(img, edges, verbose=0):
+def find_drop_region(img, verbose=0):
+    edges = find_image_edge(img)
+
     #hough circle to find droplet - minRadius at 5% img width
     circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 1,
                               minDist=max(img.shape), #one circle
@@ -267,89 +269,6 @@ def find_drop_region(img, edges, verbose=0):
         left = 0
 
     return center, radius, [left, right, top, bottom]
-
-def find_needle_region(img, edges, center_x=None):
-    height, width = img.shape[:2]
-    cx = center_x if center_x is not None else width // 2
-
-    lines = cv2.HoughLines(edges, 1, np.pi / 180, 100)
-    vertical_lines = []
-
-    # Collect near-vertical lines in upper-middle region
-    if lines is not None:
-        for line in lines:
-            rho, theta = line[0]
-            deg = np.rad2deg(theta)
-
-            if 88 < deg < 92:  # very vertical
-                a = np.cos(theta)
-                b = np.sin(theta)
-                x0 = a * rho
-                y0 = b * rho
-                x1 = int(x0 + 1000 * (-b))
-                y1 = int(y0 + 1000 * (a))
-                x2 = int(x0 - 1000 * (-b))
-                y2 = int(y0 - 1000 * (a))
-
-                y_min = min(y1, y2)
-                y_max = max(y1, y2)
-                x_avg = (x1 + x2) // 2
-
-                # Must be near center and top
-                if abs(x_avg - cx) < width * 0.25 and y_min < height * 0.2:
-                    vertical_lines.append({
-                        "x": x_avg,
-                        "theta": theta,
-                        "y_min": y_min,
-                        "y_max": y_max,
-                        "pts": ((x1, y1), (x2, y2))
-                    })
-
-    # Try to find a good pair
-    best_pair = None
-    best_score = float("inf")
-
-    for i in range(len(vertical_lines)):
-        for j in range(i + 1, len(vertical_lines)):
-            l1 = vertical_lines[i]
-            l2 = vertical_lines[j]
-
-            # Horizontal distance
-            x_dist = abs(l1["x"] - l2["x"])
-            if not (5 < x_dist < 50):  # typical needle width
-                continue
-
-            # Height similarity
-            height_diff = abs((l1["y_max"] - l1["y_min"]) - (l2["y_max"] - l2["y_min"]))
-            if height_diff > 20:
-                continue
-
-            # Theta similarity
-            angle_diff = abs(l1["theta"] - l2["theta"])
-            if angle_diff > np.deg2rad(1):  # ~1 degree
-                continue
-
-            # Prefer taller + closer lines
-            avg_height = (l1["y_max"] - l1["y_min"] + l2["y_max"] - l2["y_min"]) / 2
-            score = angle_diff + height_diff / 10 + x_dist / 5 - avg_height / 50
-
-            if score < best_score:
-                best_score = score
-                best_pair = (l1, l2)
-
-    needle_rect = None
-    if best_pair:
-        x1 = min(best_pair[0]["x"], best_pair[1]["x"])
-        x2 = max(best_pair[0]["x"], best_pair[1]["x"])
-        y_top = min(best_pair[0]["y_min"], best_pair[1]["y_min"])
-        y_bot = max(best_pair[0]["y_max"], best_pair[1]["y_max"])
-        needle_rect = (x1, y_top, x2 - x1, y_bot - y_top)
-
-        # Optional: draw
-        cv2.rectangle(img, (x1, y_top), (x2, y_bot), (0, 255, 0), 2)
-
-    return needle_rect
-
 
 def find_intersection(baseline_coeffs, circ_params):
     '''

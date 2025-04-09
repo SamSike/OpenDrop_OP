@@ -133,7 +133,7 @@ class ImageApp(ctk.CTkFrame):
         drop_region_value = self.user_input_data.drop_ID_method
 
         if self.application == "IFT":
-            needle_region_value = self.user_input_data.needle_region_choice
+            needle_region_value = self.user_input_data.needle_region_method
             # Show or hide the Needle Region button
             if needle_region_value == "User-selected":
                 self.needle_region_button.grid(row=2, column=0, pady=5)  # Use grid instead of pack

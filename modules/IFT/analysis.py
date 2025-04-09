@@ -36,17 +36,18 @@ import numpy as np
 
 from .pendant import *
 from .younglaplace import YoungLaplaceFitService, YoungLaplaceFitResult
-from utils.geometry import Vector2
+from utils.bindable import AccessorBindable
+from utils.geometry import Rect2, Vector2
 
 
 PI = math.pi
 
 
 class PendantAnalysisService:
-    def analyse(self, image, user_input_data):
+    def analyse(self, experimental_drop, experimental_setup):
         return PendantAnalysisJob(
-            input_image = image,
-            user_input_data = user_input_data,
+            experimental_drop = experimental_drop,
+            experimental_setup = experimental_setup,
         )
 
 
@@ -65,47 +66,23 @@ class PendantAnalysisJob:
         def __str__(self) -> str:
             return self.display_name
 
-    def __init__(self, input_image, user_input_data):
-        self._loop = asyncio.get_event_loop()
+    def __init__(self, experimental_drop, experimental_setup):
 
         self._ylfit_service = YoungLaplaceFitService()
 
         self._time_start = time.time()
         self._time_end = math.nan
 
-        self._input_image = input_image
-
         self._status = self.Status.WAITING_FOR_IMAGE
+        self.bn_status = AccessorBindable(
+            getter=self._get_status,
+            setter=self._set_status,
+        )
 
         self._image = None  # type: Optional[np.ndarray]
 
-        self._user_input_data = user_input_data
-
-        self.bn_image = AccessorBindable(self._get_image)
-
-        # Attributes from YoungLaplaceFitter
-        self.bn_bond_number = VariableBindable(math.nan)
-        self.bn_apex_coords_px = VariableBindable(Vector2(math.nan, math.nan))
-        self.bn_apex_radius_px = VariableBindable(math.nan)
-        self.bn_rotation = VariableBindable(math.nan)
-        self.bn_drop_profile_fit = VariableBindable(None)
-        self.bn_residuals = VariableBindable(None)
-        self.bn_arclengths = VariableBindable(None)
-
-        # Attributes from PhysicalPropertiesCalculator
-        self.bn_interfacial_tension = VariableBindable(math.nan)
-        self.bn_volume = VariableBindable(math.nan)
-        self.bn_surface_area = VariableBindable(math.nan)
-        self.bn_apex_radius = VariableBindable(math.nan)
-        self.bn_worthington = VariableBindable(math.nan)
-
-        # Attributes from FeatureExtractor
-        self.bn_drop_region = VariableBindable(None)
-        self.bn_needle_region = VariableBindable(None)
-        self.bn_canny_min = VariableBindable(None)
-        self.bn_canny_max = VariableBindable(None)
-        self.bn_drop_profile_extract = VariableBindable(None)
-        self.bn_needle_width_px = VariableBindable(math.nan)
+        self._experimental_setup = experimental_setup
+        self._experimental_drop = experimental_drop
 
         self.bn_is_done = AccessorBindable(getter=self._get_is_done)
         self.bn_is_cancelled = AccessorBindable(getter=self._get_is_cancelled)
@@ -116,57 +93,39 @@ class PendantAnalysisJob:
         self.bn_status.on_changed.connect(self.bn_is_done.poke)
         self.bn_status.on_changed.connect(self.bn_progress.poke)
 
-        self._image_ready(self._input_image)
+        self._image_ready(experimental_drop.image)
 
         self._features = None
         self._ylfit = None
 
     def _image_ready(self, image) -> None:
-
-        self._features = extract_pendant_features(
+        features = extract_pendant_features(
             image=image,
-            drop_region=self.user_data.ift_drop_region,
-            needle_region=self.user_data.ift_needle_region,
-            thresh1=self.user_data.ift_thresh1,
-            thresh2=self.user_data.ift_thresh2)
-        self._features.add_done_callback(self._features_done)
-
+            drop_region=Rect2(*(self._experimental_setup.drop_region)),
+            needle_region=self._experimental_setup.needle_region,
+            thresh1=self._experimental_setup.ift_thresh1,
+            thresh2=self._experimental_setup.ift_thresh2
+        )
+        self._features_done(features)
         self.bn_status.set(self.Status.EXTRACTING_FEATURES)
 
-    def _features_done(self, fut: asyncio.Future) -> None:
-        features: PendantFeatures
 
-        if fut.cancelled():
-            self.cancel()
-            return
-        try:
-            features = fut.result()
-        except Exception as e:
-            raise e
-
-        self.bn_drop_profile_extract.set(features.drop_points.T)
-        self.bn_needle_width_px.set(features.needle_diameter)
-
-        self._ylfit = self._ylfit_service.fit(features.drop_points)
-        self._ylfit.add_done_callback(self._ylfit_done)
+    def _features_done(self, features: PendantFeatures) -> None:
+        self.bn_drop_profile_extract = features.drop_points.T
+        self.bn_needle_width_px = features.needle_diameter
 
         self.bn_status.set(self.Status.FITTING)
 
-    def _ylfit_done(self, fut: asyncio.Future) -> None:
-        result: YoungLaplaceFitResult
+        result = self._ylfit_service.fit(features.drop_points)
+        self._ylfit_done(result)
 
-        if fut.cancelled():
-            self.cancel()
-            return
-        try:
-            result = fut.result()
-        except Exception as e:
-            raise e
+    def _ylfit_done(self, result: YoungLaplaceFitResult) -> None:
+        continuous_density = self._experimental_setup.continuous_density
+        needle_diameter = self._experimental_setup.needle_diameter
+        pixel_scale = self._experimental_setup.pixel_scale or np.nan
+        gravity = self._experimental_setup.gravity
 
-        continuous_density = self._user_input_data.continuous_density
-        needle_diameter = self._user_input_data.needle_diameter
-        pixel_scale = self._user_input_data.pixel_scale or np.nan
-        gravity = self._user_input_data.gravity
+        print("setup: ", vars(self._experimental_setup))
 
         bond = result.bond
         apex_x = result.apex_x
@@ -180,22 +139,22 @@ class PendantAnalysisJob:
         volume_px = result.volume
 
         # Keep rotation angle between -90 to 90 degrees.
-        rotation = (rotation + np.pi/2) % np.pi - np.pi/2
+        rotation = (rotation + np.pi / 2) % np.pi - np.pi / 2
 
-        needle_diameter_px = self.bn_needle_width_px.get()
+        needle_diameter_px = self.bn_needle_width_px
         if needle_diameter_px is not None or np.isfinite(pixel_scale):
             if np.isfinite(pixel_scale):
-                px_size = 1/pixel_scale
+                px_size = 1 / pixel_scale
             else:
-                px_size = needle_diameter/needle_diameter_px
+                px_size = needle_diameter / needle_diameter_px
 
-            delta_density = abs(self._user_input_data.drop_density - continuous_density)
+            delta_density = abs(self._experimental_setup.drop_density - continuous_density)
 
             radius = radius_px * px_size
-            surface_area = surface_area_px * px_size**2
-            volume = volume_px * px_size**3
-            ift = delta_density * gravity * radius**2 / bond
-            
+            surface_area = surface_area_px * px_size ** 2
+            volume = volume_px * px_size ** 3
+            ift = delta_density * gravity * radius ** 2 / bond
+
             if needle_diameter is not None:
                 worthington = (delta_density * gravity * volume) / (PI * ift * needle_diameter)
             else:
@@ -207,19 +166,18 @@ class PendantAnalysisJob:
             ift = math.nan
             worthington = math.nan
 
-        self.bn_bond_number.set(bond)
-        self.bn_apex_coords_px.set(Vector2(apex_x, apex_y))
-        self.bn_apex_radius_px.set(radius_px)
-        self.bn_rotation.set(rotation)
-        self.bn_residuals.set(residuals)
-        self.bn_arclengths.set(arclengths)
-        self.bn_drop_profile_fit.set(closest.T[np.argsort(arclengths)])
-
-        self.bn_apex_radius.set(radius)
-        self.bn_surface_area.set(surface_area)
-        self.bn_volume.set(volume)
-        self.bn_interfacial_tension.set(ift)
-        self.bn_worthington.set(worthington)
+        self._experimental_drop.bond_number = bond
+        self._experimental_drop.apex_coords_px = Vector2(apex_x, apex_y)
+        self._experimental_drop.apex_radius_px = radius_px
+        self._experimental_drop.rotation = rotation
+        self._experimental_drop.residuals = residuals
+        self._experimental_drop.arclengths = arclengths
+        self._experimental_drop.drop_profile_fit = closest.T[np.argsort(arclengths)]
+        self._experimental_drop.apex_radius = radius
+        self._experimental_drop.surface_area = surface_area
+        self._experimental_drop.volume = volume
+        self._experimental_drop.interfacial_tension = ift
+        self._experimental_drop.worthington = worthington
 
         self.bn_status.set(self.Status.FINISHED)
 
@@ -228,7 +186,7 @@ class PendantAnalysisJob:
             return
 
         if self.bn_status.get() is self.Status.WAITING_FOR_IMAGE:
-            self._input_image.cancel()
+            self._experimental_setup.image.cancel()
 
         if self._features is not None:
             self._features.cancel()
@@ -251,9 +209,6 @@ class PendantAnalysisJob:
     def _get_image(self) -> Optional[np.ndarray]:
         return self._image
 
-    def _get_image_timestamp(self) -> float:
-        return self._image_timestamp
-
     def _get_is_done(self) -> bool:
         return self.bn_status.get().is_terminal
 
@@ -270,10 +225,10 @@ class PendantAnalysisJob:
         return self._time_start
 
     def _get_time_est_complete(self) -> float:
-        if self._input_image is None:
+        if self._experimental_setup.image is None:
             return math.nan
 
-        return self._input_image.est_ready
+        return self._experimental_setup.image.est_ready
 
     def calculate_time_elapsed(self) -> float:
         time_start = self._time_start
@@ -295,7 +250,3 @@ class PendantAnalysisJob:
         time_remaining = time_est_complete - time_now
 
         return time_remaining
-
-    @property
-    def is_image_replicated(self) -> bool:
-        return self._input_image.is_replicated

@@ -4,7 +4,7 @@ import math
 import numpy as np
 import scipy.signal
 
-from opendrop.geometry import Rect2
+from utils.geometry import Rect2
 
 from .types import NeedleParam
 from .hough import hough

@@ -3,7 +3,7 @@ from typing import Sequence, NamedTuple, Optional
 import numpy as np
 import scipy.optimize
 
-from opendrop.geometry import Vector2
+from utils.geometry import Vector2
 from .types import CircleParam
 from .model import CircleModel
 

@@ -45,7 +45,7 @@ def create_user_input_fields_ift(self, parent, user_input_data):
         self.image_app.update_button_visibility()
 
     def update_needle_region_method(*args):
-        user_input_data.needle_region_choice = self.needle_region_method.get_value()    
+        user_input_data.needle_region_method = self.needle_region_method.get_value()    
         self.image_app.update_button_visibility()
 
     def update_drop_density(*args):
@@ -121,7 +121,7 @@ def create_analysis_checklist_ift(self,parent,user_input_data):
     input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
 
     def update_default_method_boole(*args):
-        user_input_data.analysis_methods_pd[INTERFACIAL_TENSION]= self.default_method_boole.get_value()  
+        user_input_data.analysis_methods_ift[INTERFACIAL_TENSION]= self.default_method_boole.get_value()  
 
     self.default_method_boole = CheckButton(
         self, input_fields_frame, "Interfacial Tension", update_default_method_boole, rw=0, cl=0,initial_value=True)

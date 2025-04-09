@@ -2,6 +2,7 @@ from customtkinter import CTkImage, CTkFrame, CTkScrollableFrame, CTkTabview, CT
 from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+
 from .component.imageGallery import ImageGallery
 
 
@@ -121,6 +122,7 @@ class IftAnalysis(CTkFrame):
     def receive_output(self , extracted_data):
         self.output.append(extracted_data)
 
+        """
         for method in extracted_data.contact_angles.keys():
             preformed_method_list = list(self.preformed_methods.keys())
             
@@ -134,6 +136,7 @@ class IftAnalysis(CTkFrame):
 
         if len(self.output) < self.user_input_data.number_of_frames:
             self.table_data[len(self.output)][1].configure(text="PROCESSING...")
+        """
             
     def destroy(self):
         plt.close('all')

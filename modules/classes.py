@@ -37,13 +37,17 @@ class Tolerances(object):
 #         self.save_images = None
 #         self.filename = None
 
+from utils.config import *
 class ExperimentalSetup(object):
     def __init__(self):
         # share variables
+        self.function = None
         self.screen_resolution = None
         self.drop_ID_method = 'Automated'
         self.threshold_method = 'Automated'
         self.output_directory = None
+        self.image_source = "Local images"
+        self.drop_region = None
 
         # variables for ca
         self.threshold_val = None
@@ -55,15 +59,12 @@ class ExperimentalSetup(object):
         self.pixel_mm = None
         self.residuals_boole = None
         self.profiles_boole = None
-        self.image_source = "Local images"
         self.number_of_frames = None
         self.wait_time = None
         self.save_images_boole = None
         self.filename = None
         self.time_string = None
         self.local_files = None
-        self.drop_region = None
-        self.needle_region = None
         self.import_files = None
         self.frame_interval = 0
         self.analysis_method_fields_cm = {}
@@ -76,10 +77,8 @@ class ExperimentalSetup(object):
         self.genlcam_capture_num = None
         
         # variables for IFT
-        self.interfacial_tension_boole = None
-        self.needle_region_choice = 'Automated'
-        self.ift_drop_region = None
-        self.ift_needle_region = None
+        self.needle_region_method = 'Automated'
+        self.needle_region = None
         self.analysis_methods_ift = {INTERFACIAL_TENSION: True}
         self.drop_density= None
         self.continuous_density= None
@@ -87,7 +86,7 @@ class ExperimentalSetup(object):
         self.pixel_scale = None
         self.gravity = GRAVITY
         self.ift_thresh1 = 80.0
-        self.ift_thresh1 = 160.0
+        self.ift_thresh2 = 160.0
 
 class CAExperimentalDrop(object):
     def __init__(self):
@@ -107,6 +106,23 @@ class CAExperimentalDrop(object):
         # self.filename = None
         # self.img_src = 2
 
+class IFTExperimentalDrop(object):
+    def __init__(self):
+        self.image = None
+        self.cropped_image = None # for drop
+        self.time = None
+        self.bond_number = None
+        self.apex_coords_px = None
+        self.apex_radius_px = None
+        self.rotation = None
+        self.residuals = None
+        self.arclengths = None
+        self.drop_profile_fit = None
+        self.apex_radius = None
+        self.surface_area = None
+        self.volume = None
+        self.interfacial_tension = None
+        self.worthington = None
 
 class DropData(object):
     def __init__(self):

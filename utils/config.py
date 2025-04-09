@@ -4,6 +4,7 @@ VERSION = '1.0'
 
 AUTO_MANUAL_OPTIONS = ["Automated", "User-selected"] 
 DROP_ID_OPTIONS = ["Automated", "User-selected"]
+NEEDLE_ID_OPTIONS = ["Automated", "User-selected"]
 THRESHOLD_OPTIONS = ["Automated", "User-selected"]
 BASELINE_OPTIONS = ["Automated", "User-selected"]
 NEEDLE_OPTIONS = ['0.7176', '1.270', '1.651']
