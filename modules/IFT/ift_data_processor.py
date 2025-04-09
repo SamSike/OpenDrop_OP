@@ -53,8 +53,7 @@ class IFTDataProcessor:
                 print(raw_experiment.volume)
                 print(raw_experiment.interfacial_tension)
                 print(raw_experiment.worthington)
-
-            extracted_data = [list of raw_experiment]
+                
             # extracted_data.contact_angles = raw_experiment.contact_angles # DS 7/6/21
             # self.output.append(extracted_data)
 
