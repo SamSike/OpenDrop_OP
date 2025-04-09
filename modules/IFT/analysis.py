@@ -120,12 +120,10 @@ class PendantAnalysisJob:
         self._ylfit_done(result)
 
     def _ylfit_done(self, result: YoungLaplaceFitResult) -> None:
-        continuous_density = self._experimental_setup.continuous_density
-        needle_diameter = self._experimental_setup.needle_diameter
-        pixel_scale = self._experimental_setup.pixel_scale or np.nan
+        continuous_density = self._experimental_setup.density_outer
+        needle_diameter = self._experimental_setup.needle_diameter_mm
+        pixel_scale = self._experimental_setup.pixel_mm or np.nan
         gravity = self._experimental_setup.gravity
-
-        print("setup: ", vars(self._experimental_setup))
 
         bond = result.bond
         apex_x = result.apex_x

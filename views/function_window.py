@@ -181,7 +181,6 @@ class FunctionWindow(CTk):
                     print("FunctionType.PENDANT_DROP")
 
                     self.withdraw()
-                    print("user_input_data!!!!!!!!!!: ", vars(user_input_data))
                     self.ift_processor.process_data(fitted_drop_data, user_input_data, callback=self.ift_analysis_frame.receive_output)
                     self.deiconify()
                   

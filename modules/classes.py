@@ -48,15 +48,13 @@ class ExperimentalSetup(object):
         self.output_directory = None
         self.image_source = "Local images"
         self.drop_region = None
+        self.density_outer = None # contininous density
+        self.needle_diameter_mm = None
 
         # variables for ca
         self.threshold_val = None
         self.baseline_method = 'Automated'
         self.edgefinder = None
-        self.density_outer = None # contininous density
-        self.needle_diameter_mm = None
-        self.drop_density = None
-        self.pixel_mm = None
         self.residuals_boole = None
         self.profiles_boole = None
         self.number_of_frames = None
@@ -81,9 +79,7 @@ class ExperimentalSetup(object):
         self.needle_region = None
         self.analysis_methods_ift = {INTERFACIAL_TENSION: True}
         self.drop_density= None
-        self.continuous_density= None
-        self.needle_diameter = None
-        self.pixel_scale = None
+        self.pixel_mm = None
         self.gravity = GRAVITY
         self.ift_thresh1 = 80.0
         self.ift_thresh2 = 160.0
