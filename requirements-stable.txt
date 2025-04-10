@@ -6,6 +6,7 @@ certifi==2024.7.4
 charset-normalizer==3.3.2
 customtkinter==5.2.2
 cycler==0.11.0
+Cython==3.0.12
 flatbuffers==23.5.26
 fonttools==4.38.0
 gast==0.4.0

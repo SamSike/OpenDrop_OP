@@ -5,6 +5,7 @@ certifi
 charset-normalizer
 customtkinter
 cycler
+Cython
 flatbuffers
 fonttools
 gast
