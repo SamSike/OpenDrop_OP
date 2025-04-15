@@ -16,6 +16,7 @@ import cv2 #for image reading, contour detection
 import math #for tilt_correction
 from scipy import misc, ndimage #for tilt_correction
 from scipy import signal #for CP ID
+from scipy.odr import Model, Data, ODR #for linear fit
 
 def auto_crop(img, low=50, high=150, apertureSize=3, verbose=0): # DS 08/06/23
     '''
@@ -210,10 +211,10 @@ def auto_crop(img, low=50, high=150, apertureSize=3, verbose=0): # DS 08/06/23
             bottom = int(center[1] + radius)
 
     else: #if the HoughLine function cannot identify a surface line, use the circle as a guide for bounds
-        left = int(np.int32(center[0]) - np.int32(radius))
-        right = int(np.int32(center[0]) + np.int32(radius))
-        top = int(np.int32(center[1]) - np.int32(radius))
-        bottom = int(np.int32(center[1]) + np.int32(radius))
+        left = int(center[0] - radius)
+        right = int(center[0] + radius)
+        top = int(center[1] - radius)
+        bottom = int(center[1] + radius)
 
     pad = int(max([right - left,bottom-top])/4)
 
@@ -1118,23 +1119,13 @@ def extract_edges_CV(img, threshold_val=None, return_thresholed_value=False, dis
         return output
 
 def line_circle_intersection(line_point1, line_point2, circle_center, circle_radius):
-    """
-    Calculate the intersection points of a line and a circle.
+    import numpy as np
 
-    Args:
-    line_point1 (tuple): (x, y) of first point on the line
-    line_point2 (tuple): (x, y) of second point on the line
-    circle_center (tuple): (x, y) of circle center
-    circle_radius (float): radius of the circle
-
-    Returns:
-    list: List of intersection points (can be empty, have one point, or two points)
-    """
-
-    # Convert inputs to numpy arrays for easier calculation
-    p1 = np.array(line_point1)
-    p2 = np.array(line_point2)
-    c = np.array(circle_center)
+    # Convert inputs to numpy arrays of float64 to prevent integer overflow
+    p1 = np.array(line_point1, dtype=np.float64)
+    p2 = np.array(line_point2, dtype=np.float64)
+    c = np.array(circle_center, dtype=np.float64)
+    r = float(circle_radius)  # ensure radius is float
 
     # Calculate the direction vector of the line
     direction = p2 - p1
@@ -1145,7 +1136,7 @@ def line_circle_intersection(line_point1, line_point2, circle_center, circle_rad
     # Calculate quadratic equation coefficients
     a = np.dot(direction, direction)
     b = 2 * np.dot(f, direction)
-    c = np.dot(f, f) - circle_radius**2
+    c = np.dot(f, f) - r**2
 
     # Calculate the discriminant
     discriminant = b**2 - 4*a*c
@@ -1155,13 +1146,14 @@ def line_circle_intersection(line_point1, line_point2, circle_center, circle_rad
         return []  # No intersection
     elif discriminant == 0:
         t = -b / (2*a)
-        return [p1 + t * direction]  # One intersection point
+        return [p1 + t * direction]
     else:
         t1 = (-b + np.sqrt(discriminant)) / (2*a)
         t2 = (-b - np.sqrt(discriminant)) / (2*a)
         coords = np.array([p1 + t1 * direction, p1 + t2 * direction])
         sorted_coords = coords[coords[:, 0].argsort()]
-        return sorted_coords  # Two intersection points
+        return sorted_coords
+
 
 def tilt_correction(img, baseline, user_set_baseline=False):
     """img is an image input
@@ -1195,13 +1187,13 @@ def tilt_correction(img, baseline, user_set_baseline=False):
 
     return rotate_img_crop
 
-def isolate_contour(img_orig, display=False):
+def isolate_contour(img_orig, DISPLAY=False):
     """
     Isolate the contour of a drop and its surrounding surface from an input image.
 
     Args:
         img_orig (numpy.ndarray): The input image containing the drop and surface.
-        display (bool, optional): Whether to display intermediate results and plots. Defaults to False.
+        DISPLAY (bool, optional): Whether to display intermediate results and plots. Defaults to False.
 
     Returns:
         tuple: A tuple containing two numpy arrays:
@@ -1215,11 +1207,11 @@ def isolate_contour(img_orig, display=False):
     4. Attempts to find a surface line (baseline) using the `hough_baseline` function.
     5. If a baseline is found, performs tilt correction on the input image.
     6. Attempts to find a circular drop using the `hough_circle` function.
-    7. Displays the identified shapes of interest (baseline and circle) if `display` is True.
+    7. Displays the identified shapes of interest (baseline and circle) if `DISPLAY` is True.
     8. Crops the image based on the detected baseline and circle, with some padding.
     9. Extracts edges from the cropped image and clusters them using `cluster_OPTICS`.
     10. Determines an approximate contour for the drop only, based on the detected baseline or circle.
-    11. If `display` is True, plots the contours of the drop and surface, as well as the drop only.
+    11. If `DISPLAY` is True, plots the contours of the drop and surface, as well as the drop only.
     12. Returns the contours of the drop and surface (`longest`), and the approximate contour of the drop only (`drop_only`).
     """
     ### declare flags
@@ -1267,7 +1259,7 @@ def isolate_contour(img_orig, display=False):
             maxkey = keys[1]
             longest_contour = np.array(groups[maxkey])
 
-    if display:
+    if DISPLAY:
         plt.title('image with longest found contour that is not the needle')
         plt.imshow(img_orig)
         #plt.plot(edges[:,0],edges[:,1])
@@ -1281,7 +1273,7 @@ def isolate_contour(img_orig, display=False):
     for x,y in longest_contour:
         canny_input[y, x] = 255 #y,x because image coordinates
 
-    if display:
+    if DISPLAY:
         plt.title('canny input')
         plt.imshow(canny_input)
         plt.axis('equal')
@@ -1316,7 +1308,7 @@ def isolate_contour(img_orig, display=False):
 
         hough_line = hough_baseline(canny_input, display=False)
         BASELINE = np.array(hough_line)
-        if display:
+        if DISPLAY:
             plt.title('Hough baseline after tilt')
             plt.imshow(img)
             plt.plot(BASELINE[:,0], BASELINE[:,1],'r')
@@ -1333,7 +1325,7 @@ def isolate_contour(img_orig, display=False):
     except:
         print('Hough circle failed to identify a drop')
 
-    if display:
+    if DISPLAY:
         plt.title('Identified shapes of interest')
         plt.imshow(img)
         try:
@@ -1482,7 +1474,7 @@ def isolate_contour(img_orig, display=False):
 
     gray = cv2.cvtColor(img_crop, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    if display:
+    if DISPLAY:
         print('cropped threshold value: ', ret)
         plt.title('drop region')
         plt.imshow(thresh)
@@ -1504,7 +1496,7 @@ def isolate_contour(img_orig, display=False):
     div_line = min(filtered_coords[:,1]) + (max(filtered_coords[:,1]) - min(filtered_coords[:,1]))*0.5
     drop_only = np.array([[x, y] for x, y in filtered_coords if y < div_line])
 
-    if display:
+    if DISPLAY:
         plt.imshow(img_processed)
         plt.plot(filtered_coords[:,0],filtered_coords[:,1],'r,')
         plt.plot(drop_only[:,0],drop_only[:,1], 'b.')
@@ -1519,6 +1511,69 @@ def isolate_contour(img_orig, display=False):
     return img_processed, filtered_coords, drop_only, info
 
 def linear_fit(coords, display=False):
+    """
+    Fit a line to an array of coordinates using Orthogonal Distance Regression (ODR).
+    This method correctly fits vertical lines if needed.
+
+    Args:
+        coords (list): A list of (x, y) coordinate tuples.
+        display (bool): If True, displays the contour, fitted line, and RMSE.
+
+    Returns:
+        tuple: A tuple containing the slope (m), intercept (c), and RMSE value.
+    """
+    x_coords, y_coords = np.array(coords).T
+
+    if np.std(x_coords) < 1e-6:  # Detect vertical line
+        return np.inf, np.mean(x_coords), 0  # Slope = infinity, Intercept = mean x
+
+    # Define linear function for ODR
+    def linear_func(beta, x):
+        return beta[0] * x + beta[1]
+
+    # Use initial guess from OLS (to handle non-vertical cases well)
+    A = np.vstack([x_coords, np.ones_like(x_coords)]).T
+    m_init, c_init = np.linalg.lstsq(A, y_coords, rcond=None)[0]
+
+    # Fit using ODR
+    model = Model(linear_func)
+    data = Data(x_coords, y_coords)
+    odr = ODR(data, model, beta0=[m_init, c_init])
+    out = odr.run()
+
+    m, c = out.beta  # Best-fit parameters
+
+    # Calculate RMSE using perpendicular distances
+    distances = np.abs(y_coords - (m * x_coords + c)) / np.sqrt(1 + m ** 2)
+    rmse_value = np.sqrt(np.mean(distances**2))
+
+    # Display the plot if required
+    if display:
+        plt.scatter(x_coords, y_coords, color='blue', label='Data Points')
+
+        # Plot fitted line
+        x_line = np.linspace(min(x_coords), max(x_coords), 100)
+        y_line = m * x_line + c
+        plt.plot(x_line, y_line, color='red', label=f'Fitted Line: y = {m:.2f}x + {c:.2f}')
+
+        # Display the equation and RMSE
+        plt.text(0.05, 0.95, f'Slope: {m:.2f}\nIntercept: {c:.2f}\nRMSE: {rmse_value:.2f}',
+                 transform=plt.gca().transAxes, fontsize=10, verticalalignment='top',
+                 bbox=dict(boxstyle='round', alpha=0.5))
+
+        plt.xlabel('X')
+        plt.ylabel('Y')
+        plt.title('ODR Linear Fit')
+        plt.axhline(0, color='black', linewidth=0.5)
+        plt.axvline(0, color='black', linewidth=0.5)
+        plt.grid(True, linestyle='--', alpha=0.6)
+        plt.gca().invert_yaxis()
+        plt.legend()
+        plt.show()
+
+    return m, c, rmse_value
+
+def linear_fit_ols(coords, display=False):
     """
     Fit a line to an array of coordinates using the least squares method.
     Optionally displays the fitted line and contour points.
@@ -1985,6 +2040,255 @@ def find_CP_static_Lfit(contour, drop_len, percentage=2.5, height=0, prominence=
 
     return CPs_output
 
+def iterative_Lfit(contour, n_pts, height=0, prominence=0, width=3, display=False):
+    """Takes the contour of an contact angle experimental image, and returns the
+    coordinates of the contact points. These point is found by tracking the gradient
+    of lines fitted to every n_pts coordinates change along the contour.
+    contour - a list or numpy array of coordinates of one half of the image, this is
+        assumed to include the needle.
+    n_pts - the gradient is calculated between coordinate i and coordinate i+n_pts
+    height - used to find signal peak in graph of RMSE. Specifies the minimum height
+        (vertical distance from the base) that a peak must have to be considered a
+        valid peak. Must be a non-negative value.
+    prominence - used to find signal peak in graph of RMSE. Specifies the minimum
+        vertical distance that a peak must have from its surrounding data (i.e., the
+        closest higher peak) to be considered a valid peak. Must be a non-negative value.
+    width - used to find signal peak in graph of RMSE. Specifies the minimum width (in
+        number of data points) that a peak must have to be considered a valid peak. Must
+        be a positive integer, 1 means no width requirement.
+    display - set to True to visualise progress
+    Note that the point where the drop meets the needle is a point of gradient change
+        and so this point is not returned.
+    The points which this function identifies are the points of low gradient which occur
+        after large changes in gradient - this can be visualised by setting display
+        to True
+    """
+
+    if n_pts < 12:
+        n_pts = 12
+    print(f'iterative fit approach using {n_pts} points')
+
+    # define output variables
+    CPs_output = []
+
+    # determine drop_guess using n_pts between widest points
+    if len(contour) >= 110:
+        # find drop apex and split into left and right sides
+        divline = int(min(contour[:,1])+(max(contour[:,1] - min(contour[:,1])*0.2)))
+
+        top = np.array([[x, y] for x, y in contour if y <= divline])
+        #bottom = np.array([[x, y] for x, y in contour if y < divline])
+        apex = np.array([[x, y] for x, y in top if y == min(top[:,1])])
+        xapex = min(apex[:,0]) + (max(apex[:,0]) - min(apex[:,0]))/2
+
+        left = np.array([[x, y] for x, y in contour if x <= xapex])
+        right = np.array([[x, y] for x, y in contour if x > xapex])
+    elif len(contour) == 2:
+        left = contour[0]
+        right = contour[1]
+    else:
+        print(f'Number of contours is not correct for find_CP_static_Lft, contour.shape[0] == {contour.shape[0]}')
+        print('Taking first 2 contours')
+
+    contours = [left,right]
+
+    for side, contour in enumerate(contours):
+        if type(contour) != list:
+            contour = contour.tolist()
+        # order the contour
+        if side == 0:
+            top_down = sorted(contour[::-1], key=lambda x: x[1])
+        else:
+            top_down = sorted(contour, key=lambda x: x[1])
+        contour = optimized_path(top_down,start=top_down[0])
+
+        if display:
+            jet= plt.get_cmap('jet')
+            colors = iter(jet(np.linspace(0,1,len(contour))))
+            for n,coord in enumerate(contour):
+                plt.plot(contour[n,0],contour[n,1], 'o', color=next(colors))
+            plt.title('ordered points, starting from blue')
+            plt.axis('equal')
+            plt.show()
+            plt.close()
+
+        # perform iterative linear fits
+        gradients = []
+        RMSEs = []
+        for i, coord in enumerate(contour):
+            if i < len(contour) - n_pts:
+                m, c, rmse = linear_fit(contour[i:i+n_pts])
+                gradients.append(m)
+                RMSEs.append(rmse)
+
+        # set the gradient of vertical lines to be the same as the previous point
+        for i,m in enumerate(gradients):
+            if str(m)=='inf' or str(m)=='-inf':
+                gradients[i] = gradients[i-1]
+
+        ### return the indices of each RMSE peak
+        #RMSE_peaks_indices = signal.find_peaks(RMSEs, height=max(RMSEs)*0.3, prominence=0.5, width=5)[0] # height was 1
+        #RMSE_peaks_indices = signal.find_peaks(RMSEs, height=max(RMSEs)*0.2, prominence=0.3, width=5)[0] # height was 1
+        RMSE_peaks_indices = signal.find_peaks(RMSEs, height=max(RMSEs)*0.3, prominence=0.3, width=5)[0]
+        RMSE_peaks_indices = sorted(RMSE_peaks_indices.tolist())
+        if display == True:
+            print('found indices using signal.find_peaks: ',RMSE_peaks_indices)
+            if len(RMSE_peaks_indices) == 0:
+                print('No peaks found in RMSE plot')
+
+        # return the index of the max RMSE point, often this is missed by the signal package - so add it manually
+        #if len(RMSE_peaks_indices)==0:
+        max_RMSE_idx = RMSEs.index(np.nanmax(RMSEs))
+        if max_RMSE_idx not in RMSE_peaks_indices:
+            RMSE_peaks_indices.append(max_RMSE_idx)
+        RMSE_peaks_indices = sorted(RMSE_peaks_indices)
+
+        if 0:
+            plt.title('initial RMSEs and those flagged')
+            # show found indicies
+            for i, RMSE in enumerate(RMSEs):
+                plt.plot(i,RMSE, 'bo')
+            for index in RMSE_peaks_indices:
+                plt.plot(index, RMSEs[index], 'rx')
+            plt.xlabel('index')
+            plt.ylabel('RMSE')
+            plt.show()
+            plt.close()
+
+        # include index of points where the gradient is near zero and changes sign - to catch reflections
+        threshold = (max(gradients) - min(gradients))*0.3 # was 0.1
+        sign_changes = np.where(abs(np.diff(np.sign(gradients)))>=1)[0]
+        near_zero_indices = np.where(np.abs(gradients) < threshold)[0]
+        gradient_change_indices = [val for val in near_zero_indices if val in sign_changes]
+
+        # put indices of gradient change and high RMSE together into a list
+        #indices = sorted(RMSE_peaks_indices + gradient_change_indices)
+        indices = gradient_change_indices + RMSE_peaks_indices[::-1] # order this way to leave the most likely index last
+
+        # remove any duplicates
+        indices = list(set(indices))
+
+        if display == True:
+            print('found indices using RMSE peaks and points of gradient change: ',sorted(indices))
+
+        # don't use the first or last points
+        indices = [idx for idx in indices if idx != 0 and idx != len(RMSEs)-1]
+        # don't use points at the very start of the curve
+        indices = [idx for idx in indices if idx >= 3*n_pts]
+        # don't use points where the RMSE immediately before or after is 0 - this might just be where the line is verical
+        indices = [index for index in indices if RMSEs[index - 1] != 0 and RMSEs[index + 1] != 0]
+
+        # set variables for exclusion search
+        RMSE_h = max(RMSEs) - min(RMSEs)
+        gradient_h = max(gradients) - min(gradients)
+        RMSE_jump_too_high = 0.25 #0.15
+        RMSE_tolerance = 0.2 #was 0.15, 0.5
+        gradient_tolerance = 0.12 # was 0.1
+        floor_tolerance = 0.01 # to ignore points right on next to each other on plots
+
+        indices.sort()
+        # Filter out indices with too high RMSE jumps at high gradients
+        indices = [idx for idx in indices if len(indices) <= 1 or
+                   ((abs(RMSEs[idx] - RMSEs[idx-1]) <= RMSE_h*RMSE_jump_too_high and
+                    abs(RMSEs[idx] - RMSEs[idx+1]) <= RMSE_h*RMSE_jump_too_high) or abs(gradients[idx]) <= 0.5)]
+        # print (but would need to define some new variable names for indices)
+        #for idx in sorted(list(set(indices) - set(new_indices))):
+            #print(f'Removing index {idx} due to RMSE jump of {RMSE_jump_too_high}')
+
+        #indices = indices[::-1]
+        print('indices before comparing RMSEs and gradients: ', sorted(indices))
+
+        # take out any indices near the drop apex (first 15% of drop contour points)
+        indices = [value for value in indices if value > len(contour)*0.15]
+
+        # remove any points that are now out of range of the length of the contour
+        indices = [idx for idx in indices if idx <= len(gradients)]
+
+        #peak_gradients = [gradients[int(idx - n_pts/2)] for idx in indices]
+        peak_gradients = [gradients[idx] for idx in indices]
+
+        # take out any indices for points higher than the 60% contour height
+        div_line = min(contour[:,1]) + (max(contour[:,1]) - min(contour[:,1]))*0.4
+        # take out any indices for points higher than the 40% contour height
+        #div_line = min(contour[:,1]) + (max(contour[:,1]) - min(contour[:,1]))*0.6
+        indices = [idx for idx in indices if contour[idx,1] >= div_line]
+
+        # now order lowest to highest
+        indices = sorted(indices)
+
+        # if none left use the max RMSE
+        if len(indices) < 1:
+            indices.append(max_RMSE_idx)
+
+        if display:
+            print()
+            #print('peak_gradients: ', peak_gradients)
+            #print('RMSE peaks found: ', RMSE_peaks_indices)
+            print('indices of interest found: ',indices)
+
+            plt.title('plot of fit RMSEs')
+            plt.plot(range(len(RMSEs)), RMSEs,'.')
+            h = max(RMSEs) - min(RMSEs)
+            w = len(RMSEs)
+            for i, idx in enumerate(indices):
+                #if idx in RMSE_peaks_indices:
+                if i==0:
+                    plt.plot(idx,RMSEs[idx],'r+')
+                else:
+                    plt.plot(idx,RMSEs[idx],'+', color='pink')
+                label = f"({idx:.2f}, {RMSEs[idx]:.2f})"
+                plt.annotate(label, xy=(idx, RMSEs[idx]), xytext=(idx + w*0.1, RMSEs[idx] - h*0.1), textcoords="data", arrowprops=dict(arrowstyle="->", connectionstyle="arc3"))
+            plt.xlabel('coordinate index')
+            plt.ylabel('RMSE')
+            plt.show()
+            plt.close()
+
+            plt.title('plot of gradients')
+            plt.plot(range(len(gradients)), gradients,'.')
+            #for idx in RMSE_peaks_indices:
+            for i,idx in enumerate(indices):
+                #if idx in gradient_change_indices:
+                if i==0:
+                    plt.plot(idx,gradients[idx],'r+')
+                else:
+                    plt.plot(idx,gradients[idx],'+', color='pink')
+                label = f"({idx:.2f}, {gradients[idx]:.2f})"
+                plt.annotate(label, xy=(idx, gradients[idx]), xytext=(idx + w*0.1, gradients[idx] - h*0.1), textcoords="data", arrowprops=dict(arrowstyle="->", connectionstyle="arc3"))
+
+            plt.xlabel('coordinate index')
+            plt.ylabel('gradient')
+            plt.show()
+            plt.close()
+
+        CP_indices = []
+        for idx in indices:
+            CP_indices.append(idx + round(n_pts/2))
+
+
+        if display:
+            print('index of identified points of interest: ',CP_indices)
+            #print('final corrected list contact points:\n',np.array([contour[idx] for idx in CP_indices]))
+            plt.title('Points of interest')
+            plt.plot(contour[:,0],contour[:,1],',')
+            h = max(contour[:,1]) - min(contour[:,1])
+            w = len(contour[:,0])
+            for i, idx in enumerate(CP_indices):
+                if i==0:
+                    plt.plot(contour[idx,0],contour[idx,1],'r+')
+                    label = f"({contour[idx,0]:.2f}, {contour[idx,1]:.2f})"
+                    plt.annotate(label, xy=(contour[idx,0],contour[idx,1]), xytext=(contour[idx,0], contour[idx,1] + 100), textcoords="data", arrowprops=dict(arrowstyle="->", connectionstyle="arc3")) #h*0.05
+                else:
+                    plt.plot(contour[idx,0],contour[idx,1],'r+')
+            plt.plot(contour[:n_pts,0],contour[:n_pts,1], 'g.')
+            plt.gca().invert_yaxis()
+            plt.axis('equal')
+            plt.show()
+            plt.close()
+
+        CPs_output.append(contour[CP_indices].tolist())
+
+    return CPs_output
+
 def find_CP_static_hydrophobic(contour, display=False):
     """Find the contact points of a drop contour by taking the inner most points of the bottom 10% of the drop contour.
     contour (array) - a 2D array of coordinate pairs (in image format).
@@ -2252,7 +2556,7 @@ def check_for_high_angle(contour, display=False):
         elif i==1:
             edge = find_leftmost_coordinates(edge)
 
-        if display:
+        if 0:
             check_order(edge)
 
         widest = edge[10]
@@ -2448,18 +2752,15 @@ def CPID(contour, display=False):
         print(f'Number of contours is not correct for CPID, contour.shape[0] == {contour.shape[0]}')
         print('Taking first 2 contours')
 
-    if Lfit_n_pts < 10:
-        Lfit_n_pts = 10
     n_pts = 10
-    print(f'n_pts is {n_pts}')
 
     # first check if any of the CP_guesses are the same as any of the widest points
     if np.any(np.all(CP_guesses[:, None] == widest_points, axis=2)):
         # use Lfit
-        restriction1 = max(0, widest_index1 - 2*n_pts)
-        restriction2 = min(len(contour), widest_index2 + 2*n_pts)
+        restriction1 = max(0, widest_index1 - 4*n_pts)
+        restriction2 = min(len(contour), widest_index2 + 4*n_pts)
         restricted_contour = contour[restriction1 : restriction2]
-        if display:
+        if 0:
             plt.title('plot restricted contour')
             plt.plot(restricted_contour[:,0], restricted_contour[:,1], '.')
             plt.plot(widest_points[:,0], widest_points[:,1], '.', label='widest points')
@@ -2468,7 +2769,7 @@ def CPID(contour, display=False):
             plt.show()
             plt.close()
 
-        Lfit_out = find_CP_static_Lfit(restricted_contour, Lfit_n_pts, display=display)
+        Lfit_out = iterative_Lfit(restricted_contour, Lfit_n_pts, display=display)
         left_Lfit, right_Lfit = Lfit_out[0][0], Lfit_out[1][0]
 
         # take the right most point of those determined by Lfit and widest points
@@ -2514,7 +2815,7 @@ def CPID(contour, display=False):
         #widest2_to_apex = calculate_contact_angle((apex[1] - widest_points[1][1]) / (apex[0] - widest_points[1][0]), 'right')
         #print(f'angles to apex {widest1_to_apex}, and {widest2_to_apex}')
 
-        error_margin = 17
+        error_margin = 18
         final_CPs = []
         full_Lfit = False
         #if widest1_top_angle < 60 or widest2_top_angle < 60:
@@ -2528,8 +2829,8 @@ def CPID(contour, display=False):
         #if widest1_top_angle > 180 - widest1_bottom_angle - buffer or widest2_top_angle > 180 - widest2_bottom_angle - buffer: #4 for error
         if widest1_top_angle > 90 - error_margin or widest2_top_angle > 90 - error_margin:
             # if the angle under the widest point is big enough then it should be reflective
-            if widest1_bottom_angle > 120 or widest2_bottom_angle > 120:
-                print('large angles under widest - low angle reflective')
+            if widest1_bottom_angle > 100 or widest2_bottom_angle > 100:
+                print('large angles under widest points - low angle reflective')
                 print(f'angles preceding widest point are {widest1_top_angle}, {widest2_top_angle}')
                 print(f'angles proceeding widest point are {widest1_bottom_angle}, {widest2_bottom_angle}')
                 final_CPs = widest_points
@@ -2542,6 +2843,13 @@ def CPID(contour, display=False):
             #    print(f'180 - widest2_bottom_angle - widest2_top_angle = {180 - widest2_bottom_angle - widest2_top_angle}')
             #    final_CPs = widest_points
 
+            # check if the angles over and under the widest point are close to each other, and the bottom angle is harsh enough - then reflective
+            elif (180 - widest1_top_angle - widest1_bottom_angle < 8 and widest1_bottom_angle > 99) or (180 - widest2_top_angle - widest2_bottom_angle < 8 and widest1_bottom_angle > 99):
+                print('angles on either side of widest points are similar - reflective')
+                print(f'angles preceding widest point are {widest1_top_angle}, {widest2_top_angle}')
+                print(f'angles proceeding widest point are {widest1_bottom_angle}, {widest2_bottom_angle}')
+                final_CPs = widest_points
+
             # if not reflective, then is the angle under the widest point high enough for it to a high angle system?
             elif 180 - widest1_bottom_angle > 79 or 180 - widest2_bottom_angle > 79: #78
                 # high angle systems that may appear to the code as reflective
@@ -2549,6 +2857,7 @@ def CPID(contour, display=False):
                 print(f'angles preceding widest point are {widest1_top_angle}, {widest2_top_angle}')
                 print(f'angles proceeding widest point are {widest1_bottom_angle}, {widest2_bottom_angle}')
                 final_CPs = CP_guesses
+
             # otherwise use Lfit if unsure
             else:
                 #final_CPs = widest_points
@@ -2556,7 +2865,7 @@ def CPID(contour, display=False):
                 # restrict contour to just past CP_guesses
                 CP_guess_index1 = np.where((contour == CP_guesses[0]).all(axis=1))[0][0]
                 CP_guess_index2 = np.where((contour == CP_guesses[1]).all(axis=1))[0][0]
-                restricted_contour = contour[CP_guess_index1 - n_pts : CP_guess_index2 + n_pts]
+                restricted_contour = contour[CP_guess_index1 - 4*n_pts : CP_guess_index2 + 4*n_pts]
                 if 0:
                     plt.title('plot restricted contour')
                     plt.plot(restricted_contour[:,0], restricted_contour[:,1], '.')
@@ -2566,7 +2875,7 @@ def CPID(contour, display=False):
                     plt.show()
                     plt.close()
                 # if this isn't quite working, can use L_fit here
-                final = find_CP_static_Lfit(restricted_contour, Lfit_n_pts, display=display)
+                final = iterative_Lfit(restricted_contour, Lfit_n_pts, display=display)
                 left_CP, right_CP = final[0][0], final[1][0]
                 final_CPs = np.array([left_CP,right_CP])
 
@@ -2588,7 +2897,7 @@ def CPID(contour, display=False):
             # restrict contour to just past CP_guesses
             CP_guess_index1 = np.where((contour == CP_guesses[0]).all(axis=1))[0][0]
             CP_guess_index2 = np.where((contour == CP_guesses[1]).all(axis=1))[0][0]
-            restricted_contour = contour[CP_guess_index1 - n_pts : CP_guess_index2 + n_pts]
+            restricted_contour = contour[CP_guess_index1 - 4*n_pts : CP_guess_index2 + 4*n_pts]
             if 0:
                 plt.title('plot restricted contour')
                 plt.plot(restricted_contour[:,0], restricted_contour[:,1], '.')
@@ -2598,7 +2907,7 @@ def CPID(contour, display=False):
                 plt.show()
                 plt.close()
             # if this isn't quite working, can use L_fit here
-            final = find_CP_static_Lfit(restricted_contour, Lfit_n_pts, display=display)
+            final = iterative_Lfit(restricted_contour, Lfit_n_pts, display=display)
             left_CP, right_CP = final[0][0], final[1][0]
             final_CPs = np.array([left_CP,right_CP])
 
@@ -2620,14 +2929,14 @@ def preprocess(img, display=False):
     """This code serves as a discrete instance of image preprocessing before contact
     angle fit software is implemented.
     """
-    img_processed, longest_contour, drop_guess, info = isolate_contour(img,display=display)
+    img_processed, longest_contour, drop_guess, info = isolate_contour(img,DISPLAY=display)
 
     CPs_chosen = CP_ID_static(longest_contour, drop_guess, info, display=display)
 
     if 0: #if info['line'].any() == None:
         # this is only sometimes appropriate, best to assume a decent image is taken
         img = tilt_correction(img, CPs_chosen)
-        img_processed, longest_contour, drop_guess, info = isolate_contour(img,display=display)
+        img_processed, longest_contour, drop_guess, info = isolate_contour(img,DISPLAY=display)
         CPs_chosen = CP_ID_static(longest_contour, drop_guess, info, display=display)
 
     if display:

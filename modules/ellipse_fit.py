@@ -878,9 +878,9 @@ def ell_parameters( a ):
     """
     now it is in the form xT A x - 1 = 0
     and we know that A is a rotation of the matrix
-        ( 1 / aÂ²   0 )
+        ( 1 / a²   0 )
     B = (            )
-        ( 0   1 / bÂ² )
+        ( 0   1 / b² )
     where a and b are the semi axes of the ellipse
     it is hence A = ST B S
     We note that rotation does not change the eigenvalues, which are
@@ -898,7 +898,7 @@ def ell_parameters( a ):
     # ~B = np.dot( np.transpose(V), np.dot( Anew, V ) ) ### debug only
     phi = np.arccos( V[ 0, 0 ] )
     """
-    checking the sin for changes in sign to detect angles above 180Â°
+    checking the sin for changes in sign to detect angles above 180°
     """
     if V[ 0, 1 ] < 0:
         phi = 2 * np.pi - phi
@@ -911,7 +911,7 @@ def ell_parameters( a ):
 
     return np.sqrt( 1. / E ), phi * RAD, -t
     """
-    That's it. One might put some additional work/thought in the 180Â°
+    That's it. One might put some additional work/thought in the 180°
     and cw vs ccw thing, as it is a bit messy.
     """
 
@@ -1132,7 +1132,7 @@ def ellipse_fit_img(img,display=False):
     if display:
         print('centre points: '+str(t))
         print('a and b: '+str(a)+', '+str(b))
-        print('phi (Â°): '+str(phi_deg))
+        print('phi (°): '+str(phi_deg))
 
         #plot
         fig = plt.figure()
@@ -1243,7 +1243,7 @@ def ellipse_fit(drop,display=False):
     if display:
         print('centre points: '+str(t))
         print('a and b: '+str(a)+', '+str(b))
-        print('phi (Â°): '+str(phi_deg))
+        print('phi (°): '+str(phi_deg))
 
         if 1:#plot
             fig = plt.figure()

@@ -11,7 +11,6 @@ conan-ML_cv1.1/modules/select_regions.py"""
 
 from sklearn.cluster import OPTICS # for clustering algorithm
 import scipy.optimize as opt
-import numba
 import math
 from scipy.spatial import distance
 from scipy.integrate import solve_ivp
@@ -792,6 +791,85 @@ def polynomial_closest_point(xp, yp, poly_points, display=False):
 
     return dist[idx], [x[idx],y[idx]]
 
+def points_to_angle(x1, y1, x2, y2):
+    """
+    Calculate the angle in degrees between two points in a 2D plane.
+
+    This function computes the angle formed by the line connecting two points
+    (x1, y1) and (x2, y2) with respect to the positive x-axis.
+
+    Parameters:
+    x1 (float): The x-coordinate of the first point.
+    y1 (float): The y-coordinate of the first point.
+    x2 (float): The x-coordinate of the second point.
+    y2 (float): The y-coordinate of the second point.
+
+    Returns:
+    float: The angle in degrees, where:
+        - 0 degrees points to the right (positive x-axis)
+        - Positive angles rotate counterclockwise
+        - Negative angles rotate clockwise
+        - Range is from -180 to 180 degrees
+
+    Note:
+    - If the points are identical, the function will return 0.
+    - If the line is vertical, it returns 90 for upward direction and -90 for downward direction.
+
+    Example:
+    >>> points_to_angle(0, 0, 1, 1)
+    45.0
+    >>> points_to_angle(0, 0, 0, 1)
+    90.0
+    """
+    dx = x2 - x1
+    dy = y2 - y1
+    if dx == 0:
+        return 90 if dy > 0 else -90
+    return math.degrees(math.atan2(dy, dx))
+
+def gradient_to_contact_angles(gradient):
+    """
+    Convert a gradient (slope) to left and right contact angles for image coordinates.
+
+    In image coordinates, y increases downward, so positive gradients result in
+    clockwise rotation from horizontal.
+
+    Left contact angle is measured counter-clockwise from right-facing horizontal.
+    Right contact angle is measured clockwise from left-facing horizontal.
+    All angles are returned in the range [0, 180].
+
+    Parameters:
+    gradient (float or np.inf): The slope of the line in image coordinates
+
+    Returns:
+    tuple: (left_angle, right_angle) in degrees, both in range [0, 180]
+    """
+    # Handle vertical line case
+    if np.isinf(gradient):
+        return 90.0, 90.0
+
+    # For image coordinates, we need to negate the gradient
+    # This converts from image coordinates to standard coordinates
+    gradient = -gradient
+
+    # Calculate the base angle from the gradient
+    base_angle = math.atan(gradient)
+
+    # Convert to degrees
+    base_angle_deg = math.degrees(base_angle)
+
+    # Ensure base angle is positive
+    if base_angle_deg < 0:
+        base_angle_deg += 180
+
+    # Left contact angle is the base angle
+    left_angle = base_angle_deg % 180
+
+    # Right contact angle is the supplementary angle
+    right_angle = (180 - left_angle) % 180
+
+    return left_angle, right_angle
+
 def polynomial_fit_errors(pts1,pts2,fit_left,fit_right, display=False):
     """
     Calculates the minimum distance between a point and a point of the polynomial fit.
@@ -921,6 +999,7 @@ def polynomial_fit_img(img,
         plt.imshow(img)
         pts1_width = abs(pts1[:,0][-1]-pts1[:,0][0])
         pts1_height = abs(pts1[:,1][-1]-pts1[:,1][0])
+        plt.axis('equal')
         plt.xlim(min(pts1[:,0])-pts1_width,max(pts1[:,0])+pts1_width)
         plt.ylim(max(pts1[:,1])+pts1_height,min(pts1[:,1])-pts1_height)
         plt.title('fitted points left side')
@@ -933,30 +1012,36 @@ def polynomial_fit_img(img,
         plt.imshow(img)
         pts2_width = abs(pts2[:,0][-1]-pts2[:,0][0])
         pts2_height = abs(pts2[:,1][-1]-pts2[:,1][0])
+        plt.axis('equal')
         plt.xlim(min(pts2[:,0])-pts2_width,max(pts2[:,0])+pts2_width)
         plt.ylim(max(pts2[:,1])+pts2_height,min(pts2[:,1])-pts2_height)
         plt.title('fitted points right side')
         plt.show()
         plt.close()
 
-    m_surf = float(CPs[1][1]-CPs[0][1])/float(CPs[1][0]-CPs[0][0])
+    surf_angle = points_to_angle(CPs[0][0], CPs[0][1], CPs[1][0], CPs[1][1])
+    # this is wrong, bc this just gives the angle between fitted start and end points, not the angle at the CP
+    #left_angle = - points_to_angle(pts1[0,0], line_local1(pts1[0,0]), pts1[-1,0], line_local1(pts1[-1,0]))
+    #right_angle = 180 + points_to_angle(pts2[0,0], line_local2(pts2[0,0]), pts2[-1,0], line_local2(pts2[-1,0]))
+    # calculate angle at contact points
+    left_angle, _ = gradient_to_contact_angles(m1)
+    _, right_angle = gradient_to_contact_angles(m2)
 
-    if (m1 > 0):
-        contact_angle1 = np.pi-np.arctan((m1-m_surf)/(1+m1*m_surf))
-    elif(m1 < 0):
-        contact_angle1 = -np.arctan((m1-m_surf)/(1+m1*m_surf))
-    else:
-        contact_angle1 = np.pi/2
 
-    if (m2 < 0):
-        contact_angle2 = np.pi+np.arctan((m2-m_surf)/(1+m2*m_surf))
-    elif(m2 > 0):
-        contact_angle2 = np.arctan((m2-m_surf)/(1+m2*m_surf))
-    else:
-        contact_angle2 = np.pi/2
+    left_angle += surf_angle
+    right_angle -= surf_angle
 
-    contact_angle1 = contact_angle1*180/np.pi
-    contact_angle2 = contact_angle2*180/np.pi
+    # if giving flat line - make sure the angle is correct
+    if left_angle < 1:
+        widest = min(profile[:,0])
+        print(widest)
+        print(CPs)
+        if widest < CPs[0][0]:
+            left_angle = abs(180 - left_angle)
+    if right_angle < 1:
+        widest = max(profile[:,0])
+        if widest > CPs[1][0]:
+            right_angle = abs(180 - right_angle)
 
     fit_time = time.time() - fit_start_time
 
@@ -969,9 +1054,9 @@ def polynomial_fit_img(img,
     timings['fit time'] = fit_time
     timings['analysis time'] = analysis_time
 
-    return [contact_angle1, contact_angle2], intercepts, errors, timings
+    return [left_angle, right_angle], intercepts, errors, timings
 
-def polynomial_fit(profile, Npts=15, polynomial_degree=2, display=False):
+def polynomial_fit(profile, Npts=None, polynomial_degree=2, display=False):
     """Takes in input contact angle experimental image, and outputs the fitted
     angles and intercept coordinates. For best results, preprocessing should be
     performed before calling this function.
@@ -985,6 +1070,11 @@ def polynomial_fit(profile, Npts=15, polynomial_degree=2, display=False):
     Npts is the number of points included in the polynomial fit. The default number
         of points used is 10.
     display can be set to "True" to output figures."""
+
+    if Npts == None:
+        Npts = int(len(profile)*0.05)
+        if Npts < 10:
+            Npts = 10
 
     start_time = time.time()
     CPs = [profile[0],profile[-1]]
@@ -1033,8 +1123,9 @@ def polynomial_fit(profile, Npts=15, polynomial_degree=2, display=False):
         #plt.imshow(img)
         pts1_width = abs(pts1[:,0][-1]-pts1[:,0][0])
         pts1_height = abs(pts1[:,1][-1]-pts1[:,1][0])
-        plt.xlim(min(pts1[:,0])-pts1_width,max(pts1[:,0])+pts1_width)
-        plt.ylim(max(pts1[:,1])+pts1_height,min(pts1[:,1])-pts1_height)
+        plt.axis('equal')
+        plt.xlim(min(pts1[:,0])-pts1_width-2,max(pts1[:,0])+pts1_width+2)
+        plt.ylim(max(pts1[:,1])+pts1_height+2,min(pts1[:,1])-pts1_height-2)
         plt.title('fitted points left side')
         plt.show()
         plt.close()
@@ -1045,30 +1136,35 @@ def polynomial_fit(profile, Npts=15, polynomial_degree=2, display=False):
         #lt.imshow(img)
         pts2_width = abs(pts2[:,0][-1]-pts2[:,0][0])
         pts2_height = abs(pts2[:,1][-1]-pts2[:,1][0])
+        plt.axis('equal')
         plt.xlim(min(pts2[:,0])-pts2_width,max(pts2[:,0])+pts2_width)
         plt.ylim(max(pts2[:,1])+pts2_height,min(pts2[:,1])-pts2_height)
         plt.title('fitted points right side')
         plt.show()
         plt.close()
 
-    m_surf = float(CPs[1][1]-CPs[0][1])/float(CPs[1][0]-CPs[0][0])
+    surf_angle = points_to_angle(CPs[0][0], CPs[0][1], CPs[1][0], CPs[1][1])
+    # this is wrong, bc this just gives the angle between fitted start and end points, not the angle at the CP
+    #left_angle = - points_to_angle(pts1[0,0], line_local1(pts1[0,0]), pts1[-1,0], line_local1(pts1[-1,0]))
+    #right_angle = 180 + points_to_angle(pts2[0,0], line_local2(pts2[0,0]), pts2[-1,0], line_local2(pts2[-1,0]))
+    # calculate angle at contact points
+    left_angle, _ = gradient_to_contact_angles(m1)
+    _, right_angle = gradient_to_contact_angles(m2)
 
-    if (m1 > 0):
-        contact_angle1 = np.pi-np.arctan((m1-m_surf)/(1+m1*m_surf))
-    elif(m1 < 0):
-        contact_angle1 = -np.arctan((m1-m_surf)/(1+m1*m_surf))
-    else:
-        contact_angle1 = np.pi/2
+    left_angle += surf_angle
+    right_angle -= surf_angle
 
-    if (m2 < 0):
-        contact_angle2 = np.pi+np.arctan((m2-m_surf)/(1+m2*m_surf))
-    elif(m2 > 0):
-        contact_angle2 = np.arctan((m2-m_surf)/(1+m2*m_surf))
-    else:
-        contact_angle2 = np.pi/2
-
-    contact_angle1 = contact_angle1*180/np.pi
-    contact_angle2 = contact_angle2*180/np.pi
+    # if giving flat line - make sure the angle is correct
+    if left_angle < 1:
+        widest = min(profile[:,0])
+        print(widest)
+        print(CPs)
+        if widest < CPs[0][0]:
+            left_angle = abs(180 - left_angle)
+    if right_angle < 1:
+        widest = max(profile[:,0])
+        if widest > CPs[1][0]:
+            right_angle = abs(180 - right_angle)
 
     fit_time = time.time() - start_time
 
@@ -1080,7 +1176,7 @@ def polynomial_fit(profile, Npts=15, polynomial_degree=2, display=False):
     timings['fit time'] = fit_time
     timings['analysis time'] = analysis_time
 
-    return [contact_angle1, contact_angle2], CPs, tangent_lines, errors, timings
+    return [left_angle, right_angle], CPs, tangent_lines, errors, timings
 
 if 0:
     IMG_PATH = '../../RICOphobic_cropped.png'

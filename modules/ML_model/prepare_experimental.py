@@ -1770,9 +1770,19 @@ def experimental_pred(pred_ds, model, display=False):
 
     start_time = time.time()
 
+    # Convert to float32
+    pred_ds_float32 = pred_ds.astype(np.float32)
     ML_prediction_start_time = time.time()
 
-    predictions = model.predict(pred_ds)
+    # Use signatures approach instead of predict
+    input_tensor = tf.convert_to_tensor(pred_ds_float32)
+    predictions = model.signatures['serving_default'](**{'conv1d_input': input_tensor})
+    # Extract from result dictionary if needed
+    if isinstance(predictions, dict):
+        predictions = list(predictions.values())[0]
+    # Convert tensor to numpy if needed
+    if hasattr(predictions, 'numpy'):
+        predictions = predictions.numpy()
 
     ML_prediction_time = time.time() - ML_prediction_start_time
     analysis_time = time.time() - start_time

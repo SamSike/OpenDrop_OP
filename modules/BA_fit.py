@@ -12,7 +12,6 @@ This was based on the BA fit of DropPy.
 
 from sklearn.cluster import OPTICS # for clustering algorithm
 import scipy.optimize as opt
-import numba
 from scipy.spatial import distance
 from scipy.integrate import solve_ivp
 import numpy as np
@@ -808,9 +807,13 @@ def sim_bashforth_adams(h, a=1, b=1, num=500, all_the_way=False):
                       t_eval=np.linspace(0, 180, num=num), events=height)
 
 
-    angles = np.hstack((sol_l.t, sol_r.t[::-1])).T
-    pred = np.vstack([np.hstack((sol_l.y[0],sol_r.y[0][::-1])),
-                      np.hstack((sol_l.y[1],sol_r.y[1][::-1]))]).T
+    #angles = np.hstack((sol_l.t, sol_r.t[::-1])).T
+    #pred = np.vstack([np.hstack((sol_l.y[0],sol_r.y[0][::-1])),
+    #                  np.hstack((sol_l.y[1],sol_r.y[1][::-1]))]).T
+    # order from left contact point to right
+    angles = np.hstack((sol_l.t[::-1], sol_r.t)).T
+    pred = np.vstack([np.hstack((sol_l.y[0][::-1],sol_r.y[0])),
+                      np.hstack((sol_l.y[1][::-1],sol_r.y[1]))]).T
     if 1: #DS
         #print('angles: ', angles)
         #Bo = (b*b)/(a*a)
@@ -853,7 +856,7 @@ def fit_bashforth_adams(data): #a=0.1,b= 3
     b = h/2
     a = h/10
     x_0 = (a, b)
-    bounds = [[0,10], [0, 100]]
+    #bounds = [[0,10], [0, 100]]
 
 
     optimum = opt.minimize(lambda x: calc_error(h, x), x_0,
@@ -873,7 +876,7 @@ def calculate_angle(v1, v2):
     v2_u = v2 / np.linalg.norm(v2)
     return np.arccos(np.dot(v1_u, v2_u)) * 360 / 2 / np.pi
 
-def fit_circle(points, width=None, start=False):
+def fit_circle_old(points, width=None, start=False):
     '''
     Compute the best-fit circle to ``points`` by minimizing ``dist`` from
     changing values of the centerpoint and radius
@@ -903,6 +906,45 @@ def fit_circle(points, width=None, start=False):
                                            [width / 4])))
 
     return res
+
+def fit_circle(drop):
+    '''
+    Use the same circle fit approach as in circlular_fit.py but without the frills
+    :param drop: array of (x,y) points of the isolated drop contour
+    '''
+    x, y = drop[:,0], drop[:,1]
+
+    # Center estimates
+    # x estimate is where between the lowest and highest points of the top section for a hydrophobic drop
+    x_m = min(x)+(max(x)-min(x))/2
+    # for full contour, y estimate is the halfway between max y and min y
+    y_m = min(y) + ((max(y)-min(y))/2)
+
+    # perform circular fit
+    def calc_R(xc, yc):
+        """ calculate the distance of each 2D points from the center (xc, yc) """
+        return np.sqrt((x-xc)**2 + (y-yc)**2)
+
+    def f_2(c):
+        """ calculate the algebraic distance between the data points and the mean circle centered at c=(xc, yc) """
+        Ri = calc_R(*c)
+        return Ri - Ri.mean()
+
+    center_estimate = x_m, y_m
+    center_2, ier = opt.leastsq(f_2, center_estimate)
+
+    xc_2, yc_2 = center_2
+    #Ri_2       = calc_R(*center_2)
+    Ri_2       = np.sqrt((x-xc_2)**2 + (y-yc_2)**2)
+    R_2        = Ri_2.mean()
+    residu_2   = sum((Ri_2 - R_2)**2)
+
+    if 1:# round circle parameters so that it works for pixelated points
+        center_2 = [round(xc_2),round(yc_2)]
+        R_2 = round(R_2)
+
+
+    return np.array([center_2[0], center_2[1], R_2])
 
 def generate_circle_vectors(intersection):
     '''
@@ -1051,14 +1093,48 @@ def YL_fit_errors(contour, YL_points, display=False):
 
     error_measures = {}
 
-    if len(errors) != 0:
-        error_measures['MAE'] = sum([abs(error) for error in errors])/len(errors)
-        error_measures['MSE'] = sum([error**2 for error in errors])/len(errors)
-        error_measures['RMSE'] = np.sqrt(sum([error**2 for error in errors])/len(errors))
-        error_measures['Maximum error'] = max(errors)
-    
+    error_measures['MAE'] = sum([abs(error) for error in errors])/len(errors)
+    error_measures['MSE'] = sum([error**2 for error in errors])/len(errors)
+    error_measures['RMSE'] = np.sqrt(sum([error**2 for error in errors])/len(errors))
+    error_measures['Maximum error'] = max(errors)
 
     return error_measures
+
+def calculate_line_equation(p1: tuple, p2: tuple) -> list:
+    """
+    Calculate the equation of a line in the form y = mx + c given two points.
+
+    Args:
+        p1 (tuple): First point coordinates as (x1, y1)
+        p2 (tuple): Second point coordinates as (x2, y2)
+
+    Returns:
+        list: [c, m] where c is the y-intercept and m is the gradient
+
+    Raises:
+        ZeroDivisionError: If x1 = x2 (vertical line)
+        ValueError: If points are identical
+    """
+    # Extract coordinates
+    x1, y1 = p1
+    x2, y2 = p2
+
+    # Check if points are identical
+    if x1 == x2 and y1 == y2:
+        raise ValueError("Points must be different")
+
+    # Check for vertical line
+    if x1 == x2:
+        raise ZeroDivisionError("Vertical line - gradient undefined")
+
+    # Calculate gradient (m)
+    m = (y2 - y1) / (x2 - x1)
+
+    # Calculate y-intercept (c) using y = mx + c
+    # Rearrange to c = y - mx
+    c = y1 - (m * x1)
+
+    return [c, m]
 
 def analyze_frame(img,lim=10,fit_type='bashforth-adams',display=False):
     """This is the function which must be called to perform the BA fit.
@@ -1082,7 +1158,7 @@ def analyze_frame(img,lim=10,fit_type='bashforth-adams',display=False):
 
     profile,CPs = prepare_hydrophobic(edges_pts,display)
 
-    a = [CPs[0][1],(CPs[1][1]-CPs[0][1])/(CPs[1][0]-CPs[0][0])] # of form [first y value of baseline, gradient]
+    a = calculate_line_equation(CPs[0], CPs[1])
 
     #if display:
     #    plt.imshow(img)
@@ -1269,16 +1345,16 @@ def YL_fit(profile,lim=10,fit_type='bashforth-adams',display=False):
     start_time = time.time()
     CPs = [profile[0],profile[-1]]
 
-    a = [CPs[0][1],(CPs[1][1]-CPs[0][1])/(CPs[1][0]-CPs[0][0])] # of form [first y value of baseline, gradient]
+    a = calculate_line_equation(CPs[0], CPs[1])
 
-    #if display:
-    #    plt.imshow(img)
-    #    plt.title('prepared contour and contact points')
-    #    plt.plot(profile[:,0],profile[:,1],'o')
-    #    plt.plot(CPs[0][0],CPs[0][1],'yo')
-    #    plt.plot(CPs[1][0],CPs[1][1],'yo')
-    #    plt.show()
-    #    plt.close()
+    if display:
+        plt.title(f'prepared contour and contact points\n{CPs[0]} , {CPs[1]}')
+        plt.plot(profile[:,0],profile[:,1],'o')
+        plt.plot(CPs[0][0],CPs[0][1],'yo')
+        plt.plot(CPs[1][0],CPs[1][1],'yo')
+        plt.gca().invert_yaxis()
+        plt.show()
+        plt.close()
 
     # define baseline as between the two contact points
     x = np.linspace(CPs[0][1],CPs[1][1],50)
@@ -1292,37 +1368,56 @@ def YL_fit(profile,lim=10,fit_type='bashforth-adams',display=False):
     if fit_type == 'circular' or fit_type == 'bashforth-adams':
         width = max(profile[:,0])
 
-        res = fit_circle(circle, width, start=True)
-        *z, r = res['x']
+        #res = fit_circle_old(circle, width, start=True)
+        #*z, r = res['x']
+        res = fit_circle(circle)
+        *z, r = res
+
+        #print('res: ',res)
+        #print('*z: ',*z)
+        #print('r: ',r)
 
         theta = np.linspace(0, 2 * np.pi, num=500)
         x = z[0] + r * np.cos(theta)
         y = z[1] + r * np.sin(theta)
+
+        if 0: #check - circle fit
+            plt.title('check - circle fit')
+            plt.plot(profile[:,0],profile[:,1],'o')
+            plt.plot(x, y, ',')
+            plt.gca().invert_yaxis()
+            plt.show()
+            plt.close()
 
         iters = 0
 
         # Keep retrying the fitting while the function value is
         # large, as this indicates that we probably have 2 circles
         # (e.g. there's something light in the middle of the image)
-        while res['fun'] >= circle.shape[0] and iters < lim:
+        try:
+            while res['fun'] >= circle.shape[0] and iters < lim:
 
-            # Extract and fit only those points outside
-            if 0:# the previously fit circle
-                points = np.array([(x, y) for x, y in circle
-                                  if (x - z[0]) ** 2 + (y - z[1]) ** 2
-                                  >= r ** 2])
+                # Extract and fit only those points outside
+                if 0:# the previously fit circle
+                    points = np.array([(x, y) for x, y in circle
+                                      if (x - z[0]) ** 2 + (y - z[1]) ** 2
+                                      >= r ** 2])
+                else:
+                    points = circle
+                res = fit_circle_old(points, width)
+                *z, r = res['x']
+                iters += 1
             else:
                 points = circle
-            res = fit_circle(points, width)
-            *z, r = res['x']
-            iters += 1
-        else:
+        except:
             points = circle
 
-        res['x'] = [round(value) for value in res['x']] #round values up to account for pixelated image
-        res['x'][2] += 1 # to account for if the line is the next pixel over
+        #res['x'] = [round(value) for value in res['x']] #round values up to account for pixelated image
+        #res['x'][2] += 1 # to account for if the line is the next pixel over
+        res[2] += 1
 
-        x_t, y_t = find_intersection(a, res['x'])
+        #x_t, y_t = find_intersection(a, res['x'])
+        x_t, y_t = find_intersection(a, res)
         #print('x_t is: ',x_t)
         #print('y_t is: ',y_t)
 
@@ -1361,20 +1456,45 @@ def YL_fit(profile,lim=10,fit_type='bashforth-adams',display=False):
                     plt.close()
                     #print(points)
 
-            points[:, 1] = - np.array([y - np.dot(a, np.power(y,
-                             range(len(a)))) for y in points[:, 1]])
-            center = (np.max(points[:, 0]) + np.min(points[:, 0]))/2
+            ### something going wrong here, but only sometimes ###
+            #points[:, 1] = - np.array([y - np.dot(a, np.power(y,
+            #                 range(len(a)))) for y in points[:, 1]])
+            b = min(points[:,1])
+            points[:,1] = -points[:,1] + max(points[:,1])
+            if 0: #check -
+                plt.title('check points variable')
+                plt.plot(points[:,0], points[:,1], '.')
+                plt.show()
+                plt.close()
+
+            #center = (np.max(points[:, 0]) + np.min(points[:, 0]))/2
+            center = res[0]
             points[:, 0] = points[:, 0] - center
             h = np.max(points[:, 1])
             points = np.vstack([points[:, 0],
                                 h - points[:, 1]]).T
-
+            if 0: # check -
+                plt.title('check points variable')
+                plt.plot(points[:,0], points[:,1], '.')
+                plt.show()
+                plt.close()
             if display:
                 print('Running Bashforth-Adams fit...\n')
             cap_length, curv = fit_bashforth_adams(points).x
             θs, pred, Bo = sim_bashforth_adams(h, cap_length, curv, profile.shape[0])
-            ϕ['left'] = -np.min(θs)
-            ϕ['right'] = np.max(θs)
+
+            if 0:
+                print('check len(points): ', len(points))
+                print('check points.shape: ', points.shape)
+                print('check pred.shape: ', pred.shape)
+                print('check len(θs): ', len(θs))
+                print('check CPs:', CPs)
+                print('check θs: ', θs)
+                print('check pred: ', pred)
+
+            if 0: #have a better approach a few lines down
+                ϕ['left'] = -np.min(θs)
+                ϕ['right'] = np.max(θs)
 
             θ = (ϕ['left'] + ϕ['right'])/2
 
@@ -1384,20 +1504,35 @@ def YL_fit(profile,lim=10,fit_type='bashforth-adams',display=False):
             P = 2*cap_length/ curv
             volume = np.pi * R0 * (R0 * h + R0 * P - 2 * np.sin(θ))
             x = pred[:, 0] + center
-            y = np.array([np.dot(a, np.power(y, range(len(a)))) + y
-                          for y in (pred[:, 1] - h)])
+            ### something going wrong here, but only sometimes ###
+            #y = np.array([np.dot(a, np.power(y, range(len(a)))) + y
+            #              for y in (pred[:, 1] - h)])
+            #y = -(pred[:,1] - max(points[:,1]))
+            y = pred[:,1] + b
             fit = np.array([x, y]).T
+
+            # find YL_fit point closest to left contact point
+            dist = np.sqrt((fit[:,0] - CPs[0][0]) ** 2 + (fit[:,1] - CPs[0][1]) ** 2)
+            idx_left = list(dist).index(min(dist))
+            dist = np.sqrt((fit[:,0] - CPs[1][0]) ** 2 + (fit[:,1] - CPs[1][1]) ** 2)
+            idx_right = list(dist).index(min(dist))
+
+            #ϕ['left'] = -np.min(θs)
+            #ϕ['right'] = np.max(θs)
+            ϕ['left'] = -θs[idx_left]
+            ϕ['right'] = θs[idx_right]
+            #fit = fit[idx_left:idx_right]
 
             fit_time = time.time() - start_time
 
             # calculate r squared value of fit
 
-            errors = YL_fit_errors(profile,fit,False)
+            errors = YL_fit_errors(profile,fit[idx_left:idx_right],False)
 
     else:
         raise Exception('Unknown fit type! Try another.')
 
-    #drop symmetry r2 score
+    #drop symmetry error score
     #flip
     drop = profile.copy()
     drop[:,1] = -drop[:,1]
@@ -1427,10 +1562,14 @@ def YL_fit(profile,lim=10,fit_type='bashforth-adams',display=False):
         sym_errors = YL_fit_errors(left,right,False)
 
     if display:
-        plt.plot(profile[:,0],profile[:,1],'b')
-        plt.plot(fit[:,0],fit[:,1],',', color='black', linewidth=5)
-        plt.plot(fit[:,0],fit[:,1],',', color='white', linewidth=2.5)
-        plt.title('angle of '+ str(ϕ['left'])+ '\nBond number of '+ str(Bo)+'\nfit RMSE of '+str(errors['RMSE'])+'\ndrop symmetry RMSE '+str(sym_errors['RMSE']))
+        plt.plot(profile[:,0],profile[:,1],'b.')
+        plt.plot(fit[:,0],fit[:,1],',', color='orange', linewidth=2.5)
+        plt.plot(fit[idx_left:idx_right,0],fit[idx_left:idx_right,1], color='red', linewidth=1)
+        #plt.plot(fit[idx_left,0], fit[idx_left,1], '.', color='orange')
+        #plt.plot(fit[idx_right,0], fit[idx_right,1], '.', color='orange')
+        plt.title('angles of '+ str([ϕ['left'],ϕ['right']])+ '\nBond number of '+ str(Bo)+'\nfit RMSE of '+str(errors['RMSE'])+'\ndrop symmetry RMSE '+str(sym_errors['RMSE']))
+        plt.gca().invert_yaxis()
+        plt.axis('equal')
         plt.show()
         plt.close()
 
@@ -1440,7 +1579,7 @@ def YL_fit(profile,lim=10,fit_type='bashforth-adams',display=False):
     timings['fit time'] = fit_time
     timings['analysis time'] = analysis_time
 
-    return (ϕ['left'], ϕ['right']),Bo, baseline_width,volume, fit, baseline, errors, sym_errors, timings
+    return (ϕ['left'], ϕ['right']),Bo, baseline_width,volume, fit[idx_left:idx_right], baseline, errors, sym_errors, timings
 
 if 0:
     IMG_PATH = '../RICOphobic_cropped.png'

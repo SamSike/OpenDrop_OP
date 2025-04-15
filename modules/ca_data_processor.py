@@ -1,6 +1,5 @@
-from modules.ML_model.prepare_experimental import prepare4model_v05
+from modules.ML_model.prepare_experimental import prepare4model_v05, experimental_pred
 from modules.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
-#from modules.PlotManager import PlotManager
 from modules.ExtractData import ExtractedData
 from modules.read_image import get_image
 from modules.select_regions import set_drop_region,set_surface_line, correct_tilt
@@ -25,7 +24,6 @@ class CaDataProcessor:
         analysis_methods = dict(user_input_data.analysis_methods_ca)
 
         if analysis_methods[ML_MODEL]:
-            from modules.ML_model.prepare_experimental import prepare4model_v03, experimental_pred
             import tensorflow as tf
             tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR) # to minimise tf warnings
             model_path = './modules/ML_model/'
@@ -58,10 +56,12 @@ class CaDataProcessor:
                                  ellipse=analysis_methods[ELLIPSE_FIT], YL=analysis_methods[YL_FIT])
 
             if analysis_methods[ML_MODEL]:
-                ds = prepare4model_v05(raw_experiment.drop_contour, raw_experiment.contact_angles)
+                ds = prepare4model_v05(raw_experiment.drop_contour, raw_experiment.contact_points)
                 
                 ML_v05_angles, ml_timings = experimental_pred(ds, model)
                 ML_v05_angles = [ML_v05_angles[0,0],ML_v05_angles[1,0]]
+                
+                raw_experiment.contact_angles[ML_MODEL] = {}
                 
                 raw_experiment.contact_angles[ML_MODEL][LEFT_ANGLE] = ML_v05_angles[0]
                 raw_experiment.contact_angles[ML_MODEL][RIGHT_ANGLE] = ML_v05_angles[1]
