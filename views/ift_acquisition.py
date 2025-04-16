@@ -2,11 +2,11 @@ from typing import Any
 import os
 from tkinter import filedialog, messagebox
 from PIL import Image
-from customtkinter import *
+from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, StringVar, CTkOptionMenu, CTkImage
 
 from utils.image_handler import ImageHandler
-from utils.validators import *
-from utils.config import *
+from utils.validators import validate_numeric_input
+from utils.config import PATH_TO_SCRIPT, IMAGE_TYPE, FILE_SOURCE_OPTIONS_IFT
 from views.component.ctk_input_popup import CTkInputPopup
 from views.component.ctk_table_popup import CTkTablePopup
 
