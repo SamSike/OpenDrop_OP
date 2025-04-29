@@ -1,140 +1,203 @@
-from customtkinter import CTkImage, CTkFrame, CTkScrollableFrame, CTkTabview, CTkLabel
+import csv
+import os
+
+from customtkinter import CTkImage, CTkFrame, CTkScrollableFrame, CTkTabview, CTkLabel, CTkButton, CTkEntry
 from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from views.component.imageGallery import ImageGallery
-
+import numpy as np
 
 class IftAnalysis(CTkFrame):
     def __init__(self, parent, user_input_data, **kwargs):
         super().__init__(parent, **kwargs)
 
         self.user_input_data = user_input_data
+        self.output = []  # List to store ExtractedData objects
+        self.current_index = 0
 
-        # Create tabs
         self.tab_view = CTkTabview(self)
         self.tab_view.pack(fill="both", expand=True)
 
-        # Add "Results" and "Graphs" tabs
         self.tab_view.add("Results")
-        self.tab_view.add("Graphs")
 
-        # Initialize content for each tab
         self.create_results_tab(self.tab_view.tab("Results"))
-        self.create_graph_tab(self.tab_view.tab("Graphs"))
 
     def create_results_tab(self, parent):
-        """Create a split frame containing a Table on the left and Residuals with base image on the right into the parent frame"""
-
-        # Configure the grid to allow expansion for both columns
         parent.grid_rowconfigure(0, weight=1)
-        parent.grid_columnconfigure(0, weight=1)  # Left column for table
-        parent.grid_columnconfigure(
-            1, weight=1)  # Right column for visuals
+        parent.grid_columnconfigure(0, weight=1)
+        parent.grid_columnconfigure(1, weight=1)
 
-        # Table can be large, so scrollable
         self.table_frame = CTkScrollableFrame(parent)
-        self.table_frame.grid(row=0, column=0, sticky="nsew", padx=15, pady=(
-            10, 0))  # Left side for table
+        self.table_frame.grid(row=0, column=0, sticky="nsew", padx=15, pady=(10, 0))
 
         self.visualisation_frame = CTkFrame(parent)
         self.visualisation_frame.grid(row=0, column=1, padx=10, sticky="nsew")
         self.visualisation_frame.grid_rowconfigure(0, weight=1)
-        self.visualisation_frame.grid_rowconfigure(1, weight=1)
+        self.visualisation_frame.grid_rowconfigure(1, weight=0)
 
-        self.create_table(self.table_frame)
-        self.create_image_frame(self.visualisation_frame)
-        self.create_residuals_frame(self.visualisation_frame)
+        self.create_table()
+        self.create_image_and_buttons()
+        self.create_page_selector()
 
-    def create_table(self, parent_frame):
-        """Create a table into the parent frame. Headings are: Time, IFT, V, SA, Bond, Worth"""
-
-        # Configure the row and column weights for expansion
-        parent_frame.grid_rowconfigure(0, weight=1)
-        parent_frame.grid_columnconfigure(0, weight=1)
-
-        headings = ["Time", "IFT", "V", "SA", "Bond", "Worth"]
+    def create_table(self):
+        headings = ["Index", "IFT", "V", "SA", "Bond", "Worth"]
         for j, heading in enumerate(headings):
-            cell = CTkLabel(parent_frame, text=heading)
+            cell = CTkLabel(self.table_frame, text=heading)
             cell.grid(row=0, column=j, padx=10, pady=10, sticky="nsew")
 
-        for i in range(1, 21):  # Adjusted to create more rows for better scrolling
-            for j in range(len(headings)):
-                cell = CTkLabel(parent_frame, text=f"Cell ({i},{j + 1})")
-                cell.grid(row=i, column=j, padx=10, pady=10, sticky="nsew")
+        self.table_rows = []
 
-        for j in range(len(headings)):
-            parent_frame.grid_columnconfigure(j, weight=1)
-
-        # Set row configuration to allow for vertical scrolling
-        for i in range(21):  # Adjust the range as needed
-            parent_frame.grid_rowconfigure(i, weight=1)
-
-    def create_image_frame(self, parent):
-        """Create an Image Gallery that allows back and forth between base images into the parent frame"""
-        self.image_frame = ImageGallery(
-            parent, self.user_input_data.import_files)
+    def create_image_and_buttons(self):
+        self.image_frame = CTkFrame(self.visualisation_frame)
         self.image_frame.grid(row=0, column=0, sticky="nsew")
 
-    def create_residuals_frame(self, parent):
-        """Create a graph containing residuals into the parent frame. Graph is of same size as the Image Gallery."""
+        self.fig, self.axs = plt.subplots(3, 1, figsize=(6, 8))
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.image_frame)
+        self.toolbar = NavigationToolbar2Tk(self.canvas, self.image_frame)
+        self.toolbar.update()
+        self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
-        self.residuals_frame = CTkFrame(parent)
-        self.residuals_frame.grid(row=1, column=0, sticky="nsew")
+        self.buttons_frame = CTkFrame(self.visualisation_frame)
+        self.buttons_frame.grid(row=1, column=0, pady=5)
 
-        # Create the figure and axis
-        # width, height = self.image_frame.image_label.image.size
-        fig, ax = plt.subplots(
-            figsize=(4, 2))
-        ax.plot([1, 2, 3], [2, 5, 10])  # Example data for the residuals
-        ax.set_title('Residuals')
+        self.button_original = CTkButton(self.buttons_frame, text="Show Original Image", command=self.show_original_image)
+        self.button_residual = CTkButton(self.buttons_frame, text="Show Processed Image (Residuals)", command=self.show_residual_image)
+        self.button_trend = CTkButton(self.buttons_frame, text="Show Trend Chart", command=self.show_trend_chart)
+        self.button_fitting_curve = CTkButton(self.buttons_frame, text="Show Residual Fitting Curve", command=self.show_residual_fitting_curve)
 
-        # Create a canvas for the figure
-        canvas = FigureCanvasTkAgg(fig, self.residuals_frame)
-        canvas.get_tk_widget().pack(fill="both", expand=True)
+        self.button_original.pack(side="left", padx=5)
+        self.button_residual.pack(side="left", padx=5)
+        self.button_trend.pack(side="left", padx=5)
+        self.button_fitting_curve.pack(side="left", padx=5)
 
-        # Create and pack the navigation toolbar
-        toolbar = NavigationToolbar2Tk(canvas, self.residuals_frame)
-        toolbar.update()
+    def create_page_selector(self):
+        self.page_frame = CTkFrame(self)
+        self.page_frame.pack(pady=5)
 
-        # Ensure the canvas is packed after the toolbar
-        canvas.get_tk_widget().pack(fill="both", expand=True)
+        self.button_prev = CTkButton(self.page_frame, text="<", width=30, command=self.prev_page)
+        self.page_entry = CTkEntry(self.page_frame, width=40)
+        self.label_total = CTkLabel(self.page_frame, text="of 0")
+        self.button_next = CTkButton(self.page_frame, text=">", width=30, command=self.next_page)
 
-        # Draw the canvas to show the figure
-        canvas.draw()
+        self.button_prev.pack(side="left", padx=5)
+        self.page_entry.pack(side="left", padx=5)
+        self.label_total.pack(side="left", padx=5)
+        self.button_next.pack(side="left", padx=5)
 
-    def create_graph_tab(self, parent):
-        """Create a full sized graph into the parent frame"""
+        self.update_page_selector()
 
-        fig, ax = plt.subplots(figsize=(4, 3))
-        ax.plot([1, 2, 3], [1, 4, 9])
+    def update_page_selector(self):
+        total = len(self.user_input_data.import_files) if hasattr(self.user_input_data, 'import_files') else 0
+        if total == 0:
+            total = 1
+        self.page_entry.delete(0, "end")
+        self.page_entry.insert(0, str(self.current_index + 1))
+        self.label_total.configure(text=f"of {total}")
 
-        # Create the canvas for the figure
-        canvas = FigureCanvasTkAgg(fig, parent)
-        canvas.get_tk_widget().pack(fill="both", expand=True)
+    def prev_page(self):
+        if self.current_index > 0:
+            self.current_index -= 1
+            self.update_display()
 
-        # Create and pack the navigation toolbar
-        toolbar = NavigationToolbar2Tk(canvas, parent)
-        toolbar.update()
-        canvas.draw()
+    def next_page(self):
+        total = len(self.user_input_data.import_files) if hasattr(self.user_input_data, 'import_files') else 0
+        if self.current_index < total - 1:
+            self.current_index += 1
+            self.update_display()
 
-    def receive_output(self , extracted_data):
-        self.output.append(extracted_data)
+    def update_table(self):
+        for widget in self.table_frame.winfo_children():
+            if isinstance(widget, CTkLabel) and widget.grid_info()['row'] != 0:
+                widget.destroy()
 
-        for method in extracted_data.contact_angles.keys():
-            preformed_method_list = list(self.preformed_methods.keys())
-            
-            if method in preformed_method_list:
-                column_index = preformed_method_list.index(method)+1
-                result = extracted_data.contact_angles[method]
-                self.table_data[len(self.output)-1][column_index].configure(text=f"({result[LEFT_ANGLE]:.2f}, {result[RIGHT_ANGLE]:.2f})")
+        self.table_rows.clear()
+
+        for i, data in enumerate(self.output):
+            values = [
+                f"{i+1}",
+                f"{data.interfacial_tension:.2f}",
+                f"{data.volume:.2f}",
+                f"{data.surface_area:.2f}",
+                f"{data.bond_number:.4f}",
+                f"{data.worth:.4f}"
+            ]
+            row = []
+            for j, value in enumerate(values):
+                label = CTkLabel(self.table_frame, text=value)
+                label.grid(row=i+1, column=j, padx=5, pady=5, sticky="nsew")
+                row.append(label)
+            self.table_rows.append(row)
+
+    def show_original_image(self):
+        self.fig.clf()
+        ax = self.fig.add_subplot(111)
+        try:
+            img = Image.open(self.user_input_data.import_files[self.current_index])
+            ax.imshow(img, cmap='gray')
+            ax.axis('off')
+        except Exception:
+            ax.text(0.5, 0.5, "No Image Available", ha='center', va='center')
+        self.canvas.draw()
+
+    def show_residual_image(self):
+        self.fig.clf()
+        ax = self.fig.add_subplot(111)
+        try:
+            residuals = self.output[self.current_index].residuals
+            if residuals is not None:
+                ax.plot(residuals)
+                ax.set_title("Residuals")
             else:
-                print(f"Unknown method. Skipping the method.")
-            
+                ax.text(0.5, 0.5, "No residuals yet", ha='center', va='center')
+        except Exception:
+            ax.text(0.5, 0.5, "No residuals yet", ha='center', va='center')
+        self.canvas.draw()
 
-        if len(self.output) < self.user_input_data.number_of_frames:
-            self.table_data[len(self.output)][1].configure(text="PROCESSING...")
-            
+    def show_trend_chart(self):
+        self.fig.clf()
+        if len(self.output) > 0:
+            frames = np.arange(1, len(self.output)+1)
+            ift = [data.interfacial_tension for data in self.output]
+            v = [data.volume for data in self.output]
+            sa = [data.surface_area for data in self.output]
+
+            axs = self.fig.subplots(3, 1, sharex=True)
+            axs[0].plot(frames, ift, 'ro-')
+            axs[0].set_ylabel('IFT [mN/m]')
+            axs[1].plot(frames, v, 'bo-')
+            axs[1].set_ylabel('V [mm³]')
+            axs[2].plot(frames, sa, 'go-')
+            axs[2].set_ylabel('SA [mm²]')
+            axs[2].set_xlabel('Frame')
+        else:
+            self.fig.add_subplot(111).text(0.5, 0.5, "No data to plot", ha='center', va='center')
+        self.canvas.draw()
+
+    def show_residual_fitting_curve(self):
+        self.fig.clf()
+        ax = self.fig.add_subplot(111)
+        try:
+            residuals = self.output[self.current_index].residuals
+            if residuals is not None:
+                x = np.linspace(-3, 3, len(residuals))
+                ax.scatter(x, residuals, s=10)
+                ax.set_title("Residual Fitting Curve")
+            else:
+                ax.text(0.5, 0.5, "No fitting data", ha='center', va='center')
+        except Exception:
+            ax.text(0.5, 0.5, "No fitting data", ha='center', va='center')
+        self.canvas.draw()
+
+    def update_display(self):
+        self.update_page_selector()
+        self.show_original_image()
+
+    def receive_output_ift(self, extracted_data):
+        print(vars(extracted_data))
+        self.output.append(extracted_data)
+        self.update_table()
+        self.update_display()
+
     def destroy(self):
         plt.close('all')
         return super().destroy()
