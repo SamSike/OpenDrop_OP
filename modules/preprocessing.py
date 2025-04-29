@@ -1119,13 +1119,23 @@ def extract_edges_CV(img, threshold_val=None, return_thresholed_value=False, dis
         return output
 
 def line_circle_intersection(line_point1, line_point2, circle_center, circle_radius):
-    import numpy as np
+    """
+    Calculate the intersection points of a line and a circle.
 
-    # Convert inputs to numpy arrays of float64 to prevent integer overflow
-    p1 = np.array(line_point1, dtype=np.float64)
-    p2 = np.array(line_point2, dtype=np.float64)
-    c = np.array(circle_center, dtype=np.float64)
-    r = float(circle_radius)  # ensure radius is float
+    Args:
+    line_point1 (tuple): (x, y) of first point on the line
+    line_point2 (tuple): (x, y) of second point on the line
+    circle_center (tuple): (x, y) of circle center
+    circle_radius (float): radius of the circle
+
+    Returns:
+    list: List of intersection points (can be empty, have one point, or two points)
+    """
+
+    # Convert inputs to numpy arrays for easier calculation
+    p1 = np.array(line_point1)
+    p2 = np.array(line_point2)
+    c = np.array(circle_center)
 
     # Calculate the direction vector of the line
     direction = p2 - p1
@@ -1136,7 +1146,7 @@ def line_circle_intersection(line_point1, line_point2, circle_center, circle_rad
     # Calculate quadratic equation coefficients
     a = np.dot(direction, direction)
     b = 2 * np.dot(f, direction)
-    c = np.dot(f, f) - r**2
+    c = np.dot(f, f) - circle_radius**2
 
     # Calculate the discriminant
     discriminant = b**2 - 4*a*c
@@ -1146,14 +1156,13 @@ def line_circle_intersection(line_point1, line_point2, circle_center, circle_rad
         return []  # No intersection
     elif discriminant == 0:
         t = -b / (2*a)
-        return [p1 + t * direction]
+        return [p1 + t * direction]  # One intersection point
     else:
         t1 = (-b + np.sqrt(discriminant)) / (2*a)
         t2 = (-b - np.sqrt(discriminant)) / (2*a)
         coords = np.array([p1 + t1 * direction, p1 + t2 * direction])
         sorted_coords = coords[coords[:, 0].argsort()]
-        return sorted_coords
-
+        return sorted_coords  # Two intersection points
 
 def tilt_correction(img, baseline, user_set_baseline=False):
     """img is an image input
