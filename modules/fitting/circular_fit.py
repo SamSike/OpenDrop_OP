@@ -11,7 +11,6 @@ conan-ML_cv1.1/modules/select_regions.py"""
 
 from sklearn.cluster import OPTICS # for clustering algorithm
 import scipy.optimize as opt
-import numba
 from scipy.spatial import distance
 from scipy.integrate import solve_ivp
 import numpy as np
@@ -745,37 +744,38 @@ def extract_edges_CV(img):
     return output
 
 def intersection(center, radius, p1, p2):
-
     """ find the two points where a secant intersects a circle """
-    x1,y1 = p1
-    x2,y2 = p2
+
+    # Ensure all values are float to avoid integer overflow
+    x1, y1 = map(float, p1)
+    x2, y2 = map(float, p2)
+    cx, cy = map(float, center)
+    radius = float(radius)
 
     dx, dy = x2 - x1, y2 - y1
 
     A = dx**2 + dy**2
-    B = 2 * (dx * (x1 - center[0]) + dy * (y1 - center[1]))
-    C = (x1 - center[0])**2 + (y1 - center[1])**2 - radius**2
+    B = 2 * (dx * (x1 - cx) + dy * (y1 - cy))
+    C = (x1 - cx)**2 + (y1 - cy)**2 - radius**2
 
     discriminant = B**2 - 4*A*C
     if discriminant < 0:
-        # No intersection points
         print('Not a secant!')
         return None
     elif discriminant == 0:
-        # One intersection point
         t = -B / (2*A)
         x = x1 + t*dx
         y = y1 + t*dy
-        return ((x, y),(x,y))#np.array([[x, y],[x, y]])
+        return ((x, y), (x, y))
     else:
-        # Two intersection points
         t1 = (-B + np.sqrt(discriminant)) / (2*A)
         t2 = (-B - np.sqrt(discriminant)) / (2*A)
         x_int_1 = x1 + t1*dx
         y_int_1 = y1 + t1*dy
         x_int_2 = x1 + t2*dx
         y_int_2 = y1 + t2*dy
-        return ((x_int_1, y_int_1),(x_int_2, y_int_2))#np.array([[x1, y1], [x2, y2]])
+        return ((x_int_1, y_int_1), (x_int_2, y_int_2))
+    
 
 def circle_closest_point(xp, yp, xc, yc, r, n=1000, display=False):
     """
@@ -929,7 +929,20 @@ def circular_fit_img(img,display=False):
         print('radius: ',R_2)
         print('contact points: ',CPs)
 
-    a,b = intersection(center_2,R_2,CPs[0],CPs[1])
+    output = intersection(center_2,R_2,CPs[0],CPs[1])
+    if output is None:
+        mid_x = (CPs[0][0] + CPs[1][0]) / 2
+        mid_y = (CPs[0][1] + CPs[1][1]) / 2
+        CPs_midpoint = np.array([mid_x, mid_y])
+
+        #gap, closest = circle_closest_point(CPs_midpoint[0], CPs_midpoint[1], t[0], t[1], a, b, phi_deg, n=1000, display=False)
+        gap, closest = circle_closest_point(CPs_midpoint[0], CPs_midpoint[1], center_2[0], center_2[1], R_2, display=display)
+        print('gap between CPs_midpoint and closest point of circle: ', gap)
+        if gap < 2: # incase ellipse fit misses intercept
+            left = closest
+            right = closest
+            output = [[left[0], left[1]], [right[0], right[1]]]
+    a, b = output
     intercepts = [a,b]
     intercepts = sorted(list(intercepts), key=lambda x: x[0])
 
@@ -1062,7 +1075,20 @@ def circular_fit(drop,display=False):
         print('radius: ',R_2)
         print('contact points: ',CPs)
 
-    a,b = intersection(center_2,R_2,CPs[0],CPs[1])
+    outputs = intersection(center_2,R_2,CPs[0],CPs[1])
+    if outputs is None:
+        mid_x = (CPs[0][0] + CPs[1][0]) / 2
+        mid_y = (CPs[0][1] + CPs[1][1]) / 2
+        CPs_midpoint = np.array([mid_x, mid_y])
+
+        gap, closest = circle_closest_point(CPs_midpoint[0], CPs_midpoint[1], center_2[0], center_2[1], R_2, display=False)
+        print('gap between CPs_midpoint and closest point of circle: ', gap)
+        if gap < 2: # incase ellipse fit misses intercept
+            print('just missed')
+            left = closest
+            right = closest
+            outputs = [[left[0], left[1]], [right[0], right[1]]]
+    a, b = outputs
     intercepts = [a,b]
     intercepts = sorted(list(intercepts), key=lambda x: x[0])
 

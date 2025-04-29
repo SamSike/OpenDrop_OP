@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 #coding=utf-8
 from __future__ import print_function
-# from classes import ExperimentalDrop
-# from subprocess import call
-# import numpy as np
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,8 +14,10 @@ import tkinter.simpledialog as simpledialog
 import sys
 from scipy import optimize # DS 7/6/21 - for least squares fit
 import tensorflow as tf # DS 9/6/21 - for loading ML model
+from modules.preprocessing import CPID
 
 from modules.preprocessing.preprocessing import prepare_hydrophobic, tilt_correction
+from .preprocessing import tilt_correction
 from utils.config import *
 from utils.geometry import Rect2
 
@@ -32,6 +31,8 @@ def set_drop_region(experimental_drop, experimental_setup,index):
     image_size = experimental_drop.image.shape
     scale = set_scale(image_size, screen_size)
     screen_position = set_screen_position(screen_size)
+    """
+    # not doing image crop for now
     if experimental_setup.drop_ID_method == "Automated":
         from modules.preprocessing.preprocessing import auto_crop
         experimental_drop.cropped_image, (left,right,top,bottom) = auto_crop(experimental_drop.image)
@@ -51,6 +52,24 @@ def set_drop_region(experimental_drop, experimental_setup,index):
     elif experimental_setup.drop_ID_method == "User-selected":
         experimental_setup.drop_region = user_ROI(experimental_drop.image, f"Select drop region for Image {index}", scale, screen_position)
         experimental_drop.cropped_image = image_crop(experimental_drop.image, experimental_setup.drop_region)
+
+        if display: #show found drop
+            if experimental_drop.image.size != 0:
+                plt.title('original image')
+                plt.imshow(experimental_drop.image)
+                plt.show()
+                plt.close()
+
+            if experimental_drop.cropped_image.size != 0:
+                plt.title('cropped image')
+                plt.imshow(experimental_drop.cropped_image)
+                plt.show()
+                plt.close()
+        experimental_setup.drop_region = [(left, top),(right,bottom)]
+    """
+    # if experimental_setup.drop_ID_method == "User-selected":
+    #     experimental_setup.drop_region = user_ROI(experimental_drop.image, 'Select drop region', scale, screen_position)
+        ## experimental_drop.cropped_image = image_crop(experimental_drop.image, experimental_setup.drop_region)
  #   experimental_setup.needle_region = user_line(experimental_drop.image, 'Select needle region', scale, screen_position)
 
 def find_image_edge(img, low=50, high=150, apertureSize=3):
@@ -191,7 +210,20 @@ def set_surface_line(experimental_drop, experimental_setup):
     # extract_drop_profile(experimental_drop, experimental_setup)
     
     if experimental_setup.baseline_method == "Automated":
-        experimental_drop.drop_contour, experimental_drop.contact_points = prepare_hydrophobic(experimental_drop.contour)
+        # old method
+        # experimental_drop.drop_contour, experimental_drop.contact_points = prepare_hydrophobic(experimental_drop.contour)
+        
+        CPs_chosen = CPID(experimental_drop.contour)
+        experimental_drop.contact_points = CPs_chosen
+
+        # define drop profile contour as the contour between contact points
+        idx_leftCP = np.where((experimental_drop.contour == CPs_chosen[0]).all(axis=1))[0][0]
+        idx_rightCP = np.where((experimental_drop.contour == CPs_chosen[1]).all(axis=1))[0][0]
+        # ensure idx_leftCP is smaller than idx_rightCP
+        if idx_leftCP > idx_rightCP:
+            idx_leftCP, idx_rightCP = idx_rightCP, idx_leftCP
+        experimental_drop.drop_contour = experimental_drop.contour[idx_leftCP:idx_rightCP+1]
+
     elif experimental_setup.baseline_method == "User-selected":
         user_line(experimental_drop, experimental_setup)
 
