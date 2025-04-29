@@ -14,10 +14,7 @@ import tkinter.simpledialog as simpledialog
 import sys
 from scipy import optimize # DS 7/6/21 - for least squares fit
 import tensorflow as tf # DS 9/6/21 - for loading ML model
-from modules.preprocessing import CPID
-
-from modules.preprocessing.preprocessing import prepare_hydrophobic, tilt_correction
-from .preprocessing import tilt_correction
+from modules.preprocessing.preprocessing import CPID,prepare_hydrophobic, tilt_correction
 from utils.config import *
 from utils.geometry import Rect2
 

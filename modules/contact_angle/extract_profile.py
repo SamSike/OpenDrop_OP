@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import OPTICS # DS 7/6/21 - for clustering algorithm
 # import time
 # import datetime
-from modules.preprocessing.preprocessing import extract_edges_CV
-from modules.preprocessing import isolate_contour, extract_edges_CV
+from modules.preprocessing.preprocessing import extract_edges_CV,isolate_contour
 
 BLUR_SIZE = 3
 VERSION_CV2 = cv2.__version__
