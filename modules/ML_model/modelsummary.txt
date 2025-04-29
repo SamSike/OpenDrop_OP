@@ -2,20 +2,20 @@ Model: "sequential"
 _________________________________________________________________
  Layer (type)                Output Shape              Param #   
 =================================================================
- conv1d (Conv1D)             (None, 1223, 32)          224       
+ conv1d (Conv1D)             (None, 50, 64)            1344      
                                                                  
- conv1d_1 (Conv1D)           (None, 1223, 16)          1552      
+ conv1d_1 (Conv1D)           (None, 50, 128)           82048     
                                                                  
- conv1d_2 (Conv1D)           (None, 1223, 8)           392       
+ conv1d_2 (Conv1D)           (None, 50, 256)           327936    
                                                                  
- flatten (Flatten)           (None, 9784)              0         
+ flatten (Flatten)           (None, 12800)             0         
                                                                  
- dense (Dense)               (None, 128)               1252480   
+ dense (Dense)               (None, 128)               1638528   
                                                                  
  dense_1 (Dense)             (None, 1)                 129       
                                                                  
 =================================================================
-Total params: 1,254,777
-Trainable params: 1,254,777
-Non-trainable params: 0
+Total params: 2049985 (7.82 MB)
+Trainable params: 2049985 (7.82 MB)
+Non-trainable params: 0 (0.00 Byte)
 _________________________________________________________________
