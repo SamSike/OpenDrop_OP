@@ -1,3 +1,4 @@
 venv*/
 *.pyc
 py38_env/
+py3810_env/
