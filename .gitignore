@@ -2,6 +2,7 @@
 venv*/
 env*/
 py38_env/
+py3810_env/
 
 
 # Python compiled files
