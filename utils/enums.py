@@ -14,7 +14,7 @@ class Move(Enum):
     Next = 1
     Back = -1
 
-class FittingMethod(Enum):
+class FittingMethod(str, Enum):
     TANGENT_FIT = 'tangent fit'
     ELLIPSE_FIT = 'ellipse fit'
     POLYNOMIAL_FIT = 'polynomial fit'
