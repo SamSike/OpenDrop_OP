@@ -5,6 +5,8 @@ import io
 import os
 import math
 import cv2
+import matplotlib.pyplot as plt                           
+from matplotlib.backends.backend_agg import FigureCanvasAgg  
 
 from utils.image_handler import ImageHandler
 from utils.config import *
@@ -24,13 +26,22 @@ class CaAnalysis(CTkFrame):
         self.image_handler = ImageHandler()
 
         self.output = []
-        self.cropped_images = {}  # Dictionary to store cropped images
-        self.cropped_angle_images = {}  # Dictionary to store processed cropped images with angle overlay
+        self.cropped_images = {}              # Cropped pictures
+        self.cropped_angle_images = {}        # Crop diagram after superimposing angles
+        self.left_angles  = []                 
+        self.right_angles = []                
         
-        self.preformed_methods = {key: value for key, value in user_input_data.analysis_methods_ca.items() if value}
+        self.preformed_methods = {
+            key: value for key, value in user_input_data.analysis_methods_ca.items() if value
+        }
 
-        self.table_data = []  # List to store cell references
-        self.create_table(parent=self, rows=user_input_data.number_of_frames, columns=len(self.preformed_methods)+1, headers=['Index'] + list(self.preformed_methods.keys()))
+        self.table_data = []
+        self.create_table(
+            parent=self,
+            rows=user_input_data.number_of_frames,
+            columns=len(self.preformed_methods) + 1,
+            headers=["Index"] + list(self.preformed_methods.keys()),
+        )
 
         self.images_frame = CTkFrame(self)
         self.images_frame.grid(row=0, column=1, sticky="nsew", padx=15, pady=(10, 0))
@@ -63,10 +74,10 @@ class CaAnalysis(CTkFrame):
 
         self.table_data[len(self.output)][1].configure(text="PROCESSING...")
 
+
     def receive_output(self, extracted_data, experimental_drop=None):
         """Process results and display contact angles"""
         self.output.append(extracted_data)
-        
         index = len(self.output) - 1
 
         # Update table data
@@ -311,76 +322,113 @@ class CaAnalysis(CTkFrame):
         # Update processing status display
         if len(self.output) < self.user_input_data.number_of_frames:
             self.table_data[len(self.output)][1].configure(text="PROCESSING...")
+        try:
+            for method, res in extracted_data.contact_angles.items():
+                if LEFT_ANGLE in res and RIGHT_ANGLE in res:
+                    self.left_angles.append(res[LEFT_ANGLE])
+                    self.right_angles.append(res[RIGHT_ANGLE])
+                    break
+        except Exception as e:
+            print("[WARN] save failed：", e)
+
 
     def highlight_row(self, row_index):
         # Reset all rows to default color
         for row in self.table_data:
             for cell in row:
-                color = get_system_text_color()
-                cell.configure(text_color=color)  # Reset to default text color
+                cell.configure(text_color=get_system_text_color())
 
-        # Highlight the specified row
         if 0 <= row_index < len(self.table_data):
             for cell in self.table_data[row_index]:
-                cell.configure(text_color="red")  # Change text color to red
+                cell.configure(text_color="red")
+
 
     def initialize_image_display(self, frame):
         display_frame = CTkFrame(frame)
         display_frame.grid(sticky="nsew", padx=15, pady=(10, 0))
 
-        self.image_label = CTkLabel(display_frame, text="", fg_color="lightgrey", width=400, height=300)
+        self.image_label = CTkLabel(
+            display_frame, text="", fg_color="lightgrey", width=400, height=300
+        )
         self.image_label.grid(padx=10, pady=(10, 5))
 
         file_name = os.path.basename(self.user_input_data.import_files[self.current_index])
         self.name_label = CTkLabel(display_frame, text=file_name)
         self.name_label.grid()
 
-        # Toggle controls area
+     
         self.toggle_frame = CTkFrame(display_frame)
         self.toggle_frame.grid(pady=(5, 0))
-        
-        # Toggle between original/cropped images with contact angles
-        self.show_angles_var = IntVar(value=0)  # Default to showing original image without angles
-        self.show_angles_cb = CTkCheckBox(
-            self.toggle_frame, 
-            text="Show Contact Angles (Cropped View)", 
-            variable=self.show_angles_var, 
-            command=self.toggle_view
-        )
-        self.show_angles_cb.grid(row=0, column=0, padx=10, pady=5)
 
-        # Image navigation controls
+        self.show_angles_var = IntVar(value=0)   
+
+        self.rb_original = CTkRadioButton(
+            self.toggle_frame,
+            text="Show Original Image",
+            variable=self.show_angles_var,
+            value=0,
+            command=self.toggle_view,
+        )
+        self.rb_cropped = CTkRadioButton(
+            self.toggle_frame,
+            text="Show Contact Angles (Cropped View)",
+            variable=self.show_angles_var,
+            value=1,
+            command=self.toggle_view,
+        )
+        self.rb_chart = CTkRadioButton(
+            self.toggle_frame,
+            text="Show Line Chart",
+            variable=self.show_angles_var,
+            value=2,
+            command=self.toggle_view,
+        )
+        self.rb_original.grid(row=0, column=0, padx=10, pady=5)
+        self.rb_cropped.grid(row=0, column=1, padx=10, pady=5)
+        self.rb_chart.grid(  row=0, column=2, padx=10, pady=5)
+
         self.image_navigation_frame = CTkFrame(display_frame)
         self.image_navigation_frame.grid(pady=20)
 
-        self.prev_button = CTkButton(self.image_navigation_frame, text="<", command=lambda: self.change_image(-1), width=30)
+        self.prev_button = CTkButton(
+            self.image_navigation_frame, text="<",
+            command=lambda: self.change_image(-1), width=30
+        )
         self.prev_button.grid(row=0, column=0, padx=5, pady=5)
 
         self.index_entry = CTkEntry(self.image_navigation_frame, width=50)
         self.index_entry.grid(row=0, column=1, padx=5, pady=5)
-        self.index_entry.bind("<Return>", lambda event: self.update_index_from_entry())
-        self.index_entry.insert(0, str(self.current_index + 1))
+        self.index_entry.bind("<Return>", lambda e: self.update_index_from_entry())
 
-        self.navigation_label = CTkLabel(self.image_navigation_frame, text=f" of {self.user_input_data.number_of_frames}", font=("Arial", 12))
+        self.navigation_label = CTkLabel(
+            self.image_navigation_frame,
+            text=f" of {self.user_input_data.number_of_frames}",
+            font=("Arial", 12),
+        )
         self.navigation_label.grid(row=0, column=2, padx=5, pady=5)
 
-        self.next_button = CTkButton(self.image_navigation_frame, text=">", command=lambda: self.change_image(1), width=30)
+        self.next_button = CTkButton(
+            self.image_navigation_frame, text=">",
+            command=lambda: self.change_image(1), width=30
+        )
         self.next_button.grid(row=0, column=3, padx=5, pady=5)
 
         self.load_image(self.user_input_data.import_files[self.current_index])
 
+
     def toggle_view(self):
-        """Toggle between original image and cropped image with angles"""
         self.display_current_image()
-    
+
     def display_current_image(self):
-        """Display appropriate image based on current settings"""
-        if self.show_angles_var.get() == 0:
-            # Show original image without annotations
+        """0=Original picture 1=Crop + Angle 2=Line picture"""
+        mode = self.show_angles_var.get()
+        if mode == 0:
             self.display_original_image()
-        else:
-            # Show cropped image with annotations
+        elif mode == 1:
             self.display_cropped_image()
+        else:
+            self.display_line_chart()
+
 
     def display_original_image(self):
         """Display original image"""
@@ -416,17 +464,34 @@ class CaAnalysis(CTkFrame):
             self.image_label.configure(image=self.tk_image)
             self.image_label.image = self.tk_image
 
-    def load_image(self, selected_image):
-        """Load image and prepare for display"""
-        try:
-            # Load original image
-            self.current_image = Image.open(selected_image)
-            
-            # Display current image
-            self.display_current_image()
-        except Exception as e:
-            print(f"Error loading image: {e}")
-            self.current_image = None
+
+    def display_line_chart(self):
+        if not self.left_angles:
+            self.image_label.configure(text="No angle data yet", image="")
+            return
+
+        frames = list(range(1, len(self.left_angles) + 1))
+
+        fig, ax = plt.subplots(figsize=(5, 4))
+        ax.plot(frames, self.left_angles,  marker="o", label="Left θ")
+        ax.plot(frames, self.right_angles, marker="o", label="Right θ")
+        ax.set_xlabel("Frame")
+        ax.set_ylabel("Angle (°)")
+        ax.set_xticks(frames)
+        ax.set_title("Contact Angles Over Frames")
+        ax.legend()
+        fig.tight_layout()
+
+        canvas = FigureCanvasAgg(fig)
+        canvas.draw()
+        w, h = canvas.get_width_height()
+        buf = canvas.buffer_rgba()
+        img = Image.frombuffer("RGBA", (w, h), buf, "raw", "RGBA", 0, 1).convert("RGB")
+
+        self.tk_image = CTkImage(img, size=(400, 300))
+        self.image_label.configure(image=self.tk_image, text="")
+        self.image_label.image = self.tk_image
+        plt.close(fig)
 
     def draw_on_cropped_image(self, image, left_angle, right_angle, contact_points, tangent_lines):
         """Draw contact angle annotations on cropped image"""
@@ -537,11 +602,13 @@ class CaAnalysis(CTkFrame):
         
         return img
 
-    def change_image(self, direction):
+
+
+    def change_image(self, step):
         """Change displayed image"""
         if self.user_input_data.import_files:
             self.current_index = (
-                self.current_index + direction) % self.user_input_data.number_of_frames
+                self.current_index + step) % self.user_input_data.number_of_frames
             # Load the new image
             self.load_image(
                 self.user_input_data.import_files[self.current_index])
@@ -551,6 +618,18 @@ class CaAnalysis(CTkFrame):
             self.name_label.configure(text=file_name)
 
             self.highlight_row(self.current_index)
+
+    def load_image(self, image_path):
+        """Load image and prepare for display"""
+        try:
+            # Load original image
+            self.current_image = Image.open(image_path)
+            
+            # Display current image
+            self.display_current_image()
+        except Exception as e:
+            print(f"Error loading image: {e}")
+            self.current_image = None
 
     def update_index_from_entry(self):
         """Update current index based on user input"""
