@@ -15,7 +15,7 @@ class CaDataProcessor:
         analysis_methods = dict(user_input_data.analysis_methods_ca)
 
         if analysis_methods[ML_MODEL]:
-            from modules.ML_model.prepare_experimental import prepare4model_v03, experimental_pred
+            from modules.ML_model.prepare_experimental import prepare4model_v05, experimental_pred
             import tensorflow as tf
             tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR) # to minimise tf warnings
             model_path = './modules/ML_model/'
@@ -70,7 +70,7 @@ class CaDataProcessor:
                     print('Performing YL fit...')
                     perform_fits(raw_experiment, YL=analysis_methods[YL_FIT])
                 if analysis_methods[ML_MODEL]:
-                    pred_ds = prepare4model_v03(raw_experiment.drop_contour)
+                    pred_ds = prepare4model_v05(raw_experiment.drop_contour)
                     ML_predictions, timings = experimental_pred(pred_ds, model)
                     raw_experiment.contact_angles[ML_MODEL] = {}
                     # raw_experiment.contact_angles[ML_MODEL]['angles'] = [ML_predictions[0,0],ML_predictions[1,0]]
