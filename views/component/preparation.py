@@ -11,8 +11,8 @@ LABEL_WIDTH = 200  # Adjust as needed
 # ift [User Input]
 def create_user_input_fields_ift(self, parent, user_input_data):
     """Create user input fields and return the frame containing them."""
-    user_input_frame = CTkFrame(parent, fg_color="red")
-    user_input_frame.grid(row=1, column=0, columnspan=2, sticky="wens", padx=15, pady=15)
+    user_input_frame = CTkFrame(parent)
+    user_input_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=15, pady=15)
 
     # Configure the grid for the user_input_frame to be resizable
     user_input_frame.grid_rowconfigure(0, weight=0)  # No resizing for the label row
@@ -22,22 +22,17 @@ def create_user_input_fields_ift(self, parent, user_input_data):
 
     # Create a label for the dynamic content
     label = CTkLabel(user_input_frame, text="User Inputs", font=("Roboto", 16, "bold"))
-    label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
+    label.grid(row=0, column=0, padx=10, pady=5, sticky="w")  # Grid for label
 
     # Create a frame to hold all input fields
     input_fields_frame = CTkFrame(user_input_frame)
-    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens", columnspan=2)  # Grid for input fields frame
+    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew", columnspan=2)  # Grid for input fields frame
 
     # Configure the grid of the input_fields_frame to be resizable
-    input_fields_frame.grid_rowconfigure(0, weight=1)  # Allow first row to resize
-    input_fields_frame.grid_rowconfigure(1, weight=1)  # Allow second row to resize
-    input_fields_frame.grid_rowconfigure(2, weight=1)  # Allow third row to resize
-    input_fields_frame.grid_rowconfigure(3, weight=1)  # Allow fourth row to resize
-    input_fields_frame.grid_rowconfigure(4, weight=1)  # Allow fifth row to resize
-    input_fields_frame.grid_rowconfigure(5, weight=1)  # Allow sixth row to resize
-
-    input_fields_frame.grid_columnconfigure(0, weight=1)  # Allow first column to resize
-    input_fields_frame.grid_columnconfigure(1, weight=1)  # Allow second column to resize
+    for i in range(6):
+        input_fields_frame.grid_rowconfigure(i, weight=1)
+    input_fields_frame.grid_columnconfigure(0, weight=0)  # Label column fixed width (anchor='w' handles alignment)
+    input_fields_frame.grid_columnconfigure(1, weight=1)  # Widget column expands
 
     # Update the input value functions
     def update_drop_region_method(*args):
@@ -65,22 +60,32 @@ def create_user_input_fields_ift(self, parent, user_input_data):
     self.drop_region_method = OptionMenu(
         self, input_fields_frame, "Drop Region:", AUTO_MANUAL_OPTIONS, lambda *args: update_drop_region_method(*args), rw=0
     )
+    self.drop_region_method.optionmenu.grid_configure(sticky="ew")
+
     self.needle_region_method = OptionMenu(
         self, input_fields_frame, "Needle Region:", AUTO_MANUAL_OPTIONS, lambda *args: update_needle_region_method(*args), rw=1
     )
+    self.needle_region_method.optionmenu.grid_configure(sticky="ew")
     
     self.drop_density_method = FloatEntry(
         self, input_fields_frame, "Drop Density(kg/m³):", lambda *args: update_drop_density(*args), rw=2
     )
+    self.drop_density_method.entry.grid_configure(sticky="ew")
+
     self.continuous_density = FloatEntry(
         self, input_fields_frame, "Continuous density (kg/m):", lambda *args: update_continuous_density(*args), rw=3
     )
+    self.continuous_density.entry.grid_configure(sticky="ew")
+
     self.needle_diameter = FloatEntry(
         self, input_fields_frame, "Needle Diameter(mm):", lambda *args: update_needle_diameter(*args), rw=4
     )
+    self.needle_diameter.entry.grid_configure(sticky="ew")
+
     self.pixel_mm = FloatEntry(
         self, input_fields_frame, "Pixel scale(px/mm):", lambda *args: update_pixel_mm(*args), rw=5
     )
+    self.pixel_mm.entry.grid_configure(sticky="ew")
 
     # Returning the user input frame
     return user_input_frame
@@ -185,8 +190,8 @@ def create_user_inputs_cm(self,parent,user_input_data):
     # Configure the grid of input_fields_frame to be resizable
     for i in range(6):
         input_fields_frame.grid_rowconfigure(i, weight=1)
-    input_fields_frame.grid_columnconfigure(0, weight=1)  # Label column
-    input_fields_frame.grid_columnconfigure(1, weight=1)  # Widget column
+    input_fields_frame.grid_columnconfigure(0, weight=0)  # Label column fixed width
+    input_fields_frame.grid_columnconfigure(1, weight=1)  # Widget column expands
 
     # Define update functions for each input
     def update_drop_id_method(*args):
@@ -214,26 +219,37 @@ def create_user_inputs_cm(self,parent,user_input_data):
         self, input_fields_frame, "Drop ID method:", DROP_ID_OPTIONS,
         lambda *args: update_drop_id_method(*args), rw=0
     )
+    self.drop_ID_method.optionmenu.grid_configure(sticky="ew")
+
     self.threshold_method = OptionMenu(
         self, input_fields_frame, "Threshold value selection method:", THRESHOLD_OPTIONS,
         lambda *args: update_threshold_method(*args), rw=1
     )
+    self.threshold_method.optionmenu.grid_configure(sticky="ew")
+
     self.threshold_val = FloatEntry(
         self, input_fields_frame, "Threshold value (ignored if method=Automated):",
         lambda *args: update_threshold_value(*args), rw=2
     )
+    self.threshold_val.entry.grid_configure(sticky="ew")
+
     self.baseline_method = OptionMenu(
         self, input_fields_frame, "Baseline selection method:", BASELINE_OPTIONS,
         lambda *args: update_baseline_method(*args), rw=3
     )
+    self.baseline_method.optionmenu.grid_configure(sticky="ew")
+
     self.density_outer = FloatEntry(
         self, input_fields_frame, "Continuous density (kg/m³):",
         lambda *args: update_density_outer(*args), rw=4
     )
+    self.density_outer.entry.grid_configure(sticky="ew")
+
     self.needle_diameter = FloatCombobox(
         self, input_fields_frame, "Needle diameter (mm):", NEEDLE_OPTIONS,
         lambda *args: update_needle_diameter(*args), rw=5
     )
+    self.needle_diameter.combobox.grid_configure(sticky="ew")
 
     return user_input_frame
 
