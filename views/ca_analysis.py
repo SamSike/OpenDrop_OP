@@ -62,11 +62,15 @@ class CaAnalysis(CTkFrame):
                 if col == 0:
                     text = row
                 cell_label = CTkLabel(table_frame, text=text, font=("Roboto", 12))
-                cell_label.grid(row=row, column=col, padx=10, pady=5)
+                cell_label.grid(row=row, column=col, padx=10, pady=5, sticky="w")
                 row_data.append(cell_label)
             self.table_data.append(row_data)
 
         self.table_data[len(self.output)][1].configure(text="PROCESSING...")
+
+        if isinstance(table_frame, CTkXYFrame):
+            table_frame.update_idletasks()
+            table_frame.onFrameConfigure(table_frame.xy_canvas)
 
     def receive_output(self, extracted_data, experimental_drop=None):
         """Process results and display contact angles"""
