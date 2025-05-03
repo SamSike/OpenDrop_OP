@@ -33,7 +33,7 @@ class CaAnalysis(CTkFrame):
         self.create_table(parent=self, rows=user_input_data.number_of_frames, columns=len(self.preformed_methods)+1, headers=['Index'] + list(self.preformed_methods.keys()))
 
         self.visualisation_container = CTkFrame(self)
-        self.visualisation_container.grid(row=0, column=1, sticky="nsew", padx=15, pady=10)
+        self.visualisation_container.grid(row=0, column=1, sticky="nsew", padx=15, pady=(10, 0))
         self.visualisation_container.grid_rowconfigure(0, weight=1)
         self.visualisation_container.grid_rowconfigure(1, weight=0)
         self.visualisation_container.grid_rowconfigure(2, weight=1)
@@ -47,16 +47,14 @@ class CaAnalysis(CTkFrame):
         self.initialize_image_display(self.image_wrapper_frame)
 
     def create_table(self, parent, rows, columns, headers):
-        # Create a frame for the table
         table_frame = CTkXYFrame(parent)
         table_frame.grid(row=0, column=0, pady=15, padx=20, sticky='nsew')
 
-        # Create and place header labels
         for col in range(columns):
             header_label = CTkLabel(table_frame, text=headers[col], font=("Roboto", 14, "bold"))
             header_label.grid(row=0, column=col, padx=10, pady=5)
 
-        # Create and place cell labels for each row
+        self.table_data = []
         for row in range(1, rows + 1):
             row_data = []
             for col in range(columns):
@@ -65,7 +63,7 @@ class CaAnalysis(CTkFrame):
                     text = row
                 cell_label = CTkLabel(table_frame, text=text, font=("Roboto", 12))
                 cell_label.grid(row=row, column=col, padx=10, pady=5)
-                row_data.append(cell_label)  # Store reference to the cell label
+                row_data.append(cell_label)
             self.table_data.append(row_data)
 
         self.table_data[len(self.output)][1].configure(text="PROCESSING...")
@@ -302,7 +300,7 @@ class CaAnalysis(CTkFrame):
                             self.cropped_angle_images[index] = cropped_with_overlay
                             
                             # Update display
-                            if self.current_index == index and self.show_angles_var.get() == 1:
+                            if self.current_index == index and self.show_cropped_var.get() == "1":
                                 self.display_current_image()
                         else:
                             print(f"Cannot create cropped image annotations: missing required data")
@@ -342,8 +340,8 @@ class CaAnalysis(CTkFrame):
         self.image_label.grid(row=1, column=0, padx=10, pady=(10, 5), sticky="nsew")
 
         filename_text = "No image loaded"
-        if self.user_input_data.import_files and self.current_index < len(self.user_input_data.import_files):
-             filename_text = os.path.basename(self.user_input_data.import_files[self.current_index])
+        if hasattr(self.user_input_data, 'import_files') and self.user_input_data.import_files and self.current_index < len(self.user_input_data.import_files):
+            filename_text = os.path.basename(self.user_input_data.import_files[self.current_index])
         self.name_label = CTkLabel(frame, text=filename_text)
         self.name_label.grid(row=0, column=0, pady=(5,0))
 
@@ -355,25 +353,25 @@ class CaAnalysis(CTkFrame):
 
         self.image_navigation_frame = CTkFrame(frame, fg_color="transparent")
         self.image_navigation_frame.grid(row=3, column=0, pady=(5, 10))
+
+        num_frames = 0
+        if hasattr(self.user_input_data, 'number_of_frames'):
+            num_frames = self.user_input_data.number_of_frames
+
         self.prev_button = CTkButton(self.image_navigation_frame, text="<", command=lambda: self.change_image(-1), width=3)
         self.prev_button.grid(row=0, column=0, padx=5, pady=5)
         self.index_entry = CTkEntry(self.image_navigation_frame, width=5)
         self.index_entry.grid(row=0, column=1, padx=5, pady=5)
         self.index_entry.bind("<Return>", lambda event: self.update_index_from_entry())
-        if hasattr(self.user_input_data,'number_of_frames'):
+        if num_frames > 0:
             self.index_entry.insert(0, str(self.current_index + 1))
-            num_frames = self.user_input_data.number_of_frames
-        else:
-            num_frames = 0
+
         self.navigation_label = CTkLabel(self.image_navigation_frame, text=f" of {num_frames}", font=("Arial", 12))
         self.navigation_label.grid(row=0, column=2, padx=5, pady=5)
         self.next_button = CTkButton(self.image_navigation_frame, text=">", command=lambda: self.change_image(1), width=3)
         self.next_button.grid(row=0, column=3, padx=5, pady=5)
 
-        if self.user_input_data.import_files:
-             self.load_image(self.user_input_data.import_files[self.current_index])
-        else:
-             self.image_label.configure(text="No images selected")
+        self.load_image(self.user_input_data.import_files[self.current_index])
 
     def toggle_view(self):
         """Toggle between original image and cropped image with angles"""
@@ -381,7 +379,7 @@ class CaAnalysis(CTkFrame):
     
     def display_current_image(self):
         """Display appropriate image based on current settings"""
-        if self.show_angles_var.get() == "0":
+        if self.show_cropped_var.get() == "0":
             # Show original image without annotations
             self.display_original_image()
         else:

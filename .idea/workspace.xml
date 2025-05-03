@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="user inputs part" />
+    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="analysis complete">
+      <change beforePath="$PROJECT_DIR$/views/ca_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ca_analysis.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -154,7 +156,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746239846411</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="analysis complete">
+      <option name="closed" value="true" />
+      <created>1746251826281</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1746251826281</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -187,7 +197,8 @@
     <MESSAGE value="Limit Image Source to &quot;Local Images&quot; Only" />
     <MESSAGE value="Changes" />
     <MESSAGE value="user inputs part" />
-    <option name="LAST_COMMIT_MESSAGE" value="user inputs part" />
+    <MESSAGE value="analysis complete" />
+    <option name="LAST_COMMIT_MESSAGE" value="analysis complete" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/opendrop$pytest__classes_test_py__.coverage" NAME="pytest (classes_test.py 内) 覆盖结果" MODIFIED="1745998722434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/core" />
@@ -196,6 +207,6 @@
     <SUITE FILE_PATH="coverage/opendrop$pytest__extract_profile_test_py__.coverage" NAME="pytest (extract_profile_test.py 内) 覆盖结果" MODIFIED="1745998826995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/contact_angle" />
     <SUITE FILE_PATH="coverage/opendrop$pytest__ExtractData_test_py__.coverage" NAME="pytest (ExtractData_test.py 内) 覆盖结果" MODIFIED="1745929765817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/preprocessing" />
     <SUITE FILE_PATH="coverage/opendrop$pytest__test_all_py__.coverage" NAME="pytest (test_all.py 内) 覆盖结果" MODIFIED="1745929782521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/OpenDrop_OP$main.coverage" NAME="main Coverage Results" MODIFIED="1746251281786" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/OpenDrop_OP$main.coverage" NAME="main Coverage Results" MODIFIED="1746251833309" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
