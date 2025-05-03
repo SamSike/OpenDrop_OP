@@ -32,12 +32,19 @@ class CaAnalysis(CTkFrame):
         self.table_data = []  # List to store cell references
         self.create_table(parent=self, rows=user_input_data.number_of_frames, columns=len(self.preformed_methods)+1, headers=['Index'] + list(self.preformed_methods.keys()))
 
-        self.images_frame = CTkFrame(self)
-        self.images_frame.grid(row=0, column=1, sticky="nsew", padx=15, pady=(10, 0))
+        self.visualisation_container = CTkFrame(self)
+        self.visualisation_container.grid(row=0, column=1, sticky="nsew", padx=15, pady=10)
+        self.visualisation_container.grid_rowconfigure(0, weight=1)
+        self.visualisation_container.grid_rowconfigure(1, weight=0)
+        self.visualisation_container.grid_rowconfigure(2, weight=1)
+        self.visualisation_container.grid_columnconfigure(0, weight=1)
+
+        self.image_wrapper_frame = CTkFrame(self.visualisation_container, fg_color="transparent")
+        self.image_wrapper_frame.grid(row=1, column=0, sticky="ew")
 
         self.current_index = 0
         self.highlight_row(self.current_index)
-        self.initialize_image_display(self.images_frame)
+        self.initialize_image_display(self.image_wrapper_frame)
 
     def create_table(self, parent, rows, columns, headers):
         # Create a frame for the table
@@ -325,49 +332,48 @@ class CaAnalysis(CTkFrame):
                 cell.configure(text_color="red")  # Change text color to red
 
     def initialize_image_display(self, frame):
-        display_frame = CTkFrame(frame)
-        display_frame.grid(sticky="nsew", padx=15, pady=(10, 0))
+        frame.grid_rowconfigure(0, weight=0)
+        frame.grid_rowconfigure(1, weight=1)
+        frame.grid_rowconfigure(2, weight=0)
+        frame.grid_rowconfigure(3, weight=0)
+        frame.grid_columnconfigure(0, weight=1)
 
-        self.image_label = CTkLabel(display_frame, text="", fg_color="lightgrey", width=400, height=300)
-        self.image_label.grid(padx=10, pady=(10, 5))
+        self.image_label = CTkLabel(frame, text="", fg_color="lightgrey")
+        self.image_label.grid(row=1, column=0, padx=10, pady=(10, 5), sticky="nsew")
 
-        file_name = os.path.basename(self.user_input_data.import_files[self.current_index])
-        self.name_label = CTkLabel(display_frame, text=file_name)
-        self.name_label.grid()
+        filename_text = "No image loaded"
+        if self.user_input_data.import_files and self.current_index < len(self.user_input_data.import_files):
+             filename_text = os.path.basename(self.user_input_data.import_files[self.current_index])
+        self.name_label = CTkLabel(frame, text=filename_text)
+        self.name_label.grid(row=0, column=0, pady=(5,0))
 
-        # Toggle controls area
-        self.toggle_frame = CTkFrame(display_frame)
-        self.toggle_frame.grid(pady=(5, 0))
-        
-        # Toggle between original/cropped images with contact angles
-        self.show_angles_var = IntVar(value=0)  # Default to showing original image without angles
-        self.show_angles_cb = CTkCheckBox(
-            self.toggle_frame, 
-            text="Show Contact Angles (Cropped View)", 
-            variable=self.show_angles_var, 
-            command=self.toggle_view
-        )
-        self.show_angles_cb.grid(row=0, column=0, padx=10, pady=5)
+        self.show_cropped_var = StringVar(value="0")
+        self.show_cropped_check = CTkCheckBox(frame, text="Show Contact Angles (Cropped View)",
+                                               variable=self.show_cropped_var, onvalue="1", offvalue="0",
+                                               command=self.toggle_view)
+        self.show_cropped_check.grid(row=2, column=0, pady=5)
 
-        # Image navigation controls
-        self.image_navigation_frame = CTkFrame(display_frame)
-        self.image_navigation_frame.grid(pady=20)
-
-        self.prev_button = CTkButton(self.image_navigation_frame, text="<", command=lambda: self.change_image(-1), width=30)
+        self.image_navigation_frame = CTkFrame(frame, fg_color="transparent")
+        self.image_navigation_frame.grid(row=3, column=0, pady=(5, 10))
+        self.prev_button = CTkButton(self.image_navigation_frame, text="<", command=lambda: self.change_image(-1), width=3)
         self.prev_button.grid(row=0, column=0, padx=5, pady=5)
-
-        self.index_entry = CTkEntry(self.image_navigation_frame, width=50)
+        self.index_entry = CTkEntry(self.image_navigation_frame, width=5)
         self.index_entry.grid(row=0, column=1, padx=5, pady=5)
         self.index_entry.bind("<Return>", lambda event: self.update_index_from_entry())
-        self.index_entry.insert(0, str(self.current_index + 1))
-
-        self.navigation_label = CTkLabel(self.image_navigation_frame, text=f" of {self.user_input_data.number_of_frames}", font=("Arial", 12))
+        if hasattr(self.user_input_data,'number_of_frames'):
+            self.index_entry.insert(0, str(self.current_index + 1))
+            num_frames = self.user_input_data.number_of_frames
+        else:
+            num_frames = 0
+        self.navigation_label = CTkLabel(self.image_navigation_frame, text=f" of {num_frames}", font=("Arial", 12))
         self.navigation_label.grid(row=0, column=2, padx=5, pady=5)
-
-        self.next_button = CTkButton(self.image_navigation_frame, text=">", command=lambda: self.change_image(1), width=30)
+        self.next_button = CTkButton(self.image_navigation_frame, text=">", command=lambda: self.change_image(1), width=3)
         self.next_button.grid(row=0, column=3, padx=5, pady=5)
 
-        self.load_image(self.user_input_data.import_files[self.current_index])
+        if self.user_input_data.import_files:
+             self.load_image(self.user_input_data.import_files[self.current_index])
+        else:
+             self.image_label.configure(text="No images selected")
 
     def toggle_view(self):
         """Toggle between original image and cropped image with angles"""
@@ -375,7 +381,7 @@ class CaAnalysis(CTkFrame):
     
     def display_current_image(self):
         """Display appropriate image based on current settings"""
-        if self.show_angles_var.get() == 0:
+        if self.show_angles_var.get() == "0":
             # Show original image without annotations
             self.display_original_image()
         else:
