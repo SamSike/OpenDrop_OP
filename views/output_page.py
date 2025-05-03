@@ -33,7 +33,7 @@ class OutputPage(ctk.CTkFrame):
 
         filename_label = ctk.CTkLabel(
             output_frame, text="Filename:", anchor='w')
-        filename_label.grid(row=2, column=0, sticky='w', padx=10, pady=5)
+        filename_label.grid(row=2, column=0, sticky='w', padx=10, pady=(5, 10))
 
         self.filename_var = ctk.StringVar()
         self.filename_var.trace_add("write", self.on_filename_change)
