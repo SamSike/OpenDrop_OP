@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="analysis complete">
-      <change beforePath="$PROJECT_DIR$/views/ca_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ca_analysis.py" afterDir="false" />
+    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="complete">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,6 +139,7 @@
       <workItem from="1745929680613" duration="149000" />
       <workItem from="1745997658153" duration="1577000" />
       <workItem from="1746235120386" duration="2549000" />
+      <workItem from="1746260503394" duration="610000" />
     </task>
     <task id="LOCAL-00001" summary="Changes">
       <option name="closed" value="true" />
@@ -172,7 +173,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746252320246</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="complete">
+      <option name="closed" value="true" />
+      <created>1746252441943</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1746252441943</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -206,7 +215,8 @@
     <MESSAGE value="Changes" />
     <MESSAGE value="user inputs part" />
     <MESSAGE value="analysis complete" />
-    <option name="LAST_COMMIT_MESSAGE" value="analysis complete" />
+    <MESSAGE value="complete" />
+    <option name="LAST_COMMIT_MESSAGE" value="complete" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/opendrop$pytest__classes_test_py__.coverage" NAME="pytest (classes_test.py 内) 覆盖结果" MODIFIED="1745998722434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/core" />
@@ -215,6 +225,6 @@
     <SUITE FILE_PATH="coverage/opendrop$pytest__extract_profile_test_py__.coverage" NAME="pytest (extract_profile_test.py 内) 覆盖结果" MODIFIED="1745998826995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/contact_angle" />
     <SUITE FILE_PATH="coverage/opendrop$pytest__ExtractData_test_py__.coverage" NAME="pytest (ExtractData_test.py 内) 覆盖结果" MODIFIED="1745929765817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/preprocessing" />
     <SUITE FILE_PATH="coverage/opendrop$pytest__test_all_py__.coverage" NAME="pytest (test_all.py 内) 覆盖结果" MODIFIED="1745929782521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/OpenDrop_OP$main.coverage" NAME="main Coverage Results" MODIFIED="1746252379131" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/OpenDrop_OP$main.coverage" NAME="main Coverage Results" MODIFIED="1746252606141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

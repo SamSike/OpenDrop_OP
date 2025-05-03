@@ -11,6 +11,7 @@ class MainWindow(ctk.CTk):
         super().__init__()
         self.title("OpenDrop2")
         self.geometry("800x400")
+        self.minsize(width=800, height=400)
 
         self.continue_processing = continue_processing
 
