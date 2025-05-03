@@ -26,7 +26,7 @@ def create_user_input_fields_ift(self, parent, user_input_data):
 
     # Create a frame to hold all input fields
     input_fields_frame = CTkFrame(user_input_frame)
-    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
+    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens", columnspan=2)  # Grid for input fields frame
 
     # Configure the grid of the input_fields_frame to be resizable
     input_fields_frame.grid_rowconfigure(0, weight=1)  # Allow first row to resize
