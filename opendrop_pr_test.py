@@ -5,6 +5,8 @@ OpenDrop PR Test
 ---------------
 A tool for testing OpenDrop PRs to ensure contact angle calculations remain consistent.
 Uses exact measurement values from actual runs.
+
+To run tests for all predefined images: python opendrop_pr_test.py test
 """
 
 import os
