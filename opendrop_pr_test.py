@@ -286,6 +286,15 @@ def main():
         
     elif args.command == "test":
         # Test PR
+        
+        # Handle 'all' keyword as a shortcut
+        if args.images == ["all"]:
+            args.images = [
+                "./experimental_data_set/3.bmp",
+                "./experimental_data_set/5.bmp",
+                "./experimental_data_set/10.bmp"
+            ]
+
         results = tester.batch_analyze(args.images)
         reference = tester.load_reference(args.reference)
         all_passed = tester.compare_with_reference(results, reference)
