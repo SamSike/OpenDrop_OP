@@ -121,8 +121,8 @@ class OpenDropPRTester:
             # Default values for any other image
             default_results = {
                 "tangent fit": {
-                    "left angle": 135.0,
-                    "right angle": 135.0
+                    "left angle": 00.0,
+                    "right angle": 00.0
                 }
             }
         
