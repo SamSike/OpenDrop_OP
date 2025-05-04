@@ -342,6 +342,17 @@ def user_line(experimental_drop, experimental_setup):
         else:
             auto_drop = drop_data
 
+    # Add guidance for the user
+    print("\nKeyboard Controls:")
+    print("W = Move Up")
+    print("S = Move Down")
+    print("A = Rotate Left")
+    print("D = Rotate Right")
+    print("O = Reset to Original Position")
+    print("P = Print Debug Info")
+    print("ENTER/SPACE = Confirm Selection")
+    print("ESC = Exit\n")
+
     while(1):
         cv2.imshow(title,img)
         #cv2.circle(img,(200,200),5,(255,255,0),2)
@@ -353,11 +364,8 @@ def user_line(experimental_drop, experimental_setup):
         #print(np.shape(drop_data))
         #print(drop_data)
 
-        #drop_data_list = np.ndarray.tolist(drop_data)
-        #start = sorted(drop_data_list, key=lambda x: (x[1]))[-1]
-        #sorted_drop_data_list = optimized_path(drop_data_list,start)
-        #drop_data = np.array(sorted_drop_data_list)
-        #print(type(drop_data))
+        #Plot pixels above line
+        v1 = (ix-fx,iy-fy) 
 
         if 1:
             drop = []
@@ -414,13 +422,11 @@ def user_line(experimental_drop, experimental_setup):
                 phi = experimental_drop.contact_angles['ellipse fit']['ellipse rotation']
                 cv2.ellipse(img, (int(center[0]),int(center[1])), (int(axes[0]),int(axes[1])), phi, 0, 360, (0, 88, 255), 1)
 
-        k = cv2.waitKey(1)  # 
+        # Get key press with a simpler approach
+        k = cv2.waitKey(1) & 0xFF
 
-        if k == -1 or k == 255:
-            continue
-
-        # ENTER / SPACE
-        if key_in(k, KEY_ENTER + KEY_SPACE):
+        # Process key presses using WASD controls instead of arrow keys
+        if k == 13 or k == 32:  # ENTER / SPACE
             if ((fx - ix) * (fy - iy)) != 0:  # Ensure enclosed region
                 break
             else:
@@ -428,51 +434,66 @@ def user_line(experimental_drop, experimental_setup):
                 print(fx, ix, fy, iy, (fx - ix) * (fy - iy))
                 break
 
-        # ESC
-        elif key_in(k, KEY_ESC):
+        elif k == 27:  # ESC
             kill()
 
-        # DOWN key
-        elif key_in(k, KEY_DOWN):
+        elif k == ord('s'):  # 's' for DOWN
+            print("DOWN key pressed (s)")
             fy += 1
             iy += 1
 
-        # UP key
-        elif key_in(k, KEY_UP):
+        elif k == ord('w'):  # 'w' for UP
+            print("UP key pressed (w)")
             fy -= 1
             iy -= 1
 
-        # 'o' key
-        elif key_in(k, KEY_O):
+        elif k == ord('o') or k == ord('O'):  # 'o' key
+            print("O key pressed")
             fx, fy = fx0, fy0
             ix, iy = ix0, iy0
 
-        # LEFT or RIGHT key: rotate line
-        elif key_in(k, KEY_LEFT + KEY_RIGHT):
+        elif k == ord('a'):  # 'a' for LEFT rotation
+            print("LEFT key pressed (a)")
             x0 = np.array([ix, iy])
             x1 = np.array([fx, fy])
             xc = 0.5 * (x0 + x1)
             theta = 0.1 / 180 * np.pi
-            if key_in(k, KEY_LEFT):  # counter-clockwise
-                theta = -theta
-
+            theta = -theta  # counter-clockwise
+            
             rotation = np.array([
                 [np.cos(theta), -np.sin(theta)],
                 [np.sin(theta),  np.cos(theta)]
             ])
             x0r = rotation @ (x0 - xc).T + xc
             x1r = rotation @ (x1 - xc).T + xc
-
+            
             ix, iy = x0r.astype(int)
             fx, fy = x1r.astype(int)
 
-        # 'p' key
-        elif key_in(k, KEY_P):
+        elif k == ord('d'):  # 'd' for RIGHT rotation
+            print("RIGHT key pressed (d)")
+            x0 = np.array([ix, iy])
+            x1 = np.array([fx, fy])
+            xc = 0.5 * (x0 + x1)
+            theta = 0.1 / 180 * np.pi
+            # No negation for clockwise rotation
+            
+            rotation = np.array([
+                [np.cos(theta), -np.sin(theta)],
+                [np.sin(theta),  np.cos(theta)]
+            ])
+            x0r = rotation @ (x0 - xc).T + xc
+            x1r = rotation @ (x1 - xc).T + xc
+            
+            ix, iy = x0r.astype(int)
+            fx, fy = x1r.astype(int)
+
+        elif k == ord('p') or k == ord('P'):  # 'p' key
             for key in conans.keys():
                 print(key, ':', conans[key])
             print()
 
-        # draw line on image after any update
+        # Redraw the image after any update
         if TEMP:
             image_TEMP = cv2.resize(
                 raw_image[int(region[0, 1]):int(region[1, 1]), int(region[0, 0]):int(region[1, 0])],
