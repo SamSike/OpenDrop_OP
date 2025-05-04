@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tkinter.messagebox as msgbox
 import tkinter.simpledialog as simpledialog
+from utils.enums import FittingMethod
 # import time
 # import datetime
 # from Tkinter import *
@@ -391,22 +392,22 @@ def user_line(experimental_drop, experimental_setup):
 
         if DRAW_TANGENT_LINE_WHILE_SETTING_BASELINE:
             methods_boole = experimental_setup.analysis_methods_ca
-            if methods_boole[TANGENT_FIT] or methods_boole[POLYNOMIAL_FIT] or methods_boole[CIRCLE_FIT] or methods_boole[ELLIPSE_FIT]:
+            if methods_boole[FittingMethod.TANGENT_FIT] or methods_boole[FittingMethod.POLYNOMIAL_FIT] or methods_boole[FittingMethod.CIRCLE_FIT] or methods_boole[FittingMethod.ELLIPSE_FIT]:
                 from modules.fitting.fits import perform_fits
-                perform_fits(experimental_drop, tangent=methods_boole[TANGENT_FIT], polynomial=methods_boole[POLYNOMIAL_FIT], circle=methods_boole[CIRCLE_FIT],ellipse=methods_boole[ELLIPSE_FIT])
-            if methods_boole[TANGENT_FIT]:
+                perform_fits(experimental_drop, tangent=methods_boole[FittingMethod.TANGENT_FIT], polynomial=methods_boole[FittingMethod.POLYNOMIAL_FIT], circle=methods_boole[FittingMethod.CIRCLE_FIT],ellipse=methods_boole[FittingMethod.ELLIPSE_FIT])
+            if methods_boole[FittingMethod.TANGENT_FIT]:
                 tangent_lines = tuple(experimental_drop.contact_angles['tangent fit']['tangent lines'])
                 cv2.line(img, (int(tangent_lines[0][0][0]),int(tangent_lines[0][0][1])),(int(tangent_lines[0][1][0]),int(tangent_lines[0][1][1])), (0, 0, 255), 2)
                 cv2.line(img, (int(tangent_lines[1][0][0]),int(tangent_lines[1][0][1])),(int(tangent_lines[1][1][0]),int(tangent_lines[1][1][1])),(0, 0, 255), 2)
-            if methods_boole[POLYNOMIAL_FIT] == True and not methods_boole[TANGENT_FIT]:
+            if methods_boole[FittingMethod.POLYNOMIAL_FIT] == True and not methods_boole[FittingMethod.TANGENT_FIT]:
                 tangent_lines = tuple(experimental_drop.contact_angles['polynomial fit']['tangent lines'])
                 cv2.line(img, tangent_lines[0][0],tangent_lines[0][1], (0, 0, 255), 2)
                 cv2.line(img, tangent_lines[1][0],tangent_lines[1][1], (0, 0, 255), 2)
-            if methods_boole[CIRCLE_FIT]:
+            if methods_boole[FittingMethod.CIRCLE_FIT]:
                 xc,yc = experimental_drop.contact_angles['circle fit']['circle center']
                 r = experimental_drop.contact_angles['circle fit']['circle radius']
                 cv2.circle(img,(int(xc),int(yc)),int(r),(255,150,0),1)
-            if methods_boole[ELLIPSE_FIT]:
+            if methods_boole[FittingMethod.ELLIPSE_FIT]:
                 center = experimental_drop.contact_angles['ellipse fit']['ellipse center']
                 axes = experimental_drop.contact_angles['ellipse fit']['ellipse a and b']
                 phi = experimental_drop.contact_angles['ellipse fit']['ellipse rotation']
@@ -435,7 +436,7 @@ def user_line(experimental_drop, experimental_setup):
                 kill()
             if (k==-1):
                 continue
-            if (k == 0): #up key (down on image)
+            if (k == 1): #(down on image)
                 fy = fy+1
                 iy = iy+1
 
@@ -445,7 +446,7 @@ def user_line(experimental_drop, experimental_setup):
                     image_TEMP = raw_image.copy()
                 img = image_TEMP.copy()
                 cv2.line(img,(ix,iy),(fx, fy), (0, 255, 0), 2)# #line_colour,line_thickness)    cv2.line
-            if (k == 1): #down key (up on image)
+            if (k == 0): #(up on image)
                 fy = fy-1
                 iy = iy-1
 
