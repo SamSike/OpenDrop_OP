@@ -4,23 +4,14 @@ from modules.preprocessing.ExtractData import ExtractedData
 from modules.image.read_image import get_image
 from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt
 from modules.contact_angle.extract_profile import extract_drop_profile
-from utils.config import *
+from utils.config import ML_MODEL, YL_FIT, TANGENT_FIT, POLYNOMIAL_FIT, CIRCLE_FIT, ELLIPSE_FIT, LEFT_ANGLE, RIGHT_ANGLE
 from modules.fitting.fits import perform_fits
-
 import timeit
 
 class CaDataProcessor:
     def process_data(self, fitted_drop_data, user_input_data, callback):
 
         analysis_methods = dict(user_input_data.analysis_methods_ca)
-
-        if analysis_methods[ML_MODEL]:
-            from modules.ML_model.prepare_experimental import prepare4model_v03, experimental_pred
-            import tensorflow as tf
-            tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR) # to minimise tf warnings
-            model_path = './modules/ML_model/'
-            model = tf.keras.models.load_model(model_path)
-
         n_frames = user_input_data.number_of_frames
         extracted_data = ExtractedData(n_frames, fitted_drop_data.parameter_dimensions)
         raw_experiment = ExperimentalDrop()
@@ -39,7 +30,7 @@ class CaDataProcessor:
             time_start = timeit.default_timer()
             raw_experiment = ExperimentalDrop()
             get_image(raw_experiment, user_input_data, i) # save image in here...
-            set_drop_region(raw_experiment, user_input_data,i+1)
+            set_drop_region(raw_experiment, user_input_data, i+1)
             # extract_drop_profile(raw_experiment, user_input_data)
             extract_drop_profile(raw_experiment, user_input_data)
 
@@ -70,6 +61,14 @@ class CaDataProcessor:
                     print('Performing YL fit...')
                     perform_fits(raw_experiment, YL=analysis_methods[YL_FIT])
                 if analysis_methods[ML_MODEL]:
+
+
+                    from modules.ML_model.prepare_experimental import prepare4model_v03, experimental_pred
+                    import tensorflow as tf
+                    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR) # to minimise tf warnings
+                    model_path = './modules/ML_model/'
+                    model = tf.keras.models.load_model(model_path)
+
                     pred_ds = prepare4model_v03(raw_experiment.drop_contour)
                     ML_predictions, timings = experimental_pred(pred_ds, model)
                     raw_experiment.contact_angles[ML_MODEL] = {}

@@ -2,7 +2,7 @@ from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, 
 #from modules.PlotManager import PlotManager
 from modules.preprocessing.ExtractData import ExtractedData
 from modules.image.read_image import get_image
-from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt, set_needle_region
+from modules.image.select_regions import set_drop_region, set_surface_line, correct_tilt, set_needle_region
 from modules.contact_angle.extract_profile import extract_drop_profile
 from utils.enums import *
 from utils.config import *

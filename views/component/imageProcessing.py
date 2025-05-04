@@ -1,17 +1,18 @@
 import customtkinter as ctk
-from PIL import ImageTk, Image
+from PIL import Image #, ImageTk
 from utils.image_handler import ImageHandler
 import os
-from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt,user_ROI
-from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
-from tkinter import messagebox
+# from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt,user_ROI
+# from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
+# from tkinter import messagebox
 from modules.image.read_image import get_image
 from views.component.check_button import CheckButton
-from views.helper.style import get_color
+from views.helper.style import set_light_only_color
 
 class ImageApp(ctk.CTkFrame):
     def __init__(self, parent, user_input_data, experimental_drop, application):
-        super().__init__(parent,fg_color=get_color("outerframe"))
+        super().__init__(parent)
+        set_light_only_color(self, "outerframe")
         
         self.application = application
         self.user_input_data = user_input_data
@@ -24,7 +25,8 @@ class ImageApp(ctk.CTkFrame):
         self.current_index = 0  # To keep track of the currently displayed image
 
         # Create main frame
-        self.main_frame = ctk.CTkFrame(self,fg_color=get_color("innerframe"))
+        self.main_frame = ctk.CTkFrame(self)
+        set_light_only_color(self.main_frame, "innerframe")
         self.main_frame.grid(padx=20, pady=20, sticky="nsew")  # Use grid instead of pack
 
         # Call the function to initialize the image display area and buttons
@@ -50,7 +52,8 @@ class ImageApp(ctk.CTkFrame):
     def initialize_image_display(self, frame):
         """Initialize the image display and navigation buttons inside the provided frame."""
         # Create a display frame for the image and navigation
-        display_frame = ctk.CTkFrame(frame,fg_color=get_color("entry"))
+        display_frame = ctk.CTkFrame(frame)
+        set_light_only_color(display_frame, "entry")
         display_frame.grid(sticky="nsew", padx=15, pady=(10, 0))
 
         # Create a label to display the current image's filename
@@ -63,7 +66,8 @@ class ImageApp(ctk.CTkFrame):
         self.image_label.grid(row=1, column=0, padx=10, pady=(10, 5))
 
         # Create a frame for image navigation controls (this is the first section for image navigation)
-        self.image_navigation_frame = ctk.CTkFrame(display_frame,fg_color=get_color("entry"))
+        self.image_navigation_frame = ctk.CTkFrame(display_frame)
+        set_light_only_color(self.image_navigation_frame, "entry")
         self.image_navigation_frame.grid(row=2, column=0, pady=20)
 
         # Previous button to go to the previous image
