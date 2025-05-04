@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import tkinter.messagebox as msgbox
 import tkinter.simpledialog as simpledialog
 from utils.enums import FittingMethod
+from utils.keymap import *
 # import time
 # import datetime
 # from Tkinter import *
@@ -413,110 +414,74 @@ def user_line(experimental_drop, experimental_setup):
                 phi = experimental_drop.contact_angles['ellipse fit']['ellipse rotation']
                 cv2.ellipse(img, (int(center[0]),int(center[1])), (int(axes[0]),int(axes[1])), phi, 0, 360, (0, 88, 255), 1)
 
-        k = cv2.waitKey(1) & 0xFF
-        #print(k)
-        if k != 255:
+        k = cv2.waitKey(1)  # 
 
-            if (k == 13) or (k == 32):
-                # either 'return' or 'space' pressed
-                # break
-                if ((fx - ix) * (fy - iy)) != 0: # ensure there is an enclosed region
-                    break
-                else: # something weird happening here, insert work around
-                    print('something is not right...')
-                    print(fx)
-                    print(ix)
-                    print(fy)
-                    print(iy)
-                    print(((fx - ix) * (fy - iy)))
-                    break
+        if k == -1 or k == 255:
+            continue
 
-            if (k == 27):
-                # 'esc'
-                kill()
-            if (k==-1):
-                continue
-            if (k == 1): #(down on image)
-                fy = fy+1
-                iy = iy+1
+        # ENTER / SPACE
+        if key_in(k, KEY_ENTER + KEY_SPACE):
+            if ((fx - ix) * (fy - iy)) != 0:  # Ensure enclosed region
+                break
+            else:
+                print('something is not right...')
+                print(fx, ix, fy, iy, (fx - ix) * (fy - iy))
+                break
 
-                if TEMP:
-                    image_TEMP = cv2.resize(raw_image[int(region[0,1]):int(region[1,1]),int(region[0,0]):int(region[1,0])], (0,0), fx=scale, fy=scale)
-                else:
-                    image_TEMP = raw_image.copy()
-                img = image_TEMP.copy()
-                cv2.line(img,(ix,iy),(fx, fy), (0, 255, 0), 2)# #line_colour,line_thickness)    cv2.line
-            if (k == 0): #(up on image)
-                fy = fy-1
-                iy = iy-1
+        # ESC
+        elif key_in(k, KEY_ESC):
+            kill()
 
-                if TEMP:
-                    image_TEMP = cv2.resize(raw_image[int(region[0,1]):int(region[1,1]),int(region[0,0]):int(region[1,0])], (0,0), fx=scale, fy=scale)
-                else:
-                    image_TEMP = raw_image.copy()
-                img = image_TEMP.copy()
-                cv2.line(img,(ix,iy),(fx, fy), (0, 255, 0), 2)# #line_colour,line_thickness)    cv2.line
+        # DOWN key
+        elif key_in(k, KEY_DOWN):
+            fy += 1
+            iy += 1
 
+        # UP key
+        elif key_in(k, KEY_UP):
+            fy -= 1
+            iy -= 1
 
-            if (k == 111): #"o" key
-                if 1:
-                    fx,fy = fx0,fy0
-                    ix,iy = ix0,iy0
+        # 'o' key
+        elif key_in(k, KEY_O):
+            fx, fy = fx0, fy0
+            ix, iy = ix0, iy0
 
-                    if TEMP:
-                        image_TEMP = cv2.resize(raw_image[int(region[0,1]):int(region[1,1]),int(region[0,0]):int(region[1,0])], (0,0), fx=scale, fy=scale)
-                    else:
-                        image_TEMP = raw_image.copy()
-                    img = image_TEMP.copy()
-                    cv2.line(img,(ix,iy),(fx, fy), (0, 255, 0), 2)# #line_colour,line_thickness)    cv2.line
-                else:
-                    if TEMP:
-                        image_TEMP = cv2.resize(raw_image[int(region[0,1]):int(region[1,1]),int(region[0,0]):int(region[1,0])], (0,0), fx=scale, fy=scale)
-                    else:
-                        image_TEMP = raw_image.copy()
-                    img = image_TEMP.copy()
-                    #cv2.line(img,())
+        # LEFT or RIGHT key: rotate line
+        elif key_in(k, KEY_LEFT + KEY_RIGHT):
+            x0 = np.array([ix, iy])
+            x1 = np.array([fx, fy])
+            xc = 0.5 * (x0 + x1)
+            theta = 0.1 / 180 * np.pi
+            if key_in(k, KEY_LEFT):  # counter-clockwise
+                theta = -theta
 
+            rotation = np.array([
+                [np.cos(theta), -np.sin(theta)],
+                [np.sin(theta),  np.cos(theta)]
+            ])
+            x0r = rotation @ (x0 - xc).T + xc
+            x1r = rotation @ (x1 - xc).T + xc
 
-            if (k == 2) or (k == 3): #83: right key (Clockwise)
-                x0 = np.array([ix,iy])
-                x1 = np.array([fx,fy])
-                xc = 0.5*(x0+x1)
-                theta = 0.1/180*np.pi
-                if (k == 2):  #left key
-                    theta = -theta
+            ix, iy = x0r.astype(int)
+            fx, fy = x1r.astype(int)
 
-                rotation = np.zeros((2,2))
-                rotation[0,0] = np.cos(theta)
-                rotation[0,1] = -np.sin(theta)
-                rotation[1,0] = np.sin(theta)
-                rotation[1,1] = np.cos(theta)
+        # 'p' key
+        elif key_in(k, KEY_P):
+            for key in conans.keys():
+                print(key, ':', conans[key])
+            print()
 
-                x0r = np.dot(rotation,(x0-xc).T)+xc
-                x1r = np.dot(rotation,(x1-xc).T)+xc
+        # draw line on image after any update
+        if TEMP:
+            image_TEMP = cv2.resize(
+                raw_image[int(region[0, 1]):int(region[1, 1]), int(region[0, 0]):int(region[1, 0])],
+                (0, 0), fx=scale, fy=scale)
+        else:
+            image_TEMP = raw_image.copy()
 
-                ix,iy = x0r.astype(int)
-                fx,fy = x1r.astype(int)
-
-                if TEMP:
-                    image_TEMP = cv2.resize(raw_image[int(region[0,1]):int(region[1,1]),int(region[0,0]):int(region[1,0])], (0,0), fx=scale, fy=scale)
-                else:
-                    image_TEMP = raw_image.copy()
-                img = image_TEMP.copy()
-                cv2.line(img,(ix,iy),(fx, fy), (0, 255, 0), 2)# #line_colour,line_thickness)    cv2.line
-
-            if (k == 112): #'p' key
-                #print(contact_angle1,contact_angle2)
-                for key in conans.keys():
-                    print(key,': ',conans[key])
-                print()
-                #print(conans)
-                #print(m1,m2)
-
-            if (k == -1):
-                continue
-#            else:
-#                print(k)
+        img = image_TEMP.copy()
+        cv2.line(img, (ix, iy), (fx, fy), (0, 255, 0), 2)
 
 
     cv2.destroyAllWindows()
