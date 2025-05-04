@@ -2,7 +2,7 @@ import customtkinter as ctk
 
 from views.component.preparation import create_plotting_checklist_ift, create_analysis_checklist_ift,create_user_input_fields_ift
 from views.component.imageProcessing import ImageApp
-from views.helper.style import get_color
+from views.helper.style import set_light_only_color
 
 class IftPreparation(ctk.CTkFrame):
     def __init__(self, parent, user_input_data,experimental_drop, **kwargs):
@@ -17,7 +17,8 @@ class IftPreparation(ctk.CTkFrame):
         self.grid_columnconfigure(1, weight=1)  # Right column for ImageApp
 
         # Create the frame for organizing input fields on the left with a background color
-        self.input_fields_frame = ctk.CTkFrame(self,fg_color=get_color("outerframe"))
+        self.input_fields_frame = ctk.CTkFrame(self)
+        set_light_only_color(self.input_fields_frame, "outerframe")
         self.input_fields_frame.grid(row=0, column=0, sticky="nsew", padx=15, pady=(10, 0))  # Left side for input fields
 
         # Ensure that the parent frame (input_fields_frame) resizes properly
