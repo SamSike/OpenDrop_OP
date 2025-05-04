@@ -1,10 +1,10 @@
 import customtkinter as ctk
-from PIL import ImageTk, Image
+from PIL import Image #, ImageTk
 from utils.image_handler import ImageHandler
 import os
-from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt,user_ROI
-from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
-from tkinter import messagebox
+# from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt,user_ROI
+# from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
+# from tkinter import messagebox
 from modules.image.read_image import get_image
 from views.component.check_button import CheckButton
 from views.helper.style import set_light_only_color
