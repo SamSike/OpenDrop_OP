@@ -3,16 +3,18 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from views.component.imageGallery import ImageGallery
-from views.helper.style import get_color
+from views.helper.style import get_color, set_light_only_color
 
 class IftAnalysis(CTkFrame):
     def __init__(self, parent, user_input_data, **kwargs):
         super().__init__(parent, **kwargs)
-        self._fg_color = get_color("outerframe")
+        set_light_only_color(self, "outerframe")
+
         self.user_input_data = user_input_data
 
         # Create tabs
-        self.tab_view = CTkTabview(self,fg_color=get_color("innerframe"))
+        self.tab_view = CTkTabview(self)
+        set_light_only_color(self.tab_view, "innerframe")
         self.tab_view.pack(fill="both", expand=True)
 
         # Add "Results" and "Graphs" tabs

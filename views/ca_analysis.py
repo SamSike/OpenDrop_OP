@@ -11,7 +11,7 @@ from utils.config import *
 from utils.validators import *
 from views.helper.theme import get_system_text_color
 from views.component.CTkXYFrame import *
-from views.helper.style import get_color
+from views.helper.style import set_light_only_color
 
 class CaAnalysis(CTkFrame):
     def __init__(self, parent, user_input_data, **kwargs):
@@ -33,7 +33,8 @@ class CaAnalysis(CTkFrame):
         self.table_data = []  # List to store cell references
         self.create_table(parent=self, rows=user_input_data.number_of_frames, columns=len(self.preformed_methods)+1, headers=['Index'] + list(self.preformed_methods.keys()))
 
-        self.images_frame = CTkFrame(self,fg_color=get_color("OUTERFRAME"))
+        self.images_frame = CTkFrame(self)
+        set_light_only_color(self.images_frame, "outerframe")
         self.images_frame.grid(row=0, column=1, sticky="nsew", padx=15, pady=(10, 0))
 
         self.current_index = 0
@@ -42,7 +43,8 @@ class CaAnalysis(CTkFrame):
 
     def create_table(self, parent, rows, columns, headers):
         # Create a frame for the table
-        table_frame = CTkXYFrame(parent,fg_color=get_color("OUTERFRAME"))
+        table_frame = CTkXYFrame(parent)
+        set_light_only_color(table_frame, "outerframe")
         table_frame.grid(row=0, column=0, pady=15, padx=20, sticky='nsew')
 
         # Create and place header labels
@@ -326,7 +328,8 @@ class CaAnalysis(CTkFrame):
                 cell.configure(text_color="red")  # Change text color to red
 
     def initialize_image_display(self, frame):
-        display_frame = CTkFrame(frame,fg_color=get_color("OUTERFRAME"))
+        display_frame = CTkFrame(frame)
+        set_light_only_color(display_frame, "outerframe")
         display_frame.grid(sticky="nsew", padx=15, pady=(10, 0))
 
         self.image_label = CTkLabel(display_frame, text="", fg_color="lightgrey", width=400, height=300)
@@ -337,7 +340,8 @@ class CaAnalysis(CTkFrame):
         self.name_label.grid()
 
         # Toggle controls area
-        self.toggle_frame = CTkFrame(display_frame,fg_color=get_color("Innerframe"))
+        self.toggle_frame = CTkFrame(display_frame)
+        set_light_only_color(self.toggle_frame, "innerframe")
         self.toggle_frame.grid(pady=(5, 0))
         
         # Toggle between original/cropped images with contact angles
@@ -351,7 +355,8 @@ class CaAnalysis(CTkFrame):
         self.show_angles_cb.grid(row=0, column=0, padx=10, pady=5)
 
         # Image navigation controls
-        self.image_navigation_frame = CTkFrame(display_frame,fg_color=get_color("entry"))
+        self.image_navigation_frame = CTkFrame(display_frame)
+        set_light_only_color(self.image_navigation_frame, "entry")
         self.image_navigation_frame.grid(pady=20)
 
         self.prev_button = CTkButton(self.image_navigation_frame, text="<", command=lambda: self.change_image(-1), width=30)

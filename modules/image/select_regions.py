@@ -26,7 +26,7 @@ from utils.geometry import Rect2
 
 MAX_IMAGE_TO_SCREEN_RATIO = 0.8
 
-def set_drop_region(experimental_drop, experimental_setup,index):
+def set_drop_region(experimental_drop, experimental_setup, index=0):
     # select the drop and needle regions in the image
     screen_size = experimental_setup.screen_resolution
     image_size = experimental_drop.image.shape
