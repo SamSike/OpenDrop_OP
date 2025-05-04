@@ -41,7 +41,7 @@ class CaDataProcessor:
 
             # these methods don't need tilt correction
             if user_input_data.baseline_method == "Automated":
-                if analysis_methods[FittingMethod.TANGENT_FIT] or analysis_methods[FittingMethod.POLYNOMIAL_FIT] or analysis_methods[FittingMethod.CIRCLE_FIT] or analysis_methods[ELLIPSE_FIT]:
+                if analysis_methods[FittingMethod.TANGENT_FIT] or analysis_methods[FittingMethod.POLYNOMIAL_FIT] or analysis_methods[FittingMethod.CIRCLE_FIT] or analysis_methods[FittingMethod.ELLIPSE_FIT]:
                     perform_fits(raw_experiment, tangent=analysis_methods[FittingMethod.TANGENT_FIT], 
                                  polynomial=analysis_methods[FittingMethod.POLYNOMIAL_FIT], circle=analysis_methods[FittingMethod.CIRCLE_FIT],
                                  ellipse=analysis_methods[FittingMethod.ELLIPSE_FIT])
