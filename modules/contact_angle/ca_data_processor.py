@@ -4,7 +4,6 @@ from modules.preprocessing.ExtractData import ExtractedData
 from modules.image.read_image import get_image
 from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt
 from modules.contact_angle.extract_profile import extract_drop_profile
-from utils.config import ML_MODEL, YL_FIT, TANGENT_FIT, POLYNOMIAL_FIT, CIRCLE_FIT, ELLIPSE_FIT, LEFT_ANGLE, RIGHT_ANGLE
 from modules.fitting.fits import perform_fits
 import timeit
 
