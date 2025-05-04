@@ -1,15 +1,15 @@
-from customtkinter import *
+from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkCheckBox, CTkImage, IntVar
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
-import io
 import os
 import math
 import cv2
 
 from utils.image_handler import ImageHandler
-from utils.config import *
-from utils.validators import *
+from utils.config import LEFT_ANGLE, RIGHT_ANGLE, BASELINE_INTERCEPTS, CONTACT_POINTS, TANGENT_LINES, FIT_SHAPE, BASELINE, FIT_SHAPE
+from utils.enums import FittingMethod
 from views.helper.theme import get_system_text_color
+
 from views.component.CTkXYFrame import *
 from views.helper.style import set_light_only_color
 
@@ -95,7 +95,7 @@ class CaAnalysis(CTkFrame):
             print(f"hasattr(experimental_drop, 'cropped_image'): {hasattr(experimental_drop, 'cropped_image')}")
             if experimental_drop is not None and hasattr(experimental_drop, 'cropped_image'):
                 cropped_cv = experimental_drop.cropped_image
-                print(f"Retrieved cropped image from experimental_drop")
+                print("Retrieved cropped image from experimental_drop")
             
             # Convert to PIL image and save
             if cropped_cv is not None:
@@ -114,121 +114,73 @@ class CaAnalysis(CTkFrame):
             
             # Check for contact angle data
             if hasattr(extracted_data, 'contact_angles'):
+
                 # Find available method
-                method_to_use = None
-                if 'tangent fit' in extracted_data.contact_angles:
-                    method_to_use = 'tangent fit'
-                elif 'ellipse fit' in extracted_data.contact_angles:
-                    method_to_use = 'ellipse fit'
-                elif 'polynomial fit' in extracted_data.contact_angles:
-                    method_to_use = 'polynomial fit'
-                elif 'circle fit' in extracted_data.contact_angles:
-                    method_to_use = 'circle fit'
-                elif 'YL fit' in extracted_data.contact_angles:
-                    method_to_use = 'YL fit'
-                elif ML_MODEL in extracted_data.contact_angles:
-                    method_to_use = ML_MODEL
+                method = extract_method(extracted_data.contact_angles)
+
+                if method is None:
+                    print(f"Image {index+1} has no supported contact angle method")
+                    return
                 
-                if method_to_use:
-                    angles_data = extracted_data.contact_angles[method_to_use]
-                    print(f"Using method '{method_to_use}' data, keys: {angles_data.keys()}")
+                angles_data = extracted_data.contact_angles[method]
+                print(f"Using method '{method}' data, keys: {angles_data.keys()}")
 
-                    # Special handling for ellipse fit only
-                    if method_to_use in [ 'ellipse fit', 'circle fit'] and 'baseline intercepts' in angles_data:
-                        baseline_intercepts = angles_data['baseline intercepts']
+                # Special handling for ellipse fit only
+                if method in [ FittingMethod.CIRCLE_FIT, FittingMethod.ELLIPSE_FIT] and BASELINE_INTERCEPTS in angles_data:
+                    baseline_intercepts = angles_data[BASELINE_INTERCEPTS]
+                    
+                    # For ellipse fit, determine left and right points
+                    if baseline_intercepts[0][0] < baseline_intercepts[1][0]:
+                        # The first point is on the left (smaller x-coordinate)
+                        left_point = baseline_intercepts[0]
+                        right_point = baseline_intercepts[1]
+                    else:
+                        # The first point is on the right (larger x-coordinate)
+                        left_point = baseline_intercepts[1]
+                        right_point = baseline_intercepts[0]
                         
-                        # For ellipse fit, determine left and right points
-                        if baseline_intercepts[0][0] < baseline_intercepts[1][0]:
-                            # The first point is on the left (smaller x-coordinate)
-                            left_point = baseline_intercepts[0]
-                            right_point = baseline_intercepts[1]
+                    # Create contact_points from baseline_intercepts
+                    angles_data[CONTACT_POINTS] = [left_point, right_point]
+                    
+                    # Get the angles
+                    left_angle = angles_data[LEFT_ANGLE]
+                    right_angle = angles_data[RIGHT_ANGLE]
+                    
+                    left_angle_rad = math.radians(left_angle)
+                    right_angle_rad = math.radians(180 - right_angle)
+
+                    # Length of tangent line
+                    line_length = 50
+                    
+                    # Calculate tangent line endpoints
+                    left_dx = math.cos(left_angle_rad) * line_length
+                    left_dy = math.sin(left_angle_rad) * line_length
+                    right_dx = math.cos(right_angle_rad) * line_length
+                    right_dy = math.sin(right_angle_rad) * line_length
+                    
+                    # Create tangent lines in the expected format
+                    angles_data[TANGENT_LINES] = (
+                        ((float(left_point[0]), float(left_point[1])), 
+                        (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
+                        ((float(right_point[0]), float(right_point[1])), 
+                        (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
+                    )
+                # Special handling for polynomial fit
+                elif method == FittingMethod.POLYNOMIAL_FIT and CONTACT_POINTS in angles_data:
+                    contact_points = angles_data[CONTACT_POINTS]
+                    
+                    # For polynomial fit, create tangent lines based on the angles
+                    if LEFT_ANGLE in angles_data and RIGHT_ANGLE in angles_data:
+                        left_angle = angles_data[LEFT_ANGLE]
+                        right_angle = angles_data[RIGHT_ANGLE]
+                        
+                        # Determine left and right points
+                        if contact_points[0][0] < contact_points[1][0]:
+                            left_point = contact_points[0]
+                            right_point = contact_points[1]
                         else:
-                            # The first point is on the right (larger x-coordinate)
-                            left_point = baseline_intercepts[1]
-                            right_point = baseline_intercepts[0]
-                            
-                        # Create contact_points from baseline_intercepts
-                        angles_data['contact points'] = [left_point, right_point]
-                        
-                        # Get the angles
-                        left_angle = angles_data['left angle']
-                        right_angle = angles_data['right angle']
-                        
-                        left_angle_rad = math.radians(left_angle)
-                        right_angle_rad = math.radians(180 - right_angle)
-
-                        # Length of tangent line
-                        line_length = 50
-                        
-                        # Calculate tangent line endpoints
-                        left_dx = math.cos(left_angle_rad) * line_length
-                        left_dy = math.sin(left_angle_rad) * line_length
-                        right_dx = math.cos(right_angle_rad) * line_length
-                        right_dy = math.sin(right_angle_rad) * line_length
-                        
-                        # Create tangent lines in the expected format
-                        angles_data['tangent lines'] = (
-                            ((float(left_point[0]), float(left_point[1])), 
-                            (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
-                            ((float(right_point[0]), float(right_point[1])), 
-                            (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
-                        )
-                    # Special handling for polynomial fit
-                    elif method_to_use == 'polynomial fit' and 'contact points' in angles_data:
-                        contact_points = angles_data['contact points']
-                        
-                        # For polynomial fit, create tangent lines based on the angles
-                        if 'left angle' in angles_data and 'right angle' in angles_data:
-                            left_angle = angles_data['left angle']
-                            right_angle = angles_data['right angle']
-                            
-                            # Determine left and right points
-                            if contact_points[0][0] < contact_points[1][0]:
-                                left_point = contact_points[0]
-                                right_point = contact_points[1]
-                            else:
-                                left_point = contact_points[1]
-                                right_point = contact_points[0]
-                            
-                            # Calculate tangent lines using angles
-                            left_angle_rad = math.radians(left_angle)
-                            right_angle_rad = math.radians(180 - right_angle)
-                            
-                            line_length = 50
-                            
-                            # Calculate tangent line endpoints
-                            left_dx = math.cos(left_angle_rad) * line_length
-                            left_dy = math.sin(left_angle_rad) * line_length
-                            right_dx = math.cos(right_angle_rad) * line_length
-                            right_dy = math.sin(right_angle_rad) * line_length
-                            
-                            # Create tangent lines in the expected format
-                            angles_data['tangent lines'] = (
-                                ((float(left_point[0]), float(left_point[1])), 
-                                (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
-                                ((float(right_point[0]), float(right_point[1])), 
-                                (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
-                            )
-                    elif method_to_use == 'YL fit' and 'fit shape' in angles_data and 'baseline' in angles_data:
-                        # For YL fit, extract contact points from the fit shape and baseline
-                        fit_shape = angles_data['fit shape']
-                        baseline = angles_data['baseline']
-                        
-                        # The first and last points of the fit shape are likely the contact points
-                        # Alternatively, use the first and last points of the baseline
-                        if len(baseline) >= 2:
-                            left_point = baseline[0]
-                            right_point = baseline[-1]
-                        elif len(fit_shape) >= 2:
-                            left_point = fit_shape[0]
-                            right_point = fit_shape[len(fit_shape)//2]  # Middle point might be the right contact point
-                        
-                        # Create contact_points
-                        angles_data['contact points'] = [left_point, right_point]
-                        
-                        # Get the angles
-                        left_angle = angles_data['left angle']
-                        right_angle = angles_data['right angle']
+                            left_point = contact_points[1]
+                            right_point = contact_points[0]
                         
                         # Calculate tangent lines using angles
                         left_angle_rad = math.radians(left_angle)
@@ -243,69 +195,107 @@ class CaAnalysis(CTkFrame):
                         right_dy = math.sin(right_angle_rad) * line_length
                         
                         # Create tangent lines in the expected format
-                        angles_data['tangent lines'] = (
+                        angles_data[TANGENT_LINES] = (
                             ((float(left_point[0]), float(left_point[1])), 
                             (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
                             ((float(right_point[0]), float(right_point[1])), 
                             (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
                         )
-                    # Get left and right angle values
-                    left_angle = right_angle = None
-                    for key in [LEFT_ANGLE, 'left angle', 'left_angle']:
+                elif method == FittingMethod.YL_FIT and FIT_SHAPE in angles_data and BASELINE in angles_data:
+                    # For YL fit, extract contact points from the fit shape and baseline
+                    fit_shape = angles_data[FIT_SHAPE]
+                    baseline = angles_data[BASELINE]
+                    
+                    # The first and last points of the fit shape are likely the contact points
+                    # Alternatively, use the first and last points of the baseline
+                    if len(baseline) >= 2:
+                        left_point = baseline[0]
+                        right_point = baseline[-1]
+                    elif len(fit_shape) >= 2:
+                        left_point = fit_shape[0]
+                        right_point = fit_shape[len(fit_shape)//2]  # Middle point might be the right contact point
+                    
+                    # Create contact_points
+                    angles_data[CONTACT_POINTS] = [left_point, right_point]
+                    
+                    # Get the angles
+                    left_angle = angles_data[LEFT_ANGLE]
+                    right_angle = angles_data[RIGHT_ANGLE]
+                    
+                    # Calculate tangent lines using angles
+                    left_angle_rad = math.radians(left_angle)
+                    right_angle_rad = math.radians(180 - right_angle)
+                    
+                    line_length = 50
+                    
+                    # Calculate tangent line endpoints
+                    left_dx = math.cos(left_angle_rad) * line_length
+                    left_dy = math.sin(left_angle_rad) * line_length
+                    right_dx = math.cos(right_angle_rad) * line_length
+                    right_dy = math.sin(right_angle_rad) * line_length
+                    
+                    # Create tangent lines in the expected format
+                    angles_data[TANGENT_LINES] = (
+                        ((float(left_point[0]), float(left_point[1])), 
+                        (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
+                        ((float(right_point[0]), float(right_point[1])), 
+                        (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
+                    )
+                # Get left and right angle values
+                left_angle = right_angle = None
+                for key in [LEFT_ANGLE, 'left_angle']:
+                    if key in angles_data:
+                        left_angle = angles_data[key]
+                        break
+                
+                for key in [RIGHT_ANGLE, 'right_angle']:
+                    if key in angles_data:
+                        right_angle = angles_data[key]
+                        break
+                
+                if left_angle is not None and right_angle is not None:
+                    # Find contact points data
+                    contact_points = None
+                    for key in ['contact_points', 'tangent contact points', CONTACT_POINTS, BASELINE_INTERCEPTS]:
                         if key in angles_data:
-                            left_angle = angles_data[key]
+                            if key == BASELINE_INTERCEPTS:
+                                # Convert baseline intercepts to contact points format
+                                contact_points = angles_data[key]
+                            else:
+                                contact_points = angles_data[key]
+                            print(f"Found contact points data: {key} = {contact_points}")
                             break
                     
-                    for key in [RIGHT_ANGLE, 'right angle', 'right_angle']:
+                    # Find tangent line data
+                    tangent_lines = None
+                    for key in [TANGENT_LINES, 'tangent_lines']:
                         if key in angles_data:
-                            right_angle = angles_data[key]
+                            tangent_lines = angles_data[key]
+                            print(f"Found tangent lines data: {key} = {tangent_lines}")
                             break
                     
-                    if left_angle is not None and right_angle is not None:
-                        # Find contact points data
-                        contact_points = None
-                        for key in ['contact_points', 'tangent contact points', 'contact points', 'baseline intercepts']:
-                            if key in angles_data:
-                                if key == 'baseline intercepts':
-                                    # Convert baseline intercepts to contact points format
-                                    contact_points = angles_data[key]
-                                else:
-                                    contact_points = angles_data[key]
-                                print(f"Found contact points data: {key} = {contact_points}")
-                                break
+                    # Draw annotations on cropped image
+                    print(f"Index: {index}")
+                    print(f"self.cropped_images:{self.cropped_images}")
+                    print(f"Index in self.cropped_images: {index in self.cropped_images}")
+                    if contact_points is not None and tangent_lines is not None and index in self.cropped_images:
+                        print(f"Creating angle annotations on cropped image")
                         
-                        # Find tangent line data
-                        tangent_lines = None
-                        for key in ['tangent lines', 'tangent_lines']:
-                            if key in angles_data:
-                                tangent_lines = angles_data[key]
-                                print(f"Found tangent lines data: {key} = {tangent_lines}")
-                                break
+                        cropped_img = self.cropped_images[index]
+                        cropped_with_overlay = self.draw_on_cropped_image(
+                            cropped_img, left_angle, right_angle, contact_points, tangent_lines
+                        )
                         
-                        # Draw annotations on cropped image
-                        print(f"Index: {index}")
-                        print(f"self.cropped_images:{self.cropped_images}")
-                        print(f"Index in self.cropped_images: {index in self.cropped_images}")
-                        if contact_points is not None and tangent_lines is not None and index in self.cropped_images:
-                            print(f"Creating angle annotations on cropped image")
-                            
-                            cropped_img = self.cropped_images[index]
-                            cropped_with_overlay = self.draw_on_cropped_image(
-                                cropped_img, left_angle, right_angle, contact_points, tangent_lines
-                            )
-                            
-                            # Save annotated cropped image
-                            self.cropped_angle_images[index] = cropped_with_overlay
-                            
-                            # Update display
-                            if self.current_index == index and self.show_angles_var.get() == 1:
-                                self.display_current_image()
-                        else:
-                            print(f"Cannot create cropped image annotations: missing required data")
+                        # Save annotated cropped image
+                        self.cropped_angle_images[index] = cropped_with_overlay
+                        
+                        # Update display
+                        if self.current_index == index and self.show_angles_var.get() == 1:
+                            self.display_current_image()
                     else:
-                        print(f"Image {index+1} missing angle data")
+                        print(f"Cannot create cropped image annotations: missing required data")
                 else:
-                    print(f"Image {index+1} has no supported contact angle method")
+                    print(f"Image {index+1} missing angle data")
         except Exception as e:
             print(f"Error processing contact angle data: {e}")
             import traceback
@@ -523,10 +513,12 @@ class CaAnalysis(CTkFrame):
             # Add angle label text
             try:
                 font = ImageFont.truetype("views/assets/DejaVuSans.ttf", 16)
-            except:
+            except Exception as e:
+                print(f"Error loading font: {e}")
                 try:
                     font = ImageFont.load_default()
-                except:
+                except Exception as e:
+                    print(f"Error loading default font: {e}")
                     font = None
             
             # Add angle text labels
@@ -587,3 +579,10 @@ class CaAnalysis(CTkFrame):
         self.index_entry.delete(0, 'end')  # Clear current entry
         # Insert new index (1-based)
         self.index_entry.insert(0, str(self.current_index + 1))
+
+def extract_method(contact_angles):
+    """Extract the first available method from contact angles data"""
+    for method in list(FittingMethod):
+        if method in contact_angles:
+            return method
+    return None

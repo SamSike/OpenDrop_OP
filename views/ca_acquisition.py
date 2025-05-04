@@ -1,10 +1,10 @@
-from customtkinter import *
+from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkImage
 from tkinter import filedialog, messagebox
 from PIL import Image
+import os
 
 from utils.image_handler import ImageHandler
-from utils.config import *
-from utils.validators import *
+from utils.config import PATH_TO_SCRIPT, IMAGE_TYPE, FILE_SOURCE_OPTIONS_CA, EDGEFINDER_OPTIONS
 from views.component.option_menu import OptionMenu
 from views.component.integer_entry import IntegerEntry
 from views.helper.style import set_light_only_color

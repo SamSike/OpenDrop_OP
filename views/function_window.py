@@ -1,4 +1,4 @@
-from customtkinter import *
+from customtkinter import CTkFrame, CTkButton, CTk, get_appearance_mode
 from tkinter import messagebox
 
 from modules.contact_angle.ca_data_processor import CaDataProcessor
@@ -20,7 +20,7 @@ from views.ca_preparation import CaPreparation
 from views.ca_analysis import CaAnalysis
 from views.output_page import OutputPage
 
-from utils.enums import *
+from utils.enums import FunctionType, Stage, Move
 
 
 def call_user_input(function_type, fitted_drop_data):
@@ -245,15 +245,15 @@ class FunctionWindow(CTk):
             for after_id in self.tk.call('after', 'info'):
                 try:
                     self.after_cancel(after_id)
-                except:
-                    pass
+                except Exception as e:
+                    print('views/function_window.py: on_closing() AfterCancelError:', e)
             
             # 清理所有子部件
             for widget in self.winfo_children():
                 try:
                     widget.destroy()
-                except:
-                    pass
+                except Exception as e:
+                    print('views/function_window.py: on_closing() WidgetDestroyError:', e)
                     
             # 停止主循环
             self.quit()
