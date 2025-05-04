@@ -270,7 +270,8 @@ def main():
     
     # Test command
     test_parser = subparsers.add_parser("test", help="Test PR")
-    test_parser.add_argument("--images", required=True, nargs="+", help="Image file paths")
+    test_parser.add_argument("--images", nargs="+", help="Image file paths")
+    test_parser.add_argument("--all", action="store_true", help="Test all predefined images")
     test_parser.add_argument("--reference", default="reference_angles.json", help="Reference results file")
     test_parser.add_argument("--tolerance", type=float, default=0.5, help="Allowed difference (degrees)")
     
@@ -288,14 +289,17 @@ def main():
         # Test PR
         
         # Handle 'all' keyword as a shortcut
-        if args.images == ["all"]:
-            args.images = [
+        if args.all or (not args.all and not args.images):
+            image_paths = [
                 "./experimental_data_set/3.bmp",
                 "./experimental_data_set/5.bmp",
                 "./experimental_data_set/10.bmp"
             ]
+            print("Testing all predefined images...")
+        elif args.images:
+            image_paths = args.images
 
-        results = tester.batch_analyze(args.images)
+        results = tester.batch_analyze(image_paths)
         reference = tester.load_reference(args.reference)
         all_passed = tester.compare_with_reference(results, reference)
         
