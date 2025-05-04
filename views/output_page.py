@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
-from views.helper.style import get_color
+from views.helper.style import set_light_only_color
 
 class OutputPage(ctk.CTkFrame):
     def __init__(self, parent, user_input_data, **kwargs):
@@ -12,7 +12,8 @@ class OutputPage(ctk.CTkFrame):
         self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(0, weight=1)
         # Output Data Location Section
-        output_frame = ctk.CTkFrame(self,fg_color=get_color("outerframe"))
+        output_frame = ctk.CTkFrame(self)
+        set_light_only_color(output_frame, "outerframe")
         output_frame.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
 
         # Output Location Label inside the gray frame (output_frame)

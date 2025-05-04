@@ -2,13 +2,13 @@ from customtkinter import CTkFrame, CTkButton, CTk, get_appearance_mode
 from tkinter import messagebox
 
 from modules.contact_angle.ca_data_processor import CaDataProcessor
-from modules.IFT.pd_data_processor import pdDataProcessor
+from modules.ift.pd_data_processor import pdDataProcessor
 from modules.core.classes import ExperimentalSetup, ExperimentalDrop #, DropData, Tolerances
 
-from views.helper.theme import LIGHT_MODE
 from views.helper.validation import validate_user_input_data_ift,validate_user_input_data_cm,validate_frame_interval
 
-from views.helper.style import get_color
+from views.helper.theme import *
+from views.helper.style import get_color, set_light_only_color
 from views.navigation import create_navigation
 
 from views.ift_acquisition import IftAcquisition
@@ -33,12 +33,13 @@ class FunctionWindow(CTk):
         self.geometry("1000x750")
         self.minsize(1000, 750) 
 
+
         if get_appearance_mode() == LIGHT_MODE:
             self.FG_COLOR = get_color("background")
         else:
             self.FG_COLOR = self.cget("fg_color")
 
-        self.configure(fg_color=self.FG_COLOR)
+        set_light_only_color(self, "background")
 
         self.ca_processor = CaDataProcessor()
         self.pd_processor = pdDataProcessor()
@@ -67,6 +68,7 @@ class FunctionWindow(CTk):
         # Initialise frame for first stage
         self.ift_acquisition_frame = IftAcquisition(
                 self, user_input_data, fg_color=self.FG_COLOR)
+
         self.ca_acquisition_frame = CaAcquisition(
                 self, user_input_data, fg_color=self.FG_COLOR)
         
@@ -76,7 +78,8 @@ class FunctionWindow(CTk):
             self.ca_acquisition_frame.pack(fill="both", expand=True)
 
         # Frame for navigation buttons
-        self.button_frame = CTkFrame(self,fg_color=get_color("outerframe"))
+        self.button_frame = CTkFrame(self)
+        set_light_only_color(self.button_frame, "outerframe")
         self.button_frame.pack(side="bottom", fill="x", pady=10)
 
         # Add navigation buttons to the button frame

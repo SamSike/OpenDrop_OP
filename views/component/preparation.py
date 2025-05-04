@@ -4,7 +4,7 @@ from views.component.option_menu import OptionMenu
 from views.component.float_entry import FloatEntry
 from views.component.float_combobox import FloatCombobox
 from views.component.check_button import CheckButton
-from views.helper.style import get_color
+from views.helper.style import set_light_only_color
 # Define your options and labels globally or pass them as parameters if preferred
 # AUTO_MANUAL_OPTIONS = ["Automated", "User-selected"]  # Example options
 LABEL_WIDTH = 200  # Adjust as needed
@@ -12,7 +12,8 @@ LABEL_WIDTH = 200  # Adjust as needed
 # ift [User Input]
 def create_user_input_fields_ift(self, parent, user_input_data):
     """Create user input fields and return the frame containing them."""
-    user_input_frame = CTkFrame(parent, fg_color=get_color("innerframe"))
+    user_input_frame = CTkFrame(parent)
+    set_light_only_color(user_input_frame, "innerframe")
     user_input_frame.grid(row=1, column=0, columnspan=2, sticky="wens", padx=15, pady=15)
 
     # Configure the grid for the user_input_frame to be resizable
@@ -26,7 +27,8 @@ def create_user_input_fields_ift(self, parent, user_input_data):
     label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
 
     # Create a frame to hold all input fields
-    input_fields_frame = CTkFrame(user_input_frame,fg_color=get_color("entry"))
+    input_fields_frame = CTkFrame(user_input_frame)
+    set_light_only_color(input_fields_frame, "entry")
     input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
 
     # Configure the grid of the input_fields_frame to be resizable
@@ -89,7 +91,9 @@ def create_user_input_fields_ift(self, parent, user_input_data):
 # ift [CheckList Select]
 def create_plotting_checklist_ift(self,parent,user_input_data):
 
-    plotting_clist_frame = CTkFrame(parent,fg_color=get_color("innerframe"))
+    plotting_clist_frame = CTkFrame(parent)
+    set_light_only_color(plotting_clist_frame, "innerframe")
+    
     plotting_clist_frame.grid(row=1, column=0, columnspan=2, sticky="wens", padx=15, pady=15)
 
     # Create a label for the dynamic content
@@ -97,7 +101,8 @@ def create_plotting_checklist_ift(self,parent,user_input_data):
     label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
 
     # Create a frame to hold all input fields
-    input_fields_frame = CTkFrame(plotting_clist_frame,fg_color=get_color("entry"))
+    input_fields_frame = CTkFrame(plotting_clist_frame)
+    set_light_only_color(input_fields_frame, "entry")
     input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
 
     def update_original_boole(*args):
@@ -111,7 +116,8 @@ def create_plotting_checklist_ift(self,parent,user_input_data):
 # ift [Analysis Methods]
 def create_analysis_checklist_ift(self,parent,user_input_data):
 
-    analysis_clist_frame = CTkFrame(parent,fg_color=get_color("innerframe"))
+    analysis_clist_frame = CTkFrame(parent)
+    set_light_only_color(analysis_clist_frame, "innerframe")
     analysis_clist_frame.grid(row=1, column=0, columnspan=2, sticky="wens", padx=15, pady=15)
 
     # Create a label for the dynamic content
@@ -119,7 +125,8 @@ def create_analysis_checklist_ift(self,parent,user_input_data):
     label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
 
     # Create a frame to hold all input fields
-    input_fields_frame = CTkFrame(analysis_clist_frame,fg_color=get_color("entry"))
+    input_fields_frame = CTkFrame(analysis_clist_frame)
+    set_light_only_color(input_fields_frame, "entry")
     input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
 
     def update_default_method_boole(*args):
@@ -133,7 +140,8 @@ def create_analysis_checklist_ift(self,parent,user_input_data):
 def create_user_inputs_cm(self,parent,user_input_data):
     """Create user input fields and return the frame containing them."""
     # Create the user input frame
-    user_input_frame = CTkFrame(parent,fg_color=get_color("innerframe"))
+    user_input_frame = CTkFrame(parent)
+    set_light_only_color(user_input_frame, "innerframe")
     user_input_frame.grid(row=1, column=0, columnspan=2, sticky="wens", padx=15, pady=15)
 
     # Create a label for the dynamic content
@@ -141,7 +149,8 @@ def create_user_inputs_cm(self,parent,user_input_data):
     label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 
     # Create a frame to hold all input fields
-    input_fields_frame = CTkFrame(user_input_frame,fg_color=get_color("ENTRY"))
+    input_fields_frame = CTkFrame(user_input_frame)
+    set_light_only_color(input_fields_frame, "entry")
     input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")
 
     # Define update functions for each input
@@ -204,7 +213,8 @@ def create_user_inputs_cm(self,parent,user_input_data):
 def create_plotting_checklist_cm(self, parent, user_input_data):
     """Create plotting checklist fields and return the frame containing them."""
     # Create the plotting checklist frame
-    plotting_clist_frame = CTkFrame(parent,fg_color=get_color("innerframe"))
+    plotting_clist_frame = CTkFrame(parent)
+    set_light_only_color(plotting_clist_frame, "innerframe")
     plotting_clist_frame.grid(row=1, column=2, columnspan=1, sticky="wens", padx=15, pady=15)
 
     # Create a label for the checklist
@@ -212,7 +222,8 @@ def create_plotting_checklist_cm(self, parent, user_input_data):
     label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
 
     # Create a frame to hold all checkbox fields
-    input_fields_frame = CTkFrame(plotting_clist_frame,fg_color=get_color("entry"))
+    input_fields_frame = CTkFrame(plotting_clist_frame)
+    set_light_only_color(input_fields_frame, "entry")
     input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
 
     # Define update functions for each checkbox
@@ -241,7 +252,8 @@ def create_plotting_checklist_cm(self, parent, user_input_data):
 def create_analysis_checklist_cm(self, parent, user_input_data):
     """Create analysis methods checklist and return the frame containing them."""
     # Create the analysis checklist frame
-    analysis_clist_frame = CTkFrame(parent,fg_color=get_color("innerframe"))
+    analysis_clist_frame = CTkFrame(parent)
+    set_light_only_color(analysis_clist_frame, "innerframe")
     analysis_clist_frame.grid(row=3, columnspan=4, sticky="wens", padx=15, pady=15)
 
     # Create a label for the analysis checklist
@@ -249,7 +261,8 @@ def create_analysis_checklist_cm(self, parent, user_input_data):
     label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
 
     # Create a frame to hold all checkbox fields
-    input_fields_frame = CTkFrame(analysis_clist_frame,fg_color=get_color("entry"))
+    input_fields_frame = CTkFrame(analysis_clist_frame)
+    set_light_only_color(input_fields_frame, "entry")
     input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
 
     # Define update functions for each checkbox
