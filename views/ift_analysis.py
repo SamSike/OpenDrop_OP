@@ -6,20 +6,25 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import numpy as np
+from views.component.imageGallery import ImageGallery
+from views.helper.style import get_color, set_light_only_color
 
 class IftAnalysis(CTkFrame):
     def __init__(self, parent, user_input_data, **kwargs):
         super().__init__(parent, **kwargs)
+        set_light_only_color(self, "outerframe")
 
         self.user_input_data = user_input_data
         self.output = []  # List to store ExtractedData objects
         self.current_index = 0
 
         self.tab_view = CTkTabview(self)
+        set_light_only_color(self.tab_view, "innerframe")
         self.tab_view.pack(fill="both", expand=True)
 
         self.tab_view.add("Results")
-
+        self.tab_view.add("Graphs")
+        # Initialize content for each tab
         self.create_results_tab(self.tab_view.tab("Results"))
 
     def create_results_tab(self, parent):

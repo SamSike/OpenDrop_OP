@@ -2,13 +2,14 @@ from typing import Any
 import os
 from tkinter import filedialog, messagebox
 from PIL import Image
-from customtkinter import *
+from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, StringVar, CTkOptionMenu, CTkImage
 
 from utils.image_handler import ImageHandler
-from utils.validators import *
-from utils.config import *
+from utils.validators import validate_numeric_input
+from utils.config import PATH_TO_SCRIPT, IMAGE_TYPE, FILE_SOURCE_OPTIONS_IFT
 from views.component.ctk_input_popup import CTkInputPopup
 from views.component.ctk_table_popup import CTkTablePopup
+from views.helper.style import set_light_only_color
 
 class IftAcquisition(CTkFrame):
     def __init__(self, parent, user_input_data, **kwargs):
@@ -123,6 +124,7 @@ class IftAcquisition(CTkFrame):
                 self.frame_interval_frame.pack_forget()
 
             self.images_frame = CTkFrame(self)
+            set_light_only_color(self.images_frame, "innerframe")
             self.images_frame.pack(pady=10)
             self.initialize_image_display(self.images_frame)
         else:
@@ -137,6 +139,7 @@ class IftAcquisition(CTkFrame):
         self.name_label = CTkLabel(frame, text=file_name, font=("Arial", 10))
         self.name_label.pack()
         self.image_navigation_frame = CTkFrame(frame)
+        set_light_only_color(self.image_navigation_frame, "entry")
         self.image_navigation_frame.pack(pady=20)
         self.prev_button = CTkButton(self.image_navigation_frame, text="<", command=lambda: self.change_image(-1), width=3)
         self.prev_button.pack(side="left", padx=5, pady=5)
