@@ -273,6 +273,7 @@ def user_line(experimental_drop, experimental_setup):
     drop_data = experimental_drop.contour.astype(float)
     CPs = experimental_drop.contact_points
     title = 'Define surface line'
+
     #line = experimental_drop.surface_data # not set yet
     region = experimental_setup.drop_region
 
@@ -327,7 +328,14 @@ def user_line(experimental_drop, experimental_setup):
     ix,fx = ix0,fx0
     iy,fy = iy0,fy0
 
-    cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
+    # cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
+    # cv2.moveWindow(title, screen_position[0], screen_position[1])
+    cv2.namedWindow(title, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(title, 800, 600)  # or image.shape[1], image.shape[0]
+    try:
+        cv2.setWindowProperty(title, 5, 0)  # Lock size (if supported)
+    except:
+        pass  # Safe fallback for macOS or older OpenCV
     cv2.moveWindow(title, screen_position[0], screen_position[1])
 
     if DRAW_TANGENT_LINE_WHILE_SETTING_BASELINE: #so that things can be drawn over the image which surface line is changed
@@ -502,6 +510,10 @@ def user_line(experimental_drop, experimental_setup):
             image_TEMP = raw_image.copy()
 
         img = image_TEMP.copy()
+        # cv2.line(img, (ix, iy), (fx, fy), (0, 255, 0), 2)
+        cv2.putText(img, "Use W/A/S/D to move. Enter/Space = confirm. ESC = cancel.",
+                    (10, img.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.25, (255, 255, 255), 1, cv2.LINE_AA)
         cv2.line(img, (ix, iy), (fx, fy), (0, 255, 0), 2)
 
 
@@ -510,6 +522,12 @@ def user_line(experimental_drop, experimental_setup):
     max_x = max(ix, fx) / scale
     min_y = min(iy, fy) / scale
     max_y = max(iy, fy) / scale
+
+
+def run_set_surface_line(experimental_drop, experimental_setup,result_queue):
+    
+    set_surface_line(experimental_drop, experimental_setup)
+    result_queue.put(experimental_drop.contact_angles)
 
 # mouse callback function
 def draw_rectangle(event,x,y,flags,param):

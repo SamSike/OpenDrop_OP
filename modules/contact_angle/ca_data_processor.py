@@ -2,12 +2,14 @@ from modules.core.classes import ExperimentalDrop
 #from modules.PlotManager import PlotManager
 from modules.preprocessing.ExtractData import ExtractedData
 from modules.image.read_image import get_image
-from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt
+from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt,run_set_surface_line
 from modules.contact_angle.extract_profile import extract_drop_profile
 from modules.fitting.fits import perform_fits
 import timeit
 from utils.enums import FittingMethod
 from utils.config import *
+from multiprocessing import Process,Queue
+
 class CaDataProcessor:
     def process_data(self, fitted_drop_data, user_input_data, callback):
 
@@ -36,9 +38,14 @@ class CaDataProcessor:
 
             if i == 0:
                 extracted_data.initial_image_time = raw_experiment.time
+            result_queue = Queue()
+            p = Process(target=run_set_surface_line, args=(raw_experiment, user_input_data,result_queue))
+            # set_surface_line(raw_experiment, user_input_data) #fits performed here if baseline_method is User-selected
+            p.start()
+            p.join()
 
-            set_surface_line(raw_experiment, user_input_data) #fits performed here if baseline_method is User-selected
-
+            # Retrieve result
+            raw_experiment.contact_angles = result_queue.get()
             # these methods don't need tilt correction
             if user_input_data.baseline_method == "Automated":
                 if analysis_methods[FittingMethod.TANGENT_FIT] or analysis_methods[FittingMethod.POLYNOMIAL_FIT] or analysis_methods[FittingMethod.CIRCLE_FIT] or analysis_methods[FittingMethod.ELLIPSE_FIT]:
