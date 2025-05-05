@@ -5,6 +5,7 @@ from views.component.float_entry import FloatEntry
 from views.component.float_combobox import FloatCombobox
 from views.component.check_button import CheckButton
 from views.helper.style import set_light_only_color
+from utils.enums import FittingMethod
 # Define your options and labels globally or pass them as parameters if preferred
 # AUTO_MANUAL_OPTIONS = ["Automated", "User-selected"]  # Example options
 LABEL_WIDTH = 200  # Adjust as needed
@@ -267,22 +268,22 @@ def create_analysis_checklist_cm(self, parent, user_input_data):
 
     # Define update functions for each checkbox
     def update_tangent_boole(*args):
-        user_input_data.analysis_methods_ca[TANGENT_FIT] = self.tangent_boole.get_value()
+        user_input_data.analysis_methods_ca[FittingMethod.TANGENT_FIT] = self.tangent_boole.get_value()
 
     def update_second_deg_polynomial_boole(*args):
-        user_input_data.analysis_methods_ca[POLYNOMIAL_FIT] = self.second_deg_polynomial_boole.get_value()
+        user_input_data.analysis_methods_ca[FittingMethod.POLYNOMIAL_FIT] = self.second_deg_polynomial_boole.get_value()
 
     def update_circle_boole(*args):
-        user_input_data.analysis_methods_ca[CIRCLE_FIT] = self.circle_boole.get_value()
+        user_input_data.analysis_methods_ca[FittingMethod.CIRCLE_FIT] = self.circle_boole.get_value()
 
     def update_ellipse_boole(*args):
-        user_input_data.analysis_methods_ca[ELLIPSE_FIT] = self.ellipse_boole.get_value()
+        user_input_data.analysis_methods_ca[FittingMethod.ELLIPSE_FIT] = self.ellipse_boole.get_value()
 
     def update_YL_boole(*args):
-        user_input_data.analysis_methods_ca[YL_FIT] = self.YL_boole.get_value()
+        user_input_data.analysis_methods_ca[FittingMethod.YL_FIT] = self.YL_boole.get_value()
 
     def update_ML_boole(*args):
-        user_input_data.analysis_methods_ca[ML_MODEL] = self.ML_boole.get_value()
+        user_input_data.analysis_methods_ca[FittingMethod.ML_MODEL] = self.ML_boole.get_value()
 
     # Create check buttons with the associated update methods
     self.tangent_boole = CheckButton(

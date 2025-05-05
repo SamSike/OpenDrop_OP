@@ -9,7 +9,7 @@ from utils.config import *
 from modules.fitting.fits import perform_fits
 
 import matplotlib.pyplot as plt
-
+from utils.enums import FittingMethod
 import os
 import numpy as np
 import tkinter as tk
@@ -62,13 +62,13 @@ class pdDataProcessor:
 
             # these methods don't need tilt correction
             if user_input_data.baseline_method == "Automated":
-                if analysis_methods[TANGENT_FIT] or analysis_methods[POLYNOMIAL_FIT] or analysis_methods[CIRCLE_FIT] or analysis_methods[ELLIPSE_FIT]:
-                    perform_fits(raw_experiment, tangent=analysis_methods[TANGENT_FIT], 
-                                 polynomial=analysis_methods[POLYNOMIAL_FIT], circle=analysis_methods[CIRCLE_FIT],
-                                 ellipse=analysis_methods[ELLIPSE_FIT])
+                if analysis_methods[FittingMethod.TANGENT_FIT] or analysis_methods[FittingMethod.POLYNOMIAL_FIT] or analysis_methods[FittingMethod.CIRCLE_FIT] or analysis_methods[FittingMethod.ELLIPSE_FIT]:
+                    perform_fits(raw_experiment, tangent=analysis_methods[FittingMethod.TANGENT_FIT], 
+                                 polynomial=analysis_methods[FittingMethod.POLYNOMIAL_FIT], circle=analysis_methods[FittingMethod.CIRCLE_FIT],
+                                 ellipse=analysis_methods[FittingMethod.ELLIPSE_FIT])
 
             # YL fit and ML model need tilt correction
-            if analysis_methods[ML_MODEL] or analysis_methods[YL_FIT]:
+            if analysis_methods[FittingMethod.ML_MODEL] or analysis_methods[FittingMethod.YL_FIT]:
                 correct_tilt(raw_experiment, user_input_data)
                 extract_drop_profile(raw_experiment, user_input_data)
                 if user_input_data.baseline_method == "Automated":
@@ -78,17 +78,17 @@ class pdDataProcessor:
                 #raw_experiment.contour = extract_edges_CV(raw_experiment.cropped_image, threshold_val=raw_experiment.ret, return_thresholed_value=False)
                 #experimental_drop.drop_contour, experimental_drop.contact_points = prepare_hydrophobic(experimental_drop.contour)
 
-                if analysis_methods[YL_FIT]:
+                if analysis_methods[FittingMethod.YL_FIT]:
                     print('Performing YL fit...')
-                    perform_fits(raw_experiment, YL=analysis_methods[YL_FIT])
-                if analysis_methods[ML_MODEL]:
+                    perform_fits(raw_experiment, YL=analysis_methods[FittingMethod.YL_FIT])
+                if analysis_methods[FittingMethod.ML_MODEL]:
                     pred_ds = prepare4model_v03(raw_experiment.drop_contour)
                     ML_predictions, timings = experimental_pred(pred_ds, model)
-                    raw_experiment.contact_angles[ML_MODEL] = {}
+                    raw_experiment.contact_angles[FittingMethod.ML_MODEL] = {}
                     # raw_experiment.contact_angles[ML_MODEL]['angles'] = [ML_predictions[0,0],ML_predictions[1,0]]
-                    raw_experiment.contact_angles[ML_MODEL][LEFT_ANGLE] = ML_predictions[0,0]
-                    raw_experiment.contact_angles[ML_MODEL][RIGHT_ANGLE] = ML_predictions[1,0]
-                    raw_experiment.contact_angles[ML_MODEL]['timings'] = timings
+                    raw_experiment.contact_angles[FittingMethod.ML_MODEL][LEFT_ANGLE] = ML_predictions[0,0]
+                    raw_experiment.contact_angles[FittingMethod.ML_MODEL][RIGHT_ANGLE] = ML_predictions[1,0]
+                    raw_experiment.contact_angles[FittingMethod.ML_MODEL]['timings'] = timings
 
             extracted_data.contact_angles = raw_experiment.contact_angles # DS 7/6/21
 

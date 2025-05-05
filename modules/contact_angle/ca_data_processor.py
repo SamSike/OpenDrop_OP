@@ -2,10 +2,13 @@ from modules.core.classes import ExperimentalDrop
 #from modules.PlotManager import PlotManager
 from modules.preprocessing.ExtractData import ExtractedData
 from modules.image.read_image import get_image
-from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt
+from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt,run_set_surface_line
 from modules.contact_angle.extract_profile import extract_drop_profile
 from modules.fitting.fits import perform_fits
 import timeit
+from utils.enums import FittingMethod
+from utils.config import *
+from multiprocessing import Process,Queue
 
 class CaDataProcessor:
     def process_data(self, fitted_drop_data, user_input_data, callback):
@@ -35,18 +38,23 @@ class CaDataProcessor:
 
             if i == 0:
                 extracted_data.initial_image_time = raw_experiment.time
+            result_queue = Queue()
+            p = Process(target=run_set_surface_line, args=(raw_experiment, user_input_data,result_queue))
+            # set_surface_line(raw_experiment, user_input_data) #fits performed here if baseline_method is User-selected
+            p.start()
+            p.join()
 
-            set_surface_line(raw_experiment, user_input_data) #fits performed here if baseline_method is User-selected
-
+            # Retrieve result
+            raw_experiment.contact_angles = result_queue.get()
             # these methods don't need tilt correction
             if user_input_data.baseline_method == "Automated":
-                if analysis_methods[TANGENT_FIT] or analysis_methods[POLYNOMIAL_FIT] or analysis_methods[CIRCLE_FIT] or analysis_methods[ELLIPSE_FIT]:
-                    perform_fits(raw_experiment, tangent=analysis_methods[TANGENT_FIT], 
-                                 polynomial=analysis_methods[POLYNOMIAL_FIT], circle=analysis_methods[CIRCLE_FIT],
-                                 ellipse=analysis_methods[ELLIPSE_FIT])
+                if analysis_methods[FittingMethod.TANGENT_FIT] or analysis_methods[FittingMethod.POLYNOMIAL_FIT] or analysis_methods[FittingMethod.CIRCLE_FIT] or analysis_methods[FittingMethod.ELLIPSE_FIT]:
+                    perform_fits(raw_experiment, tangent=analysis_methods[FittingMethod.TANGENT_FIT], 
+                                 polynomial=analysis_methods[FittingMethod.POLYNOMIAL_FIT], circle=analysis_methods[FittingMethod.CIRCLE_FIT],
+                                 ellipse=analysis_methods[FittingMethod.ELLIPSE_FIT])
 
             # YL fit and ML model need tilt correction
-            if analysis_methods[ML_MODEL] or analysis_methods[YL_FIT]:
+            if analysis_methods[FittingMethod.ML_MODEL] or analysis_methods[FittingMethod.YL_FIT]:
                 correct_tilt(raw_experiment, user_input_data)
                 extract_drop_profile(raw_experiment, user_input_data)
                 if user_input_data.baseline_method == "Automated":
@@ -56,10 +64,10 @@ class CaDataProcessor:
                 #raw_experiment.contour = extract_edges_CV(raw_experiment.cropped_image, threshold_val=raw_experiment.ret, return_thresholed_value=False)
                 #experimental_drop.drop_contour, experimental_drop.contact_points = prepare_hydrophobic(experimental_drop.contour)
 
-                if analysis_methods[YL_FIT]:
+                if analysis_methods[FittingMethod.YL_FIT]:
                     print('Performing YL fit...')
-                    perform_fits(raw_experiment, YL=analysis_methods[YL_FIT])
-                if analysis_methods[ML_MODEL]:
+                    perform_fits(raw_experiment, YL=analysis_methods[FittingMethod.YL_FIT])
+                if analysis_methods[FittingMethod.ML_MODEL]:
 
 
                     from modules.ML_model.prepare_experimental import prepare4model_v03, experimental_pred
@@ -70,11 +78,11 @@ class CaDataProcessor:
 
                     pred_ds = prepare4model_v03(raw_experiment.drop_contour)
                     ML_predictions, timings = experimental_pred(pred_ds, model)
-                    raw_experiment.contact_angles[ML_MODEL] = {}
+                    raw_experiment.contact_angles[FittingMethod.ML_MODEL] = {}
                     # raw_experiment.contact_angles[ML_MODEL]['angles'] = [ML_predictions[0,0],ML_predictions[1,0]]
-                    raw_experiment.contact_angles[ML_MODEL][LEFT_ANGLE] = ML_predictions[0,0]
-                    raw_experiment.contact_angles[ML_MODEL][RIGHT_ANGLE] = ML_predictions[1,0]
-                    raw_experiment.contact_angles[ML_MODEL]['timings'] = timings
+                    raw_experiment.contact_angles[FittingMethod.ML_MODEL][LEFT_ANGLE] = ML_predictions[0,0]
+                    raw_experiment.contact_angles[FittingMethod.ML_MODEL][RIGHT_ANGLE] = ML_predictions[1,0]
+                    raw_experiment.contact_angles[FittingMethod.ML_MODEL]['timings'] = timings
 
             extracted_data.contact_angles = raw_experiment.contact_angles # DS 7/6/21
 
