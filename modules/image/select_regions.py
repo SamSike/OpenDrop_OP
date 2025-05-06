@@ -165,6 +165,87 @@ def set_needle_region(experimental_drop, experimental_setup, center_x=None):
         # TODO: user-selected method implementation
         return
 
+def crop_needle(img):
+    padding=10
+    angle_tolerance=15
+    # a veriable used to eliminate the vertical lines that exist in the bottom half of the image
+    bottom_verticals_threshold=0.5
+    # 1. Preprocess: grayscale & edges
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img.copy()
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    edges = cv2.Canny(blurred, 60, 180, apertureSize=3)
+
+    # 2. Detect line segments via probabilistic Hough
+    lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi/180, threshold=45,
+                             minLineLength=1, maxLineGap=50)
+    if lines is None or len(lines) < 2:
+        raise ValueError("Insufficient line segments detected.")
+
+    # 3. Optimized vertical filter
+    dx = lines[:,0,2] - lines[:,0,0]
+    dy = lines[:,0,3] - lines[:,0,1]
+    raw_angles = np.degrees(np.arctan2(dy, dx))  # -180..+180
+    orient = (raw_angles + 90) % 180             # 0 = vertical up, 180 = vertical down
+    mask = (orient <= angle_tolerance) | (orient >= 180 - angle_tolerance)
+    vertical = lines[mask]
+    if vertical.shape[0] < 2:
+        raise ValueError("Could not find two vertical lines within tolerance.")
+    
+    
+    # Create a mask for lines where both y-coordinates are in the top half
+    # A line (x1,y1,x2,y2) is in the top half if both y1 and y2 are less than y_midpoint
+    
+    y_midpoint = abs(h_img ** 0.5)
+    top_half_mask = (vertical_lines_all[:,0,1] < y_midpoint) & (vertical_lines_all[:,0,3] < y_midpoint)
+    vertical = vertical_lines_all[top_half_mask]
+
+    if vertical.shape[0] < 2:
+        raise ValueError("Could not find two vertical lines in the top half of the image within tolerance.")
+    # Extract endpoints
+    vertical = vertical[:,0]  # shape (N,4)
+
+
+    #min_dist = int(w * min_dist_pct)
+
+    # 4. Select two longest vertical lines
+    def length_sq(l): return (l[2] - l[0])**2 + (l[3] - l[1])**2
+    sorted_lines = sorted(vertical, key=length_sq, reverse=True)
+    min_dist = 10  # your minimum x-distance in pixels
+
+    # find the longest pair whose centers are >= min_dist apart
+    for i, l1 in enumerate(sorted_lines):
+        x1 = (l1[0] + l1[2]) // 2
+        for l2 in sorted_lines[i+1:]:
+            x2 = (l2[0] + l2[2]) // 2
+            if abs(x2 - x1) >= min_dist:
+                # we found a valid pair
+                break
+        else:
+            # no valid partner for l1, continue with next
+            continue
+        # break out of outer loop as well
+        break
+    else:
+        raise ValueError(f"Could not find two vertical lines ≥ {min_dist}px apart.")
+    # 5. Compute bounding coords
+    x1 = (l1[0] + l1[2]) // 2
+    x2 = (l2[0] + l2[2]) // 2
+    left_x, right_x = int(min(x1, x2)), int(max(x1, x2))
+    ys = [l1[1], l1[3], l2[1], l2[3]]
+    top_y, bottom_y = int(min(ys)), int(max(ys))
+
+    # 6. Pad and clamp
+    h, w = gray.shape[:2]
+    left = max(0, left_x - padding)
+    right = min(w, right_x + padding)
+    top = max(0, top_y - padding)
+    bottom = min(h, bottom_y + padding)
+
+    # 8. Crop and return
+    img = img[top:bottom, left:right]
+    
+    return img
+
 def image_crop(image, points):
     # return image[min(y):max(y), min(x),max(x)]
     return image[int(points[0][1]):int(points[1][1]), int(points[0][0]):int(points[1][0])]
