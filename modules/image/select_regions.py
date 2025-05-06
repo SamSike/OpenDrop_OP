@@ -168,18 +168,29 @@ def set_needle_region(experimental_drop, experimental_setup, center_x=None):
 def crop_needle(img):
     padding=10
     angle_tolerance=15
+    original_img = img.copy()
+    # adjustable parameters
+    vertical_pct = 0.8     # fraction of height to keep from top
+    horizontal_pct = 0.5   # fraction of width to keep, centered
+    # initial crop of the image
+    h, w = img.shape[:2]
+    top = int(h * vertical_pct)
+    side_margin = int((w * (1 - horizontal_pct)) / 2)
+    img = img[:top, side_margin : w - side_margin]
+
     # a veriable used to eliminate the vertical lines that exist in the bottom half of the image
-    bottom_verticals_threshold=0.5
+    bottom_verticals_threshold=0.7
     # 1. Preprocess: grayscale & edges
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img.copy()
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #if img.ndim == 3 else img.copy()
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    edges = cv2.Canny(blurred, 60, 180, apertureSize=3)
+    edges = cv2.Canny(blurred, 50, 180, apertureSize=3)
 
     # 2. Detect line segments via probabilistic Hough
     lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi/180, threshold=45,
                              minLineLength=1, maxLineGap=50)
     if lines is None or len(lines) < 2:
-        raise ValueError("Insufficient line segments detected.")
+        print("Insufficient line segments detected.")
+        return original_img
 
     # 3. Optimized vertical filter
     dx = lines[:,0,2] - lines[:,0,0]
@@ -189,18 +200,20 @@ def crop_needle(img):
     mask = (orient <= angle_tolerance) | (orient >= 180 - angle_tolerance)
     vertical = lines[mask]
     if vertical.shape[0] < 2:
-        raise ValueError("Could not find two vertical lines within tolerance.")
+        print("Could not find two vertical lines within tolerance.")
+        return original_img
     
     
     # Create a mask for lines where both y-coordinates are in the top half
     # A line (x1,y1,x2,y2) is in the top half if both y1 and y2 are less than y_midpoint
     
-    y_midpoint = abs(h_img ** 0.5)
-    top_half_mask = (vertical_lines_all[:,0,1] < y_midpoint) & (vertical_lines_all[:,0,3] < y_midpoint)
-    vertical = vertical_lines_all[top_half_mask]
+    y_midpoint = abs(h * bottom_verticals_threshold)
+    top_half_mask = (vertical[:,0,1] < y_midpoint) & (vertical[:,0,3] < y_midpoint)
+    vertical = vertical[top_half_mask]
 
     if vertical.shape[0] < 2:
-        raise ValueError("Could not find two vertical lines in the top half of the image within tolerance.")
+        print("Could not find two vertical lines in the top half of the image within tolerance.")
+        return original_img
     # Extract endpoints
     vertical = vertical[:,0]  # shape (N,4)
 
@@ -226,7 +239,8 @@ def crop_needle(img):
         # break out of outer loop as well
         break
     else:
-        raise ValueError(f"Could not find two vertical lines ≥ {min_dist}px apart.")
+        print(f"Could not find two vertical lines ≥ {min_dist}px apart.")
+        return original_img
     # 5. Compute bounding coords
     x1 = (l1[0] + l1[2]) // 2
     x2 = (l2[0] + l2[2]) // 2
@@ -243,6 +257,7 @@ def crop_needle(img):
 
     # 8. Crop and return
     img = img[top:bottom, left:right]
+
     
     return img
 

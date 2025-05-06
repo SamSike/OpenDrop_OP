@@ -1,59 +1,53 @@
-import cv2
-import os
-import numpy as np
-
-
-
-
-
-
-def fit_needle(img, needle_diameter):
+def fit_needle(img, needle_diameter_mm):
     # known needle diameter in millimeters
-    needle_diameter_mm = needle_diameter
+    if needle_diameter_pixels is None:
+        needle_diameter_mm = 0.7176
+    else:
+        needle_diameter_mm = needle_diameter_mm
     # adjustable parameters
     vertical_pct = 0.5     # fraction of height to keep from top
     horizontal_pct = 1   # fraction of width to keep, centered
     blur_kernel = (3, 3)   # kernel size for Gaussian blur
-    canny_thresh1 = 50     # first threshold for Canny edge detection
-    canny_thresh2 = 150    # second threshold for Canny edge detection
+    canny_thresh1 = 255     # first threshold for Canny edge detection
+    canny_thresh2 = 0    # second threshold for Canny edge detection
     # adjustable parameters for Hough line detection
     rho = 1               # distance resolution of the accumulator in pixels
-    theta = np.pi / 180    # angle resolution of the accumulator in radians
+    theta = np.pi / 360    # angle resolution of the accumulator in radians
     hough_thresh = 39    # threshold for the accumulator
-    min_line_length = 25  # minimum length of line to be detected
-    max_line_gap = 25     # maximum gap between lines to be considered a single line
-    min_x_separation = 5 # minimum x-separation between two lines to be considered a pair
+    min_line_length = 1  # minimum length of line to be detected
+    max_line_gap = 300     # maximum gap between lines to be considered a single line
+    min_x_separation = 2 # minimum x-separation between two lines to be considered a pair
     # adjustable parameter: max angle difference (degrees) allowed between paired segments
-    pair_angle_tol = 1
+    pair_angle_tol = 2
     # filter out non-vertical lines using the 0°/180° convention
     angle_tolerance = 5  # degrees
     # filter to the two segments whose y‐centers match most closely
-    y_tolerance = 50  # pixels
+    y_tolerance = 100  # pixels
     #target parameters
-    m_per_pixel = None # in meters
+    needle_diameter_pixels = None # in meters
 
     cropped = img.copy()
 
+    # initial crop of the image
+    # h, w = img.shape[:2]
+    # top = int(h * vertical_pct)
+    # side_margin = int((w * (1 - horizontal_pct)) / 2)
+    # cropped = img[:top, side_margin : w - side_margin]
+
     # convert to grayscale
     gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
-
     # blur to reduce noise
     blurred = cv2.GaussianBlur(gray, blur_kernel, 0)
     blurred = cv2.addWeighted(blurred, 1.5, blurred, -0.5, 0)
     # detect edges
     edges = cv2.Canny(blurred, canny_thresh1, canny_thresh2)
-
     ret, thresh = cv2.threshold(edges, 127, 255,cv2.THRESH_BINARY)
-
     thresh = cv2.cvtColor(thresh, cv2.COLOR_BGR2RGB)
-
     # detect lines using Probabilistic Hough Transform
     lines = cv2.HoughLinesP(edges, rho, theta, hough_thresh,
                             minLineLength=min_line_length,
                             maxLineGap=max_line_gap)
 
-    
-    #print("houghs length of lines: ",len(lines))
     if lines is not None:
         # compute dx, dy for each segment without reshaping
         dx = lines[:,0,2] - lines[:,0,0]
@@ -66,10 +60,10 @@ def fit_needle(img, needle_diameter):
         mask = (orient <= angle_tolerance) | (orient >= 180 - angle_tolerance)
         lines = lines[mask]
     else:
-        lines = None
+        print("houghs length of lines: ",len(lines))
     
     
-    #print("vertical length of lines: ",len(lines))
+    
     if lines is not None and len(lines) > 1:
         segs = lines.reshape(-1, 4)
         y_centers = (segs[:,1] + segs[:,3]) / 2
@@ -87,11 +81,11 @@ def fit_needle(img, needle_diameter):
             # keep only those two segments
             lines = segs[[best_i, best_j]].reshape(2, 1, 4)
         else:
+            print("FAIL: y_tolerance")
             lines = None
     else:
         lines = None
 
-    
     #print("best pair length of lines: ",len(lines))
     best_pair = None
     best_dist = 0
@@ -108,15 +102,20 @@ def fit_needle(img, needle_diameter):
             for j in range(i+1, N):
                 if abs(angles[i] - angles[j]) <= pair_angle_tol:
                     dist = abs(x_centers[i] - x_centers[j])
-                    if dist >= min_x_separation and dist > best_dist:
-                        best_dist = dist
-                        best_pair = (i, j)
+                    if dist >= min_x_separation:
+                        if dist > best_dist:
+                            best_dist = dist
+                            best_pair = (i, j)
+                    else:
+                        print("FAIL: min x distance")
+                        continue
 
     # keep only the best pair
     if best_pair:
         i, j = best_pair
         lines = segs[[i, j]].reshape(2, 1, 4)
     else:
+        print("FAIL: no best pair")
         lines = None
 
     #print("length of lines: ",len(lines))
@@ -161,15 +160,21 @@ def fit_needle(img, needle_diameter):
 
         # compute and print the pixel length of the measurement line
         pixel_distance = np.hypot(end[0] - start[0], end[1] - start[1])
-        # compute millimeters per pixel
-        m_per_pixel = needle_diameter_mm / pixel_distance
-        print(f"Needle diameter (pixels): {pixel_distance:.2f} Scale: {m_per_pixel*1000:.24f} m/pixel")
-        # draw the yellow diagonal measurement line
-        #cv2.line(cropped, start, end, (255, 255, 0), 1)
+        
+        # known needle diameter in millimeters
+        needle_diameter_mm = 0.7176
 
+        # compute millimeters per pixel
+        mm_per_pixel = (needle_diameter_mm / pixel_distance)*1000
+
+        #print(f"Needle diameter (pixels): {pixel_distance:.2f} Scale: {mm_per_pixel*1000:.24f} mm/pixel")
+
+        # draw the yellow diagonal measurement line
+        cv2.line(cropped, start, end, (255, 255, 0), 1)
+        diameter_line = (start, end)
     else:
         print("Cannot draw diameter: two vertical segments required")
 
-    work = cropped
+    work = thresh
 
-    return m_per_pixel
+    return cropped, lines, diameter_line, mm_per_pixel
