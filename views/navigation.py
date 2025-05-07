@@ -1,8 +1,9 @@
 from customtkinter import *
-
+from views.helper.style import set_light_only_color
 def create_navigation(parent):
     # Create a frame for the navigation
     navigation_frame = CTkFrame(parent)
+    set_light_only_color(navigation_frame, "outerframe")
     navigation_frame.pack(pady=10, padx=10, fill='x')
 
     # Define stage labels for navigation

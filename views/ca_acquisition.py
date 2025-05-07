@@ -1,12 +1,13 @@
-from customtkinter import *
+from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkImage
 from tkinter import filedialog, messagebox
 from PIL import Image
+import os
 
 from utils.image_handler import ImageHandler
-from utils.config import *
-from utils.validators import *
+from utils.config import PATH_TO_SCRIPT, IMAGE_TYPE, FILE_SOURCE_OPTIONS_CA, EDGEFINDER_OPTIONS
 from views.component.option_menu import OptionMenu
 from views.component.integer_entry import IntegerEntry
+from views.helper.style import set_light_only_color
 
 IMAGE_FRAME_WIDTH = 600
 IMAGE_FRAME_HEIGHT = 400
@@ -22,10 +23,12 @@ class CaAcquisition(CTkFrame):
         self.grid_rowconfigure(0, weight=1)
 
         self.input_fields_frame = CTkFrame(self)
+        set_light_only_color(self.input_fields_frame, "outerframe")
         self.input_fields_frame.grid(row=0, column=0, sticky="nsew", padx=15, pady=(
             10, 0))  # Left side for input fields
 
         image_acquisition_frame = CTkFrame(self.input_fields_frame)
+        set_light_only_color(image_acquisition_frame, "entry")
         image_acquisition_frame.grid(sticky="nw", padx=15, pady=10)
 
         image_acquisition_frame.grid_columnconfigure(2, weight=1)
@@ -46,6 +49,7 @@ class CaAcquisition(CTkFrame):
             self, image_acquisition_frame, "frame_interval (s):", self.update_frame_interval, rw=4, cl=0)
         
         self.images_frame = CTkFrame(self)
+        
 
     def update_image_source(self, selection):
         print(selection)
@@ -96,8 +100,8 @@ class CaAcquisition(CTkFrame):
                 text=f"{num_files} File(s) Selected")
 
             self.images_frame = CTkFrame(self)
+            set_light_only_color(self.images_frame, "outerframe")
             self.images_frame.grid(row=0, column=1, sticky="nsew", padx=15, pady=(10, 0))
-
             self.initialize_image_display(self.images_frame)
 
         else:
@@ -107,6 +111,7 @@ class CaAcquisition(CTkFrame):
 
     def initialize_image_display(self, frame):
         display_frame = CTkFrame(frame)
+        set_light_only_color(display_frame, "innerframe")
         display_frame.grid(sticky="nsew", padx=15, pady=(10, 0))
 
         self.image_label = CTkLabel(display_frame, text="", fg_color="lightgrey", width=IMAGE_FRAME_WIDTH, height=IMAGE_FRAME_HEIGHT)
@@ -117,6 +122,7 @@ class CaAcquisition(CTkFrame):
         self.name_label.grid()
 
         self.image_navigation_frame = CTkFrame(display_frame)
+        set_light_only_color(self.image_navigation_frame, "entry")
         self.image_navigation_frame.grid(pady=20)
 
         self.prev_button = CTkButton(self.image_navigation_frame, text="<", command=lambda: self.change_image(-1), width=3)
@@ -140,6 +146,7 @@ class CaAcquisition(CTkFrame):
         try:
             self.current_image = Image.open(selected_image)
             self.display_image()
+            
         except FileNotFoundError:
             print(f"Error: The image file {selected_image} was not found.")
             self.current_image = None
@@ -183,8 +190,10 @@ class CaAcquisition(CTkFrame):
 
         self.update_index_entry()  # Update the entry display
 
+
     def update_index_entry(self):
         """Update the index entry to reflect the current index."""
         self.index_entry.delete(0, 'end')  # Clear the current entry
         # Insert the new index (1-based)
         self.index_entry.insert(0, str(self.current_index + 1))
+    

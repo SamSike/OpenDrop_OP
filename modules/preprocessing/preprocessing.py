@@ -174,7 +174,7 @@ def auto_crop(img, low=50, high=150, apertureSize=3, verbose=0): # DS 08/06/23
         b = 2 * (dx * (p1[0] - center[0]) + dy * (p1[1] - center[1]))
         c = (p1[0] - center[0])**2 + (p1[1] - center[1])**2 - radius**2
 
-        discriminant = b**2 - 4 * a * c
+        discriminant = np.float32(b)**2 - 4 * np.float32(a) * np.float32(c)
         if discriminant > 0:
             t1 = (-b + discriminant**0.5) / (2 * a)
             t2 = (-b - discriminant**0.5) / (2 * a)
