@@ -38,14 +38,14 @@ class CaDataProcessor:
 
             if i == 0:
                 extracted_data.initial_image_time = raw_experiment.time
-            result_queue = Queue()
-            p = Process(target=run_set_surface_line, args=(raw_experiment, user_input_data,result_queue))
-            # set_surface_line(raw_experiment, user_input_data) #fits performed here if baseline_method is User-selected
-            p.start()
-            p.join()
+            # result_queue = Queue()
+            # p = Process(target=run_set_surface_line, args=(raw_experiment, user_input_data,result_queue))
+            set_surface_line(raw_experiment, user_input_data) #fits performed here if baseline_method is User-selected
+            # p.start()
+            # p.join()
 
-            # Retrieve result
-            raw_experiment.contact_angles = result_queue.get()
+            # # Retrieve result
+            # raw_experiment.contact_angles = result_queue.get()
             # these methods don't need tilt correction
             if user_input_data.baseline_method == "Automated":
                 if analysis_methods[FittingMethod.TANGENT_FIT] or analysis_methods[FittingMethod.POLYNOMIAL_FIT] or analysis_methods[FittingMethod.CIRCLE_FIT] or analysis_methods[FittingMethod.ELLIPSE_FIT]:
