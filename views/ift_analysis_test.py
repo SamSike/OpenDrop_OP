@@ -1,8 +1,17 @@
+
+
 import pytest
 import time
 from customtkinter import CTk, CTkFrame
 from views.ift_analysis import IftAnalysis
 from modules.core.classes import ExperimentalSetup
+from unittest import mock
+
+@pytest.fixture(autouse=True)
+def mock_gui_methods():
+    with mock.patch("views.component.imageGallery.ImageGallery.display_image"), \
+         mock.patch("customtkinter.CTkLabel.configure"):
+        yield
 
 
 @pytest.fixture

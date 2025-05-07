@@ -4,19 +4,35 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="fix error: AttributeError: 'CTkXYFrame' object has no attribute '_updating_scrollbar'">
+    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="fix error: read_image.py: -&gt;range">
+      <change beforePath="$PROJECT_DIR$/.coverage" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements-3810.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements-3810.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/contact_angle/extract_profile_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/contact_angle/extract_profile_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/classes_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/classes_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/fitting/BA_fit_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/fitting/BA_fit_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/image/read_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/image/read_image.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/preprocessing/ExtractData_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/preprocessing/ExtractData_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_all.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_navigation.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/test_navigation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_output_page.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/test_output_page.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/ift_analysis_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ift_analysis_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="conan_ml/tests/conan_unit_test" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -53,6 +69,7 @@
     &quot;Python 测试.pytest (classes_test.py 内).executor&quot;: &quot;Run&quot;,
     &quot;Python 测试.pytest (extract_profile_test.py 内).executor&quot;: &quot;Run&quot;,
     &quot;Python 测试.pytest (test_all.py 内).executor&quot;: &quot;Run&quot;,
+    &quot;Python 测试.pytest in ca_preparation_test.py.executor&quot;: &quot;Run&quot;,
     &quot;Python 测试.pytest in test_all.py.executor&quot;: &quot;Run&quot;,
     &quot;Python.main.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
@@ -115,7 +132,18 @@
       <workItem from="1746251257992" duration="224000" />
       <workItem from="1746252112383" duration="1645000" />
       <workItem from="1746259835930" duration="180000" />
+      <workItem from="1746602855032" duration="6873000" />
+      <workItem from="1746609857435" duration="779000" />
     </task>
+    <task id="LOCAL-00001" summary="fix error: read_image.py: -&gt;range">
+      <option name="closed" value="true" />
+      <created>1746594721502</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1746594721502</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -147,11 +175,13 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Limit Image Source to &quot;Local Images&quot; Only" />
     <MESSAGE value="fix error: AttributeError: 'CTkXYFrame' object has no attribute '_updating_scrollbar'" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix error: AttributeError: 'CTkXYFrame' object has no attribute '_updating_scrollbar'" />
+    <MESSAGE value="fix error: read_image.py: -&gt;range" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix error: read_image.py: -&gt;range" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/opendrop$pytest__classes_test_py__.coverage" NAME="pytest (classes_test.py 内) 覆盖结果" MODIFIED="1745998722434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/core" />
     <SUITE FILE_PATH="coverage/opendrop$pytest__test_all_py__.coverage" NAME="pytest (test_all.py 内) 覆盖结果" MODIFIED="1745929782521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/opendrop$pytest_in_ca_preparation_test_py.coverage" NAME="pytest in ca_preparation_test.py 覆盖结果" MODIFIED="1746597626722" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/views" />
     <SUITE FILE_PATH="coverage/OpenDrop_OP$main.coverage" NAME="main Coverage Results" MODIFIED="1744721541413" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/opendrop$pytest__ExtractData_test_py__.coverage" NAME="pytest (ExtractData_test.py 内) 覆盖结果" MODIFIED="1745929765817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/preprocessing" />
     <SUITE FILE_PATH="coverage/opendrop$main.coverage" NAME="main 覆盖结果" MODIFIED="1744796749270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
