@@ -27,7 +27,9 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 
 ## System Requirements
 Python: 3.8+
+
 Minimum: 2 GB RAM, supports USB cameras
+
 Recommended: 4 GB RAM, NVIDIA GPU for ML inference
 
 
@@ -55,6 +57,7 @@ Recommended: 4 GB RAM, NVIDIA GPU for ML inference
 # Quick Start
 ## 1. Install Requirements
 Python 3.8+ is recommended
+
 `pip install -r requirements.txt`
 
 ## 2. Run the Application
@@ -62,8 +65,11 @@ Python 3.8+ is recommended
 
 ## 3. Use the Interface
 1.Select: Contact Angle or Interfacial Tension
+
 2.Upload Image(s)
+
 3.Choose Fitting Method(s)
+
 4.Run → View Results → Export (CSV)
 
 
@@ -104,7 +110,9 @@ outputted by any fitting or angle prediction approach.
 OpenDrop-ML emphasizes extensibility:
 
 Add a new fitting method: See modules/fits.py
+
 Add a UI component: See views/component/
+
 Add a page: Update views/function_window.py
 
 ## Backend & UI Extensions
@@ -115,7 +123,7 @@ Refer to:
 
 
 # High-Level Architecture Diagram
-![High-Level Project Plan](./High-Level Project Diagram_v2.png)
+![High-Level Project Plan](./High-Level%20Project%20Diagram_v2.png)
 
 
 # Contact & Contribution
