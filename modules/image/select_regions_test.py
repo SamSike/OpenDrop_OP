@@ -27,7 +27,7 @@ class TestSelectRegions(unittest.TestCase):
         experimental_setup.drop_ID_method = "Automated"
 
         # Call the function to be tested
-        set_drop_region(experimental_drop, experimental_setup, index=0)  # Added index parameter
+        set_drop_region(experimental_drop, experimental_setup, index=0)
 
         # Check if auto_crop was called correctly
         mock_auto_crop.assert_called_once_with(mock_image)
@@ -54,7 +54,7 @@ class TestSelectRegions(unittest.TestCase):
         experimental_setup.drop_ID_method = "User-selected"
 
         # Call the function to be tested
-        set_drop_region(experimental_drop, experimental_setup, index=1)  # Added index parameter
+        set_drop_region(experimental_drop, experimental_setup, index=1)  
 
         # Check if user_ROI was called correctly
         mock_user_ROI.assert_called_once_with(mock_image, 'Select drop region for Image 1', 0.008,
