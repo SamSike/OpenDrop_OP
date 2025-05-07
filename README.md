@@ -21,18 +21,6 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 - Modular Backend for easy customization and extension
 
 
-# Dependencies
-
-`pip install -r requirements-3810.txt`
-
-## System Requirements
-Python: 3.8+
-
-Minimum: 2 GB RAM, supports USB cameras
-
-Recommended: 4 GB RAM, NVIDIA GPU for ML inference
-
-
 # Code Structure Overview
 
 ```
@@ -58,7 +46,7 @@ Recommended: 4 GB RAM, NVIDIA GPU for ML inference
 ## 1. Install Requirements
 Python 3.8+ is recommended
 
-`pip install -r requirements.txt`
+`pip install -r requirements-3810.txt`
 
 ## 2. Run the Application
 `python main.py`
@@ -72,6 +60,12 @@ Python 3.8+ is recommended
 
 4.Run → View Results → Export (CSV)
 
+## System Requirements
+Python: 3.8+
+
+Minimum: 2 GB RAM, supports USB cameras
+
+Recommended: 4 GB RAM, NVIDIA GPU for ML inference
 
 
 # Appropriate use
@@ -119,6 +113,7 @@ Add a page: Update views/function_window.py
 Refer to:
 
 “Add Backend Module Steps – Guide to adding new models”
+
 “Add Frontend Module Steps – UI integration tutorial”
 
 
