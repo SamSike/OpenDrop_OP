@@ -1,13 +1,14 @@
-from customtkinter import *
+from customtkinter import CTkFrame, CTkButton, CTk, get_appearance_mode
 from tkinter import messagebox
 
 from modules.contact_angle.ca_data_processor import CaDataProcessor
-from modules.IFT.pd_data_processor import pdDataProcessor
+from modules.ift.pd_data_processor import pdDataProcessor
 from modules.core.classes import ExperimentalSetup, ExperimentalDrop #, DropData, Tolerances
 
-from views.helper.theme import LIGHT_MODE
 from views.helper.validation import validate_user_input_data_ift,validate_user_input_data_cm,validate_frame_interval
 
+from views.helper.theme import *
+from views.helper.style import get_color, set_light_only_color
 from views.navigation import create_navigation
 
 from views.ift_acquisition import IftAcquisition
@@ -19,7 +20,7 @@ from views.ca_preparation import CaPreparation
 from views.ca_analysis import CaAnalysis
 from views.output_page import OutputPage
 
-from utils.enums import *
+from utils.enums import FunctionType, Stage, Move
 
 
 def call_user_input(function_type, fitted_drop_data):
@@ -32,12 +33,13 @@ class FunctionWindow(CTk):
         self.geometry("1000x750")
         self.minsize(1000, 750) 
 
+
         if get_appearance_mode() == LIGHT_MODE:
-            self.FG_COLOR = "lightblue"
+            self.FG_COLOR = get_color("background")
         else:
             self.FG_COLOR = self.cget("fg_color")
 
-        self.configure(fg_color=self.FG_COLOR)
+        set_light_only_color(self, "background")
 
         self.ca_processor = CaDataProcessor()
         self.pd_processor = pdDataProcessor()
@@ -66,6 +68,7 @@ class FunctionWindow(CTk):
         # Initialise frame for first stage
         self.ift_acquisition_frame = IftAcquisition(
                 self, user_input_data, fg_color=self.FG_COLOR)
+
         self.ca_acquisition_frame = CaAcquisition(
                 self, user_input_data, fg_color=self.FG_COLOR)
         
@@ -76,6 +79,7 @@ class FunctionWindow(CTk):
 
         # Frame for navigation buttons
         self.button_frame = CTkFrame(self)
+        set_light_only_color(self.button_frame, "outerframe")
         self.button_frame.pack(side="bottom", fill="x", pady=10)
 
         # Add navigation buttons to the button frame
@@ -197,7 +201,9 @@ class FunctionWindow(CTk):
                 self.ca_analysis_frame.pack_forget()
 
             # Initialise Output frame
-            self.output_frame = OutputPage(self, user_input_data)
+            self.output_frame = OutputPage(self, user_input_data,fg_color=self.FG_COLOR)
+    
+            
             # Show the OutputPage
             self.output_frame.pack(fill="both", expand=True)
 
@@ -239,15 +245,15 @@ class FunctionWindow(CTk):
             for after_id in self.tk.call('after', 'info'):
                 try:
                     self.after_cancel(after_id)
-                except:
-                    pass
+                except Exception as e:
+                    print('views/function_window.py: on_closing() AfterCancelError:', e)
             
             # 清理所有子部件
             for widget in self.winfo_children():
                 try:
                     widget.destroy()
-                except:
-                    pass
+                except Exception as e:
+                    print('views/function_window.py: on_closing() WidgetDestroyError:', e)
                     
             # 停止主循环
             self.quit()
