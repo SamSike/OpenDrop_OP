@@ -98,9 +98,6 @@ class IftAnalysis(CTkFrame):
         toolbar = NavigationToolbar2Tk(canvas, self.residuals_frame)
         toolbar.update()
 
-        # Ensure the canvas is packed after the toolbar
-        canvas.get_tk_widget().pack(fill="both", expand=True)
-
         # Draw the canvas to show the figure
         canvas.draw()
 

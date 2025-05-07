@@ -50,8 +50,7 @@ def create_user_input_fields_ift(self, parent, user_input_data):
         self.image_app.update_image_processing_button()
 
     def update_needle_region_method(*args):
-        user_input_data.needle_region_choice = self.needle_region_method.get_value()    
-       
+        user_input_data.needle_region_method = self.needle_region_method.get_value()
 
     def update_drop_density(*args):
         user_input_data.drop_density = self.drop_density_method.get_value() 
@@ -88,31 +87,6 @@ def create_user_input_fields_ift(self, parent, user_input_data):
 
     # Returning the user input frame
     return user_input_frame
-
-# ift [CheckList Select]
-def create_plotting_checklist_ift(self,parent,user_input_data):
-
-    plotting_clist_frame = CTkFrame(parent)
-    set_light_only_color(plotting_clist_frame, "innerframe")
-    
-    plotting_clist_frame.grid(row=1, column=0, columnspan=2, sticky="wens", padx=15, pady=15)
-
-    # Create a label for the dynamic content
-    label = CTkLabel(plotting_clist_frame, text="To view during fitting(ignored if method = User-selected)", font=("Roboto", 16, "bold"))
-    label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
-
-    # Create a frame to hold all input fields
-    input_fields_frame = CTkFrame(plotting_clist_frame)
-    set_light_only_color(input_fields_frame, "entry")
-    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
-
-    def update_original_boole(*args):
-        user_input_data["residuals"] = self.original_boole.get_value()      
-   
-    self.original_boole = CheckButton(
-        self, input_fields_frame, "Original", update_original_boole, rw=0, cl=0, state_specify='normal')
-    
-    return plotting_clist_frame
 
 # ift [Analysis Methods]
 def create_analysis_checklist_ift(self,parent,user_input_data):
@@ -211,7 +185,7 @@ def create_user_inputs_cm(self,parent,user_input_data):
 
     return user_input_frame
 
-def create_plotting_checklist_cm(self, parent, user_input_data):
+def create_plotting_checklist(self, parent, user_input_data):
     """Create plotting checklist fields and return the frame containing them."""
     # Create the plotting checklist frame
     plotting_clist_frame = CTkFrame(parent)

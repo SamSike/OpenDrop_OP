@@ -24,30 +24,8 @@ class ImageApp(ctk.CTkFrame):
         self.image_paths = user_input_data.import_files  # Load all images
         self.current_index = 0  # To keep track of the currently displayed image
 
-        # Create main frame
-        self.main_frame = ctk.CTkFrame(self)
-        set_light_only_color(self.main_frame, "innerframe")
-        self.main_frame.grid(padx=20, pady=20, sticky="nsew")  # Use grid instead of pack
-
         # Call the function to initialize the image display area and buttons
-        self.initialize_image_display(self.main_frame)
-
-        # Drop region button
-        # self.drop_region_button = ctk.CTkButton(
-        #     self.main_frame, text="Set Drop Region", command=lambda: set_drop_region(experimental_drop, user_input_data))
-        # # self.drop_region_button.grid(row=1, column=0, pady=5)  # Change to grid
-
-        # # Needle region button
-        # if application == "IFT":
-        #     self.needle_region_button = ctk.CTkButton(
-        #         self.main_frame, text="Set Needle Region", command=self.set_needle_region)
-        
-        # if application == "CA":
-        #     # Baseline region button
-        #     self.basline_region_button = ctk.CTkButton(
-        #         self.main_frame, text="Set Baseline Region", command=lambda: set_surface_line(experimental_drop, user_input_data))
-
-        # self.update_button_visibility()
+        self.initialize_image_display(self)
 
     def initialize_image_display(self, frame):
         """Initialize the image display and navigation buttons inside the provided frame."""
