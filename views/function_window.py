@@ -1,13 +1,14 @@
-from customtkinter import *
+from customtkinter import CTkFrame, CTkButton, CTk, get_appearance_mode
 from tkinter import messagebox
 
 from modules.contact_angle.ca_data_processor import CaDataProcessor
-from modules.ift.pd_data_processor import pdDataProcessor
+from modules.ift.ift_data_processor import iftDataProcessor
 from modules.core.classes import ExperimentalSetup, ExperimentalDrop #, DropData, Tolerances
 
-from views.helper.theme import LIGHT_MODE
 from views.helper.validation import validate_user_input_data_ift,validate_user_input_data_cm,validate_frame_interval
 
+from views.helper.theme import *
+from views.helper.style import get_color, set_light_only_color
 from views.navigation import create_navigation
 
 from views.ift_acquisition import IftAcquisition
@@ -19,7 +20,7 @@ from views.ca_preparation import CaPreparation
 from views.ca_analysis import CaAnalysis
 from views.output_page import OutputPage
 
-from utils.enums import *
+from utils.enums import FunctionType, Stage, Move
 
 
 def call_user_input(function_type, fitted_drop_data):
@@ -32,21 +33,23 @@ class FunctionWindow(CTk):
         self.geometry("1000x750")
         self.minsize(1000, 750) 
 
+
         if get_appearance_mode() == LIGHT_MODE:
-            self.FG_COLOR = "lightblue"
+            self.FG_COLOR = get_color("background")
         else:
             self.FG_COLOR = self.cget("fg_color")
 
-        self.configure(fg_color=self.FG_COLOR)
+        set_light_only_color(self, "background")
 
         self.ca_processor = CaDataProcessor()
-        self.pd_processor = pdDataProcessor()
+        self.ift_processor = iftDataProcessor()
 
         user_input_data = ExperimentalSetup()
         experimental_drop = ExperimentalDrop()
 
         user_input_data.screen_resolution = [
             self.winfo_screenwidth(), self.winfo_screenheight()]
+
         # temp
         user_input_data.save_images_boole = False
         user_input_data.create_folder_boole = False
@@ -66,6 +69,7 @@ class FunctionWindow(CTk):
         # Initialise frame for first stage
         self.ift_acquisition_frame = IftAcquisition(
                 self, user_input_data, fg_color=self.FG_COLOR)
+
         self.ca_acquisition_frame = CaAcquisition(
                 self, user_input_data, fg_color=self.FG_COLOR)
         
@@ -76,6 +80,7 @@ class FunctionWindow(CTk):
 
         # Frame for navigation buttons
         self.button_frame = CTkFrame(self)
+        set_light_only_color(self.button_frame, "outerframe")
         self.button_frame.pack(side="bottom", fill="x", pady=10)
 
         # Add navigation buttons to the button frame
@@ -177,7 +182,12 @@ class FunctionWindow(CTk):
                         self, user_input_data, fg_color=self.FG_COLOR)
                     self.ift_analysis_frame.pack(fill="both", expand=True)
                     print("FunctionType.PENDANT_DROP")
-                  
+
+                    # use for the thread issue
+                    self.withdraw()
+                    self.ift_processor.process_data(fitted_drop_data, user_input_data, callback=self.ift_analysis_frame.receive_output)
+                    self.deiconify()
+
                 else:
                     self.ca_preparation_frame.pack_forget()
                     self.ca_analysis_frame = CaAnalysis(
@@ -197,7 +207,9 @@ class FunctionWindow(CTk):
                 self.ca_analysis_frame.pack_forget()
 
             # Initialise Output frame
-            self.output_frame = OutputPage(self, user_input_data)
+            self.output_frame = OutputPage(self, user_input_data,fg_color=self.FG_COLOR)
+
+
             # Show the OutputPage
             self.output_frame.pack(fill="both", expand=True)
 
@@ -233,22 +245,28 @@ class FunctionWindow(CTk):
         return user_input_data.number_of_frames is not None and user_input_data.number_of_frames > 0 and user_input_data.import_files is not None and len(user_input_data.import_files) > 0 and len(user_input_data.import_files) == user_input_data.number_of_frames
 
     def on_closing(self):
+        """Handle window close event"""
         try:
+            # Cancel all pending timer events
             for after_id in self.tk.call('after', 'info'):
                 try:
                     self.after_cancel(after_id)
-                except:
-                    pass
+                except Exception as e:
+                    print('views/function_window.py: on_closing() AfterCancelError:', e)
             
+            # Clean up all child widgets
             for widget in self.winfo_children():
                 try:
                     widget.destroy()
-                except:
-                    pass
+                except Exception as e:
+                    print('views/function_window.py: on_closing() WidgetDestroyError:', e)
                     
+            # Stop the main loop
             self.quit()
             
+            # Destroy the window
             self.destroy()
         except:
+            # If any error occurs, force exit
             import sys
             sys.exit(0)

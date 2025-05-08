@@ -1,21 +1,22 @@
 import customtkinter as ctk
-from PIL import ImageTk, Image
+from PIL import Image #, ImageTk
 from utils.image_handler import ImageHandler
 import os
-from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt,user_ROI
-from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
-from tkinter import messagebox
+# from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt,user_ROI
+# from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
+# from tkinter import messagebox
 from modules.image.read_image import get_image
 from views.component.check_button import CheckButton
+from views.helper.style import set_light_only_color
 
 class ImageApp(ctk.CTkFrame):
     def __init__(self, parent, user_input_data, experimental_drop, application):
         super().__init__(parent)
-        
+        set_light_only_color(self, "outerframe")
+
         self.application = application
         self.user_input_data = user_input_data
         self.experimental_drop = experimental_drop
-
         # Initialize ImageHandler instance
         self.image_handler = ImageHandler()
 
@@ -43,39 +44,13 @@ class ImageApp(ctk.CTkFrame):
         self.main_frame.grid_rowconfigure(1, weight=0)
 
         # Call the function to initialize the image display area and buttons
-        # Pass main_frame as the parent for items created inside initialize_image_display
-        self.initialize_image_display(self.main_frame)
-
-        # --- Place the image_processing_frame correctly in main_frame's grid ---
-        # Create a separate frame for the "Show Image Processing Steps" checkbox
-        self.image_processing_frame = ctk.CTkFrame(self.main_frame) # Parent is main_frame
-        # Place it in main_frame's grid, below display_frame
-        self.image_processing_frame.grid(row=1, column=0, sticky="ew", padx=15, pady=(0, 10)) # stick "ew" to fill horizontally
-
-        # Configure image_processing_frame internal grid if needed (e.g., for the checkbox)
-        self.image_processing_frame.grid_columnconfigure(0, weight=1) # Allow checkbox label to expand if needed
-
-        # Create the checkbox in the separate frame
-        self.show_popup_var = CheckButton(
-            self, # 'self' might be wrong here, should be parent of CheckButton? Check CheckButton definition. Assume self.image_processing_frame for now
-            self.image_processing_frame, # Parent frame for the CheckButton widget
-            "Show Image Processing Steps",
-            self.update_pop_bool, # Simplified callback reference
-            rw=0, cl=0, # Place CheckButton in row 0, col 0 of image_processing_frame
-            state_specify='normal'
-        )
-        # If CheckButton itself needs gridding:
-        # self.show_popup_var.grid(row=0, column=0, sticky="w", padx=5, pady=5) # Example placement
-
-        # Initial load and update
-        if self.image_paths:
-            self.load_image(self.image_paths[self.current_index])
-        self.update_image_processing_button()
+        self.initialize_image_display(self)
 
     def initialize_image_display(self, frame):
         """Initialize the image display and navigation buttons inside the provided frame (frame is main_frame)."""
         display_frame = ctk.CTkFrame(frame) # Parent is main_frame now
         # Place display_frame in main_frame's grid (row 0)
+        set_light_only_color(display_frame, "entry")
         display_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10) # Fill the top row of main_frame
 
         # --- Configure display_frame's internal grid ---
@@ -99,6 +74,7 @@ class ImageApp(ctk.CTkFrame):
         # Create a frame for image navigation controls
         self.image_navigation_frame = ctk.CTkFrame(display_frame)
         # Place in display_frame's grid, row 2, centered
+        set_light_only_color(self.image_navigation_frame, "entry")
         self.image_navigation_frame.grid(row=2, column=0, padx=10, pady=10, sticky="")
 
         # --- Navigation controls inside image_navigation_frame ---
@@ -120,6 +96,29 @@ class ImageApp(ctk.CTkFrame):
 
         self.next_button = ctk.CTkButton(self.image_navigation_frame, text=">", command=lambda: self.change_image(1), width=3)
         self.next_button.grid(row=0, column=3, padx=5, pady=5)
+
+        # # Create a separate frame for the "Show Image Processing Steps" checkbox (this is the second section)
+        # self.image_processing_frame = ctk.CTkFrame(frame)
+        # self.image_processing_frame.grid(sticky="nsew", padx=15, pady=(10, 0))
+        self.load_image(self.user_input_data.import_files[self.current_index])
+
+        # # Callback for checkbox to update show_popup
+        # def update_pop_bool(*args):
+        #     # 1: true, 0: false
+        #     print("trigger: ",self.show_popup_var.get_value())
+        #     self.user_input_data.show_popup = self.show_popup_var.get_value()
+
+        # # Create the checkbox in the separate frame
+        # self.show_popup_var = CheckButton(
+        #     self,
+        #     self.image_processing_frame,
+        #     "Show Image Processing Steps",
+        #     update_pop_bool,
+        #     rw=1, cl=0,
+        #     state_specify='normal'
+        # )
+
+        # self.update_image_processing_button()
 
     def load_images(self):
         """Load all images from the specified directory and return their paths."""
@@ -201,6 +200,8 @@ class ImageApp(ctk.CTkFrame):
             file_name = os.path.basename(self.image_paths[self.current_index])
             self.name_label.configure(text=file_name)
 
+
+
     def update_index_from_entry(self):
         """Update current index based on user input in the entry."""
         if not self.image_paths: return
@@ -226,22 +227,6 @@ class ImageApp(ctk.CTkFrame):
         self.index_entry.delete(0, 'end')
         self.index_entry.insert(0, str(self.current_index + 1))
 
-    def update_image_processing_button(self):
-        """Update the visibility and state of the image processing toggle button."""
-        # Ensure show_popup_var exists before trying to grid/grid_forget
-        if hasattr(self, 'show_popup_var') and self.show_popup_var:
-            drop_region_value = self.user_input_data.drop_ID_method
-            if drop_region_value == "Automated":
-                self.show_popup_var.grid(row=0, column=0, sticky="w", padx=5, pady=5)
-                self.show_popup_var.set_value(0)
-            else:
-                self.show_popup_var.grid_forget()
-
-    # Callback for checkbox to update show_popup
-    def update_pop_bool(self, *args): # Made it a method
-        # 1: true, 0: false
-        print("trigger: ",self.show_popup_var.get_value())
-        self.user_input_data.show_popup = self.show_popup_var.get_value()
 
 
 

@@ -3,22 +3,23 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from views.component.imageGallery import ImageGallery
-
+from views.helper.style import get_color, set_light_only_color
 
 class IftAnalysis(CTkFrame):
     def __init__(self, parent, user_input_data, **kwargs):
         super().__init__(parent, **kwargs)
+        set_light_only_color(self, "outerframe")
 
         self.user_input_data = user_input_data
 
         # Create tabs
         self.tab_view = CTkTabview(self)
+        set_light_only_color(self.tab_view, "innerframe")
         self.tab_view.pack(fill="both", expand=True)
 
         # Add "Results" and "Graphs" tabs
         self.tab_view.add("Results")
         self.tab_view.add("Graphs")
-
         # Initialize content for each tab
         self.create_results_tab(self.tab_view.tab("Results"))
         self.create_graph_tab(self.tab_view.tab("Graphs"))
@@ -100,6 +101,7 @@ class IftAnalysis(CTkFrame):
         self.image_frame.grid(row=0, column=0, sticky="nsew")
 
     def create_residuals_frame(self, parent):
+        plt.close('all')
         """Create a graph containing residuals into the parent frame. Graph is of same size as the Image Gallery."""
 
         # Residuals frame now lives inside its wrapper (parent)
@@ -122,7 +124,8 @@ class IftAnalysis(CTkFrame):
         toolbar.update()
         toolbar.pack(side="bottom", fill="x", expand=False) # Pack toolbar at bottom
 
-        # No need to draw canvas here, toolbar creation might trigger it or it happens later
+        # Draw the canvas to show the figure
+        canvas.draw()
 
     def create_graph_tab(self, parent):
         """Create a full sized graph into the parent frame"""

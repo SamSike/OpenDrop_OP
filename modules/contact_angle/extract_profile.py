@@ -19,24 +19,29 @@ def extract_drop_profile(raw_experiment, user_inputs):
         raw_experiment.contour, raw_experiment.ret = detect_edges(raw_experiment.cropped_image, raw_experiment, user_inputs.drop_region, 1, user_inputs.threshold_val)
 
         if 1:
+            plt.close('all') 
+            fig = plt.figure()
             plt.imshow(raw_experiment.cropped_image)
             plt.plot(raw_experiment.contour[:,0],raw_experiment.contour[:,1],'r,')
             plt.title('Extracted drop profile\nTheshold value of : '+str(raw_experiment.ret))
             plt.axis('equal')
             plt.show()
-            plt.close()
+            plt.close(fig)
 
     elif user_inputs.threshold_method == "Automated":
         if raw_experiment.ret  == None:
             raw_experiment.contour, raw_experiment.ret = extract_edges_CV(raw_experiment.cropped_image, return_thresholed_value=True)
 
-            if user_inputs.show_popup == 1:
+            if user_inputs.threshold_boole == 1:
+                plt.close('all')  # Clear all existing figures to avoid conflicts with residual plots
+                fig = plt.figure()  # Explicitly create a new figure window
                 plt.imshow(raw_experiment.cropped_image)
                 plt.plot(raw_experiment.contour[:,0],raw_experiment.contour[:,1],'r,')
                 plt.title('Extracted drop profile\nTheshold value of : '+str(raw_experiment.ret))
                 plt.axis('equal')
                 plt.show()
-                plt.close()
+                plt.close(fig)
+
         else:
             # if a threshold value has been selected then use this
             raw_experiment.contour = extract_edges_CV(raw_experiment.cropped_image, threshold_val=raw_experiment.ret, return_thresholed_value=False)

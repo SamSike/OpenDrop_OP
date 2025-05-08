@@ -9,6 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tkinter.messagebox as msgbox
 import tkinter.simpledialog as simpledialog
+from utils.enums import FittingMethod
+from utils.keymap import *
 # import time
 # import datetime
 # from Tkinter import *
@@ -26,7 +28,7 @@ from utils.geometry import Rect2
 
 MAX_IMAGE_TO_SCREEN_RATIO = 0.8
 
-def set_drop_region(experimental_drop, experimental_setup,index):
+def set_drop_region(experimental_drop, experimental_setup, index=0):
     # select the drop and needle regions in the image
     screen_size = experimental_setup.screen_resolution
     image_size = experimental_drop.image.shape
@@ -36,17 +38,22 @@ def set_drop_region(experimental_drop, experimental_setup,index):
         from modules.preprocessing.preprocessing import auto_crop
         experimental_drop.cropped_image, (left,right,top,bottom) = auto_crop(experimental_drop.image)
         print("experimental_drop.cropped_image",experimental_drop.cropped_image is None)
-        if experimental_setup.show_popup == 1: #show found drop
-        
+        if experimental_setup.original_boole == 1: #show found drop
+
+            plt.close('all')  # Clear all existing figures to avoid conflicts with residual plots
+            fig = plt.figure()  # Explicitly create a new figure window
             plt.title(f"Original image {index}")
             plt.imshow(experimental_drop.image)
-            plt.show()
-            plt.close()
+            plt.show()  # ✅ Block execution until the window is manually closed by the user
+            plt.close(fig)  # clean up and close the figure after it's shown
 
+        if experimental_setup.cropped_boole == 1:
+            plt.close('all')  # Clear all existing figures to avoid conflicts with residual plots
+            fig = plt.figure()  # Explicitly create a new figure window
             plt.title(f"Cropped image {index}")
             plt.imshow(experimental_drop.cropped_image)
             plt.show()
-            plt.close()
+            plt.close(fig)
         experimental_setup.drop_region = [(left, top),(right,bottom)]
     elif experimental_setup.drop_ID_method == "User-selected":
         experimental_setup.drop_region = user_ROI(experimental_drop.image, f"Select drop region for Image {index}", scale, screen_position)
@@ -270,6 +277,7 @@ def user_line(experimental_drop, experimental_setup):
     drop_data = experimental_drop.contour.astype(float)
     CPs = experimental_drop.contact_points
     title = 'Define surface line'
+
     #line = experimental_drop.surface_data # not set yet
     region = experimental_setup.drop_region
 
@@ -324,7 +332,14 @@ def user_line(experimental_drop, experimental_setup):
     ix,fx = ix0,fx0
     iy,fy = iy0,fy0
 
-    cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
+    # cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
+    # cv2.moveWindow(title, screen_position[0], screen_position[1])
+    cv2.namedWindow(title, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(title, 800, 600)  # or image.shape[1], image.shape[0]
+    try:
+        cv2.setWindowProperty(title, 5, 0)  # Lock size (if supported)
+    except:
+        pass  # Safe fallback for macOS or older OpenCV
     cv2.moveWindow(title, screen_position[0], screen_position[1])
 
     if DRAW_TANGENT_LINE_WHILE_SETTING_BASELINE: #so that things can be drawn over the image which surface line is changed
@@ -339,6 +354,17 @@ def user_line(experimental_drop, experimental_setup):
         else:
             auto_drop = drop_data
 
+    # Add guidance for the user
+    print("\nKeyboard Controls:")
+    print("W = Move Up")
+    print("S = Move Down")
+    print("A = Rotate Left")
+    print("D = Rotate Right")
+    print("O = Reset to Original Position")
+    print("P = Print Debug Info")
+    print("ENTER/SPACE = Confirm Selection")
+    print("ESC = Exit\n")
+
     while(1):
         cv2.imshow(title,img)
         #cv2.circle(img,(200,200),5,(255,255,0),2)
@@ -350,11 +376,8 @@ def user_line(experimental_drop, experimental_setup):
         #print(np.shape(drop_data))
         #print(drop_data)
 
-        #drop_data_list = np.ndarray.tolist(drop_data)
-        #start = sorted(drop_data_list, key=lambda x: (x[1]))[-1]
-        #sorted_drop_data_list = optimized_path(drop_data_list,start)
-        #drop_data = np.array(sorted_drop_data_list)
-        #print(type(drop_data))
+        #Plot pixels above line
+        v1 = (ix-fx,iy-fy) 
 
         if 1:
             drop = []
@@ -390,131 +413,112 @@ def user_line(experimental_drop, experimental_setup):
 
         if DRAW_TANGENT_LINE_WHILE_SETTING_BASELINE:
             methods_boole = experimental_setup.analysis_methods_ca
-            if methods_boole[TANGENT_FIT] or methods_boole[POLYNOMIAL_FIT] or methods_boole[CIRCLE_FIT] or methods_boole[ELLIPSE_FIT]:
+            if methods_boole[FittingMethod.TANGENT_FIT] or methods_boole[FittingMethod.POLYNOMIAL_FIT] or methods_boole[FittingMethod.CIRCLE_FIT] or methods_boole[FittingMethod.ELLIPSE_FIT]:
                 from modules.fitting.fits import perform_fits
-                perform_fits(experimental_drop, tangent=methods_boole[TANGENT_FIT], polynomial=methods_boole[POLYNOMIAL_FIT], circle=methods_boole[CIRCLE_FIT],ellipse=methods_boole[ELLIPSE_FIT])
-            if methods_boole[TANGENT_FIT]:
+                perform_fits(experimental_drop, tangent=methods_boole[FittingMethod.TANGENT_FIT], polynomial=methods_boole[FittingMethod.POLYNOMIAL_FIT], circle=methods_boole[FittingMethod.CIRCLE_FIT],ellipse=methods_boole[FittingMethod.ELLIPSE_FIT])
+            if methods_boole[FittingMethod.TANGENT_FIT]:
                 tangent_lines = tuple(experimental_drop.contact_angles['tangent fit']['tangent lines'])
                 cv2.line(img, (int(tangent_lines[0][0][0]),int(tangent_lines[0][0][1])),(int(tangent_lines[0][1][0]),int(tangent_lines[0][1][1])), (0, 0, 255), 2)
                 cv2.line(img, (int(tangent_lines[1][0][0]),int(tangent_lines[1][0][1])),(int(tangent_lines[1][1][0]),int(tangent_lines[1][1][1])),(0, 0, 255), 2)
-            if methods_boole[POLYNOMIAL_FIT] == True and not methods_boole[TANGENT_FIT]:
+            if methods_boole[FittingMethod.POLYNOMIAL_FIT] == True and not methods_boole[FittingMethod.TANGENT_FIT]:
                 tangent_lines = tuple(experimental_drop.contact_angles['polynomial fit']['tangent lines'])
                 cv2.line(img, tangent_lines[0][0],tangent_lines[0][1], (0, 0, 255), 2)
                 cv2.line(img, tangent_lines[1][0],tangent_lines[1][1], (0, 0, 255), 2)
-            if methods_boole[CIRCLE_FIT]:
+            if methods_boole[FittingMethod.CIRCLE_FIT]:
                 xc,yc = experimental_drop.contact_angles['circle fit']['circle center']
                 r = experimental_drop.contact_angles['circle fit']['circle radius']
                 cv2.circle(img,(int(xc),int(yc)),int(r),(255,150,0),1)
-            if methods_boole[ELLIPSE_FIT]:
+            if methods_boole[FittingMethod.ELLIPSE_FIT]:
                 center = experimental_drop.contact_angles['ellipse fit']['ellipse center']
                 axes = experimental_drop.contact_angles['ellipse fit']['ellipse a and b']
                 phi = experimental_drop.contact_angles['ellipse fit']['ellipse rotation']
                 cv2.ellipse(img, (int(center[0]),int(center[1])), (int(axes[0]),int(axes[1])), phi, 0, 360, (0, 88, 255), 1)
 
+        # Get key press with a simpler approach
         k = cv2.waitKey(1) & 0xFF
-        #print(k)
-        if k != 255:
 
-            if (k == 13) or (k == 32):
-                # either 'return' or 'space' pressed
-                # break
-                if ((fx - ix) * (fy - iy)) != 0: # ensure there is an enclosed region
-                    break
-                else: # something weird happening here, insert work around
-                    print('something is not right...')
-                    print(fx)
-                    print(ix)
-                    print(fy)
-                    print(iy)
-                    print(((fx - ix) * (fy - iy)))
-                    break
+        # Process key presses using WASD controls instead of arrow keys
+        if k == 13 or k == 32:  # ENTER / SPACE
+            if ((fx - ix) * (fy - iy)) != 0:  # Ensure enclosed region
+                break
+            else:
+                print('something is not right...')
+                print(fx, ix, fy, iy, (fx - ix) * (fy - iy))
+                break
 
-            if (k == 27):
-                # 'esc'
-                kill()
-            if (k==-1):
-                continue
-            if (k == 0): #up key (down on image)
-                fy = fy+1
-                iy = iy+1
+        elif k == 27:  # ESC
+            kill()
 
-                if TEMP:
-                    image_TEMP = cv2.resize(raw_image[int(region[0,1]):int(region[1,1]),int(region[0,0]):int(region[1,0])], (0,0), fx=scale, fy=scale)
-                else:
-                    image_TEMP = raw_image.copy()
-                img = image_TEMP.copy()
-                cv2.line(img,(ix,iy),(fx, fy), (0, 255, 0), 2)# #line_colour,line_thickness)    cv2.line
-            if (k == 1): #down key (up on image)
-                fy = fy-1
-                iy = iy-1
+        elif k == ord('s'):  # 's' for DOWN
+            print("DOWN key pressed (s)")
+            fy += 1
+            iy += 1
 
-                if TEMP:
-                    image_TEMP = cv2.resize(raw_image[int(region[0,1]):int(region[1,1]),int(region[0,0]):int(region[1,0])], (0,0), fx=scale, fy=scale)
-                else:
-                    image_TEMP = raw_image.copy()
-                img = image_TEMP.copy()
-                cv2.line(img,(ix,iy),(fx, fy), (0, 255, 0), 2)# #line_colour,line_thickness)    cv2.line
+        elif k == ord('w'):  # 'w' for UP
+            print("UP key pressed (w)")
+            fy -= 1
+            iy -= 1
 
+        elif k == ord('o') or k == ord('O'):  # 'o' key
+            print("O key pressed")
+            fx, fy = fx0, fy0
+            ix, iy = ix0, iy0
 
-            if (k == 111): #"o" key
-                if 1:
-                    fx,fy = fx0,fy0
-                    ix,iy = ix0,iy0
+        elif k == ord('a'):  # 'a' for LEFT rotation
+            print("LEFT key pressed (a)")
+            x0 = np.array([ix, iy])
+            x1 = np.array([fx, fy])
+            xc = 0.5 * (x0 + x1)
+            theta = 0.1 / 180 * np.pi
+            theta = -theta  # counter-clockwise
+            
+            rotation = np.array([
+                [np.cos(theta), -np.sin(theta)],
+                [np.sin(theta),  np.cos(theta)]
+            ])
+            x0r = rotation @ (x0 - xc).T + xc
+            x1r = rotation @ (x1 - xc).T + xc
+            
+            ix, iy = x0r.astype(int)
+            fx, fy = x1r.astype(int)
 
-                    if TEMP:
-                        image_TEMP = cv2.resize(raw_image[int(region[0,1]):int(region[1,1]),int(region[0,0]):int(region[1,0])], (0,0), fx=scale, fy=scale)
-                    else:
-                        image_TEMP = raw_image.copy()
-                    img = image_TEMP.copy()
-                    cv2.line(img,(ix,iy),(fx, fy), (0, 255, 0), 2)# #line_colour,line_thickness)    cv2.line
-                else:
-                    if TEMP:
-                        image_TEMP = cv2.resize(raw_image[int(region[0,1]):int(region[1,1]),int(region[0,0]):int(region[1,0])], (0,0), fx=scale, fy=scale)
-                    else:
-                        image_TEMP = raw_image.copy()
-                    img = image_TEMP.copy()
-                    #cv2.line(img,())
+        elif k == ord('d'):  # 'd' for RIGHT rotation
+            print("RIGHT key pressed (d)")
+            x0 = np.array([ix, iy])
+            x1 = np.array([fx, fy])
+            xc = 0.5 * (x0 + x1)
+            theta = 0.1 / 180 * np.pi
+            # No negation for clockwise rotation
+            
+            rotation = np.array([
+                [np.cos(theta), -np.sin(theta)],
+                [np.sin(theta),  np.cos(theta)]
+            ])
+            x0r = rotation @ (x0 - xc).T + xc
+            x1r = rotation @ (x1 - xc).T + xc
+            
+            ix, iy = x0r.astype(int)
+            fx, fy = x1r.astype(int)
 
+        elif k == ord('p') or k == ord('P'):  # 'p' key
+            for key in conans.keys():
+                print(key, ':', conans[key])
+            print()
 
-            if (k == 2) or (k == 3): #83: right key (Clockwise)
-                x0 = np.array([ix,iy])
-                x1 = np.array([fx,fy])
-                xc = 0.5*(x0+x1)
-                theta = 0.1/180*np.pi
-                if (k == 2):  #left key
-                    theta = -theta
+        # Redraw the image after any update
+        if TEMP:
+            image_TEMP = cv2.resize(
+                raw_image[int(region[0, 1]):int(region[1, 1]), int(region[0, 0]):int(region[1, 0])],
+                (0, 0), fx=scale, fy=scale)
+        else:
+            image_TEMP = raw_image.copy()
 
-                rotation = np.zeros((2,2))
-                rotation[0,0] = np.cos(theta)
-                rotation[0,1] = -np.sin(theta)
-                rotation[1,0] = np.sin(theta)
-                rotation[1,1] = np.cos(theta)
-
-                x0r = np.dot(rotation,(x0-xc).T)+xc
-                x1r = np.dot(rotation,(x1-xc).T)+xc
-
-                ix,iy = x0r.astype(int)
-                fx,fy = x1r.astype(int)
-
-                if TEMP:
-                    image_TEMP = cv2.resize(raw_image[int(region[0,1]):int(region[1,1]),int(region[0,0]):int(region[1,0])], (0,0), fx=scale, fy=scale)
-                else:
-                    image_TEMP = raw_image.copy()
-                img = image_TEMP.copy()
-                cv2.line(img,(ix,iy),(fx, fy), (0, 255, 0), 2)# #line_colour,line_thickness)    cv2.line
-
-            if (k == 112): #'p' key
-                #print(contact_angle1,contact_angle2)
-                for key in conans.keys():
-                    print(key,': ',conans[key])
-                print()
-                #print(conans)
-                #print(m1,m2)
-
-            if (k == -1):
-                continue
-#            else:
-#                print(k)
+        img = image_TEMP.copy()
+        # cv2.line(img, (ix, iy), (fx, fy), (0, 255, 0), 2)
+        cv2.putText(img, "Use W/A/S/D to move. Enter/Space = confirm. ESC = cancel.",
+                    (10, img.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.25, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.line(img, (ix, iy), (fx, fy), (0, 255, 0), 2)
 
 
     cv2.destroyAllWindows()
@@ -522,6 +526,12 @@ def user_line(experimental_drop, experimental_setup):
     max_x = max(ix, fx) / scale
     min_y = min(iy, fy) / scale
     max_y = max(iy, fy) / scale
+
+
+def run_set_surface_line(experimental_drop, experimental_setup,result_queue):
+    
+    set_surface_line(experimental_drop, experimental_setup)
+    result_queue.put(experimental_drop.contact_angles)
 
 # mouse callback function
 def draw_rectangle(event,x,y,flags,param):

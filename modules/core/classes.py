@@ -6,7 +6,8 @@ from scipy.integrate import odeint
 
 import numpy as np
 
-from utils.config import *
+from utils.config import INTERFACIAL_TENSION
+from utils.enums import FittingMethod
 
 class Tolerances(object):
     def __init__(self, delta_tol, gradient_tol, maximum_fitting_steps, objective_tol, arclength_tol, maximum_arclength_steps, needle_tol, needle_steps):
@@ -39,7 +40,7 @@ class ExperimentalSetup(object):
         self.screen_resolution = None
         self.drop_ID_method = 'Automated'
         self.threshold_method = 'Automated'
-        self.needle_region_choice = 'Automated'
+        self.needle_region_method = 'Automated'
         self.threshold_val = None
         self.baseline_method = 'Automated'
         self.edgefinder = None
@@ -47,9 +48,9 @@ class ExperimentalSetup(object):
         self.needle_diameter_mm = None
         self.drop_density = None
         self.pixel_mm = None
-        self.residuals_boole = None
-        self.profiles_boole = None
-        self.interfacial_tension_boole = None
+        self.original_boole = 0
+        self.cropped_boole = 0
+        self.threshold_boole = 0
         self.image_source = "Local images"
         self.show_popup = 0
         self.number_of_frames = None
@@ -63,7 +64,7 @@ class ExperimentalSetup(object):
         self.import_files = None
         self.frame_interval = 0
         self.analysis_method_fields_cm = {}
-        self.analysis_methods_ca = {TANGENT_FIT: False, POLYNOMIAL_FIT: False, CIRCLE_FIT: False, ELLIPSE_FIT: False, YL_FIT: False, ML_MODEL: False}
+        self.analysis_methods_ca = {FittingMethod.TANGENT_FIT: False, FittingMethod.POLYNOMIAL_FIT: False, FittingMethod.CIRCLE_FIT: False, FittingMethod.ELLIPSE_FIT: False, FittingMethod.YL_FIT: False, FittingMethod.ML_MODEL: False}
         self.analysis_methods_pd = {INTERFACIAL_TENSION: True}
         self.statistical_output = {}
         self.statistical_output_cm = {}
@@ -125,6 +126,7 @@ class DropData(object):
         # self.wait_time = None
 
 
+    # todo: original function. needs to be updated
     if 0:# interpolates the theoretical profile data
         def profile(self, s):
             if (s < 0):
