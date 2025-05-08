@@ -6,8 +6,6 @@ from views.component.float_combobox import FloatCombobox
 from views.component.check_button import CheckButton
 from views.helper.style import set_light_only_color
 from utils.enums import FittingMethod
-# Define your options and labels globally or pass them as parameters if preferred
-# AUTO_MANUAL_OPTIONS = ["Automated", "User-selected"]  # Example options
 LABEL_WIDTH = 200  # Adjust as needed
 
 # ift [User Input]
@@ -46,12 +44,10 @@ def create_user_input_fields_ift(self, parent, user_input_data):
     # Update the input value functions
     def update_drop_region_method(*args):
         user_input_data.drop_ID_method = self.drop_region_method.get_value()
-        # self.image_app.update_button_visibility()
         self.image_app.update_image_processing_button()
 
     def update_needle_region_method(*args):
-        user_input_data.needle_region_choice = self.needle_region_method.get_value()    
-       
+        user_input_data.needle_region_method = self.needle_region_method.get_value()
 
     def update_drop_density(*args):
         user_input_data.drop_density = self.drop_density_method.get_value() 
@@ -67,52 +63,36 @@ def create_user_input_fields_ift(self, parent, user_input_data):
 
     # Add input widgets with lambda functions for updates
     self.drop_region_method = OptionMenu(
-        self, input_fields_frame, "Drop Region:", AUTO_MANUAL_OPTIONS, lambda *args: update_drop_region_method(*args), rw=0
+        self, input_fields_frame, "Drop Region:", AUTO_MANUAL_OPTIONS, lambda *args: update_drop_region_method(*args), rw=0,
+        default_value=user_input_data.drop_ID_method
     )
     self.needle_region_method = OptionMenu(
-        self, input_fields_frame, "Needle Region:", AUTO_MANUAL_OPTIONS, lambda *args: update_needle_region_method(*args), rw=1
+        self, input_fields_frame, "Needle Region:", AUTO_MANUAL_OPTIONS, lambda *args: update_needle_region_method(*args), rw=1,
+        default_value=user_input_data.needle_region_method
     )
     
     self.drop_density_method = FloatEntry(
-        self, input_fields_frame, "Drop Density(kg/m³):", lambda *args: update_drop_density(*args), rw=2
+        self, input_fields_frame, "Drop Density(kg/m³):", lambda *args: update_drop_density(*args), rw=2,
+        default_value=user_input_data.drop_density
     )
+
     self.continuous_density = FloatEntry(
-        self, input_fields_frame, "Continuous density (kg/m):", lambda *args: update_continuous_density(*args), rw=3
+        self, input_fields_frame, "Continuous density (kg/m):", lambda *args: update_continuous_density(*args), rw=3,
+        default_value=user_input_data.density_outer
     )
-    self.needle_diameter = FloatEntry(
-        self, input_fields_frame, "Needle Diameter(mm):", lambda *args: update_needle_diameter(*args), rw=4
+
+    self.needle_diameter = FloatCombobox(
+        self, input_fields_frame, "Needle diameter (mm):", NEEDLE_OPTIONS,
+        lambda *args: update_needle_diameter(*args), rw=4, default_value=user_input_data.needle_diameter_mm
     )
+
     self.pixel_mm = FloatEntry(
-        self, input_fields_frame, "Pixel scale(px/mm):", lambda *args: update_pixel_mm(*args), rw=5
+        self, input_fields_frame, "Pixel scale(px/mm):", lambda *args: update_pixel_mm(*args), rw=5,
+        default_value=user_input_data.pixel_mm
     )
 
     # Returning the user input frame
     return user_input_frame
-
-# ift [CheckList Select]
-def create_plotting_checklist_ift(self,parent,user_input_data):
-
-    plotting_clist_frame = CTkFrame(parent)
-    set_light_only_color(plotting_clist_frame, "innerframe")
-    
-    plotting_clist_frame.grid(row=1, column=0, columnspan=2, sticky="wens", padx=15, pady=15)
-
-    # Create a label for the dynamic content
-    label = CTkLabel(plotting_clist_frame, text="To view during fitting(ignored if method = User-selected)", font=("Roboto", 16, "bold"))
-    label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
-
-    # Create a frame to hold all input fields
-    input_fields_frame = CTkFrame(plotting_clist_frame)
-    set_light_only_color(input_fields_frame, "entry")
-    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
-
-    def update_original_boole(*args):
-        user_input_data["residuals"] = self.original_boole.get_value()      
-   
-    self.original_boole = CheckButton(
-        self, input_fields_frame, "Original", update_original_boole, rw=0, cl=0, state_specify='normal')
-    
-    return plotting_clist_frame
 
 # ift [Analysis Methods]
 def create_analysis_checklist_ift(self,parent,user_input_data):
@@ -131,10 +111,11 @@ def create_analysis_checklist_ift(self,parent,user_input_data):
     input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
 
     def update_default_method_boole(*args):
-        user_input_data.analysis_methods_pd[INTERFACIAL_TENSION]= self.default_method_boole.get_value()  
+        user_input_data.analysis_methods_pd[INTERFACIAL_TENSION] = self.default_method_boole.get_value()  
 
     self.default_method_boole = CheckButton(
-        self, input_fields_frame, "Interfacial Tension", update_default_method_boole, rw=0, cl=0,initial_value=True)
+        self, input_fields_frame, "Interfacial Tension", update_default_method_boole, rw=0, cl=0,
+        default_value=user_input_data.analysis_methods_pd[INTERFACIAL_TENSION])
     
     return analysis_clist_frame
 
@@ -183,27 +164,27 @@ def create_user_inputs_cm(self,parent,user_input_data):
     # Create input fields with the associated update methods
     self.drop_ID_method = OptionMenu(
         self, input_fields_frame, "Drop ID method:", DROP_ID_OPTIONS,
-        lambda *args: update_drop_id_method(*args), rw=0
+        lambda *args: update_drop_id_method(*args), rw=0, default_value=user_input_data.drop_ID_method
     )
     self.threshold_method = OptionMenu(
         self, input_fields_frame, "Threshold value selection method:", THRESHOLD_OPTIONS,
-        lambda *args: update_threshold_method(*args), rw=1
+        lambda *args: update_threshold_method(*args), rw=1, default_value=user_input_data.threshold_method
     )
     self.threshold_val = FloatEntry(
         self, input_fields_frame, "Threshold value (ignored if method=Automated):",
-        lambda *args: update_threshold_value(*args), rw=2
+        lambda *args: update_threshold_value(*args), rw=2, default_value=user_input_data.threshold_val
     )
     self.baseline_method = OptionMenu(
         self, input_fields_frame, "Baseline selection method:", BASELINE_OPTIONS,
-        lambda *args: update_baseline_method(*args), rw=3
+        lambda *args: update_baseline_method(*args), rw=3, default_value=user_input_data.baseline_method
     )
     self.density_outer = FloatEntry(
         self, input_fields_frame, "Continuous density (kg/m³):",
-        lambda *args: update_density_outer(*args), rw=4
+        lambda *args: update_density_outer(*args), rw=4, default_value=user_input_data.density_outer
     )
     self.needle_diameter = FloatCombobox(
         self, input_fields_frame, "Needle diameter (mm):", NEEDLE_OPTIONS,
-        lambda *args: update_needle_diameter(*args), rw=5
+        lambda *args: update_needle_diameter(*args), rw=5, default_value=user_input_data.needle_diameter_mm
     )
 
     # Configure grid columns in the input fields frame
@@ -211,7 +192,7 @@ def create_user_inputs_cm(self,parent,user_input_data):
 
     return user_input_frame
 
-def create_plotting_checklist_cm(self, parent, user_input_data):
+def create_plotting_checklist(self, parent, user_input_data):
     """Create plotting checklist fields and return the frame containing them."""
     # Create the plotting checklist frame
     plotting_clist_frame = CTkFrame(parent)
@@ -239,13 +220,13 @@ def create_plotting_checklist_cm(self, parent, user_input_data):
 
     # Create check buttons with the associated update methods
     self.original_boole = CheckButton(
-        self, input_fields_frame, "Original Image(s)", update_original_boole, rw=0, cl=0, state_specify='normal'
+        self, input_fields_frame, "Original Image(s)", update_original_boole, rw=0, cl=0, state_specify='normal', default_value=user_input_data.original_boole
     )
     self.cropped_boole = CheckButton(
-        self, input_fields_frame, "Cropped Images(s)", update_cropped_boole, rw=1, cl=0, state_specify='normal'
+        self, input_fields_frame, "Cropped Images(s)", update_cropped_boole, rw=1, cl=0, state_specify='normal', default_value=user_input_data.cropped_boole
     )
     self.threshold_boole = CheckButton(
-        self, input_fields_frame, "Threhold Image(s)", update_threshold_boole, rw=2, cl=0, state_specify='normal'
+        self, input_fields_frame, "Threhold Image(s)", update_threshold_boole, rw=2, cl=0, state_specify='normal', default_value=user_input_data.threshold_boole
     )
 
     return plotting_clist_frame
@@ -287,22 +268,28 @@ def create_analysis_checklist_cm(self, parent, user_input_data):
 
     # Create check buttons with the associated update methods
     self.tangent_boole = CheckButton(
-        self, input_fields_frame, "First-degree polynomial fit", update_tangent_boole, rw=0, cl=0
+        self, input_fields_frame, "First-degree polynomial fit", update_tangent_boole,
+        rw=0, cl=0, default_value=user_input_data.analysis_methods_ca[FittingMethod.TANGENT_FIT]
     )
     self.second_deg_polynomial_boole = CheckButton(
-        self, input_fields_frame, "Second-degree polynomial fit", update_second_deg_polynomial_boole, rw=1, cl=0
+        self, input_fields_frame, "Second-degree polynomial fit", update_second_deg_polynomial_boole,
+        rw=1, cl=0, default_value=user_input_data.analysis_methods_ca[FittingMethod.POLYNOMIAL_FIT]
     )
     self.circle_boole = CheckButton(
-        self, input_fields_frame, "Circle fit", update_circle_boole, rw=2, cl=0
+        self, input_fields_frame, "Circle fit", update_circle_boole, rw=2, cl=0,
+        default_value=user_input_data.analysis_methods_ca[FittingMethod.CIRCLE_FIT]
     )
     self.ellipse_boole = CheckButton(
-        self, input_fields_frame, "Ellipse fit", update_ellipse_boole, rw=0, cl=1
+        self, input_fields_frame, "Ellipse fit", update_ellipse_boole, rw=0, cl=1,
+        default_value=user_input_data.analysis_methods_ca[FittingMethod.ELLIPSE_FIT]
     )
     self.YL_boole = CheckButton(
-        self, input_fields_frame, "Young-Laplace fit", update_YL_boole, rw=1, cl=1
+        self, input_fields_frame, "Young-Laplace fit", update_YL_boole, rw=1, cl=1,
+        default_value=user_input_data.analysis_methods_ca[FittingMethod.YL_FIT]
     )
     self.ML_boole = CheckButton(
-        self, input_fields_frame, "ML model", update_ML_boole, rw=2, cl=1
+        self, input_fields_frame, "ML model", update_ML_boole, rw=2, cl=1,
+        default_value=user_input_data.analysis_methods_ca[FittingMethod.ML_MODEL]
     )
 
     return analysis_clist_frame

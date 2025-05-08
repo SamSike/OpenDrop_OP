@@ -2,7 +2,7 @@ from customtkinter import CTkFrame, CTkButton, CTk, get_appearance_mode
 from tkinter import messagebox
 
 from modules.contact_angle.ca_data_processor import CaDataProcessor
-from modules.ift.pd_data_processor import pdDataProcessor
+from modules.ift.ift_data_processor import iftDataProcessor
 from modules.core.classes import ExperimentalSetup, ExperimentalDrop #, DropData, Tolerances
 
 from views.helper.validation import validate_user_input_data_ift,validate_user_input_data_cm,validate_frame_interval
@@ -42,13 +42,14 @@ class FunctionWindow(CTk):
         set_light_only_color(self, "background")
 
         self.ca_processor = CaDataProcessor()
-        self.pd_processor = pdDataProcessor()
+        self.ift_processor = iftDataProcessor()
 
         user_input_data = ExperimentalSetup()
         experimental_drop = ExperimentalDrop()
 
         user_input_data.screen_resolution = [
             self.winfo_screenwidth(), self.winfo_screenheight()]
+        
         # temp
         user_input_data.save_images_boole = False
         user_input_data.create_folder_boole = False
@@ -181,6 +182,11 @@ class FunctionWindow(CTk):
                         self, user_input_data, fg_color=self.FG_COLOR)
                     self.ift_analysis_frame.pack(fill="both", expand=True)
                     print("FunctionType.PENDANT_DROP")
+
+                    # use for the thread issue
+                    self.withdraw()
+                    self.ift_processor.process_data(fitted_drop_data, user_input_data, callback=self.ift_analysis_frame.receive_output)
+                    self.deiconify()
                   
                 else:
                     self.ca_preparation_frame.pack_forget()
@@ -239,28 +245,28 @@ class FunctionWindow(CTk):
         return user_input_data.number_of_frames is not None and user_input_data.number_of_frames > 0 and user_input_data.import_files is not None and len(user_input_data.import_files) > 0 and len(user_input_data.import_files) == user_input_data.number_of_frames
 
     def on_closing(self):
-        """处理窗口关闭事件"""
+        """Handle window close event"""
         try:
-            # 取消所有待处理的定时器事件
+            # Cancel all pending timer events
             for after_id in self.tk.call('after', 'info'):
                 try:
                     self.after_cancel(after_id)
                 except Exception as e:
                     print('views/function_window.py: on_closing() AfterCancelError:', e)
             
-            # 清理所有子部件
+            # Clean up all child widgets
             for widget in self.winfo_children():
                 try:
                     widget.destroy()
                 except Exception as e:
                     print('views/function_window.py: on_closing() WidgetDestroyError:', e)
                     
-            # 停止主循环
+            # Stop the main loop
             self.quit()
             
-            # 销毁窗口
+            # Destroy the window
             self.destroy()
         except:
-            # 如果出现任何错误，强制退出
+            # If any error occurs, force exit
             import sys
             sys.exit(0)

@@ -21,6 +21,8 @@ class IftAcquisition(CTkFrame):
 
         self.frame_interval_var = StringVar()
         self.frame_interval_var.trace_add("write", self.update_frame_interval)
+        if (self.user_input_data.frame_interval is not None):
+            self.frame_interval_var.set(str(int(self.user_input_data.frame_interval)))
 
         self.image_source = StringVar(value=user_input_data.image_source)
 
@@ -94,7 +96,7 @@ class IftAcquisition(CTkFrame):
         label = CTkLabel(frame, text=text, width=150, anchor="w")
         label.pack(side="left")
 
-    def setup_numberic_entry(self, frame, variable):
+    def setup_numberic_entry(self, frame, variable):     
         numberic_validate_command = self.register(validate_numeric_input)
         entry = CTkEntry(
             frame,
