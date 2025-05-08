@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from customtkinter import *
-from views.component.preparation import create_user_inputs_cm,create_plotting_checklist_cm,create_analysis_checklist_cm
+from views.component.preparation import create_user_inputs_cm,create_plotting_checklist,create_analysis_checklist_cm
 from views.component.imageProcessing import ImageApp
 from views.helper.style import set_light_only_color
 
@@ -51,6 +51,5 @@ class CaPreparation(ctk.CTkFrame):
 
     def create_fitting_view_fields(self, parent_frame):
         """Create and pack Statisitcal Output fields into the specified parent frame."""
-        fitting_view_frame = create_plotting_checklist_cm(self,parent_frame,self.user_input_data)
+        fitting_view_frame = create_plotting_checklist(self,parent_frame,self.user_input_data)
         fitting_view_frame.grid(row=2, column=0, sticky="nsew", pady=(10, 0))  # Use row 1
-        # fitting_view_frame.pack(fill="x", expand=True)  # Pack fitting view fields

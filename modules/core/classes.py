@@ -40,7 +40,7 @@ class ExperimentalSetup(object):
         self.screen_resolution = None
         self.drop_ID_method = 'Automated'
         self.threshold_method = 'Automated'
-        self.needle_region_choice = 'Automated'
+        self.needle_region_method = 'Automated'
         self.threshold_val = None
         self.baseline_method = 'Automated'
         self.edgefinder = None
