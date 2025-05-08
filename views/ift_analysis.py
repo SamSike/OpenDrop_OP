@@ -78,6 +78,7 @@ class IftAnalysis(CTkFrame):
         self.image_frame.grid(row=0, column=0, sticky="nsew")
 
     def create_residuals_frame(self, parent):
+        plt.close('all')
         """Create a graph containing residuals into the parent frame. Graph is of same size as the Image Gallery."""
 
         self.residuals_frame = CTkFrame(parent)

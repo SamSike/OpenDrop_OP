@@ -183,6 +183,7 @@ class FunctionWindow(CTk):
                     self.ift_analysis_frame.pack(fill="both", expand=True)
                     print("FunctionType.PENDANT_DROP")
 
+                    # use for the thread issue
                     self.withdraw()
                     self.ift_processor.process_data(fitted_drop_data, user_input_data, callback=self.ift_analysis_frame.receive_output)
                     self.deiconify()

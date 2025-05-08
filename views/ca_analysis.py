@@ -1,4 +1,4 @@
-from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkCheckBox, CTkImage, IntVar
+from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkCheckBox, CTkImage, IntVar,CTkRadioButton
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import os
