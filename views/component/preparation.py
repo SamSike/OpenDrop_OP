@@ -6,8 +6,6 @@ from views.component.float_combobox import FloatCombobox
 from views.component.check_button import CheckButton
 from views.helper.style import set_light_only_color
 from utils.enums import FittingMethod
-# Define your options and labels globally or pass them as parameters if preferred
-# AUTO_MANUAL_OPTIONS = ["Automated", "User-selected"]  # Example options
 LABEL_WIDTH = 200  # Adjust as needed
 
 # ift [User Input]
