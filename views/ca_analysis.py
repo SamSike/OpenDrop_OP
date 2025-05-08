@@ -350,85 +350,70 @@ class CaAnalysis(CTkFrame):
 
 
     def initialize_image_display(self, frame):
-        frame.grid_rowconfigure(0, weight=0)
-        frame.grid_rowconfigure(1, weight=1)
-        frame.grid_rowconfigure(2, weight=0)
-        frame.grid_rowconfigure(3, weight=0)
-        frame.grid_columnconfigure(0, weight=1)
-        display_frame = CTkFrame(frame)
-        set_light_only_color(display_frame, "outerframe")
-        display_frame.grid(sticky="nsew", padx=15, pady=(10, 0))
+        """Initialize image display directly in the frame (image_wrapper_frame)."""
+        # frame is image_wrapper_frame here
 
-        self.image_label = CTkLabel(
-            display_frame, text="", fg_color="lightgrey", width=400, height=300
-        )
-        self.image_label.grid(padx=10, pady=(10, 5))
+        # --- Configure frame's (image_wrapper_frame) internal grid ---
+        # No longer need the nested display_frame
+        frame.grid_rowconfigure(0, weight=0)    # Filename row
+        frame.grid_rowconfigure(1, weight=1)    # Image row (allow vertical expansion if needed)
+        frame.grid_rowconfigure(2, weight=0)    # Toggle frame row
+        frame.grid_rowconfigure(3, weight=0)    # Navigation frame row
+        frame.grid_columnconfigure(0, weight=1) # Single column expands horizontally
 
-        file_name = os.path.basename(self.user_input_data.import_files[self.current_index])
-        self.name_label = CTkLabel(display_frame, text=file_name)
-        self.name_label.grid()
+        # --- Create widgets directly in 'frame' ---
 
+        # Image Label
+        self.image_label = CTkLabel(frame, text="", fg_color="lightgrey", width=400, height=300) # Keep original size for now
+        self.image_label.grid(row=1, column=0, padx=10, pady=(10, 5), sticky="nsew") # Fills cell in wrapper
 
-        self.toggle_frame = CTkFrame(display_frame)
+        # Filename Label
+        file_name = "No image loaded" # Default text
+        if hasattr(self.user_input_data, 'import_files') and self.user_input_data.import_files and self.current_index < len(self.user_input_data.import_files):
+            file_name = os.path.basename(self.user_input_data.import_files[self.current_index])
+        self.name_label = CTkLabel(frame, text=file_name)
+        self.name_label.grid(row=0, column=0, pady=(5,0)) # Above image label
+
+        # Toggle Frame (Radio Buttons)
+        self.toggle_frame = CTkFrame(frame) # Parent is image_wrapper_frame
         set_light_only_color(self.toggle_frame, "innerframe")
-        self.toggle_frame.grid(pady=(5, 0))
+        self.toggle_frame.grid(row=2, column=0, pady=(5, 0)) # Below image label
 
         self.show_angles_var = IntVar(value=0)
-
-        self.rb_original = CTkRadioButton(
-            self.toggle_frame,
-            text="Show Original Image",
-            variable=self.show_angles_var,
-            value=0,
-            command=self.toggle_view,
-        )
-        self.rb_cropped = CTkRadioButton(
-            self.toggle_frame,
-            text="Show Contact Angles (Cropped View)",
-            variable=self.show_angles_var,
-            value=1,
-            command=self.toggle_view,
-        )
-        self.rb_chart = CTkRadioButton(
-            self.toggle_frame,
-            text="Show Line Chart",
-            variable=self.show_angles_var,
-            value=2,
-            command=self.toggle_view,
-        )
+        self.rb_original = CTkRadioButton(self.toggle_frame, text="Show Original Image", variable=self.show_angles_var, value=0, command=self.toggle_view)
+        self.rb_cropped = CTkRadioButton(self.toggle_frame, text="Show Contact Angles (Cropped View)", variable=self.show_angles_var, value=1, command=self.toggle_view)
+        self.rb_chart = CTkRadioButton(self.toggle_frame, text="Show Line Chart", variable=self.show_angles_var, value=2, command=self.toggle_view)
         self.rb_original.grid(row=0, column=0, padx=10, pady=5)
         self.rb_cropped.grid(row=0, column=1, padx=10, pady=5)
-        self.rb_chart.grid(  row=0, column=2, padx=10, pady=5)
+        self.rb_chart.grid(row=0, column=2, padx=10, pady=5)
 
-        self.image_navigation_frame = CTkFrame(display_frame)
+        # Navigation Frame
+        self.image_navigation_frame = CTkFrame(frame) # Parent is image_wrapper_frame
         set_light_only_color(self.image_navigation_frame, "entry")
-        self.image_navigation_frame.grid(pady=20)
+        self.image_navigation_frame.grid(row=3, column=0, pady=20) # Below toggle frame
 
-        self.prev_button = CTkButton(
-            self.image_navigation_frame, text="<",
-            command=lambda: self.change_image(-1), width=30
-        )
+        # Navigation Buttons (remain the same, parent is image_navigation_frame)
+        self.prev_button = CTkButton(self.image_navigation_frame, text="<", command=lambda: self.change_image(-1), width=30)
         self.prev_button.grid(row=0, column=0, padx=5, pady=5)
-
         self.index_entry = CTkEntry(self.image_navigation_frame, width=50)
         self.index_entry.grid(row=0, column=1, padx=5, pady=5)
         self.index_entry.bind("<Return>", lambda e: self.update_index_from_entry())
-
-        self.navigation_label = CTkLabel(
-            self.image_navigation_frame,
-            text=f" of {self.user_input_data.number_of_frames}",
-            font=("Arial", 12),
-        )
+        num_frames = 0
+        if hasattr(self.user_input_data, 'number_of_frames'):
+            num_frames = self.user_input_data.number_of_frames
+        if num_frames > 0:
+             self.index_entry.insert(0, str(self.current_index + 1))
+        self.navigation_label = CTkLabel(self.image_navigation_frame, text=f" of {num_frames}", font=("Arial", 12))
         self.navigation_label.grid(row=0, column=2, padx=5, pady=5)
-
-        self.next_button = CTkButton(
-            self.image_navigation_frame, text=">",
-            command=lambda: self.change_image(1), width=30
-        )
+        self.next_button = CTkButton(self.image_navigation_frame, text=">", command=lambda: self.change_image(1), width=30)
         self.next_button.grid(row=0, column=3, padx=5, pady=5)
 
-        self.load_image(self.user_input_data.import_files[self.current_index])
-
+        # Load initial image
+        if hasattr(self.user_input_data, 'import_files') and self.user_input_data.import_files:
+            self.load_image(self.user_input_data.import_files[self.current_index])
+        else:
+            if hasattr(self, 'image_label') and self.image_label:
+                self.image_label.configure(text="No images selected")
 
     def toggle_view(self):
         self.display_current_image()
