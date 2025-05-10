@@ -91,13 +91,17 @@ def create_user_input_fields_ift(self, parent, user_input_data):
     )
 
     # Add tooltip messages
-    create_tooltip(self.drop_region_method.label, "Select how to detect the droplet region: automatic or manual selection.")
-    create_tooltip(self.needle_region_method.label, "Select how to detect the needle region: automatic or manual selection.")
-    create_tooltip(self.drop_density_method.label, "Enter the density of the droplet in kg/m³.")
-    create_tooltip(self.continuous_density.label, "Enter the density of the surrounding fluid in kg/m³.")
-    create_tooltip(self.needle_diameter.label, "Enter the needle diameter, used for calculating interfacial tension from the image.")
-    create_tooltip(self.pixel_mm.label, "Conversion ratio between pixels and millimeters, used for size calculation.")
+    def add_help_icon(parent, row, tooltip_text):
+        icon = CTkLabel(parent, text="❓", font=("Arial", 12, "bold"), cursor="question_arrow")
+        icon.grid(row=row, column=2, padx=(2, 5), pady=5, sticky="w")
+        create_tooltip(icon, tooltip_text)
 
+    add_help_icon(input_fields_frame, 0, "Select how to detect the droplet region: automatic or manual.")
+    add_help_icon(input_fields_frame, 1, "Select how to detect the needle region: automatic or manual.")
+    add_help_icon(input_fields_frame, 2, "Enter the density of the droplet in kg/m³. Used for interfacial tension calculation.")
+    add_help_icon(input_fields_frame, 3, "Enter the density of the surrounding fluid (e.g., air or oil) in kg/m³.")
+    add_help_icon(input_fields_frame, 4, "Enter the needle diameter, used for image scale calibration.")
+    add_help_icon(input_fields_frame, 5, "Enter the pixel-to-millimeter scale for image-based measurements.")
 
     # Returning the user input frame
     return user_input_frame
@@ -228,6 +232,19 @@ def create_user_inputs_cm(self,parent,user_input_data):
         lambda *args: update_needle_diameter(*args), rw=5, default_value=user_input_data.needle_diameter_mm
     )
     self.needle_diameter.combobox.grid_configure(sticky="ew")
+
+    # Add tooltip messages
+    def add_help_icon(parent, row, tooltip_text):
+        icon = CTkLabel(parent, text="❓", font=("Arial", 12, "bold"), cursor="question_arrow")
+        icon.grid(row=row, column=2, padx=(2, 5), pady=5, sticky="w")
+        create_tooltip(icon, tooltip_text)
+
+    add_help_icon(input_fields_frame, 0, "Select the method to identify the droplet (automatic or manual).")
+    add_help_icon(input_fields_frame, 1, "Choose the method for threshold value selection (automatic or custom).")
+    add_help_icon(input_fields_frame, 2, "Specify the threshold value (only applicable if method is manual).")
+    add_help_icon(input_fields_frame, 3, "Select the baseline detection method for fitting the contact angle.")
+    add_help_icon(input_fields_frame, 4, "Enter the surrounding fluid density in kg/m³.")
+    add_help_icon(input_fields_frame, 5, "Enter the needle diameter (in mm) for image scale calibration.")
 
     return user_input_frame
 
