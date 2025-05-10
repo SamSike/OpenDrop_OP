@@ -39,17 +39,21 @@ def set_drop_region(experimental_drop, experimental_setup, index=0):
         experimental_drop.cropped_image, (left,right,top,bottom) = auto_crop(experimental_drop.image)
         print("experimental_drop.cropped_image",experimental_drop.cropped_image is None)
         if experimental_setup.original_boole == 1: #show found drop
-        
+
+            plt.close('all')  # Clear all existing figures to avoid conflicts with residual plots
+            fig = plt.figure()  # Explicitly create a new figure window
             plt.title(f"Original image {index}")
             plt.imshow(experimental_drop.image)
-            plt.show()
-            plt.close()
+            plt.show()  # ✅ Block execution until the window is manually closed by the user
+            plt.close(fig)  # clean up and close the figure after it's shown
 
         if experimental_setup.cropped_boole == 1:
+            plt.close('all')  # Clear all existing figures to avoid conflicts with residual plots
+            fig = plt.figure()  # Explicitly create a new figure window
             plt.title(f"Cropped image {index}")
             plt.imshow(experimental_drop.cropped_image)
             plt.show()
-            plt.close()
+            plt.close(fig)
         experimental_setup.drop_region = [(left, top),(right,bottom)]
     elif experimental_setup.drop_ID_method == "User-selected":
         experimental_setup.drop_region = user_ROI(experimental_drop.image, f"Select drop region for Image {index}", scale, screen_position)

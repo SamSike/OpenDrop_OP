@@ -6,80 +6,114 @@ import os
 
 class ImageGallery(ctk.CTkFrame):
     def __init__(self, parent, import_files):
-        super().__init__(parent)
+        # Pass fg_color='transparent' if the parent wrapper already has the desired background
+        super().__init__(parent, fg_color='transparent')
 
-        # Initialize ImageHandler instance
         self.image_handler = ImageHandler()
+        self.image_paths = import_files
+        self.current_index = 0
+        self.current_image = None # Store the original PIL Image
+        self.tk_image = None # Store the CTkImage
 
-        # Create main frame
-        self.main_frame = ctk.CTkFrame(self, width=400, height=400)
-        self.main_frame.grid(row=0, column=0, sticky="nsew")
+        # Remove the extra main_frame, use self (ImageGallery frame) directly for simplicity
+        # This makes binding Configure easier and reduces nesting
 
-        # Configure grid to make widgets resize with the window
-        self.grid_rowconfigure(0, weight=1)  # Allow row 0 (image) to grow
-        self.grid_columnconfigure(0, weight=1)  # Center widgets horizontally
+        # Configure grid for self (ImageGallery frame)
+        self.grid_rowconfigure(0, weight=1) # Image row takes available space
+        self.grid_rowconfigure(1, weight=0) # Button row fixed size
+        self.grid_columnconfigure(0, weight=1) # Allow horizontal centering/expansion
+        self.grid_columnconfigure(1, weight=1)
 
-        self.main_frame.grid_rowconfigure(0, weight=1)  # Center image
-        self.main_frame.grid_rowconfigure(1, weight=0)  # Buttons below image
-        self.main_frame.grid_columnconfigure(
-            0, weight=1)  # Center horizontally
-        self.main_frame.grid_columnconfigure(
-            1, weight=1)  # Center horizontally
+        # Image display label - Center the label itself within its grid cell
+        # The parent (ift_analysis.image_frame_wrapper) will center this whole ImageGallery widget
+        self.image_label = ctk.CTkLabel(self, text="", fg_color="transparent")
+        # sticky="" (default) or "ns" or "n" or "s" might be better if we don't want label itself to expand
+        # Let's try default sticky first. The PIL image size will dictate label size.
+        self.image_label.grid(row=0, column=0, columnspan=2, padx=5, pady=5) # Removed sticky="nsew" from label
 
-        # Image display area
-        self.image_label = ctk.CTkLabel(
-            self.main_frame, text="", fg_color="lightgrey")
-        self.image_label.grid(
-            row=0, column=0, columnspan=2, sticky="nsew")
+        # Navigation buttons frame
+        self.button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.button_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 5))
+        self.button_frame.grid_columnconfigure(0, weight=1)
+        self.button_frame.grid_columnconfigure(1, weight=1)
 
-        # Load images from the directory
-        self.image_paths = import_files  # Load all images
-        self.current_index = 0  # To keep track of the currently displayed image
 
-        # Previous and Next buttons
+        # Previous and Next buttons (place inside button_frame)
         self.prev_button = ctk.CTkButton(
-            self.main_frame, text="Previous", command=lambda: self.change_image(-1), width=80, height=25)
-        self.prev_button.grid(row=1, column=0, padx=20, sticky="w")
+            self.button_frame, text="Previous", command=lambda: self.change_image(-1), width=80, height=25)
+        # Use pack for easier centering within the button frame or adjust grid columns
+        # self.prev_button.pack(side="left", padx=20, pady=5)
+        self.prev_button.grid(row=0, column=0, padx=(20, 5), sticky="e")
+
 
         self.next_button = ctk.CTkButton(
-            self.main_frame, text="Next", command=lambda: self.change_image(1), width=80, height=25)
-        self.next_button.grid(row=1, column=1, padx=20, pady=2, sticky="e")
+            self.button_frame, text="Next", command=lambda: self.change_image(1), width=80, height=25)
+        # self.next_button.pack(side="right", padx=20, pady=5)
+        self.next_button.grid(row=0, column=1, padx=(5, 20), sticky="w")
 
-        # Load the first image by default if available
+
         if self.image_paths:
             self.load_image(self.image_paths[self.current_index])
+        else:
+            # Handle case with no images
+            self.image_label.configure(text="No images found")
 
-    def load_images(self):
-        """Load all images from the specified directory and return their paths."""
-        directory = "experimental_data_set"
-        return self.image_handler.get_image_paths(directory)
 
     def load_image(self, selected_image):
-        """Load and display the selected image."""
-        print("Loading image: ", selected_image)  # Check the constructed path
+        """Load the selected image."""
+        print("Loading image: ", selected_image)
         try:
             self.current_image = Image.open(selected_image)
+            # Call display_image to set fixed size
             self.display_image()
         except FileNotFoundError:
             print(f"Error: The image file {selected_image} was not found.")
             self.current_image = None
+            self.image_label.configure(image=None, text=f"Error loading:\n{os.path.basename(selected_image)}")
+        except Exception as e:
+             print(f"Error opening image {selected_image}: {e}")
+             self.current_image = None
+             self.image_label.configure(image=None, text=f"Error opening:\n{os.path.basename(selected_image)}")
 
+    # RESTORED display_image logic using fixed max_height
     def display_image(self):
-        """Display the currently loaded image."""
-        width, height = self.current_image.size
-        new_width, new_height = self.image_handler.get_fitting_dimensions(
-            width, height, max_height=250)
-        self.tk_image = ctk.CTkImage(
-            self.current_image, size=(new_width, new_height))
+        """Display the currently loaded image with fixed size constraints."""
+        if self.current_image is None:
+            self.image_label.configure(image=None) # Clear image if none loaded
+            return
 
-        self.image_label.configure(image=self.tk_image)
-        # Keep a reference to avoid garbage collection
-        self.image_label.image = self.tk_image
+        try:
+            original_width, original_height = self.current_image.size
+
+            # Use ImageHandler or similar logic to get fitting dimensions based on max_height
+            # Assuming ImageHandler has a method like this, or implement simple scaling
+            # --- Using a fixed max_height (e.g., 250) ---
+            max_height = 250 # Or another value you prefer
+            aspect_ratio = original_width / original_height
+            if original_height > max_height:
+                new_height = max_height
+                new_width = int(new_height * aspect_ratio)
+            else:
+                new_width = original_width
+                new_height = original_height
+
+            # Ensure dimensions are at least 1x1
+            new_width = max(1, new_width)
+            new_height = max(1, new_height)
+
+            self.tk_image = ctk.CTkImage(
+                light_image=self.current_image,
+                size=(new_width, new_height))
+
+            self.image_label.configure(image=self.tk_image, text="") # Update label
+        except Exception as e:
+            print(f"Error creating fixed size CTkImage: {e}")
+            self.image_label.configure(image=None, text="Error displaying image")
+
 
     def change_image(self, direction):
         """Change the currently displayed image based on the direction."""
-        if self.image_paths:
-            self.current_index = (
-                self.current_index + direction) % len(self.image_paths)  # Wrap around
-            # Load the new image
-            self.load_image(self.image_paths[self.current_index])
+        if not self.image_paths:
+            return
+        self.current_index = (self.current_index + direction) % len(self.image_paths)
+        self.load_image(self.image_paths[self.current_index])

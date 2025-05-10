@@ -4,27 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="add frontend test and fix some test error">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/ca_acquisition_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ca_acquisition_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/ift_acquisition_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ift_acquisition_test.py" afterDir="false" />
-    </list>
+    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="fix error: AttributeError: 'CTkXYFrame' object has no attribute '_updating_scrollbar'" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Python Script" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="develop" />
+        <entry key="$PROJECT_DIR$" value="conan_ml/tests/conan_unit_test" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -35,6 +24,17 @@
     &quot;assignee&quot;: &quot;mikufoxxx&quot;
   }
 }</component>
+  <component name="GitHubPullRequestState"><![CDATA[{
+  "prStates": [
+    {
+      "id": {
+        "id": "PR_kwDOMg3dnM6VOM2f",
+        "number": 252
+      },
+      "lastSeen": 1746734712618
+    }
+  ]
+}]]></component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/SamSike/OpenDrop_OP.git&quot;,
@@ -55,28 +55,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python 测试.pytest (ExtractData_test.py 内).executor&quot;: &quot;Run&quot;,
-    &quot;Python 测试.pytest (classes_test.py 内).executor&quot;: &quot;Run&quot;,
-    &quot;Python 测试.pytest (extract_profile_test.py 内).executor&quot;: &quot;Run&quot;,
-    &quot;Python 测试.pytest (test_all.py 内).executor&quot;: &quot;Run&quot;,
-    &quot;Python 测试.pytest in ca_preparation_test.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python 测试.pytest in test_all.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;conan__ml/tests/conan__unit__test&quot;,
-    &quot;last_opened_file_path&quot;: &quot;F:/opendrop/py38&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python 测试.pytest (ExtractData_test.py 内).executor": "Run",
+    "Python 测试.pytest (classes_test.py 内).executor": "Run",
+    "Python 测试.pytest (extract_profile_test.py 内).executor": "Run",
+    "Python 测试.pytest (test_all.py 内).executor": "Run",
+    "Python 测试.pytest in test_all.py.executor": "Run",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "#252 on responsive-design",
+    "last_opened_file_path": "F:/opendrop/py38",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\PyProject\OpenDrop_OP\modules\core" />
@@ -86,18 +85,48 @@
       <recent name="D:\PyProject\OpenDrop_OP\modules\image" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="F:\opendrop\views" />
       <recent name="D:\PyProject\OpenDrop_OP\modules\fitting" />
       <recent name="D:\PyProject\OpenDrop_OP\modules\preprocessing" />
       <recent name="D:\PyProject\OpenDrop_OP\modules\image" />
       <recent name="D:\PyProject\OpenDrop_OP\modules\core" />
+      <recent name="D:\PyProject\OpenDrop_OP\modules\contact_angle" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="opendrop" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-PY-241.15989.155" />
-        <option value="bundled-python-sdk-babbdf50b680-7c6932dee5e4-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.15989.155" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PY-242.23726.102" />
+        <option value="bundled-python-sdk-5e1850174b45-399fe30bd8c1-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.23726.102" />
       </set>
     </attachedChunks>
   </component>
@@ -124,35 +153,64 @@
       <workItem from="1746251257992" duration="224000" />
       <workItem from="1746252112383" duration="1645000" />
       <workItem from="1746259835930" duration="180000" />
-      <workItem from="1746602855032" duration="6873000" />
-      <workItem from="1746609857435" duration="2000000" />
-      <workItem from="1746890729288" duration="1269000" />
     </task>
-    <task id="LOCAL-00001" summary="fix error: read_image.py: -&gt;range">
+    <task id="LOCAL-00001" summary="Changes">
       <option name="closed" value="true" />
-      <created>1746594721502</created>
+      <created>1746237197330</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1746594721502</updated>
+      <updated>1746237197330</updated>
     </task>
-    <task id="LOCAL-00002" summary="fix error: read_image.py: -&gt;range">
+    <task id="LOCAL-00002" summary="user inputs part">
       <option name="closed" value="true" />
-      <created>1746610866284</created>
+      <created>1746239846410</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1746610866284</updated>
+      <updated>1746239846411</updated>
     </task>
-    <task id="LOCAL-00003" summary="add frontend test and fix some test error">
+    <task id="LOCAL-00003" summary="analysis complete">
       <option name="closed" value="true" />
-      <created>1746610911447</created>
+      <created>1746251826281</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
-      <updated>1746610911447</updated>
+      <updated>1746251826281</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="analysis complete">
+      <option name="closed" value="true" />
+      <created>1746252320246</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1746252320246</updated>
+    </task>
+    <task id="LOCAL-00005" summary="complete">
+      <option name="closed" value="true" />
+      <created>1746252441943</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1746252441943</updated>
+    </task>
+    <task id="LOCAL-00006" summary="complete">
+      <option name="closed" value="true" />
+      <created>1746266912132</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1746266912132</updated>
+    </task>
+    <task id="LOCAL-00007" summary="fix error: AttributeError: 'CTkXYFrame' object has no attribute '_updating_scrollbar'">
+      <option name="closed" value="true" />
+      <created>1746734711839</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1746734711839</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -183,19 +241,19 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Limit Image Source to &quot;Local Images&quot; Only" />
+    <MESSAGE value="complete" />
     <MESSAGE value="fix error: AttributeError: 'CTkXYFrame' object has no attribute '_updating_scrollbar'" />
-    <MESSAGE value="fix error: read_image.py: -&gt;range" />
-    <MESSAGE value="add frontend test and fix some test error" />
-    <option name="LAST_COMMIT_MESSAGE" value="add frontend test and fix some test error" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix error: AttributeError: 'CTkXYFrame' object has no attribute '_updating_scrollbar'" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/OpenDrop_OP$function_window.coverage" NAME="function_window Coverage Results" MODIFIED="1746731319200" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/views" />
     <SUITE FILE_PATH="coverage/opendrop$pytest__classes_test_py__.coverage" NAME="pytest (classes_test.py 内) 覆盖结果" MODIFIED="1745998722434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/core" />
-    <SUITE FILE_PATH="coverage/opendrop$pytest__test_all_py__.coverage" NAME="pytest (test_all.py 内) 覆盖结果" MODIFIED="1745929782521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/opendrop$pytest_in_ca_preparation_test_py.coverage" NAME="pytest in ca_preparation_test.py 覆盖结果" MODIFIED="1746597626722" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/views" />
-    <SUITE FILE_PATH="coverage/OpenDrop_OP$main.coverage" NAME="main Coverage Results" MODIFIED="1744721541413" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/opendrop$pytest__ExtractData_test_py__.coverage" NAME="pytest (ExtractData_test.py 内) 覆盖结果" MODIFIED="1745929765817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/preprocessing" />
-    <SUITE FILE_PATH="coverage/opendrop$main.coverage" NAME="main 覆盖结果" MODIFIED="1744796749270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/opendrop$pytest__extract_profile_test_py__.coverage" NAME="pytest (extract_profile_test.py 内) 覆盖结果" MODIFIED="1745998826995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/contact_angle" />
     <SUITE FILE_PATH="coverage/opendrop$pytest_in_test_all_py.coverage" NAME="pytest in test_all.py 覆盖结果" MODIFIED="1744797071957" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/opendrop$main.coverage" NAME="main 覆盖结果" MODIFIED="1744796749270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/OpenDrop_OP$ca_acquisition.coverage" NAME="ca_acquisition Coverage Results" MODIFIED="1746731169033" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/views" />
+    <SUITE FILE_PATH="coverage/opendrop$pytest__extract_profile_test_py__.coverage" NAME="pytest (extract_profile_test.py 内) 覆盖结果" MODIFIED="1745998826995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/contact_angle" />
+    <SUITE FILE_PATH="coverage/opendrop$pytest__ExtractData_test_py__.coverage" NAME="pytest (ExtractData_test.py 内) 覆盖结果" MODIFIED="1745929765817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/preprocessing" />
+    <SUITE FILE_PATH="coverage/opendrop$pytest__test_all_py__.coverage" NAME="pytest (test_all.py 内) 覆盖结果" MODIFIED="1745929782521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/OpenDrop_OP$main.coverage" NAME="main Coverage Results" MODIFIED="1746734333815" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
