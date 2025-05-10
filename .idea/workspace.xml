@@ -4,18 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="fix error: read_image.py: -&gt;range">
-      <change beforePath="$PROJECT_DIR$/.coverage" beforeDir="false" />
+    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="add frontend test and fix some test error">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/contact_angle/extract_profile_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/contact_angle/extract_profile_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/classes_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/classes_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/fitting/BA_fit_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/fitting/BA_fit_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/image/read_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/image/read_image.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/preprocessing/ExtractData_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/preprocessing/ExtractData_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_all.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_navigation.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/test_navigation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_output_page.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/test_output_page.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/ift_analysis_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ift_analysis_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/ca_acquisition_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ca_acquisition_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/ift_acquisition_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ift_acquisition_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,11 +86,11 @@
       <recent name="D:\PyProject\OpenDrop_OP\modules\image" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\opendrop\views" />
       <recent name="D:\PyProject\OpenDrop_OP\modules\fitting" />
       <recent name="D:\PyProject\OpenDrop_OP\modules\preprocessing" />
       <recent name="D:\PyProject\OpenDrop_OP\modules\image" />
       <recent name="D:\PyProject\OpenDrop_OP\modules\core" />
-      <recent name="D:\PyProject\OpenDrop_OP\modules\contact_angle" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -133,7 +125,8 @@
       <workItem from="1746252112383" duration="1645000" />
       <workItem from="1746259835930" duration="180000" />
       <workItem from="1746602855032" duration="6873000" />
-      <workItem from="1746609857435" duration="779000" />
+      <workItem from="1746609857435" duration="2000000" />
+      <workItem from="1746890729288" duration="1269000" />
     </task>
     <task id="LOCAL-00001" summary="fix error: read_image.py: -&gt;range">
       <option name="closed" value="true" />
@@ -143,7 +136,23 @@
       <option name="project" value="LOCAL" />
       <updated>1746594721502</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="fix error: read_image.py: -&gt;range">
+      <option name="closed" value="true" />
+      <created>1746610866284</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1746610866284</updated>
+    </task>
+    <task id="LOCAL-00003" summary="add frontend test and fix some test error">
+      <option name="closed" value="true" />
+      <created>1746610911447</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1746610911447</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -176,7 +185,8 @@
     <MESSAGE value="Limit Image Source to &quot;Local Images&quot; Only" />
     <MESSAGE value="fix error: AttributeError: 'CTkXYFrame' object has no attribute '_updating_scrollbar'" />
     <MESSAGE value="fix error: read_image.py: -&gt;range" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix error: read_image.py: -&gt;range" />
+    <MESSAGE value="add frontend test and fix some test error" />
+    <option name="LAST_COMMIT_MESSAGE" value="add frontend test and fix some test error" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/opendrop$pytest__classes_test_py__.coverage" NAME="pytest (classes_test.py 内) 覆盖结果" MODIFIED="1745998722434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/core" />
