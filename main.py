@@ -63,7 +63,7 @@ def main():
         
         MainWindow(
             continue_processing,
-            lambda: call_user_input(FunctionType.PENDANT_DROP, fitted_drop_data),
+            lambda: call_user_input(FunctionType.INTERFACIAL_TENSION, fitted_drop_data),
             lambda: call_user_input(FunctionType.CONTACT_ANGLE, fitted_drop_data)
         )
 

@@ -20,21 +20,6 @@ class Tolerances(object):
         self.NEEDLE_TOL = needle_tol
         self.NEEDLE_STEPS = needle_steps
 
-
-# class ExperimentalSetup(object):
-#     def __init__(self):
-#         self.density_drop = None
-#         self.density_outer = None
-#         self.needle_diameter_m = None
-#         self.plot_residuals = None
-#         self.plot_profiles = None
-#         self.plot_IFT = None
-#         self.img_src = None
-#         self.total_images = None
-#         self.wait_time = None
-#         self.save_images = None
-#         self.filename = None
-
 class ExperimentalSetup(object):
     def __init__(self):
         self.screen_resolution = None
@@ -55,7 +40,8 @@ class ExperimentalSetup(object):
         self.show_popup = 0
         self.number_of_frames = None
         self.wait_time = None
-        self.save_images_boole = None
+        self.save_images_boole = False
+        self.create_folder_boole = False
         self.filename = None
         self.time_string = None
         self.local_files = None

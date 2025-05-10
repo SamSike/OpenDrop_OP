@@ -11,13 +11,14 @@ from views.helper.theme import *
 from views.helper.style import get_color, set_light_only_color
 from views.navigation import create_navigation
 
-from views.ift_acquisition import IftAcquisition
+from views.acquisition import Acquisition
+
 from views.ift_preparation import IftPreparation
 from views.ift_analysis import IftAnalysis
 
-from views.ca_acquisition import CaAcquisition
 from views.ca_preparation import CaPreparation
 from views.ca_analysis import CaAnalysis
+
 from views.output_page import OutputPage
 
 from utils.enums import FunctionType, Stage, Move
@@ -49,10 +50,6 @@ class FunctionWindow(CTk):
 
         user_input_data.screen_resolution = [
             self.winfo_screenwidth(), self.winfo_screenheight()]
-
-        # temp
-        user_input_data.save_images_boole = False
-        user_input_data.create_folder_boole = False
         
         self.widgets(function_type, user_input_data,experimental_drop,fitted_drop_data)
 
@@ -67,16 +64,9 @@ class FunctionWindow(CTk):
         
 
         # Initialise frame for first stage
-        self.ift_acquisition_frame = IftAcquisition(
-                self, user_input_data, fg_color=self.FG_COLOR)
-
-        self.ca_acquisition_frame = CaAcquisition(
-                self, user_input_data, fg_color=self.FG_COLOR)
-        
-        if function_type == FunctionType.PENDANT_DROP:
-            self.ift_acquisition_frame.pack(fill="both", expand=True)
-        elif function_type == FunctionType.CONTACT_ANGLE:
-            self.ca_acquisition_frame.pack(fill="both", expand=True)
+        self.acquisition_frame = Acquisition(
+                self, user_input_data, function_type, fg_color=self.FG_COLOR)      
+        self.acquisition_frame.pack(fill="both", expand=True)
 
         # Frame for navigation buttons
         self.button_frame = CTkFrame(self)
@@ -99,16 +89,17 @@ class FunctionWindow(CTk):
         self.update_stage(Move.Back.value)
         # Go back to the previous screen
         if self.current_stage == Stage.ACQUISITION:
+
             self.back_button.pack_forget()
-            if function_type == FunctionType.PENDANT_DROP:
-                self.ift_acquisition_frame.pack(fill="both", expand=True)
+            self.acquisition_frame.pack(fill="both", expand=True)
+
+            if function_type == FunctionType.INTERFACIAL_TENSION:
                 self.ift_preparation_frame.pack_forget()
             else:
-                self.ca_acquisition_frame.pack(fill="both", expand=True)
                 self.ca_preparation_frame.pack_forget()
 
         elif self.current_stage == Stage.PREPARATION:
-            if function_type == FunctionType.PENDANT_DROP:
+            if function_type == FunctionType.INTERFACIAL_TENSION:
                 self.ift_preparation_frame.pack(fill="both", expand=True)
                 self.ift_analysis_frame.pack_forget()
             else:
@@ -116,7 +107,7 @@ class FunctionWindow(CTk):
                 self.ca_analysis_frame.pack_forget()
 
         elif self.current_stage == Stage.ANALYSIS:
-            if function_type == FunctionType.PENDANT_DROP:
+            if function_type == FunctionType.INTERFACIAL_TENSION:
                 self.ift_analysis_frame.pack(fill="both", expand=True)
             else:
                 self.ca_analysis_frame.pack(fill="both", expand=True)
@@ -139,7 +130,7 @@ class FunctionWindow(CTk):
                 return
 
             # Then check if the frame interval is valid
-            # if function_type == FunctionType.PENDANT_DROP:
+            # if function_type == FunctionType.INTERFACIAL_TENSION:
             if not validate_frame_interval(user_input_data):
                 self.update_stage(Move.Back.value)
                 messagebox.showinfo("Missing", "Frame Interval is required.")
@@ -147,17 +138,13 @@ class FunctionWindow(CTk):
             self.back_button.pack(side="left", padx=10, pady=10)
 
             # user have selected at least one file
-            if function_type == FunctionType.PENDANT_DROP:
-                self.ift_acquisition_frame.pack_forget()
-
-                # Initialise Preparation frame
+            self.acquisition_frame.pack_forget()
+            # Initialise Preparation frame
+            if function_type == FunctionType.INTERFACIAL_TENSION:
                 self.ift_preparation_frame = IftPreparation(
                 self, user_input_data, experimental_drop,fg_color=self.FG_COLOR)
                 self.ift_preparation_frame.pack(fill="both", expand=True)
             else:
-                self.ca_acquisition_frame.pack_forget()
-
-                # Initialise Preparation frame
                 self.ca_preparation_frame = CaPreparation(
                 self, user_input_data, experimental_drop,fg_color=self.FG_COLOR)
                 self.ca_preparation_frame.pack(fill="both", expand=True) 
@@ -165,7 +152,7 @@ class FunctionWindow(CTk):
 
         elif self.current_stage == Stage.ANALYSIS:
             # Validate user input data
-            if function_type == FunctionType.PENDANT_DROP:
+            if function_type == FunctionType.INTERFACIAL_TENSION:
                 validation_messages = validate_user_input_data_ift(user_input_data)
             elif function_type == FunctionType.CONTACT_ANGLE:
                 validation_messages = validate_user_input_data_cm(user_input_data,experimental_drop)
@@ -176,7 +163,7 @@ class FunctionWindow(CTk):
                 # Show a single pop-up message with all validation messages
                 messagebox.showinfo("Missing: \n", all_messages)
             else:
-                if function_type == FunctionType.PENDANT_DROP:
+                if function_type == FunctionType.INTERFACIAL_TENSION:
                     self.ift_preparation_frame.pack_forget()
                     self.ift_analysis_frame = IftAnalysis(
                         self, user_input_data, fg_color=self.FG_COLOR)
@@ -199,7 +186,7 @@ class FunctionWindow(CTk):
                     self.deiconify()
 
         elif self.current_stage == Stage.OUTPUT:
-            if function_type == FunctionType.PENDANT_DROP:
+            if function_type == FunctionType.INTERFACIAL_TENSION:
                 self.ift_analysis_frame.pack_forget()
             else:
                 self.ca_analysis_frame.pack_forget()
@@ -216,7 +203,7 @@ class FunctionWindow(CTk):
             self.save_button.pack(side="right", padx=10, pady=10)
 
     def save_output(self, function_type, user_input_data):
-        if function_type == FunctionType.PENDANT_DROP:
+        if function_type == FunctionType.INTERFACIAL_TENSION:
             messagebox.showinfo("Messagebox", "TODO: save file")
             self.destroy()
         else:
