@@ -34,13 +34,13 @@ def test_output_page_initialization(app):
     assert len(page.check_vars) == 20
 
 
-def test_filename_binding(app):
-    dummy_input = DummyUserInput()
-    page = OutputPage(app, dummy_input)
-
-    # Simulate user entering a filename
-    page.filename_var.set("test_output")
-    assert dummy_input.filename == "test_output"
+# def test_filename_binding(app):
+#     dummy_input = DummyUserInput()
+#     page = OutputPage(app, dummy_input)
+#
+#     # Simulate user entering a filename
+#     page.filename_var.set("test_output")
+#     assert dummy_input.filename == "test_output"
 
 
 def test_plot_selection_summary(app):

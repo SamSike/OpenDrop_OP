@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="fix error: AttributeError: 'CTkXYFrame' object has no attribute '_updating_scrollbar'" />
+    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="fix error: AttributeError: 'CTkXYFrame' object has no attribute '_updating_scrollbar'">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/ca_preparation_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ca_preparation_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/ift_acquisition_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ift_acquisition_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/ift_analysis_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ift_analysis_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/test_navigation.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/test_navigation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/test_output_page.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/test_output_page.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,17 +31,17 @@
     &quot;assignee&quot;: &quot;mikufoxxx&quot;
   }
 }</component>
-  <component name="GitHubPullRequestState"><![CDATA[{
-  "prStates": [
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
     {
-      "id": {
-        "id": "PR_kwDOMg3dnM6VOM2f",
-        "number": 252
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOMg3dnM6VOM2f&quot;,
+        &quot;number&quot;: 252
       },
-      "lastSeen": 1746734712618
+      &quot;lastSeen&quot;: 1746734712618
     }
   ]
-}]]></component>
+}</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/SamSike/OpenDrop_OP.git&quot;,
@@ -65,7 +72,7 @@
     "Python.main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "#252 on responsive-design",
+    "git-widget-placeholder": "conan__ml/tests/conan__unit__test",
     "last_opened_file_path": "F:/opendrop/py38",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",

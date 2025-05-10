@@ -9,29 +9,24 @@ def dummy_user_input_data():
     class DummyData:
         import_files = ["dummy/path/image.png"]
         number_of_frames = 1
-        frame_interval = ""
+        frame_interval = "0"
         cv2_capture_num = ""
         genlcam_capture_num = ""
         image_source = "Local images"
     return DummyData()
 
 
+
+
 @pytest.fixture
 def ift_acquisition_instance(dummy_user_input_data):
-    root = tk.Tk()
-    root.withdraw()
-
-    with patch("views.ift_acquisition.CTkImage", MagicMock()), \
-         patch("views.ift_acquisition.CTkLabel", MagicMock()), \
-         patch("views.ift_acquisition.CTkEntry", MagicMock()), \
-         patch("views.ift_acquisition.CTkButton", MagicMock()), \
-         patch("views.ift_acquisition.CTkOptionMenu", MagicMock()), \
-         patch("views.ift_acquisition.CTkFrame", MagicMock()), \
-         patch("views.ift_acquisition.set_light_only_color", MagicMock()), \
+    with patch("views.ift_acquisition.IftAcquisition.__init__", return_value=None), \
          patch("views.ift_acquisition.Image.open", return_value=MagicMock()):
 
-        app = IftAcquisition(root, dummy_user_input_data)
+        app = IftAcquisition.__new__(IftAcquisition)
 
+        app.user_input_data = dummy_user_input_data
+        app.current_index = 0
         app.index_entry = MagicMock()
         app.index_entry.get.return_value = "1"
         app.index_entry.delete = MagicMock()
@@ -40,6 +35,9 @@ def ift_acquisition_instance(dummy_user_input_data):
         app.tk_image = MagicMock()
         app.current_image = MagicMock()
         return app
+
+
+
 
 
 def test_update_index_entry(ift_acquisition_instance):
