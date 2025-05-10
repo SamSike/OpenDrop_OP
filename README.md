@@ -60,24 +60,24 @@ Install [Python](https://www.python.org/downloads/release/python-3810/). Python 
 ## 3. Use the Application
 1. Select one of the functions: Contact Angle or Interfacial Tension
 
- ![Main Menu](./asserts/main_menu.png)
+ ![Main Menu](./assets/main_menu.png)
 
 2. Upload Image(s)
 
- ![Aquisition_1](./asserts/ca_aquisition_1.png)
- ![Aquisition_2](./asserts/ca_aquisition_2.png)
+ ![Aquisition_1](./assets/ca_aquisition_1.png)
+ ![Aquisition_2](./assets/ca_aquisition_2.png)
 
 3. Fill in user input. Note that the sample image is for contact angle, but the process is similar for interfacial tension.
    
- ![Preparation](./asserts/ca_preparation.png)
+ ![Preparation](./assets/ca_preparation.png)
 
 4. Click 'next' to view the result!
    
- ![Analysis](./asserts/ca_analysis.png)
+ ![Analysis](./assets/ca_analysis.png)
 
 5. Optionally save the result to a CSV file.
    
- ![Output](./asserts/output.png)
+ ![Output](./assets/output.png)
 
 # Developer & Contributor Guide
 ## Modular Design
@@ -98,7 +98,7 @@ Refer to:
 
 
 # High-Level Architecture Diagram
-![High-Level Project Plan](./asserts/high-level-project-diagram.png)
+![High-Level Project Plan](./assets/high-level-project-diagram.png)
 
 
 # Contact & Contribution
