@@ -13,7 +13,7 @@ def create_user_input_fields_ift(self, parent, user_input_data):
     """Create user input fields and return the frame containing them."""
     user_input_frame = CTkFrame(parent)
     set_light_only_color(user_input_frame, "innerframe")
-    user_input_frame.grid(row=1, column=0, columnspan=2, sticky="wens", padx=15, pady=15)
+    user_input_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=15, pady=15)
 
     # Configure the grid for the user_input_frame to be resizable
     user_input_frame.grid_rowconfigure(0, weight=0)  # No resizing for the label row
@@ -23,23 +23,18 @@ def create_user_input_fields_ift(self, parent, user_input_data):
 
     # Create a label for the dynamic content
     label = CTkLabel(user_input_frame, text="User Inputs", font=("Roboto", 16, "bold"))
-    label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
+    label.grid(row=0, column=0, padx=10, pady=5, sticky="w")  # Grid for label
 
     # Create a frame to hold all input fields
     input_fields_frame = CTkFrame(user_input_frame)
     set_light_only_color(input_fields_frame, "entry")
-    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
+    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew", columnspan=2)  # Grid for input fields frame
 
     # Configure the grid of the input_fields_frame to be resizable
-    input_fields_frame.grid_rowconfigure(0, weight=1)  # Allow first row to resize
-    input_fields_frame.grid_rowconfigure(1, weight=1)  # Allow second row to resize
-    input_fields_frame.grid_rowconfigure(2, weight=1)  # Allow third row to resize
-    input_fields_frame.grid_rowconfigure(3, weight=1)  # Allow fourth row to resize
-    input_fields_frame.grid_rowconfigure(4, weight=1)  # Allow fifth row to resize
-    input_fields_frame.grid_rowconfigure(5, weight=1)  # Allow sixth row to resize
-
-    input_fields_frame.grid_columnconfigure(0, weight=1)  # Allow first column to resize
-    input_fields_frame.grid_columnconfigure(1, weight=1)  # Allow second column to resize
+    for i in range(6):
+        input_fields_frame.grid_rowconfigure(i, weight=1)
+    input_fields_frame.grid_columnconfigure(0, weight=0)  # Label column fixed width (anchor='w' handles alignment)
+    input_fields_frame.grid_columnconfigure(1, weight=1)  # Widget column expands
 
     # Update the input value functions
     def update_drop_region_method(*args):
@@ -66,11 +61,14 @@ def create_user_input_fields_ift(self, parent, user_input_data):
         self, input_fields_frame, "Drop Region:", AUTO_MANUAL_OPTIONS, lambda *args: update_drop_region_method(*args), rw=0,
         default_value=user_input_data.drop_ID_method
     )
+    self.drop_region_method.optionmenu.grid_configure(sticky="ew")
+
     self.needle_region_method = OptionMenu(
         self, input_fields_frame, "Needle Region:", AUTO_MANUAL_OPTIONS, lambda *args: update_needle_region_method(*args), rw=1,
         default_value=user_input_data.needle_region_method
     )
-    
+    self.needle_region_method.optionmenu.grid_configure(sticky="ew")
+
     self.drop_density_method = FloatEntry(
         self, input_fields_frame, "Drop Density(kg/m³):", lambda *args: update_drop_density(*args), rw=2,
         default_value=user_input_data.drop_density
@@ -98,20 +96,32 @@ def create_user_input_fields_ift(self, parent, user_input_data):
 def create_analysis_checklist_ift(self,parent,user_input_data):
 
     analysis_clist_frame = CTkFrame(parent)
+    # Ensure the frame itself expands within its parent grid cell
     set_light_only_color(analysis_clist_frame, "innerframe")
-    analysis_clist_frame.grid(row=1, column=0, columnspan=2, sticky="wens", padx=15, pady=15)
+    analysis_clist_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=15, pady=15) # Changed sticky to nsew
+
+    # --- Configure analysis_clist_frame's internal grid ---
+    analysis_clist_frame.grid_rowconfigure(0, weight=0)  # Label row fixed
+    analysis_clist_frame.grid_rowconfigure(1, weight=1)  # input_fields_frame row expands
+    analysis_clist_frame.grid_columnconfigure(0, weight=1) # Column expands
 
     # Create a label for the dynamic content
     label = CTkLabel(analysis_clist_frame, text="Analysis methods", font=("Roboto", 16, "bold"))
-    label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
+    label.grid(row=0, column=0, padx=10, pady=5, sticky="w") # Removed columnspan
 
     # Create a frame to hold all input fields
     input_fields_frame = CTkFrame(analysis_clist_frame)
+    # Make this frame expand within analysis_clist_frame's row 1
     set_light_only_color(input_fields_frame, "entry")
-    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
+    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew") # Changed sticky to nsew
+
+    # --- Configure input_fields_frame's internal grid ---
+    # Only one checkbox here at rw=0, cl=0
+    input_fields_frame.grid_rowconfigure(0, weight=1)
+    input_fields_frame.grid_columnconfigure(0, weight=1) # Maybe make checkbox expand? Or keep fixed? Let's try weight=1.
 
     def update_default_method_boole(*args):
-        user_input_data.analysis_methods_pd[INTERFACIAL_TENSION] = self.default_method_boole.get_value()  
+        user_input_data.analysis_methods_pd[INTERFACIAL_TENSION] = self.default_method_boole.get_value()
 
     self.default_method_boole = CheckButton(
         self, input_fields_frame, "Interfacial Tension", update_default_method_boole, rw=0, cl=0,
@@ -124,16 +134,27 @@ def create_user_inputs_cm(self,parent,user_input_data):
     # Create the user input frame
     user_input_frame = CTkFrame(parent)
     set_light_only_color(user_input_frame, "innerframe")
-    user_input_frame.grid(row=1, column=0, columnspan=2, sticky="wens", padx=15, pady=15)
+    user_input_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=15, pady=15)
+
+    # Configure user_input_frame's internal grid
+    user_input_frame.grid_rowconfigure(0, weight=0)  # Label row fixed
+    user_input_frame.grid_rowconfigure(1, weight=1)  # input_fields_frame row expands
+    user_input_frame.grid_columnconfigure(0, weight=1)  # Allow column to expand
 
     # Create a label for the dynamic content
     label = CTkLabel(user_input_frame, text="User Inputs", font=("Roboto", 16, "bold"))
-    label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+    label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
     # Create a frame to hold all input fields
     input_fields_frame = CTkFrame(user_input_frame)
     set_light_only_color(input_fields_frame, "entry")
-    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")
+    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
+
+    # Configure the grid of input_fields_frame to be resizable
+    for i in range(6):
+        input_fields_frame.grid_rowconfigure(i, weight=1)
+    input_fields_frame.grid_columnconfigure(0, weight=0)  # Label column fixed width
+    input_fields_frame.grid_columnconfigure(1, weight=1)  # Widget column expands
 
     # Define update functions for each input
     def update_drop_id_method(*args):
@@ -166,29 +187,37 @@ def create_user_inputs_cm(self,parent,user_input_data):
         self, input_fields_frame, "Drop ID method:", DROP_ID_OPTIONS,
         lambda *args: update_drop_id_method(*args), rw=0, default_value=user_input_data.drop_ID_method
     )
+    self.drop_ID_method.optionmenu.grid_configure(sticky="ew")
+
     self.threshold_method = OptionMenu(
         self, input_fields_frame, "Threshold value selection method:", THRESHOLD_OPTIONS,
         lambda *args: update_threshold_method(*args), rw=1, default_value=user_input_data.threshold_method
     )
+    self.threshold_method.optionmenu.grid_configure(sticky="ew")
+
     self.threshold_val = FloatEntry(
         self, input_fields_frame, "Threshold value (ignored if method=Automated):",
         lambda *args: update_threshold_value(*args), rw=2, default_value=user_input_data.threshold_val
     )
+    self.threshold_val.entry.grid_configure(sticky="ew")
+
     self.baseline_method = OptionMenu(
         self, input_fields_frame, "Baseline selection method:", BASELINE_OPTIONS,
         lambda *args: update_baseline_method(*args), rw=3, default_value=user_input_data.baseline_method
     )
+    self.baseline_method.optionmenu.grid_configure(sticky="ew")
+
     self.density_outer = FloatEntry(
         self, input_fields_frame, "Continuous density (kg/m³):",
         lambda *args: update_density_outer(*args), rw=4, default_value=user_input_data.density_outer
     )
+    self.density_outer.entry.grid_configure(sticky="ew")
+
     self.needle_diameter = FloatCombobox(
         self, input_fields_frame, "Needle diameter (mm):", NEEDLE_OPTIONS,
         lambda *args: update_needle_diameter(*args), rw=5, default_value=user_input_data.needle_diameter_mm
     )
-
-    # Configure grid columns in the input fields frame
-    input_fields_frame.grid_columnconfigure(0, minsize=LABEL_WIDTH)
+    self.needle_diameter.combobox.grid_configure(sticky="ew")
 
     return user_input_frame
 
@@ -197,16 +226,30 @@ def create_plotting_checklist(self, parent, user_input_data):
     # Create the plotting checklist frame
     plotting_clist_frame = CTkFrame(parent)
     set_light_only_color(plotting_clist_frame, "innerframe")
-    plotting_clist_frame.grid(row=1, column=2, columnspan=1, sticky="wens", padx=15, pady=15)
+    # Ensure this frame expands. Adjust grid position (row, column, columnspan) as needed by the caller (ca_preparation.py)
+    # Assuming row=1, column=2, columnspan=1 was intended placement in parent grid
+    plotting_clist_frame.grid(row=2, column=0, sticky="nsew", padx=15, pady=15) # Adjusted grid based on ca_preparation call, Changed sticky
+
+    # --- Configure plotting_clist_frame's internal grid ---
+    plotting_clist_frame.grid_rowconfigure(0, weight=0) # Label row fixed
+    plotting_clist_frame.grid_rowconfigure(1, weight=1) # input_fields_frame row expands
+    plotting_clist_frame.grid_columnconfigure(0, weight=1) # Column expands
+
 
     # Create a label for the checklist
-    label = CTkLabel(plotting_clist_frame, text="To view during fitting(ignored if method = User-selected)", font=("Roboto", 16, "bold"))
+    label = CTkLabel(plotting_clist_frame, text="Visible during fitting (method = automated)", font=("Roboto", 16, "bold"))
     label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
 
     # Create a frame to hold all checkbox fields
     input_fields_frame = CTkFrame(plotting_clist_frame)
     set_light_only_color(input_fields_frame, "entry")
-    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
+    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew") # Changed sticky to nsew
+
+    # --- Configure input_fields_frame's internal grid ---
+    # Checkboxes are in rows 0, 1, 2 and column 0
+    for i in range(3): # Rows 0, 1, 2
+        input_fields_frame.grid_rowconfigure(i, weight=1)
+    input_fields_frame.grid_columnconfigure(0, weight=1) # Single column expands
 
     # Define update functions for each checkbox
     def update_original_boole(*args):
@@ -236,16 +279,31 @@ def create_analysis_checklist_cm(self, parent, user_input_data):
     # Create the analysis checklist frame
     analysis_clist_frame = CTkFrame(parent)
     set_light_only_color(analysis_clist_frame, "innerframe")
-    analysis_clist_frame.grid(row=3, columnspan=4, sticky="wens", padx=15, pady=15)
+    # Ensure the frame itself expands, adjust columnspan if needed based on parent layout
+    # Assuming row=3 is correct from previous code. Columnspan 4 seems large, maybe 2 is enough if parent has 2 cols? Let's try 2.
+    analysis_clist_frame.grid(row=3, columnspan=2, sticky="nsew", padx=15, pady=15) # Changed sticky, adjusted columnspan
+
+    # --- Configure analysis_clist_frame's internal grid ---
+    analysis_clist_frame.grid_rowconfigure(0, weight=0)  # Label row fixed
+    analysis_clist_frame.grid_rowconfigure(1, weight=1)  # input_fields_frame row expands
+    analysis_clist_frame.grid_columnconfigure(0, weight=1) # Column expands
+
 
     # Create a label for the analysis checklist
     label = CTkLabel(analysis_clist_frame, text="Analysis methods", font=("Roboto", 16, "bold"))
-    label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
+    label.grid(row=0, column=0, padx=10, pady=5, sticky="w") # Removed columnspan
 
     # Create a frame to hold all checkbox fields
     input_fields_frame = CTkFrame(analysis_clist_frame)
     set_light_only_color(input_fields_frame, "entry")
-    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="wens")  # Grid for input fields frame
+    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew") # Changed sticky to nsew
+
+    # --- Configure input_fields_frame's internal grid ---
+    # Checkboxes are in rows 0, 1, 2 and columns 0, 1
+    for i in range(3): # Rows 0, 1, 2
+        input_fields_frame.grid_rowconfigure(i, weight=1)
+    for j in range(2): # Columns 0, 1
+        input_fields_frame.grid_columnconfigure(j, weight=1)
 
     # Define update functions for each checkbox
     def update_tangent_boole(*args):

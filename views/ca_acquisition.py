@@ -1,59 +1,56 @@
 from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkImage
 from tkinter import filedialog, messagebox
-from PIL import Image
-import os
+from PIL import Image, ImageTk
 
 from utils.image_handler import ImageHandler
 from utils.config import PATH_TO_SCRIPT, IMAGE_TYPE, FILE_SOURCE_OPTIONS_CA, EDGEFINDER_OPTIONS
 from views.component.option_menu import OptionMenu
 from views.component.integer_entry import IntegerEntry
 from views.helper.style import set_light_only_color
-
-IMAGE_FRAME_WIDTH = 600
-IMAGE_FRAME_HEIGHT = 400
+import os
 
 class CaAcquisition(CTkFrame):
     def __init__(self, parent, user_input_data, **kwargs):
         super().__init__(parent, **kwargs)
 
         self.user_input_data = user_input_data
-
         self.image_handler = ImageHandler()
+        self.current_image = None
+        self.tk_image = None
+
+        self._resize_job = None
+        self.resize_delay_ms = 100
 
         self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=0)
+        self.grid_columnconfigure(1, weight=1)
 
         self.input_fields_frame = CTkFrame(self)
         set_light_only_color(self.input_fields_frame, "outerframe")
-        self.input_fields_frame.grid(row=0, column=0, sticky="nsew", padx=15, pady=(
-            10, 0))  # Left side for input fields
+        self.input_fields_frame.grid(row=0, column=0, sticky="ns", padx=15, pady=(10, 0))
 
         image_acquisition_frame = CTkFrame(self.input_fields_frame)
         set_light_only_color(image_acquisition_frame, "entry")
         image_acquisition_frame.grid(sticky="nw", padx=15, pady=10)
-
         image_acquisition_frame.grid_columnconfigure(2, weight=1)
 
-        # self.image_source = OptionMenu(self, image_acquisition_frame, "Image source:",
-        #                                     FILE_SOURCE_OPTIONS_CA, self.update_image_source, rw=0)
         self.image_source = OptionMenu(self, image_acquisition_frame, "Image source:",
                                        ["Local images"], self.update_image_source, rw=0)
-
         self.setup_choose_files_frame(image_acquisition_frame)
-
         self.edgefinder = OptionMenu(
-            self, image_acquisition_frame, "Edge finder:", EDGEFINDER_OPTIONS, self.update_edgefinder, rw=2)  # added by DS 31/5/21
-
+            self, image_acquisition_frame, "Edge finder:", EDGEFINDER_OPTIONS, self.update_edgefinder, rw=2)
         self.frame_interval = IntegerEntry(
             self, image_acquisition_frame, "frame_interval (s):", self.update_frame_interval, rw=4, cl=0,
             default_value=self.user_input_data.frame_interval)
         
-        self.images_frame = CTkFrame(self)
-        
+        self.images_frame = CTkFrame(self, fg_color="transparent")
+        self.images_frame.grid(row=0, column=1, sticky="nsew", padx=15, pady=(10, 0))
+        self.images_frame.grid_rowconfigure(0, weight=1)
+        self.images_frame.grid_columnconfigure(0, weight=1)
 
     def update_image_source(self, selection):
         print(selection)
         if selection == FILE_SOURCE_OPTIONS_CA[0]:
-            # local images
             self.choose_files_button.configure(state="normal")
         else:
             self.choose_files_button.configure(state="disabled")
@@ -80,49 +77,58 @@ class CaAcquisition(CTkFrame):
     
 
     def select_files(self):
-        # Clear previous images
-        self.images_frame.destroy()      
+        for widget in self.images_frame.winfo_children():
+            widget.destroy()
+        self.image_label = None
+        self.name_label = None
+        self.image_navigation_frame = None
+        self.tk_image = None
+        self.current_image = None
+        if self._resize_job:
+            self.after_cancel(self._resize_job)
+            self._resize_job = None
 
-        self.user_input_data.import_files = filedialog.askopenfilenames(
+        import_files = filedialog.askopenfilenames(
             title="Select Files",
             filetypes=IMAGE_TYPE,
             initialdir=PATH_TO_SCRIPT
         )
 
-        self.current_index = 0
+        if not import_files:
+             self.choose_files_button.configure(text="Choose File(s)")
+             return
 
+        self.user_input_data.import_files = import_files
+        self.current_index = 0
         num_files = len(self.user_input_data.import_files)
         self.user_input_data.number_of_frames = num_files
 
-        if num_files > 0:
-            self.choose_files_button.configure(
-                text=f"{num_files} File(s) Selected")
+        self.choose_files_button.configure(text=f"{num_files} File(s) Selected")
 
-            self.images_frame = CTkFrame(self)
-            set_light_only_color(self.images_frame, "outerframe")
-            self.images_frame.grid(row=0, column=1, sticky="nsew", padx=15, pady=(10, 0))
-            self.initialize_image_display(self.images_frame)
-
-        else:
-            self.choose_files_button.configure(text="Choose File(s)")  # Reset if no files were chosen
-            messagebox.showinfo("No Selection", "No files were selected.")
+        self.initialize_image_display(self.images_frame)
 
 
     def initialize_image_display(self, frame):
-        display_frame = CTkFrame(frame)
+        display_frame = CTkFrame(frame, fg_color="transparent")
         set_light_only_color(display_frame, "innerframe")
-        display_frame.grid(sticky="nsew", padx=15, pady=(10, 0))
+        display_frame.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
 
-        self.image_label = CTkLabel(display_frame, text="", fg_color="lightgrey", width=IMAGE_FRAME_WIDTH, height=IMAGE_FRAME_HEIGHT)
-        self.image_label.grid(padx=10, pady=(10, 5))
+        display_frame.grid_columnconfigure(0, weight=1)
+        display_frame.grid_rowconfigure(0, weight=0)
+        display_frame.grid_rowconfigure(1, weight=1)
+        display_frame.grid_rowconfigure(2, weight=0)
+
+        self.image_label = CTkLabel(display_frame, text="", fg_color="lightgrey")
+        self.image_label.grid(row=1, column=0, padx=10, pady=(10, 5), sticky="nsew")
+        self.image_label.bind('<Configure>', self.on_label_resize)
 
         file_name = os.path.basename(self.user_input_data.import_files[self.current_index])
         self.name_label = CTkLabel(display_frame, text=file_name)
-        self.name_label.grid()
+        self.name_label.grid(row=0, column=0, pady=(5,0))
 
-        self.image_navigation_frame = CTkFrame(display_frame)
+        self.image_navigation_frame = CTkFrame(display_frame, fg_color="transparent")
         set_light_only_color(self.image_navigation_frame, "entry")
-        self.image_navigation_frame.grid(pady=20)
+        self.image_navigation_frame.grid(row=2, column=0, pady=(5, 10))
 
         self.prev_button = CTkButton(self.image_navigation_frame, text="<", command=lambda: self.change_image(-1), width=3)
         self.prev_button.grid(row=0, column=0, padx=5, pady=5)
@@ -141,58 +147,109 @@ class CaAcquisition(CTkFrame):
         self.load_image(self.user_input_data.import_files[self.current_index])
 
     def load_image(self, selected_image):
-        """Load and display the selected image."""
         try:
             self.current_image = Image.open(selected_image)
-            self.display_image()
-            
+            if hasattr(self, 'image_label') and self.image_label.winfo_exists() and self.image_label.winfo_width() > 1:
+                 self._perform_resize()
         except FileNotFoundError:
             print(f"Error: The image file {selected_image} was not found.")
             self.current_image = None
+            if hasattr(self, 'image_label') and self.image_label:
+                self.image_label.configure(image=None, text=f"Not Found:\n{os.path.basename(selected_image)}")
+        except Exception as e:
+            print(f"Error loading image {selected_image}: {e}")
+            self.current_image = None
+            if hasattr(self, 'image_label') and self.image_label:
+                self.image_label.configure(image=None, text="Error Loading")
 
-    def display_image(self):
-        """Display the currently loaded image."""
-        width, height = self.current_image.size
-        new_width, new_height = self.image_handler.get_fitting_dimensions(width, height, max_width=IMAGE_FRAME_WIDTH, max_height=IMAGE_FRAME_HEIGHT)
-        self.tk_image = CTkImage(self.current_image, size=(new_width, new_height))
-        self.image_label.configure(image=self.tk_image)
-        # Keep a reference to avoid garbage collection
-        self.image_label.image = self.tk_image
+    def display_image(self, target_width, target_height):
+        if self.current_image and target_width > 1 and target_height > 1:
+            try:
+                original_width, original_height = self.current_image.size
+                aspect_ratio = original_width / original_height
+
+                new_width = target_width
+                new_height = int(new_width / aspect_ratio)
+                if new_height > target_height:
+                    new_height = target_height
+                    new_width = int(new_height * aspect_ratio)
+
+                new_width = max(1, new_width)
+                new_height = max(1, new_height)
+
+                resized_pil_image = self.current_image.copy()
+                resized_pil_image.thumbnail((new_width, new_height), Image.Resampling.LANCZOS)
+
+                self.tk_image = CTkImage(
+                    light_image=resized_pil_image,
+                    size=(resized_pil_image.width, resized_pil_image.height)
+                    )
+
+                if hasattr(self, 'image_label') and self.image_label:
+                    self.image_label.configure(image=self.tk_image, text="")
+                    self.image_label.image = self.tk_image
+            except Exception as e:
+                print(f"Error resizing/displaying image: {e}")
+                if hasattr(self, 'image_label') and self.image_label:
+                    self.image_label.configure(image=None, text="Display Error")
+        elif hasattr(self, 'image_label') and self.image_label:
+             self.image_label.configure(image=None, text="No Image")
+             self.image_label.image = None
+
+    def _perform_resize(self):
+        if not hasattr(self, 'image_label') or not self.image_label.winfo_exists():
+            return
+        widget_width = self.image_label.winfo_width()
+        widget_height = self.image_label.winfo_height()
+        pad_x = 0
+        pad_y = 0
+        target_width = max(1, widget_width - pad_x)
+        target_height = max(1, widget_height - pad_y)
+
+        self.display_image(target_width, target_height)
+        self._resize_job = None
+
+    def on_label_resize(self, event):
+        if self._resize_job:
+            self.after_cancel(self._resize_job)
+        self._resize_job = self.after(self.resize_delay_ms, self._perform_resize)
 
     def change_image(self, direction):
-        """Change the currently displayed image based on the direction."""
         if self.user_input_data.import_files:
-            self.current_index = (
-                self.current_index + direction) % self.user_input_data.number_of_frames
-            # Load the new image
-            self.load_image(
-                self.user_input_data.import_files[self.current_index])
-            self.update_index_entry()  # Update the entry with the current index
-            file_name = os.path.basename(
-                self.user_input_data.import_files[self.current_index])
-            self.name_label.configure(text=file_name)
+            self.current_index = (self.current_index + direction) % self.user_input_data.number_of_frames
+            self.load_image(self.user_input_data.import_files[self.current_index])
+            self.update_index_entry()
+            if hasattr(self, 'name_label') and self.name_label:
+                 file_name = os.path.basename(self.user_input_data.import_files[self.current_index])
+                 self.name_label.configure(text=file_name)
 
     def update_index_from_entry(self):
-        """Update current index based on user input in the entry."""
         try:
-            new_index = int(self.index_entry.get()) - \
-                1  # Convert to zero-based index
+            new_index = int(self.index_entry.get()) - 1
             if 0 <= new_index < self.user_input_data.number_of_frames:
-                self.current_index = new_index
-                # Load the new image
-                self.load_image(
-                    self.user_input_data.import_files[self.current_index])
+                if new_index != self.current_index:
+                     self.current_index = new_index
+                     self.load_image(self.user_input_data.import_files[self.current_index])
+                     if hasattr(self, 'name_label') and self.name_label:
+                         file_name = os.path.basename(self.user_input_data.import_files[self.current_index])
+                         self.name_label.configure(text=file_name)
             else:
                 print("Index out of range.")
+                self.update_index_entry()
         except ValueError:
             print("Invalid input. Please enter a number.")
-
-        self.update_index_entry()  # Update the entry display
+            self.update_index_entry()
+        except Exception as e:
+             print(f"Error updating index: {e}")
+             self.update_index_entry()
 
 
     def update_index_entry(self):
-        """Update the index entry to reflect the current index."""
-        self.index_entry.delete(0, 'end')  # Clear the current entry
-        # Insert the new index (1-based)
-        self.index_entry.insert(0, str(self.current_index + 1))
-    
+        if hasattr(self, 'index_entry') and self.index_entry:
+            self.index_entry.delete(0, 'end')
+            self.index_entry.insert(0, str(self.current_index + 1))
+
+    def destroy(self):
+        if self._resize_job:
+            self.after_cancel(self._resize_job)
+        super().destroy()
