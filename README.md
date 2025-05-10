@@ -68,6 +68,35 @@ Minimum: 2 GB RAM, supports USB cameras
 Recommended: 4 GB RAM, NVIDIA GPU for ML inference
 
 
+# Developer & Contributor Guide
+## Modular Design
+OpenDrop-ML emphasizes extensibility:
+
+Add a new fitting method: See modules/fits.py
+
+Add a UI component: See views/component/
+
+Add a page: Update views/function_window.py
+
+## Backend & UI Extensions
+Refer to:
+
+“Add Backend Module Steps – Guide to adding new models”
+
+“Add Frontend Module Steps – UI integration tutorial”
+
+
+# High-Level Architecture Diagram
+![High-Level Project Plan](./asserts/high-level-project-diagram.png)
+
+
+# Contact & Contribution
+
+OpenDrop-ML is an open-source project. Contributions are welcome!
+
+- GitHub: https://github.com/SamSike/OpenDrop_OP
+- For issues, use GitHub issue tracker
+
 # Appropriate use
 
 This section has been included as many users of Conan-ML will not be familiar
@@ -97,33 +126,3 @@ This work presents an automated process, which still requires improvement,
 but will likely be suitable for high contrast images. Users are recommended
 to check that the detected edge is reasonable prior to accepting the results
 outputted by any fitting or angle prediction approach.
-
-
-# Developer & Contributor Guide
-## Modular Design
-OpenDrop-ML emphasizes extensibility:
-
-Add a new fitting method: See modules/fits.py
-
-Add a UI component: See views/component/
-
-Add a page: Update views/function_window.py
-
-## Backend & UI Extensions
-Refer to:
-
-“Add Backend Module Steps – Guide to adding new models”
-
-“Add Frontend Module Steps – UI integration tutorial”
-
-
-# High-Level Architecture Diagram
-![High-Level Project Plan](./High-Level%20Project%20Diagram_v2.png)
-
-
-# Contact & Contribution
-
-OpenDrop-ML is an open-source project. Contributions are welcome!
-
-- GitHub: https://github.com/SamSike/OpenDrop_OP
-- For issues, use GitHub issue tracker
