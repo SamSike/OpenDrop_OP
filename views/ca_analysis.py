@@ -115,11 +115,8 @@ class CaAnalysis(CTkFrame):
             
             # Get cropped image from experimental_drop
             cropped_cv = None
-            print(f"experimental_drop is not None: {experimental_drop is not None}")
-            print(f"hasattr(experimental_drop, 'cropped_image'): {hasattr(experimental_drop, 'cropped_image')}")
             if experimental_drop is not None and hasattr(experimental_drop, 'cropped_image'):
                 cropped_cv = experimental_drop.cropped_image
-                print("Retrieved cropped image from experimental_drop")
             
             # Convert to PIL image and save
             if cropped_cv is not None:
@@ -299,9 +296,6 @@ class CaAnalysis(CTkFrame):
                             break
 
                     # Draw annotations on cropped image
-                    print(f"Index: {index}")
-                    print(f"self.cropped_images:{self.cropped_images}")
-                    print(f"Index in self.cropped_images: {index in self.cropped_images}")
                     if contact_points is not None and tangent_lines is not None and index in self.cropped_images:
                         print(f"Creating angle annotations on cropped image")
 
