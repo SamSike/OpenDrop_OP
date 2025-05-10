@@ -10,3 +10,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 outputs/123_2025-04-16-195635.csv
+
+*windows-installer.wixobj
+*OpenDrop.wixpdb
+*main.spec
+dist/
+build/

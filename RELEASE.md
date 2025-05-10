@@ -6,7 +6,9 @@
 
     (Optional: Install WiX Visual Studio Extension)
 
-2. Ensure pyinstaller is installed
+2. Ensure PATH (system environmental variables) contains WiX
+
+3. Ensure pyinstaller is installed
 
     ```bash
     pip install pyinstaller
@@ -14,6 +16,20 @@
 
 ## Windows Release (msi)
 
-```bash
-pyinstaller --onefile main.py
-```
+1. Update `windows-installer.wxs`:
+
+    1. Create new GUID (using powershell)
+        ```powershell
+        [guid]::NewGuid()
+        ```
+    2. Update version number in Product tag
+
+2. Create msi installer
+
+    ```bash
+    pyinstaller --onefile main.py
+    candle windows-installer.wxs
+    light windows-installer.wixobj -o OpenDrop.msi
+    ```
+
+3. Ensure build files are not pushed to git
