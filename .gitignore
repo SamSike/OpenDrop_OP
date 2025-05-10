@@ -81,3 +81,8 @@ dependencies/macos_arm64/
 # Shared libraries and binaries
 modules/ift/hough/*.so
 modules/ift/younglaplace/*.so
+
+# msi installer files
+*windows-installer.wixobj
+*OpenDrop.wixpdb
+*main.spec
