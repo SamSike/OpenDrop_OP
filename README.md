@@ -1,28 +1,72 @@
-# Conan-ML
+# OpenDrop-ML 
 
-Conan-ML software is a tool engineered for precise and automated
-processing and analysis of contact angle data. The software utilizes image
-processing algorithms to analyze captured images of droplets on surfaces.
-Current implementation is only optimised for high angle systems. More information
-about the method and accuracy is available here: 
-https://doi.org/10.1021/acs.langmuir.4c01050
+OpenDrop-ML is an open-source, cross-platform tool for analyzing liquid droplets in surface science using contact angle and pendant drop methods. It integrates classical geometric fitting with machine learning models (via Conan-ML), providing flexible, automated, and high-throughput image processing for researchers, technicians, and developers.
 
-# Dependencies
+Current ML implementation is optimized for high angle systems. For lower angle or extreme curvature drops, verification of results is strongly advised. See: https://doi.org/10.1021/acs.langmuir.4c01050
 
-Conan-ML is written to run on python3.6+. The packages required to run
-conan ML must be installed in your Python environment. These are included
-listed in requirements.txt and can be install using
+# Features
 
-pip install -r requirements-3810.txt
+- Contact Angle & Pendant Drop Analysis
 
-# Usage
+- Multiple Fitting Algorithms: Polynomial, circular, elliptical, Young-Laplace
 
-To load  Conan-ML GUI run the conan.py file using
+- Integrated ML Prediction (Conan-ML) for contact angles
 
-python main.py
+- High-throughput Batch Processing of images & videos
 
-However, functions from each file of the modules directory can be called
-for a more customised approach.
+- Cross-platform Support: Windows, macOS, Linux
+
+- User-friendly GUI built with CustomTkinter
+
+- Modular Backend for easy customization and extension
+
+
+# Code Structure Overview
+
+```
+/ (project root)
+├── main.py                  # Application entry point
+├── modules/                 # Core backend logic (fitting, processing, ML)
+│   ├── fits.py              # Dispatcher for fitting methods
+│   ├── BA_fit.py, ellipse_fit.py, etc.
+│   └── ML_model/            # TensorFlow model, input-output conversion
+├── views/                  # Frontend UI (CustomTkinter)
+│   ├── ca_*.py, ift_*.py    # CA/IFT workflows (acquisition → output)
+│   ├── component/           # Reusable UI widgets
+│   └── function_window.py   # Navigation controller
+├── utils/                  # Helper code (config, validation, image IO)
+├── tests/                  # Unit and integration tests
+└── training files/         # ML training scripts and data
+```
+
+------
+
+
+# Quick Start
+## 1. Install Requirements
+Python 3.8+ is recommended
+
+`pip install -r requirements-3810.txt`
+
+## 2. Run the Application
+`python main.py`
+
+## 3. Use the Interface
+1.Select: Contact Angle or Interfacial Tension
+
+2.Upload Image(s)
+
+3.Choose Fitting Method(s)
+
+4.Run → View Results → Export (CSV)
+
+## System Requirements
+Python: 3.8+
+
+Minimum: 2 GB RAM, supports USB cameras
+
+Recommended: 4 GB RAM, NVIDIA GPU for ML inference
+
 
 # Appropriate use
 
@@ -55,4 +99,31 @@ to check that the detected edge is reasonable prior to accepting the results
 outputted by any fitting or angle prediction approach.
 
 
+# Developer & Contributor Guide
+## Modular Design
+OpenDrop-ML emphasizes extensibility:
 
+Add a new fitting method: See modules/fits.py
+
+Add a UI component: See views/component/
+
+Add a page: Update views/function_window.py
+
+## Backend & UI Extensions
+Refer to:
+
+“Add Backend Module Steps – Guide to adding new models”
+
+“Add Frontend Module Steps – UI integration tutorial”
+
+
+# High-Level Architecture Diagram
+![High-Level Project Plan](./High-Level%20Project%20Diagram_v2.png)
+
+
+# Contact & Contribution
+
+OpenDrop-ML is an open-source project. Contributions are welcome!
+
+- GitHub: https://github.com/SamSike/OpenDrop_OP
+- For issues, use GitHub issue tracker
