@@ -6,6 +6,7 @@ from views.component.float_combobox import FloatCombobox
 from views.component.check_button import CheckButton
 from views.helper.style import set_light_only_color
 from utils.enums import FittingMethod
+from utils.tooltip_util import create_tooltip
 LABEL_WIDTH = 200  # Adjust as needed
 
 # ift [User Input]
@@ -88,6 +89,15 @@ def create_user_input_fields_ift(self, parent, user_input_data):
         self, input_fields_frame, "Pixel scale(px/mm):", lambda *args: update_pixel_mm(*args), rw=5,
         default_value=user_input_data.pixel_mm
     )
+
+    # Add tooltip messages
+    create_tooltip(self.drop_region_method.label, "Select how to detect the droplet region: automatic or manual selection.")
+    create_tooltip(self.needle_region_method.label, "Select how to detect the needle region: automatic or manual selection.")
+    create_tooltip(self.drop_density_method.label, "Enter the density of the droplet in kg/m³.")
+    create_tooltip(self.continuous_density.label, "Enter the density of the surrounding fluid in kg/m³.")
+    create_tooltip(self.needle_diameter.label, "Enter the needle diameter, used for calculating interfacial tension from the image.")
+    create_tooltip(self.pixel_mm.label, "Conversion ratio between pixels and millimeters, used for size calculation.")
+
 
     # Returning the user input frame
     return user_input_frame
