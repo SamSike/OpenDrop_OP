@@ -6,8 +6,7 @@ from utils.config import *
 class OptionMenu():
     def __init__(self, parent, frame, text_left, options_list, callback, rw=0, padx=(5, 5), pady=(5, 5), default_value=None, width_specify=150, label_width=150):
         self.entry_list = options_list
-        self.label = ctk.CTkLabel(
-            frame, text=text_left, width=label_width, anchor="w")
+        self.label = ctk.CTkLabel(frame, text=text_left, width=label_width, anchor="w")
         self.label.grid(row=rw, column=0, sticky="w", padx=padx, pady=pady)
         
         # Initialize StringVar and set default value if provided

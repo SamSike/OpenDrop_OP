@@ -40,7 +40,7 @@ class CaAcquisition(CTkFrame):
         self.edgefinder = OptionMenu(
             self, image_acquisition_frame, "Edge finder:", EDGEFINDER_OPTIONS, self.update_edgefinder, rw=2)
         self.frame_interval = IntegerEntry(
-            self, image_acquisition_frame, "frame_interval (s):", self.update_frame_interval, rw=4, cl=0,
+            self, image_acquisition_frame, "Frame interval (s):", self.update_frame_interval, rw=4, cl=0,
             default_value=self.user_input_data.frame_interval)
         
         self.images_frame = CTkFrame(self, fg_color="transparent")
@@ -49,7 +49,6 @@ class CaAcquisition(CTkFrame):
         self.images_frame.grid_columnconfigure(0, weight=1)
 
     def update_image_source(self, selection):
-        print(selection)
         if selection == FILE_SOURCE_OPTIONS_CA[0]:
             self.choose_files_button.configure(state="normal")
         else:
@@ -58,13 +57,14 @@ class CaAcquisition(CTkFrame):
         self.user_input_data.image_source = selection
 
     def update_frame_interval(self, *args):
-        self.user_input_data.frame_interval = self.frame_interval.get_value()
+        if hasattr(self, "frame_interval"):
+            self.user_input_data.frame_interval = self.frame_interval.get_value()
 
     def update_edgefinder(self, *args):
         self.user_input_data.edgefinder = self.edgefinder.get_value()
 
     def setup_choose_files_frame(self, frame):
-        self.choose_files_label = CTkLabel(frame, text="Image Files: ", width=150, anchor="w")
+        self.choose_files_label = CTkLabel(frame, text="Image files: ", width=150, anchor="w")
         self.choose_files_label.grid(row=1, column=0, sticky="w", padx=(5, 5), pady=(5, 5))
 
         self.choose_files_button = CTkButton(

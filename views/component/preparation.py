@@ -6,6 +6,7 @@ from views.component.float_combobox import FloatCombobox
 from views.component.check_button import CheckButton
 from views.helper.style import set_light_only_color
 from utils.enums import FittingMethod
+from utils.tooltip_util import create_tooltip
 LABEL_WIDTH = 200  # Adjust as needed
 
 # ift [User Input]
@@ -89,8 +90,21 @@ def create_user_input_fields_ift(self, parent, user_input_data):
         default_value=user_input_data.pixel_mm
     )
 
+    create_tooltip(self.drop_region_method.label, "The method to detect the droplet region.")
+    create_tooltip(self.needle_region_method.label, "The method to detect the needle region.")
+    create_tooltip(self.drop_density_method.label, "The density of the droplet in kg/m³. Used for interfacial tension calculation.")
+    create_tooltip(self.continuous_density.label, "The density of the surrounding fluid (e.g., air or oil) in kg/m³.")
+    create_tooltip(self.needle_diameter.label, "The needle diameter, used for image scale calibration.")
+    create_tooltip(self.pixel_mm.label, "The pixel-to-millimeter scale for image-based measurements (optional).")
+
     # Returning the user input frame
     return user_input_frame
+
+# Add tooltip messages
+def add_help_icon(parent, row, column, tooltip_text):
+    icon = CTkLabel(parent, text="❓", font=("Arial", 12, "bold"), cursor="question_arrow", text_color="red")
+    icon.grid(row=row, column=column, padx=(2, 5), pady=5, sticky="w")
+    create_tooltip(icon, tooltip_text)
 
 # ift [Analysis Methods]
 def create_analysis_checklist_ift(self,parent,user_input_data):
@@ -219,6 +233,13 @@ def create_user_inputs_cm(self,parent,user_input_data):
     )
     self.needle_diameter.combobox.grid_configure(sticky="ew")
 
+    create_tooltip(self.drop_ID_method.label, "The method to identify the droplet region")
+    create_tooltip(self.threshold_method.label, "The method for threshold value selection (automatic or custom).")
+    create_tooltip(self.threshold_val.label, "The threshold value for edge detection (only applicable for the manual threshold value selection).")
+    create_tooltip(self.baseline_method.label, "The baseline detection method for fitting the contact angle.")
+    create_tooltip(self.density_outer.label, "The surrounding fluid density in kg/m³.")
+    create_tooltip(self.needle_diameter.label, "The needle diameter for image scale calibration.")
+
     return user_input_frame
 
 def create_plotting_checklist(self, parent, user_input_data):
@@ -238,7 +259,9 @@ def create_plotting_checklist(self, parent, user_input_data):
 
     # Create a label for the checklist
     label = CTkLabel(plotting_clist_frame, text="Visible during fitting (method = automated)", font=("Roboto", 16, "bold"))
-    label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
+    label.grid(row=0, column=0, padx=(10,0), pady=5, sticky="w")  # Grid for label
+
+    add_help_icon(plotting_clist_frame, 0, 1, "Additional pop-up images may appear during analysis. Since these must be closed to continue, it is recommended to deselect these options when analyzing a large number of images.")
 
     # Create a frame to hold all checkbox fields
     input_fields_frame = CTkFrame(plotting_clist_frame)
@@ -266,7 +289,7 @@ def create_plotting_checklist(self, parent, user_input_data):
         self, input_fields_frame, "Original Image(s)", update_original_boole, rw=0, cl=0, state_specify='normal', default_value=user_input_data.original_boole
     )
     self.cropped_boole = CheckButton(
-        self, input_fields_frame, "Cropped Images(s)", update_cropped_boole, rw=1, cl=0, state_specify='normal', default_value=user_input_data.cropped_boole
+        self, input_fields_frame, "Cropped Image(s)", update_cropped_boole, rw=1, cl=0, state_specify='normal', default_value=user_input_data.cropped_boole
     )
     self.threshold_boole = CheckButton(
         self, input_fields_frame, "Threhold Image(s)", update_threshold_boole, rw=2, cl=0, state_specify='normal', default_value=user_input_data.threshold_boole
