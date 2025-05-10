@@ -380,9 +380,9 @@ class CaAnalysis(CTkFrame):
         self.toggle_frame.grid(row=2, column=0, pady=(5, 0)) # Below image label
 
         self.show_angles_var = IntVar(value=0)
-        self.rb_original = CTkRadioButton(self.toggle_frame, text="Show Original Image", variable=self.show_angles_var, value=0, command=self.toggle_view)
-        self.rb_cropped = CTkRadioButton(self.toggle_frame, text="Show Contact Angles (Cropped View)", variable=self.show_angles_var, value=1, command=self.toggle_view)
-        self.rb_chart = CTkRadioButton(self.toggle_frame, text="Show Line Chart", variable=self.show_angles_var, value=2, command=self.toggle_view)
+        self.rb_original = CTkRadioButton(self.toggle_frame, text="Original Image", variable=self.show_angles_var, value=0, command=self.toggle_view)
+        self.rb_cropped = CTkRadioButton(self.toggle_frame, text="Contact Angles", variable=self.show_angles_var, value=1, command=self.toggle_view)
+        self.rb_chart = CTkRadioButton(self.toggle_frame, text="Line Chart", variable=self.show_angles_var, value=2, command=self.toggle_view)
         self.rb_original.grid(row=0, column=0, padx=10, pady=5)
         self.rb_cropped.grid(row=0, column=1, padx=10, pady=5)
         self.rb_chart.grid(row=0, column=2, padx=10, pady=5)

@@ -237,7 +237,7 @@ def create_plotting_checklist(self, parent, user_input_data):
 
 
     # Create a label for the checklist
-    label = CTkLabel(plotting_clist_frame, text="To view during fitting(ignored if method = User-selected)", font=("Roboto", 16, "bold"))
+    label = CTkLabel(plotting_clist_frame, text="Visible during fitting (method = automated)", font=("Roboto", 16, "bold"))
     label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
 
     # Create a frame to hold all checkbox fields
