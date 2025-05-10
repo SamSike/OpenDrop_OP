@@ -49,7 +49,7 @@ class FunctionWindow(CTk):
 
         user_input_data.screen_resolution = [
             self.winfo_screenwidth(), self.winfo_screenheight()]
-        
+
         # temp
         user_input_data.save_images_boole = False
         user_input_data.create_folder_boole = False
@@ -187,7 +187,7 @@ class FunctionWindow(CTk):
                     self.withdraw()
                     self.ift_processor.process_data(fitted_drop_data, user_input_data, callback=self.ift_analysis_frame.receive_output)
                     self.deiconify()
-                  
+
                 else:
                     self.ca_preparation_frame.pack_forget()
                     self.ca_analysis_frame = CaAnalysis(
@@ -208,8 +208,8 @@ class FunctionWindow(CTk):
 
             # Initialise Output frame
             self.output_frame = OutputPage(self, user_input_data,fg_color=self.FG_COLOR)
-    
-            
+
+
             # Show the OutputPage
             self.output_frame.pack(fill="both", expand=True)
 

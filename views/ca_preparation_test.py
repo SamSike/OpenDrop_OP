@@ -35,9 +35,10 @@ def test_create_analysis_method_fields():
         mock_create.assert_called_once()
 
 def test_create_fitting_view_fields():
-    with patch("views.ca_preparation.create_plotting_checklist_cm") as mock_create:
+    with patch("views.ca_preparation.create_plotting_checklist") as mock_create:
         mock_create.return_value = MagicMock()
         instance = MagicMock(spec=ca_preparation.CaPreparation)
         instance.user_input_data = MagicMock()
         ca_preparation.CaPreparation.create_fitting_view_fields(instance, parent_frame=mock_create.return_value)
         mock_create.assert_called_once()
+
