@@ -101,8 +101,6 @@ class ImageGallery(ctk.CTkFrame):
             new_width = max(1, new_width)
             new_height = max(1, new_height)
 
-            print(f"Displaying image with fixed size logic: {new_width}x{new_height}")
-
             self.tk_image = ctk.CTkImage(
                 light_image=self.current_image,
                 size=(new_width, new_height))

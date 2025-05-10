@@ -169,8 +169,6 @@ class ImageApp(ctk.CTkFrame):
              new_width = max(1, new_width)
              new_height = max(1, new_height)
 
-             print(f"Displaying image (fixed logic): {new_width}x{new_height}")
-
              # Create CTkImage with calculated size
              # Use Pillow's LANCZOS for potentially better downscaling quality
              resized_pil_image = self.current_image.copy()
