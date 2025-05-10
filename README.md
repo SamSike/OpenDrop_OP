@@ -30,13 +30,14 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 │   ├── fits.py              # Dispatcher for fitting methods
 │   ├── BA_fit.py, ellipse_fit.py, etc.
 │   └── ML_model/            # TensorFlow model, input-output conversion
-├── views/                  # Frontend UI (CustomTkinter)
-│   ├── ca_*.py, ift_*.py    # CA/IFT workflows (acquisition → output)
+├── views/                   # Frontend UI (CustomTkinter)
+│   ├── ca_*.py, ift_*.py    # CA/IFT workflows (acquisition → preparation → analysis → output)
 │   ├── component/           # Reusable UI widgets
 │   └── function_window.py   # Navigation controller
-├── utils/                  # Helper code (config, validation, image IO)
-├── tests/                  # Unit and integration tests
-└── training files/         # ML training scripts and data
+├── utils/                   # Helper code (config, validation, image IO)
+├── tests/                   # Unit and integration tests
+├── test_all.py              # py file to run all the unit tests
+└── training files/          # ML training scripts and data
 ```
 
 ------
@@ -100,6 +101,8 @@ Refer to:
 # High-Level Architecture Diagram
 ![High-Level Project Plan](./assets/high-level-project-diagram.png)
 
+# Unit tests
+See [TESTING.md](./TESTING.md) for more details on how to run the built-in unit tests.
 
 # Contact & Contribution
 
