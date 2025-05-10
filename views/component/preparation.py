@@ -165,7 +165,7 @@ def create_user_inputs_cm(self,parent,user_input_data):
     input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
 
     # Configure the grid of input_fields_frame to be resizable
-    for i in range(6):
+    for i in range(4):
         input_fields_frame.grid_rowconfigure(i, weight=1)
     input_fields_frame.grid_columnconfigure(0, weight=0)  # Label column fixed width
     input_fields_frame.grid_columnconfigure(1, weight=1)  # Widget column expands
@@ -189,12 +189,6 @@ def create_user_inputs_cm(self,parent,user_input_data):
         user_input_data.baseline_method = self.baseline_method.get_value()
         # user_input_data.threshold_val = None
         # self.image_app.update_button_visibility()
-
-    def update_density_outer(*args):
-        user_input_data.density_outer = self.density_outer.get_value()
-
-    def update_needle_diameter(*args):
-        user_input_data.needle_diameter_mm = self.needle_diameter.get_value()
 
     # Create input fields with the associated update methods
     self.drop_ID_method = OptionMenu(
@@ -221,24 +215,10 @@ def create_user_inputs_cm(self,parent,user_input_data):
     )
     self.baseline_method.optionmenu.grid_configure(sticky="ew")
 
-    self.density_outer = FloatEntry(
-        self, input_fields_frame, "Continuous density (kg/m³):",
-        lambda *args: update_density_outer(*args), rw=4, default_value=user_input_data.density_outer
-    )
-    self.density_outer.entry.grid_configure(sticky="ew")
-
-    self.needle_diameter = FloatCombobox(
-        self, input_fields_frame, "Needle diameter (mm):", NEEDLE_OPTIONS,
-        lambda *args: update_needle_diameter(*args), rw=5, default_value=user_input_data.needle_diameter_mm
-    )
-    self.needle_diameter.combobox.grid_configure(sticky="ew")
-
     create_tooltip(self.drop_ID_method.label, "The method to identify the droplet region")
     create_tooltip(self.threshold_method.label, "The method for threshold value selection (automatic or custom).")
     create_tooltip(self.threshold_val.label, "The threshold value for edge detection (only applicable for the manual threshold value selection).")
     create_tooltip(self.baseline_method.label, "The baseline detection method for fitting the contact angle.")
-    create_tooltip(self.density_outer.label, "The surrounding fluid density in kg/m³.")
-    create_tooltip(self.needle_diameter.label, "The needle diameter for image scale calibration.")
 
     return user_input_frame
 

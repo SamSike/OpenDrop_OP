@@ -580,7 +580,7 @@ class CaAnalysis(CTkFrame):
             
             # Add angle label text
             try:
-                font = ImageFont.truetype("views/assets/DejaVuSans.ttf", 16)
+                font = ImageFont.truetype("assets/DejaVuSans.ttf", 16)
             except Exception as e:
                 print(f"Error loading font: {e}")
                 try:
