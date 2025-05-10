@@ -41,32 +41,43 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 
 ------
 
+## System Requirements
+**Python**: 3.8
+
+**Minimum**: 2 GB RAM
+
+**Recommended**: 4 GB RAM, NVIDIA GPU for ML inference
 
 # Quick Start
 ## 1. Install Requirements
-Python 3.8+ is recommended
+Install [Python](https://www.python.org/downloads/release/python-3810/). Python 3.8.10 is recommended.
 
 `pip install -r requirements-3810.txt`
 
 ## 2. Run the Application
 `python main.py`
 
-## 3. Use the Interface
-1.Select: Contact Angle or Interfacial Tension
+## 3. Use the Application
+1. Select one of the functions: Contact Angle or Interfacial Tension
 
-2.Upload Image(s)
+ ![Main Menu](./asserts/main_menu.png)
 
-3.Choose Fitting Method(s)
+2. Upload Image(s)
 
-4.Run → View Results → Export (CSV)
+ ![Aquisition_1](./asserts/ca_aquisition_1.png)
+ ![Aquisition_2](./asserts/ca_aquisition_2.png)
 
-## System Requirements
-Python: 3.8+
+3. Fill in user input. Note that the sample image is for contact angle, but the process is similar for interfacial tension.
+   
+ ![Preparation](./asserts/ca_preparation.png)
 
-Minimum: 2 GB RAM, supports USB cameras
+4. Click 'next' to view the result!
+   
+ ![Analysis](./asserts/ca_analysis.png)
 
-Recommended: 4 GB RAM, NVIDIA GPU for ML inference
-
+5. Optionally save the result to a CSV file.
+   
+ ![Output](./asserts/output.png)
 
 # Developer & Contributor Guide
 ## Modular Design
