@@ -9,40 +9,44 @@
     <Media Id="1" Cabinet="OpenDrop.cab" EmbedCab="yes" />
 
     <!-- USES ICON FILE -->
-    <Icon Id="OpenDropIcon.ico" SourceFile="opendrop_logo_wide.ico" />
+    <Icon Id="OpenDropIcon" SourceFile="opendrop_logo_wide.ico" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLFOLDER" Name="OpenDrop">
-        
+              
           <!-- GUID UNIQUE TO VERSION NUMBER -->
           <Component Id="MainExecutable" Guid="6428ab79-9e35-453e-8c89-e533019a86c2">
             <File Source="dist\main.exe" KeyPath="yes" />
-            
-            <!-- FOR START MENU -->
-            <Shortcut Id="startmenuShortcut"
-              Directory="ProgramMenuFolder"
-              Name="OpenDrop"
-              WorkingDirectory="INSTALLFOLDER"
-              Icon="OpenDropIcon.ico"
-              Target="[INSTALLFOLDER]OpenDrop.exe"
-              Description="Launch OpenDrop" />
-              
-            <!-- FOR PROPER UNINSTALL -->
-            <RemoveFolder Id="INSTALLFOLDER" On="uninstall"/>
-            <RegistryValue Root="HKCU" Key="Software\OpenDrop" Name="installed" Type="integer" Value="1" />
           </Component>
         </Directory>
       </Directory>
 
-      <!-- FOR START MENU -->
       <Directory Id="ProgramMenuFolder" Name="Programs">
-        <Directory Id="OpenDropProgramMenu" Name="OpenDrop" />
+        <Directory Id="OpenDropProgramMenu" Name="OpenDrop">      
+
+          <!-- FOR START MENU -->
+          <Component Id="StartMenuShortcut" Guid="13cb7860-b20d-45a6-b28c-535a9e747242">
+            <Shortcut Id="startmenuShortcut"
+                      Directory="OpenDropProgramMenu"
+                      Name="OpenDrop"
+                      WorkingDirectory="INSTALLFOLDER"
+                      Icon="OpenDropIcon"
+                      Target="[INSTALLFOLDER]main.exe"
+                      Description="Launch OpenDrop" />
+
+                                          
+            <!-- FOR PROPER UNINSTALL -->
+            <RegistryValue Root="HKCU" Key="Software\OpenDrop" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            <RemoveFolder Id="RemoveShortcutFolder" On="uninstall" Directory="OpenDropProgramMenu"/>
+          </Component>
+        </Directory>
       </Directory>
     </Directory>
 
     <Feature Id="DefaultFeature" Level="1">
       <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="StartMenuShortcut" />
     </Feature>
   </Product>
 </Wix>
