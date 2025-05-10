@@ -23,8 +23,8 @@ class CaAnalysis(CTkFrame):
         super().__init__(parent, **kwargs)
         self.user_input_data = user_input_data
 
-        self.grid_columnconfigure(0, weight=2)  # Let table expand
-        self.grid_columnconfigure(1, weight=1)  # Prevent images_frame from expanding
+        self.grid_columnconfigure(0, weight=1)  # Let table expand
+        self.grid_columnconfigure(1, weight=0)  # Prevent images_frame from expanding
         self.grid_rowconfigure(0, weight=1)
         
         self.image_handler = ImageHandler()
@@ -50,14 +50,10 @@ class CaAnalysis(CTkFrame):
 
         self.visualisation_container = CTkFrame(self)
         self.visualisation_container.grid(row=0, column=1, sticky="nsew", padx=15, pady=(10, 0))
-        self.visualisation_container.grid_rowconfigure(0, weight=1)
-        self.visualisation_container.grid_rowconfigure(1, weight=0)
-        self.visualisation_container.grid_rowconfigure(2, weight=1)
-        self.visualisation_container.grid_columnconfigure(0, weight=1)
 
         self.image_wrapper_frame = CTkFrame(self.visualisation_container, fg_color="transparent")
         set_light_only_color(self.image_wrapper_frame, "outerframe")
-        self.image_wrapper_frame.grid(row=1, column=0, sticky="ew")
+        self.image_wrapper_frame.grid(row=1, column=0, sticky="ewsn")
 
         self.current_index = 0
         self.highlight_row(self.current_index)
@@ -66,7 +62,7 @@ class CaAnalysis(CTkFrame):
     def create_table(self, parent, rows, columns, headers):
         table_frame = CTkXYFrame(parent)
         set_light_only_color(table_frame, "outerframe")
-        table_frame.grid(row=0, column=0, pady=15, padx=20, sticky='nsew')
+        table_frame.grid(row=0, column=0, pady=(10,0), padx=15, sticky='nsew')
 
         for col in range(columns):
             header_label = CTkLabel(table_frame, text=headers[col], font=("Roboto", 14, "bold"))

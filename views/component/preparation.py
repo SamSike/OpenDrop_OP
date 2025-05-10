@@ -293,7 +293,7 @@ def create_analysis_checklist_cm(self, parent, user_input_data):
 
 
     # Create a label for the analysis checklist
-    label = CTkLabel(analysis_clist_frame, text="Analysis methods", font=("Roboto", 16, "bold"))
+    label = CTkLabel(analysis_clist_frame, text="Analysis methods*", font=("Roboto", 16, "bold"))
     label.grid(row=0, column=0, padx=10, pady=5, sticky="w") # Removed columnspan
 
     # Create a frame to hold all checkbox fields
