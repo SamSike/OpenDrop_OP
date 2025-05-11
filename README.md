@@ -30,43 +30,86 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 │   ├── fits.py              # Dispatcher for fitting methods
 │   ├── BA_fit.py, ellipse_fit.py, etc.
 │   └── ML_model/            # TensorFlow model, input-output conversion
-├── views/                  # Frontend UI (CustomTkinter)
-│   ├── ca_*.py, ift_*.py    # CA/IFT workflows (acquisition → output)
+├── views/                   # Frontend UI (CustomTkinter)
+│   ├── ca_*.py, ift_*.py    # CA/IFT workflows (acquisition → preparation → analysis → output)
 │   ├── component/           # Reusable UI widgets
 │   └── function_window.py   # Navigation controller
-├── utils/                  # Helper code (config, validation, image IO)
-├── tests/                  # Unit and integration tests
-└── training files/         # ML training scripts and data
+├── utils/                   # Helper code (config, validation, image IO)
+├── tests/                   # Unit and integration tests
+├── test_all.py              # py file to run all the unit tests
+└── training files/          # ML training scripts and data
 ```
 
 ------
 
+## System Requirements
+**Python**: 3.8
+
+**Minimum**: 2 GB RAM
+
+**Recommended**: 4 GB RAM, NVIDIA GPU for ML inference
 
 # Quick Start
 ## 1. Install Requirements
-Python 3.8+ is recommended
+Install [Python](https://www.python.org/downloads/release/python-3810/). Python 3.8.10 is recommended.
 
 `pip install -r requirements-3810.txt`
 
 ## 2. Run the Application
 `python main.py`
 
-## 3. Use the Interface
-1.Select: Contact Angle or Interfacial Tension
+## 3. Use the Application
+1. Select one of the functions: Contact Angle or Interfacial Tension
 
-2.Upload Image(s)
+ ![Main Menu](./assets/main_menu.png)
 
-3.Choose Fitting Method(s)
+2. Upload Image(s)
 
-4.Run → View Results → Export (CSV)
+ ![Aquisition_1](./assets/ca_aquisition_1.png)
+ ![Aquisition_2](./assets/ca_aquisition_2.png)
 
-## System Requirements
-Python: 3.8+
+3. Fill in user input. Note that the sample image is for contact angle, but the process is similar for interfacial tension.
+   
+ ![Preparation](./assets/ca_preparation.png)
 
-Minimum: 2 GB RAM, supports USB cameras
+4. Click 'next' to view the result!
+   
+ ![Analysis](./assets/ca_analysis.png)
 
-Recommended: 4 GB RAM, NVIDIA GPU for ML inference
+5. Optionally save the result to a CSV file.
+   
+ ![Output](./assets/output.png)
 
+# Developer & Contributor Guide
+## Modular Design
+OpenDrop-ML emphasizes extensibility:
+
+Add a new fitting method: See modules/fits.py
+
+Add a UI component: See views/component/
+
+Add a page: Update views/function_window.py
+
+## Backend & UI Extensions
+Refer to:
+
+“Add Backend Module Steps – Guide to adding new models”
+
+“Add Frontend Module Steps – UI integration tutorial”
+
+
+# High-Level Architecture Diagram
+![High-Level Project Plan](./assets/high-level-project-diagram.png)
+
+# Unit tests
+See [TESTING.md](./TESTING.md) for more details on how to run the built-in unit tests.
+
+# Contact & Contribution
+
+OpenDrop-ML is an open-source project. Contributions are welcome!
+
+- GitHub: https://github.com/SamSike/OpenDrop_OP
+- For issues, use GitHub issue tracker
 
 # Appropriate use
 
@@ -97,33 +140,3 @@ This work presents an automated process, which still requires improvement,
 but will likely be suitable for high contrast images. Users are recommended
 to check that the detected edge is reasonable prior to accepting the results
 outputted by any fitting or angle prediction approach.
-
-
-# Developer & Contributor Guide
-## Modular Design
-OpenDrop-ML emphasizes extensibility:
-
-Add a new fitting method: See modules/fits.py
-
-Add a UI component: See views/component/
-
-Add a page: Update views/function_window.py
-
-## Backend & UI Extensions
-Refer to:
-
-“Add Backend Module Steps – Guide to adding new models”
-
-“Add Frontend Module Steps – UI integration tutorial”
-
-
-# High-Level Architecture Diagram
-![High-Level Project Plan](./High-Level%20Project%20Diagram_v2.png)
-
-
-# Contact & Contribution
-
-OpenDrop-ML is an open-source project. Contributions are welcome!
-
-- GitHub: https://github.com/SamSike/OpenDrop_OP
-- For issues, use GitHub issue tracker
