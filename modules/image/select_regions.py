@@ -28,6 +28,186 @@ from utils.geometry import Rect2
 
 MAX_IMAGE_TO_SCREEN_RATIO = 0.8
 
+def get_ift_regions(img: np.ndarray,
+                             padding: int = 5,
+                             area_thresh: int = 1,
+                             drop_frac: float = 1,
+                             scharr_block: int = 5,
+                             canny1: float = 80,
+                             canny2: float = 160) -> (np.ndarray, tuple):
+
+    original = img.copy()
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    H, W = gray.shape
+    # Applying 7x7 Gaussian Blur 
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    # 1) rough mask via inverted Otsu + largest CC
+    threshold = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    analysis = cv2.connectedComponentsWithStats(threshold, 8)
+    (totalLabels, label_ids, stats, centroids) = analysis
+    if totalLabels <= 1:
+        print("drops found.")
+        return original, None
+
+    # Filter for components entering from the top and find the largest among them
+    top_entering_blobs_indices = []
+    for i in range(1, totalLabels): # Iterate through all components (0 is background)
+        if stats[i, cv2.CC_STAT_TOP] == 0:
+            top_entering_blobs_indices.append(i)
+
+    if not top_entering_blobs_indices:
+        print("No blobs found entering from the top of the frame.")
+        return original, None
+
+    # Select the largest blob among those entering from the top
+    blob = -1
+    max_area_found = -1
+    for idx in top_entering_blobs_indices:
+        area = stats[idx, cv2.CC_STAT_AREA]
+        if area > max_area_found:
+            max_area_found = area
+            blob = idx
+            
+    if blob == -1 : # Should not happen if top_entering_blobs_indices was populated
+        print("Error selecting largest top-entering blob.")
+        return original, None
+
+    if stats[blob, cv2.CC_STAT_AREA] < area_thresh:
+        print(f"Largest top-entering blob (ID: {blob}, Area: {stats[blob, cv2.CC_STAT_AREA]}) too small (threshold: {area_thresh}).")
+        return original, None
+
+    x, y, bw, bh, _ = stats[blob]
+    #print(f"Blob ID: {blob}, Area: {stats[blob, cv2.CC_STAT_AREA]}, Bounding box: (x= {x}, y= {y}) - (w= {bw}, h= {bh})")
+    roi       = gray[y:y+bh, x:x+bw]
+    roi_mask  = (label_ids[y:y+bh, x:x+bw] == blob).astype(np.uint8) * 255
+
+    # 2) Scharr→adaptiveThresh→Canny inside ROI
+    blur = cv2.GaussianBlur(roi, (scharr_block, scharr_block), 0)
+    dx   = cv2.Scharr(blur, cv2.CV_16S, 1, 0)
+    dy   = cv2.Scharr(blur, cv2.CV_16S, 0, 1)
+    grad = dx.astype(float)**2 + dy.astype(float)**2
+    grad = np.uint8(255 * (grad / grad.max()))
+    cv2.adaptiveThreshold(
+        grad, 255,
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY,
+        blockSize=scharr_block, C=0,
+        dst=grad
+    )
+    grad = cv2.bitwise_and(grad, grad, mask=roi_mask)
+    edges = cv2.Canny(grad, canny1, canny2)
+
+    # 3) collect edge points *only* in the bottom (1-drop_frac) of ROI:
+    pts = np.column_stack(np.nonzero(edges))  # (row, col)
+    if len(pts) < 20:
+        print("Too few edges.")
+        return original, None
+    # Calculate width of the blob at each row within the ROI
+    blob_widths_at_each_row = np.sum(roi_mask // 255, axis=1)
+    # Define the upper part of the blob to estimate needle width
+    # Consider top 15% of blob height, but at least 3px and at most 20px
+    initial_needle_scan_height = max(3, min(int(bh * 0.15), 500))
+    # Ensure scan height is less than blob height for sensible indexing
+    if initial_needle_scan_height >= bh and bh > 0:
+        initial_needle_scan_height = bh - 1 
+    elif bh == 0: # Should not happen if blob found
+        initial_needle_scan_height = 0
+    avg_needle_width = 0
+    if initial_needle_scan_height > 0 :
+        candidate_needle_widths = blob_widths_at_each_row[:initial_needle_scan_height]
+        if np.any(candidate_needle_widths > 0):
+            avg_needle_width = np.median(candidate_needle_widths[candidate_needle_widths > 0])
+    
+    if avg_needle_width <= 1: # If needle width is too small or not found, use a small portion of top widths
+        fallback_scan_height = max(1, int(bh * 0.05))
+        if bh > 0 and np.any(blob_widths_at_each_row[:fallback_scan_height] > 0):
+             avg_needle_width = np.mean(blob_widths_at_each_row[:fallback_scan_height][blob_widths_at_each_row[:fallback_scan_height]>0])
+        if avg_needle_width <= 0: # Absolute fallback if still no valid width
+            avg_needle_width = 1 
+    expansion_factor = 1 # Drop should be significantly wider than needle
+    search_start_row = initial_needle_scan_height
+    
+    found_expansion_point = False
+    calculated_row_thresh = 0
+    for current_row in range(search_start_row, bh):
+        if blob_widths_at_each_row[current_row] > expansion_factor * avg_needle_width and blob_widths_at_each_row[current_row] > avg_needle_width + 2: # Add small absolute diff
+            calculated_row_thresh = current_row
+            found_expansion_point = True
+            #print(f"Dynamic row_thresh: Initial needle width ~{avg_needle_width:.1f}px. Expansion at row {current_row} (width {blob_widths_at_each_row[current_row]}px).")
+            break
+    
+    if not found_expansion_point:
+        print(f"No clear expansion point found. Initial needle width ~{avg_needle_width:.1f}px. Using drop_frac based fallback: {calculated_row_thresh}.")
+        pass # Already defaulted to drop_frac based
+    row_thresh = calculated_row_thresh
+
+    #print(f"Row threshold for drop detection: {row_thresh} (calculated)")
+    # --- End of dynamic row_thresh determination ---
+    def create_bounds_array(x1, y1, x2, y2):
+        # Ensure coordinates are integers for array creation if they are not None
+        if any(v is None for v in [x1, y1, x2, y2]): return None
+        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+        return np.array([
+            [[x1, y1, x2, y1]],  # top edge
+            [[x2, y1, x2, y2]],  # right edge
+            [[x2, y2, x1, y2]],  # bottom edge
+            [[x1, y2, x1, y1]],  # left edge
+        ], dtype=np.int32)
+    
+    # Create the bounding box for the entire ROI
+    x1_roi = x
+    y1_roi = y
+    x2_roi = x + bw
+    y2_roi = y + bh
+    # Create the absolute bounding box for the entire ROI
+    abs_bounds = create_bounds_array(x1_roi, y1_roi, x2_roi, y2_roi)
+    # Create the cropped bounding box for the entire ROI
+    crop_bounds = create_bounds_array(x1_roi, y1_roi, x2_roi, y2_roi)
+    crop_roi = original[y1_roi : y2_roi, x1_roi: x2_roi]
+    if not found_expansion_point:
+        needle_pts = pts[pts[:, 0] < row_thresh]
+        pts_xy_needle = needle_pts[:, ::-1] # (x, y) coordinates
+        if pts_xy_needle.shape[0] > 0: # Ensure there are points to process
+            # These are min/max coordinates of the needle points, *relative to the ROI's top-left corner*
+            needle_x1_roi = np.min(pts_xy_needle[:, 0])
+            needle_x2_roi = np.max(pts_xy_needle[:, 0])
+            needle_y1_roi = np.min(pts_xy_needle[:, 1])
+            needle_y2_roi = np.max(pts_xy_needle[:, 1])
+            needle_abs_bounds = create_bounds_array(x + needle_x1_roi - padding, y + needle_y1_roi, x + needle_x2_roi + padding, y + needle_y2_roi - padding)
+            needle_crop_bounds = create_bounds_array(needle_x1_roi - padding, needle_y1_roi, needle_x2_roi + padding, needle_y2_roi - padding)
+            # Crop the original image using the final absolute bounding box coordinates
+            crop = original[needle_y1_roi : needle_y2_roi, x + needle_x1_roi: x + needle_x2_roi]
+            needle_rect = Rect2((x + needle_x1_roi, y + needle_y1_roi), (x + needle_x2_roi, y + needle_y2_roi))
+            return needle_rect
+    else:
+        needle_pts = pts[pts[:, 0] < row_thresh]
+        pts_xy_needle = needle_pts[:, ::-1] # (x, y) coordinates
+        if pts_xy_needle.shape[0] > 0: # Ensure there are points to process
+            # These are min/max coordinates of the needle points, *relative to the ROI's top-left corner*
+            needle_x1_roi = np.min(pts_xy_needle[:, 0])- padding
+            needle_x2_roi = np.max(pts_xy_needle[:, 0])+ padding
+            needle_y1_roi = np.min(pts_xy_needle[:, 1])
+            needle_y2_roi = np.max(pts_xy_needle[:, 1])- padding
+            needle_abs_bounds = create_bounds_array(x + needle_x1_roi, y + needle_y1_roi, x + needle_x2_roi, y + needle_y2_roi)
+            needle_crop_bounds = create_bounds_array(needle_x1_roi - padding, needle_y1_roi, needle_x2_roi, needle_y2_roi)
+            needle_rect = Rect2((x + needle_x1_roi, y + needle_y1_roi), (x + needle_x2_roi, y + needle_y2_roi))
+
+        drop_pts = pts[pts[:, 0] >= row_thresh]
+        pts_xy_drop = drop_pts[:, ::-1] # (x, y) coordinates    
+        if pts_xy_drop.shape[0] > 0: # Ensure there are points to process
+            # These are min/max coordinates of the drop points, *relative to the ROI's top-left corner*
+            drop_x1_roi = np.min(pts_xy_drop[:, 0]) - padding
+            drop_x2_roi = np.max(pts_xy_drop[:, 0]) + padding
+            drop_y1_roi = np.min(pts_xy_drop[:, 1]) #- padding
+            drop_y2_roi = np.max(pts_xy_drop[:, 1]) + padding
+            drop_abs_bounds = create_bounds_array(x + drop_x1_roi, y + drop_y1_roi, x + drop_x2_roi, y + drop_y2_roi)
+            drop_crop_bounds = create_bounds_array(drop_x1_roi, drop_y1_roi, drop_x2_roi, drop_y2_roi)
+            drop_rect = Rect2((x + drop_x1_roi, y + drop_y1_roi), (x + drop_x2_roi, y + drop_y2_roi))  
+        
+        crop = original[drop_y1_roi: drop_y2_roi, x + drop_x1_roi: x + drop_x2_roi]
+        return drop_rect, needle_rect
+
+
 def set_drop_region(experimental_drop, experimental_setup, index=0):
     # select the drop and needle regions in the image
     screen_size = experimental_setup.screen_resolution
@@ -168,6 +348,102 @@ def set_needle_region(experimental_drop, experimental_setup, center_x=None):
     elif experimental_setup.needle_region_method == "User-selected":
         # TODO: user-selected method implementation
         return
+
+def crop_needle(img):
+    padding=10
+    angle_tolerance=15
+    original_img = img.copy()
+    # adjustable parameters
+    vertical_pct = 0.8     # fraction of height to keep from top
+    horizontal_pct = 0.5   # fraction of width to keep, centered
+    # initial crop of the image
+    h, w = img.shape[:2]
+    top = int(h * vertical_pct)
+    side_margin = int((w * (1 - horizontal_pct)) / 2)
+    img = img[:top, side_margin : w - side_margin]
+
+    # a veriable used to eliminate the vertical lines that exist in the bottom half of the image
+    bottom_verticals_threshold=0.7
+    # 1. Preprocess: grayscale & edges
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #if img.ndim == 3 else img.copy()
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    edges = cv2.Canny(blurred, 50, 180, apertureSize=3)
+
+    # 2. Detect line segments via probabilistic Hough
+    lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi/180, threshold=45,
+                             minLineLength=1, maxLineGap=50)
+    if lines is None or len(lines) < 2:
+        print("Insufficient line segments detected.")
+        return original_img
+
+    # 3. Optimized vertical filter
+    dx = lines[:,0,2] - lines[:,0,0]
+    dy = lines[:,0,3] - lines[:,0,1]
+    raw_angles = np.degrees(np.arctan2(dy, dx))  # -180..+180
+    orient = (raw_angles + 90) % 180             # 0 = vertical up, 180 = vertical down
+    mask = (orient <= angle_tolerance) | (orient >= 180 - angle_tolerance)
+    vertical = lines[mask]
+    if vertical.shape[0] < 2:
+        print("Could not find two vertical lines within tolerance.")
+        return original_img
+    
+    
+    # Create a mask for lines where both y-coordinates are in the top half
+    # A line (x1,y1,x2,y2) is in the top half if both y1 and y2 are less than y_midpoint
+    
+    y_midpoint = abs(h * bottom_verticals_threshold)
+    top_half_mask = (vertical[:,0,1] < y_midpoint) & (vertical[:,0,3] < y_midpoint)
+    vertical = vertical[top_half_mask]
+
+    if vertical.shape[0] < 2:
+        print("Could not find two vertical lines in the top half of the image within tolerance.")
+        return original_img
+    # Extract endpoints
+    vertical = vertical[:,0]  # shape (N,4)
+
+
+    #min_dist = int(w * min_dist_pct)
+
+    # 4. Select two longest vertical lines
+    def length_sq(l): return (l[2] - l[0])**2 + (l[3] - l[1])**2
+    sorted_lines = sorted(vertical, key=length_sq, reverse=True)
+    min_dist = 10  # your minimum x-distance in pixels
+
+    # find the longest pair whose centers are >= min_dist apart
+    for i, l1 in enumerate(sorted_lines):
+        x1 = (l1[0] + l1[2]) // 2
+        for l2 in sorted_lines[i+1:]:
+            x2 = (l2[0] + l2[2]) // 2
+            if abs(x2 - x1) >= min_dist:
+                # we found a valid pair
+                break
+        else:
+            # no valid partner for l1, continue with next
+            continue
+        # break out of outer loop as well
+        break
+    else:
+        print(f"Could not find two vertical lines ≥ {min_dist}px apart.")
+        return original_img
+    # 5. Compute bounding coords
+    x1 = (l1[0] + l1[2]) // 2
+    x2 = (l2[0] + l2[2]) // 2
+    left_x, right_x = int(min(x1, x2)), int(max(x1, x2))
+    ys = [l1[1], l1[3], l2[1], l2[3]]
+    top_y, bottom_y = int(min(ys)), int(max(ys))
+
+    # 6. Pad and clamp
+    h, w = gray.shape[:2]
+    left = max(0, left_x - padding)
+    right = min(w, right_x + padding)
+    top = max(0, top_y - padding)
+    bottom = min(h, bottom_y + padding)
+
+    # 8. Crop and return
+    img = img[top:bottom, left:right]
+
+    
+    return img
 
 def image_crop(image, points):
     # return image[min(y):max(y), min(x),max(x)]

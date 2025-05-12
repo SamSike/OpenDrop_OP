@@ -13,10 +13,14 @@ class ExtractedData(object):
         self.worthington = np.zeros(n_frames)
         self.parameters = np.zeros((n_frames, n_params))
         self.contact_angles = np.zeros((n_frames,2))
+        self.bond = np.zeros(n_frames)
+        self.drop_contour_image = np.zeros(n_frames)
+        self.residuals = []
+        self.arc_lengths = []
 
     def time_IFT_vol_area(self, i):
         # build the time-IFT-volume-area array used in the plotting function
-        return [self.time[i], self.gamma_IFT_mN[i], self.volume[i], self.area[i]]
+        return [self.time[i], self.gamma_IFT_mN[i], self.volume[i], self.area[i], self.bond[i], self.worthington[i]]
 
     def export_data(self, input_file, location, filename, i):
 

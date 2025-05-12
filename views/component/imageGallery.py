@@ -63,8 +63,11 @@ class ImageGallery(ctk.CTkFrame):
         """Load the selected image."""
         print("Loading image: ", selected_image)
         try:
-            self.current_image = Image.open(selected_image)
-            # Call display_image to set fixed size
+            # Check if selected_image is already a PIL.Image.Image object
+            if isinstance(selected_image, Image.Image):
+                self.current_image = selected_image
+            else:
+                self.current_image = Image.open(selected_image)
             self.display_image()
         except FileNotFoundError:
             print(f"Error: The image file {selected_image} was not found.")
@@ -113,7 +116,13 @@ class ImageGallery(ctk.CTkFrame):
 
     def change_image(self, direction):
         """Change the currently displayed image based on the direction."""
-        if not self.image_paths:
-            return
-        self.current_index = (self.current_index + direction) % len(self.image_paths)
-        self.load_image(self.image_paths[self.current_index])
+        if self.image_paths:
+            self.current_index = (
+                self.current_index + direction) % len(self.image_paths)  # Wrap around
+            # Load the new image
+            self.load_image(self.image_paths[self.current_index])
+    
+    def set_image(self, img):
+        """Set and display a new image in the gallery."""
+        self.current_image = img
+        self.display_image()

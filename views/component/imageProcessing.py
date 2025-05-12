@@ -126,22 +126,17 @@ class ImageApp(ctk.CTkFrame):
         return self.image_handler.get_image_paths(directory)
 
     def load_image(self, selected_image):
-        """Load the selected image and display it with fixed size."""
-        try:
-            self.current_image = Image.open(selected_image)
-            get_image(self.experimental_drop, self.user_input_data, self.current_index)
-            # Call display_image directly after loading
-            self.display_image()
-        except FileNotFoundError:
-            print(f"Error: The image file {selected_image} was not found.")
-            self.current_image = None
-            if hasattr(self, 'image_label'):
-                self.image_label.configure(image=None, text=f"Not Found:\n{os.path.basename(selected_image)}")
-        except Exception as e:
-             print(f"Error loading image {selected_image}: {e}")
-             self.current_image = None
-             if hasattr(self, 'image_label'):
-                self.image_label.configure(image=None, text=f"Error loading:\n{os.path.basename(selected_image)}")
+        """Load and display the selected image."""
+        if self.application == "IFT":
+            idx = self.current_index
+            self.current_image = self.user_input_data.processed_images[idx]
+        else:
+            # Fallback to original
+            if isinstance(selected_image, Image.Image):
+                self.current_image = selected_image
+            else:
+                self.current_image = Image.open(selected_image)
+        self.display_image()
 
     def display_image(self):
         """Display the currently loaded image with fixed size constraints."""

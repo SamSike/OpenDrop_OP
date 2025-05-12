@@ -122,7 +122,7 @@ class FunctionWindow(CTk):
         self.update_stage(Move.Next.value)
         # Handle the "Next" button functionality
         if self.current_stage == Stage.PREPARATION:
-
+            
             # First check if the user has imported files
             if not self.check_import(user_input_data):
                 self.update_stage(Move.Back.value)
@@ -136,14 +136,15 @@ class FunctionWindow(CTk):
                 messagebox.showinfo("Missing", "Frame Interval is required.")
                 return
             self.back_button.pack(side="left", padx=10, pady=10)
-
+            #self.ift_processor.processPreparation(user_input_data)
             # user have selected at least one file
             self.acquisition_frame.pack_forget()
             # Initialise Preparation frame
             if function_type == FunctionType.INTERFACIAL_TENSION:
                 self.ift_preparation_frame = IftPreparation(
-                self, user_input_data, experimental_drop,fg_color=self.FG_COLOR)
+                self, user_input_data, experimental_drop,self.ift_processor, fg_color=self.FG_COLOR)
                 self.ift_preparation_frame.pack(fill="both", expand=True)
+                
             else:
                 self.ca_preparation_frame = CaPreparation(
                 self, user_input_data, experimental_drop,fg_color=self.FG_COLOR)
@@ -154,6 +155,7 @@ class FunctionWindow(CTk):
             # Validate user input data
             if function_type == FunctionType.INTERFACIAL_TENSION:
                 validation_messages = validate_user_input_data_ift(user_input_data)
+                
             elif function_type == FunctionType.CONTACT_ANGLE:
                 validation_messages = validate_user_input_data_cm(user_input_data,experimental_drop)
             
@@ -166,12 +168,11 @@ class FunctionWindow(CTk):
                 if function_type == FunctionType.INTERFACIAL_TENSION:
                     self.ift_preparation_frame.pack_forget()
                     self.ift_analysis_frame = IftAnalysis(
-                        self, user_input_data, fg_color=self.FG_COLOR)
+                        self, user_input_data, self.ift_processor, fg_color=self.FG_COLOR)
                     self.ift_analysis_frame.pack(fill="both", expand=True)
-
-                    # use for the thread issue
+                    print("FunctionType.PENDANT_DROP")
                     self.withdraw()
-                    self.ift_processor.process_data(fitted_drop_data, user_input_data, callback=self.ift_analysis_frame.receive_output)
+                    self.ift_processor.process_data(user_input_data, callback=self.ift_analysis_frame.receive_output)
                     self.deiconify()
 
                 else:
@@ -204,7 +205,16 @@ class FunctionWindow(CTk):
 
     def save_output(self, function_type, user_input_data):
         if function_type == FunctionType.INTERFACIAL_TENSION:
-            messagebox.showinfo("Messagebox", "TODO: save file")
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            if user_input_data.filename:
+                filename = user_input_data.filename + "_" + timestamp + ".csv"
+            else:
+                filename = "Extracted_data_"+timestamp+".csv"
+            
+            self.ift_processor.save_result(user_input_data.import_files, user_input_data.output_directory,filename, user_input_data)
+
+            messagebox.showinfo("Success", "File saved successfully!")
             self.destroy()
         else:
             # filename = user_input_data.filename[:-4] + '_' + user_input_data.time_string + ".csv"

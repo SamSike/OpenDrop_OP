@@ -5,12 +5,14 @@ from views.component.imageProcessing import ImageApp
 from views.helper.style import set_light_only_color
 
 class IftPreparation(ctk.CTkFrame):
-    def __init__(self, parent, user_input_data,experimental_drop, **kwargs):
+    def __init__(self, parent, user_input_data,experimental_drop,ift_processor, **kwargs):
         super().__init__(parent, **kwargs)
 
         self.application = "IFT"
         self.user_input_data = user_input_data
         self.experimental_drop = experimental_drop
+        self.ift_processor = ift_processor
+        self.ift_processor.processPreparation( self.user_input_data)
         # Configure the grid to allow expansion for both columns
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)  # Left column for input fields

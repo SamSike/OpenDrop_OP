@@ -42,23 +42,146 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 
 ------
 
-## System Requirements
-**Python**: 3.8
+# Quick Start Guide
 
-**Minimum**: 2 GB RAM
+This guide helps you install the necessary dependencies and run the application on your local machine.
 
-**Recommended**: 4 GB RAM, NVIDIA GPU for ML inference
+---
 
-# Quick Start
-## 1. Install Requirements
-Install [Python](https://www.python.org/downloads/release/python-3810/). Python 3.8.10 is recommended.
+## 1. Install Python
 
-`pip install -r requirements-3810.txt`
+### Check if Python is Already Installed
+Open a terminal (Command Prompt or PowerShell) and run:
+```bash
+python --version
+```
+or:
+```bash
+py --version
+```
+If Python is installed, it will show the version.
 
-## 2. Run the Application
-`python main.py`
+### Install Python (if not already installed)
+Download and install [Python 3.8.10](https://www.python.org/downloads/release/python-3810/), which is the recommended version for this project. Choose the installer for your operating system.
 
-## 3. Use the Application
+> **Windows Users:** During installation, **check the box** that says: *“Add Python to PATH”* 
+> 
+>  If you forget, you may need to manually add it to your **environment variables** under "System Properties > Environment Variables > Path".
+
+> **macOS/Linux Users:** Python 3 is usually preinstalled, but you can install it via a package manager if needed:
+> 
+> macOS: ```brew install python@3.8```
+> 
+> Ubuntu/Debian: ```sudo apt install python3.8 python3.8-venv```
+> 
+> Fedora: ```sudo dnf install python3.8```
+
+---
+
+## 2. Install C/C++ Build Tools
+
+Cython and some Python packages require C/C++ compilers to build native extensions.
+
+### Windows
+
+- Download and install [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+- During installation, select:
+  - "C++ build tools"
+  - Include the "Windows 10 SDK" or "Windows 11 SDK"
+
+### macOS
+- Open Terminal and install Xcode Command Line Tools:
+  ```bash
+  xcode-select --install
+  ```
+
+### Linux
+- For Debian/Ubuntu based systems:
+  ```bash
+  sudo apt update
+  sudo apt install build-essential
+  ```
+
+- For Fedora/RHEL based systems:
+  ```bash
+  sudo dnf groupinstall "Development Tools"
+  ```
+
+- For Arch Linux:
+  ```bash
+  sudo pacman -S base-devel
+  ```
+
+---
+
+## 3. Install Python Dependencies
+
+Make sure you're in the root folder of the project, then run:
+
+```bash
+pip install -r requirements-3810.txt
+```
+
+This will install all necessary packages.
+
+> If you’re using a virtual environment, activate it first:
+
+On Windows
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+On macOS or Linux
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+---
+
+## 4. Build Cython Extensions
+
+You’ll need to compile Cython modules before running the application:
+
+```bash
+python setup.py build_ext --inplace
+```
+
+This will generate`.cpp` files from the Cython sources.
+
+> If you encounter errors, ensure:
+> - Cython is installed: `pip install cython`
+> - C/C++ Build Tools are properly installed (step 2)
+
+---
+
+## 5. Run the Application
+
+Once the build is complete, run the main script to start the application:
+
+```bash
+python main.py
+```
+
+If your application has a GUI or a web interface, follow any additional prompts or check the console for access URLs.
+
+---
+
+## Troubleshooting
+
+- **Python not recognized?**
+  - Make sure it’s added to `PATH` in your environment variables.
+
+- **Cython build errors?**
+  - Confirm you installed the C++ Build Tools (step 2).
+  - Try `pip install --upgrade pip setuptools wheel cython`.
+
+- **Wrong Python version?**
+  - Consider using `pyenv`, `conda`, or a virtual environment to manage Python versions.
+
+# User Guide
+After starting the application:
 1. Select one of the functions: Contact Angle or Interfacial Tension
 
  ![Main Menu](./assets/main_menu.png)
