@@ -190,9 +190,6 @@ class Acquisition(CTkFrame):
                     size=(new_width, new_height)
                 )
 
-                print("Original:", self.current_image.size)
-                print("Resized to:", new_width, new_height)
-
                 # Display the image
                 if hasattr(self, 'image_label') and self.image_label:
                     self.image_label.configure(image=self.tk_image, text="")
