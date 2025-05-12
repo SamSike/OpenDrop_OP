@@ -1,7 +1,7 @@
 from enum import Enum
 
 class FunctionType(Enum):
-    PENDANT_DROP = "Pendant Drop"
+    INTERFACIAL_TENSION = "Interfacial Tension"
     CONTACT_ANGLE = "Contact Angle"
 
 class Stage(Enum):

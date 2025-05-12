@@ -3,14 +3,15 @@ from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
 
 from utils.image_handler import ImageHandler
+from utils.enums import FunctionType
 from utils.config import PATH_TO_SCRIPT, IMAGE_TYPE, FILE_SOURCE_OPTIONS_CA, EDGEFINDER_OPTIONS
 from views.component.option_menu import OptionMenu
 from views.component.integer_entry import IntegerEntry
 from views.helper.style import set_light_only_color
 import os
 
-class CaAcquisition(CTkFrame):
-    def __init__(self, parent, user_input_data, **kwargs):
+class Acquisition(CTkFrame):
+    def __init__(self, parent, user_input_data, function_type, **kwargs):
         super().__init__(parent, **kwargs)
 
         self.user_input_data = user_input_data
@@ -37,8 +38,15 @@ class CaAcquisition(CTkFrame):
         self.image_source = OptionMenu(self, image_acquisition_frame, "Image source:",
                                        ["Local images"], self.update_image_source, rw=0)
         self.setup_choose_files_frame(image_acquisition_frame)
-        self.edgefinder = OptionMenu(
-            self, image_acquisition_frame, "Edge finder:", EDGEFINDER_OPTIONS, self.update_edgefinder, rw=2)
+
+        if function_type == FunctionType.CONTACT_ANGLE:
+            
+            def update_edgefinder(self, *args):
+                self.user_input_data.edgefinder = self.edgefinder.get_value()
+
+            self.edgefinder = OptionMenu(
+                self, image_acquisition_frame, "Edge finder:", EDGEFINDER_OPTIONS, update_edgefinder, rw=2)
+            
         self.frame_interval = IntegerEntry(
             self, image_acquisition_frame, "Frame interval (s):", self.update_frame_interval, rw=4, cl=0,
             default_value=self.user_input_data.frame_interval)
@@ -59,9 +67,6 @@ class CaAcquisition(CTkFrame):
     def update_frame_interval(self, *args):
         if hasattr(self, "frame_interval"):
             self.user_input_data.frame_interval = self.frame_interval.get_value()
-
-    def update_edgefinder(self, *args):
-        self.user_input_data.edgefinder = self.edgefinder.get_value()
 
     def setup_choose_files_frame(self, frame):
         self.choose_files_label = CTkLabel(frame, text="Image files: ", width=150, anchor="w")
