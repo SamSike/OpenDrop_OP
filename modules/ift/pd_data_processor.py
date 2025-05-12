@@ -2,109 +2,198 @@ from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, 
 #from modules.PlotManager import PlotManager
 from modules.preprocessing.ExtractData import ExtractedData
 from modules.image.read_image import get_image
-from modules.image.select_regions import set_drop_region, set_surface_line, correct_tilt, set_needle_region
-from modules.contact_angle.extract_profile import extract_drop_profile
+import cv2
 from utils.enums import *
 from utils.config import *
-from modules.fitting.fits import perform_fits
-
-import matplotlib.pyplot as plt
-from utils.enums import FittingMethod
 import os
 import numpy as np
-import tkinter as tk
-from tkinter import font as tkFont
-
 import timeit
+from PIL import Image
+
+from utils.misc import rotation_mat2d
+from .pendant import extract_pendant_features, analyze_ift
+from modules.ift.younglaplace.younglaplace import young_laplace_fit
+from modules.ift.younglaplace.shape import YoungLaplaceShape
 
 class pdDataProcessor:
-    def process_data(self, fitted_drop_data, user_input_data, callback):
-
-        analysis_methods = dict(user_input_data.analysis_methods_pd)
-
-        # if analysis_methods[ML_MODEL]:
-        #     from modules.ML_model.prepare_experimental import prepare4model_v03, experimental_pred
-        #     import tensorflow as tf
-        #     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR) # to minimise tf warnings
-        #     model_path = './modules/ML_model/'
-        #     model = tf.keras.models.load_model(model_path)
-
+    def process_data(self, user_input_data, callback=None):
+        
         print("user_input_data: ",user_input_data)
         n_frames = user_input_data.number_of_frames
-        extracted_data = ExtractedData(n_frames, fitted_drop_data.parameter_dimensions)
-        raw_experiment = ExperimentalDrop()
-
-        print()
-        #if user_input_data.interfacial_tension_boole:
-        #    plots = PlotManager(user_input_data.wait_time, n_frames)
-
-        #get_image(raw_experiment, user_input_data, -1) #is this needed?
-
-        self.output = []
-
-        for i in range(n_frames):
+        # 
+        for i in range(len(user_input_data.import_files)):
+            # Load the image (assuming OpenCV)
+            image = user_input_data.import_files[i]
+            if image is None:
+                print(f"Failed to load image: {input_files[i]}")
+                continue
             print("\nProcessing frame %d of %d..." % (i+1, n_frames))
             input_file = user_input_data.import_files[i]
-            print("\nProceccing " + input_file)
+            print("\nProcessing " + input_file)
             time_start = timeit.default_timer()
-            raw_experiment = ExperimentalDrop()
-            get_image(raw_experiment, user_input_data, i) # save image in here...
-            set_drop_region(raw_experiment, user_input_data)
-            set_needle_region(raw_experiment, user_input_data)
+            # 1. Extract drop and needle regions
+            #drop_points, needle_diameter_px, drop_region, needle_region, image, drop_image, needle_fit_result = extract_pendant_features(image)
+            print(user_input_data.fit_result[i])
+            analyzed_ift =  analyze_ift(user_input_data.fit_result[i],drop_density = user_input_data.drop_density,
+                continuous_density = user_input_data.density_outer,needle_diameter_mm = user_input_data.needle_diameter_mm,
+                 needle_diameter_px = user_input_data.needle_diameter_px[i])
+            self.draw_fitted_shape(user_input_data, i, image)
+            time_end = timeit.default_timer()
+            duration = time_end - time_start
+            analyzed_ift[5] = (duration)
+            # Save the analyzed IFT results
+            #print("Analyzed IFT:", analyzed_ift)
+            user_input_data.ift_results[i] = analyzed_ift
 
-            # extract_drop_profile(raw_experiment, user_input_data)
-            extract_drop_profile(raw_experiment, user_input_data)
+            print("Time taken for frame %d: %.2f seconds" % (i+1, duration))
+            print("callback: ",i)
+        if callback:
+            callback(user_input_data)
 
-            if i == 0:
-                extracted_data.initial_image_time = raw_experiment.time
+        
 
-            set_surface_line(raw_experiment, user_input_data) #fits performed here if baseline_method is User-selected
 
-            # these methods don't need tilt correction
-            if user_input_data.baseline_method == "Automated":
-                if analysis_methods[FittingMethod.TANGENT_FIT] or analysis_methods[FittingMethod.POLYNOMIAL_FIT] or analysis_methods[FittingMethod.CIRCLE_FIT] or analysis_methods[FittingMethod.ELLIPSE_FIT]:
-                    perform_fits(raw_experiment, tangent=analysis_methods[FittingMethod.TANGENT_FIT], 
-                                 polynomial=analysis_methods[FittingMethod.POLYNOMIAL_FIT], circle=analysis_methods[FittingMethod.CIRCLE_FIT],
-                                 ellipse=analysis_methods[FittingMethod.ELLIPSE_FIT])
 
-            # YL fit and ML model need tilt correction
-            if analysis_methods[FittingMethod.ML_MODEL] or analysis_methods[FittingMethod.YL_FIT]:
-                correct_tilt(raw_experiment, user_input_data)
-                extract_drop_profile(raw_experiment, user_input_data)
-                if user_input_data.baseline_method == "Automated":
-                    set_surface_line(raw_experiment, user_input_data)
-                # experimental_setup.baseline_method == 'User-selected' should work as is
+    def processPreparation(self, user_input_data):
+        n_frames = user_input_data.number_of_frames
+        # Initialize drop_images if not already
+        print("####################################: ",len(user_input_data.import_files))
+        user_input_data.drop_images = ["None"] * n_frames
+        #num_of_images = len(user_input_data.import_files)
+        user_input_data.drop_points = ["None"] * n_frames
+        user_input_data.needle_diameter_px = ["None"] * n_frames
+        user_input_data.drop_region = ["None"] * n_frames
+        user_input_data.needle_region = ["None"] * n_frames
+        user_input_data.fit_result = ["None"] * n_frames
+        user_input_data.ift_results = ["None"] * n_frames
+        user_input_data.drop_contour_images = ["None"] * n_frames
+        user_input_data.processed_images = ["None"] * n_frames
+        
 
-                #raw_experiment.contour = extract_edges_CV(raw_experiment.cropped_image, threshold_val=raw_experiment.ret, return_thresholed_value=False)
-                #experimental_drop.drop_contour, experimental_drop.contact_points = prepare_hydrophobic(experimental_drop.contour)
 
-                if analysis_methods[FittingMethod.YL_FIT]:
-                    print('Performing YL fit...')
-                    perform_fits(raw_experiment, YL=analysis_methods[FittingMethod.YL_FIT])
-                if analysis_methods[FittingMethod.ML_MODEL]:
-                    pred_ds = prepare4model_v03(raw_experiment.drop_contour)
-                    ML_predictions, timings = experimental_pred(pred_ds, model)
-                    raw_experiment.contact_angles[FittingMethod.ML_MODEL] = {}
-                    # raw_experiment.contact_angles[ML_MODEL]['angles'] = [ML_predictions[0,0],ML_predictions[1,0]]
-                    raw_experiment.contact_angles[FittingMethod.ML_MODEL][LEFT_ANGLE] = ML_predictions[0,0]
-                    raw_experiment.contact_angles[FittingMethod.ML_MODEL][RIGHT_ANGLE] = ML_predictions[1,0]
-                    raw_experiment.contact_angles[FittingMethod.ML_MODEL]['timings'] = timings
+        for i in range(len(user_input_data.import_files)):
+            print("\nProcessing frame %d of %d..." % (i+1, n_frames))
+            input_file = user_input_data.import_files[i]
+            print("\nProcessing " + input_file)
+            time_start = timeit.default_timer()
+            # Load the image (assuming OpenCV)
+            image = user_input_data.import_files[i]
+            
+            if image is None:
+                print(f"Failed to load image: {input_file}")
+                continue
+            drop_points, needle_diameter_px, drop_region, needle_region, image,drop_image, needle_fit_result = extract_pendant_features(image)
+            user_input_data.fit_result[i] = young_laplace_fit(drop_points, verbose=True)
+            user_input_data.drop_points[i] = drop_points
+            user_input_data.needle_diameter_px[i] = needle_diameter_px
+            user_input_data.drop_region[i] = drop_region
+            user_input_data.needle_region[i] = needle_region
+            self.draw_regions(user_input_data, i, image)
+        
 
-            extracted_data.contact_angles = raw_experiment.contact_angles # DS 7/6/21
 
-            #print(extracted_data.contact_angles) #for the dictionary output
-            print('Extracted outputs:')
-            for key1 in extracted_data.contact_angles.keys():
-                for key2 in extracted_data.contact_angles[key1].keys():
-                    print(key1+' '+key2+': ')
-                    print('    ',extracted_data.contact_angles[key1][key2])
-                    print()
 
-            self.output.append(extracted_data)
 
-            if callback:
-                callback(extracted_data)
+    def draw_regions(self, user_input_data, i, image):
+        drop_region = user_input_data.drop_region[i]
+        needle_region = user_input_data.needle_region[i]
+        regions_image = image.copy()
+        # Draw drop_region (blue)
+        if drop_region is not None:
+            regions_image = cv2.rectangle(
+                regions_image,
+                (int(drop_region.x0), int(drop_region.y0)),
+                (int(drop_region.x1), int(drop_region.y1)),
+                (255, 0, 0), 2
+            )
+        # Draw needle_region (red)
+        if needle_region is not None:
+            regions_image = cv2.rectangle(
+                regions_image,
+                (int(needle_region.x0), int(needle_region.y0)),
+                (int(needle_region.x1), int(needle_region.y1)),
+                (0, 0, 255), 2
+            )
+        image_pil = Image.fromarray(cv2.cvtColor(regions_image, cv2.COLOR_BGR2RGB))
+        user_input_data.processed_images[i] = image_pil
 
-    def save_result(self, input_file, output_directory, filename):
-        for index, extracted_data in enumerate(self.output):
-            extracted_data.export_data(input_file, output_directory, filename, index)
+    def draw_fitted_shape(self, user_input_data, drop_index, image):
+        fit_result = user_input_data.fit_result[drop_index]
+        shape = YoungLaplaceShape(fit_result.bond)
+        _ = shape(MAX_ARCLENGTH)
+        # 2. Pick arclength values to sample.  We’ll reuse the ones from the fit:
+        s_values = fit_result.arclengths
+        # 3. Generate (r, z) coordinates pointwise
+        #    shape(s) returns a length‐2 array [r, z]
+        rz = np.array([ shape(s) for s in s_values ])  # shape (N,2)
+        r_coords = rz[:, 0]
+        z_coords = rz[:, 1]
+        # 4. Now transform into image coords:
+        #    a) scale by fitted radius
+        rz_scaled = fit_result.radius * rz.T            # shape (2, N)
+        #    b) rotate by fitted rotation
+        Q = rotation_mat2d(fit_result.rotation)
+        xy_fitted = Q @ rz_scaled                       # still (2, N)
+        #    c) translate to apex location
+        apex = np.array([fit_result.apex_x, fit_result.apex_y]).reshape(2, 1)
+        xy_fitted += apex
+        # Crop the original BGR image using drop_region
+        drop_region = user_input_data.drop_region[drop_index]
+        y0 = int(drop_region.y0)
+        y1 = int(drop_region.y1)
+        x0 = int(drop_region.x0)
+        x1 = int(drop_region.x1)
+        image = cv2.imread(image)
+
+        # Make a copy to draw on (still BGR)
+        img_to_draw_on = image
+        # Translate fitted points to be relative to the cropped image
+        translated_fitted_x = xy_fitted[0, :]
+        translated_fitted_y = xy_fitted[1, :]
+        # Draw the fitted shape as individual points on the cropped BGR image
+        point_radius = 0 # As in your existing code
+        point_color_bgr = (0, 0, 255) 
+        point_thickness = -1 
+        for i in range(len(translated_fitted_x)):
+            x_coord = int(translated_fitted_x[i])
+            y_coord = int(translated_fitted_y[i])
+            cv2.circle(img_to_draw_on, (x_coord, y_coord), point_radius, point_color_bgr, point_thickness)
+        
+        image_pil = Image.fromarray(cv2.cvtColor(img_to_draw_on, cv2.COLOR_BGR2RGB))
+        user_input_data.drop_contour_images[drop_index] = image_pil
+
+    def save_result(self, input_file, output_directory,filename, user_input_data):
+        
+        """
+        Save experiment results to a CSV file with columns:
+        Filename, Time, IFT, V, SA, Bond, Worth
+        """
+        import csv
+        import os
+
+        # Prepare output path
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+        output_file = os.path.join(output_directory, filename)
+        # Write CSV header and data
+        with open(output_file, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(["Filename", "Time", "IFT (mN/m)", "Volume (mm^3)", "Surface Area (mm^2)", "Bond", "Worth"])
+            for i, result in enumerate(user_input_data.ift_results):
+                if result is not None and result != "None":
+                    # result: [IFT, V, SA, Bond, Worth, Time]
+                    filename = (
+                        user_input_data.import_files[i]
+                        if hasattr(user_input_data, "import_files") and len(user_input_data.import_files) > i
+                        else f"Image_{i+1}"
+                    )
+                    writer.writerow([
+                        user_input_data.import_files[i],
+                        f"{result[5]:.4f}",
+                        f"{result[0]:.1f}",
+                        f"{result[1]:.2f}",
+                        f"{result[2]:.2f}",
+                        f"{result[3]:.4f}",
+                        f"{result[4]:.4f}"
+                    ])
+        print(f"Results saved to {output_file}")

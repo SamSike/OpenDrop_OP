@@ -30,15 +30,15 @@ def validate_user_input_data_ift(user_input_data):
         
         required_fields = {
             'drop_density': "Drop Density",
-            'density_outer': "Continuous Density",
-            'needle_diameter_mm': "Needle Diameter",
+            'needle_diameter_mm': "Needle Diameter"
+            #,'density_outer': "Continuous Density",
             # 'pixel_mm': "Pixel to mm"
         }
 
         for field, label in required_fields.items():
             value = getattr(user_input_data, field, None)  # Get the attribute or None if missing
             print(field," is ",value)
-            if value is None or value == "" or value ==0.0:  # Check for both None and empty string
+            if value is None:  # Check for both None and empty string
                 messages.append(f"{label} is required")
 
 

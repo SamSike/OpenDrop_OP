@@ -130,7 +130,7 @@ class FunctionWindow(CTk):
         self.update_stage(Move.Next.value)
         # Handle the "Next" button functionality
         if self.current_stage == Stage.PREPARATION:
-
+            
             # First check if the user has imported files
             if not self.check_import(user_input_data):
                 self.update_stage(Move.Back.value)
@@ -144,18 +144,16 @@ class FunctionWindow(CTk):
                 messagebox.showinfo("Missing", "Frame Interval is required.")
                 return
             self.back_button.pack(side="left", padx=10, pady=10)
-
+            #self.pd_processor.processPreparation(user_input_data)
             # user have selected at least one file
             if function_type == FunctionType.PENDANT_DROP:
                 self.ift_acquisition_frame.pack_forget()
-
-                # Initialise Preparation frame
                 self.ift_preparation_frame = IftPreparation(
-                self, user_input_data, experimental_drop,fg_color=self.FG_COLOR)
+                self, user_input_data, experimental_drop,self.pd_processor, fg_color=self.FG_COLOR)
                 self.ift_preparation_frame.pack(fill="both", expand=True)
+                
             else:
                 self.ca_acquisition_frame.pack_forget()
-
                 # Initialise Preparation frame
                 self.ca_preparation_frame = CaPreparation(
                 self, user_input_data, experimental_drop,fg_color=self.FG_COLOR)
@@ -166,6 +164,7 @@ class FunctionWindow(CTk):
             # Validate user input data
             if function_type == FunctionType.PENDANT_DROP:
                 validation_messages = validate_user_input_data_ift(user_input_data)
+                
             elif function_type == FunctionType.CONTACT_ANGLE:
                 validation_messages = validate_user_input_data_cm(user_input_data,experimental_drop)
             
@@ -178,10 +177,13 @@ class FunctionWindow(CTk):
                 if function_type == FunctionType.PENDANT_DROP:
                     self.ift_preparation_frame.pack_forget()
                     self.ift_analysis_frame = IftAnalysis(
-                        self, user_input_data, fg_color=self.FG_COLOR)
+                        self, user_input_data, self.pd_processor, fg_color=self.FG_COLOR)
                     self.ift_analysis_frame.pack(fill="both", expand=True)
                     print("FunctionType.PENDANT_DROP")
-                  
+                    self.withdraw()
+                    self.pd_processor.process_data(user_input_data, callback=self.ift_analysis_frame.receive_output)
+                    self.deiconify()
+
                 else:
                     self.ca_preparation_frame.pack_forget()
                     self.ca_analysis_frame = CaAnalysis(
@@ -213,7 +215,16 @@ class FunctionWindow(CTk):
 
     def save_output(self, function_type, user_input_data):
         if function_type == FunctionType.PENDANT_DROP:
-            messagebox.showinfo("Messagebox", "TODO: save file")
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            if user_input_data.filename:
+                filename = user_input_data.filename + "_" + timestamp + ".csv"
+            else:
+                filename = "Extracted_data_"+timestamp+".csv"
+            
+            self.pd_processor.save_result(user_input_data.import_files, user_input_data.output_directory,filename, user_input_data)
+
+            messagebox.showinfo("Success", "File saved successfully!")
             self.destroy()
         else:
             # filename = user_input_data.filename[:-4] + '_' + user_input_data.time_string + ".csv"

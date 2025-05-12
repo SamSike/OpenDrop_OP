@@ -1,5 +1,6 @@
 from typing import Any
 import os
+import cv2
 from tkinter import filedialog, messagebox
 from PIL import Image
 from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, StringVar, CTkOptionMenu, CTkImage

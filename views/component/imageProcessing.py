@@ -118,13 +118,16 @@ class ImageApp(ctk.CTkFrame):
 
     def load_image(self, selected_image):
         """Load and display the selected image."""
-        try:
-            self.current_image = Image.open(selected_image)
-            get_image(self.experimental_drop, self.user_input_data, self.current_index)
-            self.display_image()
-        except FileNotFoundError:
-            print(f"Error: The image file {selected_image} was not found.")
-            self.current_image = None
+        if self.application == "IFT":
+            idx = self.current_index
+            self.current_image = self.user_input_data.processed_images[idx]
+        else:
+            # Fallback to original
+            if isinstance(selected_image, Image.Image):
+                self.current_image = selected_image
+            else:
+                self.current_image = Image.open(selected_image)
+        self.display_image()
 
     def display_image(self):
         """Display the currently loaded image."""

@@ -3,14 +3,17 @@ import customtkinter as ctk
 from views.component.preparation import create_plotting_checklist_ift, create_analysis_checklist_ift,create_user_input_fields_ift
 from views.component.imageProcessing import ImageApp
 from views.helper.style import set_light_only_color
+from modules.ift.pd_data_processor import pdDataProcessor
 
 class IftPreparation(ctk.CTkFrame):
-    def __init__(self, parent, user_input_data,experimental_drop, **kwargs):
+    def __init__(self, parent, user_input_data,experimental_drop,pd_processor, **kwargs):
         super().__init__(parent, **kwargs)
 
         self.application = "IFT"
         self.user_input_data = user_input_data
         self.experimental_drop = experimental_drop
+        self.pd_processor = pd_processor
+        self.pd_processor.processPreparation( self.user_input_data)
         # Configure the grid to allow expansion for both columns
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)  # Left column for input fields
