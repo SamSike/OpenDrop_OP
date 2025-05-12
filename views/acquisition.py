@@ -171,35 +171,41 @@ class Acquisition(CTkFrame):
         if self.current_image and target_width > 1 and target_height > 1:
             try:
                 original_width, original_height = self.current_image.size
-                aspect_ratio = original_width / original_height
 
-                new_width = target_width
-                new_height = int(new_width / aspect_ratio)
-                if new_height > target_height:
-                    new_height = target_height
-                    new_width = int(new_height * aspect_ratio)
+                # Compute scale factors
+                scale_w = target_width / original_width
+                scale_h = target_height / original_height
+                scale = min(scale_w, scale_h)
 
-                new_width = max(1, new_width)
-                new_height = max(1, new_height)
+                # Compute new dimensions
+                new_width = max(1, int(original_width * scale))
+                new_height = max(1, int(original_height * scale))
 
-                resized_pil_image = self.current_image.copy()
-                resized_pil_image.thumbnail((new_width, new_height), Image.Resampling.LANCZOS)
+                # Resize image using resize() instead of thumbnail()
+                resized_pil_image = self.current_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
+                # Convert to CTkImage
                 self.tk_image = CTkImage(
                     light_image=resized_pil_image,
-                    size=(resized_pil_image.width, resized_pil_image.height)
-                    )
+                    size=(new_width, new_height)
+                )
 
+                print("Original:", self.current_image.size)
+                print("Resized to:", new_width, new_height)
+
+                # Display the image
                 if hasattr(self, 'image_label') and self.image_label:
                     self.image_label.configure(image=self.tk_image, text="")
                     self.image_label.image = self.tk_image
+
             except Exception as e:
                 print(f"Error resizing/displaying image: {e}")
                 if hasattr(self, 'image_label') and self.image_label:
                     self.image_label.configure(image=None, text="Display Error")
         elif hasattr(self, 'image_label') and self.image_label:
-             self.image_label.configure(image=None, text="No Image")
-             self.image_label.image = None
+            self.image_label.configure(image=None, text="No Image")
+            self.image_label.image = None
+
 
     def _perform_resize(self):
         if not hasattr(self, 'image_label') or not self.image_label.winfo_exists():
@@ -207,7 +213,7 @@ class Acquisition(CTkFrame):
         widget_width = self.image_label.winfo_width()
         widget_height = self.image_label.winfo_height()
         pad_x = 0
-        pad_y = 0
+        pad_y = 200
         target_width = max(1, widget_width - pad_x)
         target_height = max(1, widget_height - pad_y)
 

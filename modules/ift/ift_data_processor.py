@@ -59,6 +59,6 @@ class iftDataProcessor:
                 None
                 #callback(extracted_data)
 
-    def save_result(self, input_file, output_directory, filename):
+    def save_result(self, input_files, output_directory, filename):
         for index, extracted_data in enumerate(self.output):
-            extracted_data.export_data(input_file, output_directory, filename, index)
+            extracted_data.export_data(input_files[index], output_directory, filename, index)
