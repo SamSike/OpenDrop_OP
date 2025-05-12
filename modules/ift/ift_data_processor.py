@@ -20,12 +20,13 @@ class iftDataProcessor:
         
         print("user_input_data: ",user_input_data)
         n_frames = user_input_data.number_of_frames
-        # 
+        time = 0
+
         for i in range(len(user_input_data.import_files)):
             # Load the image (assuming OpenCV)
             image = user_input_data.import_files[i]
             if image is None:
-                print(f"Failed to load image: {input_files[i]}")
+                print(f"Failed to load image: {image}")
                 continue
             print("\nProcessing frame %d of %d..." % (i+1, n_frames))
             input_file = user_input_data.import_files[i]
@@ -40,7 +41,7 @@ class iftDataProcessor:
             self.draw_fitted_shape(user_input_data, i, image)
             time_end = timeit.default_timer()
             duration = time_end - time_start
-            analyzed_ift[5] = (duration)
+            analyzed_ift[5] = time + i * user_input_data.frame_interval
             # Save the analyzed IFT results
             #print("Analyzed IFT:", analyzed_ift)
             user_input_data.ift_results[i] = analyzed_ift
@@ -68,8 +69,6 @@ class iftDataProcessor:
         user_input_data.ift_results = ["None"] * n_frames
         user_input_data.drop_contour_images = ["None"] * n_frames
         user_input_data.processed_images = ["None"] * n_frames
-        
-
 
         for i in range(len(user_input_data.import_files)):
             print("\nProcessing frame %d of %d..." % (i+1, n_frames))
@@ -90,10 +89,6 @@ class iftDataProcessor:
             user_input_data.needle_region[i] = needle_region
             self.draw_regions(user_input_data, i, image)
         
-
-
-
-
     def draw_regions(self, user_input_data, i, image):
         drop_region = user_input_data.drop_region[i]
         needle_region = user_input_data.needle_region[i]
@@ -189,7 +184,7 @@ class iftDataProcessor:
                     )
                     writer.writerow([
                         user_input_data.import_files[i],
-                        f"{result[5]:.4f}",
+                        f"{result[5]:.0f}",
                         f"{result[0]:.1f}",
                         f"{result[1]:.2f}",
                         f"{result[2]:.2f}",
