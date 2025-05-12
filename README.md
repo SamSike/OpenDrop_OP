@@ -106,7 +106,6 @@ Cython and some Python packages require C/C++ compilers to build native extensio
   ```bash
   sudo dnf groupinstall "Development Tools"
   ```
-  ```
 
 - For Arch Linux:
   ```bash
