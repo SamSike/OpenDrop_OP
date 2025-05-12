@@ -6,14 +6,14 @@ import sys
 import os
 import cv2
 
-# 添加路径
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from modules.fitting.BA_fit import *
 
-# 定义 OpenCV 版本变量
+
 CV2_VERSION = tuple(map(int, cv2.__version__.split(".")))
 
-# 忽略警告
+
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # ===== Fixtures =====

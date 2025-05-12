@@ -15,7 +15,7 @@ from .pendant import extract_pendant_features, analyze_ift
 from modules.ift.younglaplace.younglaplace import young_laplace_fit
 from modules.ift.younglaplace.shape import YoungLaplaceShape
 
-class pdDataProcessor:
+class iftDataProcessor:
     def process_data(self, user_input_data, callback=None):
         
         print("user_input_data: ",user_input_data)

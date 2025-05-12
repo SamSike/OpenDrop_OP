@@ -14,7 +14,7 @@ APP_COLORS = {
     "ACCENT": "#00A3D9",
     "ERROR": "#D64545",
     "SUCCESS": "#4BB543",
-    "BORDER": "#C4CBD4"
+    "BORDER": "#C4CBD4",
 }
 
 def get_color(name: str) -> str:

@@ -6,29 +6,32 @@ from utils.config import *
 from utils.validators import *
 
 class FloatCombobox():
-    def __init__(self, parent, frame, text_left, options_list, callback, rw=0, padx=(5, 5), pady=(5, 5), width_specify=150, label_width=150, state_specify='normal'):
+    def __init__(self, parent, frame, text_left, options_list, callback, default_value, rw=0, padx=(5, 5), pady=(5, 5), 
+                 width_specify=150, label_width=150, state_specify='normal'):
         self.label = ctk.CTkLabel(frame, text=text_left, width=label_width, anchor="w")
         self.label.grid(row=rw, column=0, sticky="w", padx=padx, pady=pady)
+        
         self.text_variable = ctk.StringVar()
+        
+        if default_value is not None:
+            self.default_value = float(default_value) 
+            self.float_variable = self.default_value
+            self.text_variable.set(str(self.default_value))  # Set default value
 
         if callback:
             self.text_variable.trace_add("write", callback)
 
-        self.float_variable = 0.0
-        
         self.combobox = ctk.CTkComboBox(
             frame, variable=self.text_variable, values=options_list)
         self.combobox.configure(width=width_specify, state=state_specify)
         self.combobox.grid(row=rw, column=1, sticky="we", padx=padx, pady=pady)
 
     def get_value(self):
-        value = 0
         try:
             value = float("0" + self.text_variable.get())
             self.float_variable = value
             return value
         except ValueError:
-            # if the user enters non-numeric character
             self.set_value(self.float_variable)
             return self.float_variable
 
