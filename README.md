@@ -4,6 +4,40 @@ OpenDrop-ML is an open-source, cross-platform tool for analyzing liquid droplets
 
 Current ML implementation is optimized for high angle systems. For lower angle or extreme curvature drops, verification of results is strongly advised. See: https://doi.org/10.1021/acs.langmuir.4c01050
 
+# Table of Contents
+- [OpenDrop-ML](#opendrop-ml)
+- [Table of Contents](#table-of-contents)
+- [Features](#features)
+- [Code Structure Overview](#code-structure-overview)
+- [Quick Start Guide for Windows and Linux](#quick-start-guide-for-windows-and-linux)
+  - [1. Install Python](#1-install-python)
+    - [Check if Python is Already Installed](#check-if-python-is-already-installed)
+    - [Install Python (if not already installed)](#install-python-if-not-already-installed)
+  - [2. Install C/C++ Build Tools](#2-install-cc-build-tools)
+    - [Windows](#windows)
+    - [Linux](#linux)
+  - [3. Install Python Dependencies](#3-install-python-dependencies)
+  - [4. Build Cython Extensions](#4-build-cython-extensions)
+  - [5. Run the Application](#5-run-the-application)
+  - [Troubleshooting](#troubleshooting)
+- [Quick Start Guide for macOS (Conda Only)](#quick-start-guide-for-macos-conda-only)
+  - [1. Install Conda](#1-install-conda)
+  - [2. Create Conda Environment](#2-create-conda-environment)
+    - [For Apple Silicon (M1/M2/M3):](#for-apple-silicon-m1m2m3)
+    - [For Intel Mac:](#for-intel-mac)
+  - [3. Install Python Dependencies](#3-install-python-dependencies-1)
+  - [4. Build Cython Extensions](#4-build-cython-extensions-1)
+  - [5. Run the Application](#5-run-the-application-1)
+  - [6. VS Code or Other IDE Setup (Optional but Recommended)](#6-vs-code-or-other-ide-setup-optional-but-recommended)
+- [User Guide](#user-guide)
+- [Developer \& Contributor Guide](#developer--contributor-guide)
+  - [Modular Design](#modular-design)
+  - [Backend \& UI Extensions](#backend--ui-extensions)
+- [High-Level Architecture Diagram](#high-level-architecture-diagram)
+- [Unit tests](#unit-tests)
+- [Appropriate use of ML model in Contact Angle Analysis](#appropriate-use-of-ml-model-in-contact-angle-analysis)
+- [Contact \& Contribution](#contact--contribution)
+
 # Features
 
 - Contact Angle & Pendant Drop Analysis
@@ -42,9 +76,9 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 
 ------
 
-# Quick Start Guide
+# Quick Start Guide for Windows and Linux
 
-This guide helps you install the necessary dependencies and run the application on your local machine.
+This guide helps you install the necessary dependencies and run the application on your local Windows and Linux machine. MacOS users please refer to [Quick Start Guide for macOS (Conda Only)](#quick-start-guide-for-macos-conda-only).
 
 ---
 
@@ -68,9 +102,7 @@ Download and install [Python 3.8.10](https://www.python.org/downloads/release/py
 > 
 >  If you forget, you may need to manually add it to your **environment variables** under "System Properties > Environment Variables > Path".
 
-> **macOS/Linux Users:** Python 3 is usually preinstalled, but you can install it via a package manager if needed:
-> 
-> macOS: ```brew install python@3.8```
+> **Linux Users:** Python 3 is usually preinstalled, but you can install it via a package manager if needed:
 > 
 > Ubuntu/Debian: ```sudo apt install python3.8 python3.8-venv```
 > 
@@ -88,12 +120,6 @@ Cython and some Python packages require C/C++ compilers to build native extensio
 - During installation, select:
   - "C++ build tools"
   - Include the "Windows 10 SDK" or "Windows 11 SDK"
-
-### macOS
-- Open Terminal and install Xcode Command Line Tools:
-  ```bash
-  xcode-select --install
-  ```
 
 ### Linux
 - For Debian/Ubuntu based systems:
@@ -132,7 +158,7 @@ python -m venv venv
 venv\Scripts\activate
 ```
 
-On macOS or Linux
+On Linux
 ```bash
 python -m venv venv
 source venv/bin/activate
@@ -148,7 +174,7 @@ You’ll need to compile Cython modules before running the application:
 python setup.py build_ext --inplace
 ```
 
-This will generate`.cpp` files from the Cython sources.
+This will generate files from the Cython sources.
 
 > If you encounter errors, ensure:
 > - Cython is installed: `pip install cython`
@@ -164,8 +190,6 @@ Once the build is complete, run the main script to start the application:
 python main.py
 ```
 
-If your application has a GUI or a web interface, follow any additional prompts or check the console for access URLs.
-
 ---
 
 ## Troubleshooting
@@ -178,7 +202,95 @@ If your application has a GUI or a web interface, follow any additional prompts 
   - Try `pip install --upgrade pip setuptools wheel cython`.
 
 - **Wrong Python version?**
-  - Consider using `pyenv`, `conda`, or a virtual environment to manage Python versions.
+  - Consider using `pyenv`, `conda` (see the next section), or a virtual environment to manage Python versions.
+
+
+# Quick Start Guide for macOS (Conda Only)
+
+## 1. Install Conda
+
+We recommend [Miniforge (Apple Silicon)](https://github.com/conda-forge/miniforge) or [Miniconda (Intel)](https://docs.conda.io/en/latest/miniconda.html).
+
+---
+
+## 2. Create Conda Environment
+
+### For Apple Silicon (M1/M2/M3):
+
+```bash
+CONDA_SUBDIR=osx-64 conda create -n opendrop_env python=3.8.10 numpy=1.22.4 scipy=1.7.3 pip -c conda-forge
+conda activate opendrop_env
+pip install tensorflow-macos
+```
+
+### For Intel Mac:
+
+```bash
+conda create -n opendrop_env python=3.8.10 numpy=1.22.4 scipy=1.7.3 pip -c conda-forge
+conda activate opendrop_env
+pip install tensorflow==2.13.0
+```
+
+---
+
+## 3. Install Python Dependencies
+
+Make sure you're in the root folder of the project, then run:
+
+```bash
+pip install -r requirements-3810.txt
+```
+
+This will install all necessary packages.
+
+> If you’re using a virtual environment, activate it first:
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+---
+
+## 4. Build Cython Extensions
+
+You’ll need to compile Cython modules before running the application:
+
+```bash
+python setup.py build_ext --inplace
+```
+
+This will generate files from the Cython sources.
+
+> If you encounter errors, ensure:
+> - Cython is installed: `pip install cython`
+
+---
+
+## 5. Run the Application
+
+Once the build is complete, run the main script to start the application:
+
+```bash
+python main.py
+```
+
+---
+
+## 6. VS Code or Other IDE Setup (Optional but Recommended)
+
+If you are using VS Code or another IDE:
+
+1. Open the Command Palette (`⇧⌘P` or `Ctrl+Shift+P`)
+2. Run `Python: Select Interpreter`
+3. Choose the one showing your Conda environment, such as:
+
+   ```
+   Python 3.8.10 ('opendrop_env': conda)
+   ```
+
+This ensures VS Code uses the correct environment with the right versions of `numpy`, `scipy`, `tensorflow`, etc.
+
+---
 
 # User Guide
 After starting the application:
@@ -227,17 +339,7 @@ Refer to:
 # Unit tests
 See [TESTING.md](./TESTING.md) for more details on how to run the built-in unit tests.
 
-# Contact & Contribution
-
-OpenDrop-ML is an open-source project. Contributions are welcome!
-
-- GitHub: https://github.com/SamSike/OpenDrop_OP
-- For issues, use GitHub issue tracker
-
-# Appropriate use
-
-This section has been included as many users of Conan-ML will not be familiar
-with the use of ML models and their limitations and best practice use cases.
+# Appropriate use of ML model in Contact Angle Analysis
 
 The key limitation of ML models is that accuracy may deteriorate when used
 on systems which was not represented within it's training data. While it has
@@ -263,3 +365,17 @@ This work presents an automated process, which still requires improvement,
 but will likely be suitable for high contrast images. Users are recommended
 to check that the detected edge is reasonable prior to accepting the results
 outputted by any fitting or angle prediction approach.
+
+Current OpenDrop-ML implementation performs best for contact angles above 110°. For low-angle or high-curvature drops, verification is advised. See: [https://doi.org/10.1021/acs.langmuir.4c01050](https://doi.org/10.1021/acs.langmuir.4c01050)
+
+Users should validate predictions manually in cases:
+* With extreme Bond numbers (>2)
+* With strong surface roughness/reflections
+* Outside of the model's trained contact angle range
+
+# Contact & Contribution
+
+OpenDrop-ML is an open-source project. Contributions are welcome!
+
+- GitHub: https://github.com/SamSike/OpenDrop_OP
+- For issues, use GitHub issue tracker

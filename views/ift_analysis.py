@@ -3,6 +3,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from views.component.imageGallery import ImageGallery
+from views.component.CTkXYFrame import *
 
 class IftAnalysis(CTkFrame):
     def __init__(self, parent, user_input_data,ift_processor, **kwargs):
@@ -33,7 +34,8 @@ class IftAnalysis(CTkFrame):
         parent.grid_columnconfigure(1, weight=1)
 
         # Table can be large, so scrollable
-        self.table_frame = CTkScrollableFrame(parent)
+
+        self.table_frame = CTkXYFrame(parent)
         # Removed pady=(10, 0) to potentially reduce wasted space, added padx for consistency
         self.table_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
@@ -75,7 +77,7 @@ class IftAnalysis(CTkFrame):
         for i , result in enumerate(results, start=1):
             # Time column
             print (f"Result: {result}")
-            time_cell = CTkLabel(self.table_frame, text=f"{result[5]:.4f}", anchor="center")
+            time_cell = CTkLabel(self.table_frame, text=f"{result[5]:.0f}", anchor="center")
             time_cell.grid(row=i, column=0, padx=10, pady=5, sticky="nsew")
             # IFT column
             ift_cell = CTkLabel(self.table_frame, text=f"{result[0]:.1f}", anchor="center")

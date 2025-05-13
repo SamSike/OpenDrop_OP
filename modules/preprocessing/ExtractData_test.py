@@ -49,10 +49,11 @@ def test_time_IFT_vol_area():
     data.gamma_IFT_mN[index] = 2.0
     data.volume[index] = 3.0
     data.area[index] = 4.0
+    data.bond[index] = 5.0
+    data.worthington[index] = 6.0
 
     result = data.time_IFT_vol_area(index)
-    assert result == [1.0, 2.0, 3.0, 4.0]
-
+    assert result == [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
 
 def test_time_IFT_vol_area_index_out_of_bounds():
     data = ExtractedData(5, 5)
