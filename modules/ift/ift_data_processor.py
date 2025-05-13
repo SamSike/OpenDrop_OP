@@ -184,7 +184,7 @@ class iftDataProcessor:
                     )
                     writer.writerow([
                         user_input_data.import_files[i],
-                        f"{result[5]:.0f}",
+                        f"{result[5]:.1f}",
                         f"{result[0]:.1f}",
                         f"{result[1]:.2f}",
                         f"{result[2]:.2f}",
