@@ -238,7 +238,7 @@ pip install tensorflow==2.13.0
 Make sure you're in the root folder of the project, then run:
 
 ```bash
-pip install -r requirements-3810.txt
+pip install -r requirements-3810-macos.txt
 ```
 
 This will install all necessary packages.
