@@ -39,7 +39,22 @@ if is_windows:
     print(f"BOOST_INCLUDE: {BOOST_INCLUDE}")
     print(f"extra_objects: {extra_objects}")
     print(f"compile_args: {compile_args}")
-
+elif is_macos:
+    SUNDIALS_INCLUDE = os.path.join(BASE_DIR, "dependencies", "macos", "sundials", "include")
+    SUNDIALS_LIB = os.path.join(BASE_DIR, "dependencies", "macos", "sundials", "lib")
+    BOOST_INCLUDE = os.path.join(BASE_DIR, "dependencies", "macos", "boost")
+    extra_objects = [
+        os.path.join(SUNDIALS_LIB, "libsundials_arkode.a"),
+        os.path.join(SUNDIALS_LIB, "libsundials_nvecserial.a"),
+        os.path.join(SUNDIALS_LIB, "libsundials_core.a"),
+    ]
+    compile_args = ["-std=c++17"]
+    print("macOS detected, using macOS-specific settings.")
+    print(f"SUNDIALS_INCLUDE: {SUNDIALS_INCLUDE}")
+    print(f"SUNDIALS_LIB: {SUNDIALS_LIB}")
+    print(f"BOOST_INCLUDE: {BOOST_INCLUDE}")
+    print(f"extra_objects: {extra_objects}")
+    print(f"compile_args: {compile_args}")
 else:
     SUNDIALS_INCLUDE = os.path.join(BASE_DIR, "dependencies","linux", "sundials", "include")
     SUNDIALS_LIB = os.path.join(BASE_DIR, "dependencies","linux", "sundials", "lib")
