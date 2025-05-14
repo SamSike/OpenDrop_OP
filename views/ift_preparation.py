@@ -1,16 +1,18 @@
 import customtkinter as ctk
 
-from views.component.preparation import create_plotting_checklist_ift, create_analysis_checklist_ift,create_user_input_fields_ift
+from views.component.preparation import create_plotting_checklist, create_analysis_checklist_ift,create_user_input_fields_ift
 from views.component.imageProcessing import ImageApp
 from views.helper.style import set_light_only_color
 
 class IftPreparation(ctk.CTkFrame):
-    def __init__(self, parent, user_input_data,experimental_drop, **kwargs):
+    def __init__(self, parent, user_input_data,experimental_drop,ift_processor, **kwargs):
         super().__init__(parent, **kwargs)
 
         self.application = "IFT"
         self.user_input_data = user_input_data
         self.experimental_drop = experimental_drop
+        self.ift_processor = ift_processor
+        self.ift_processor.processPreparation( self.user_input_data)
         # Configure the grid to allow expansion for both columns
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)  # Left column for input fields
@@ -31,7 +33,6 @@ class IftPreparation(ctk.CTkFrame):
 
         # Instantiate the ImageApp on the right
         self.image_app = ImageApp(self.image_app_frame, self.user_input_data,self.experimental_drop,self.application)
-        print("self is Ift? ",self)
         self.image_app.pack(fill="both", expand=True)  # Pack the image app to fill the frame
 
         # Create user input fields and analysis fields on the left
@@ -52,6 +53,5 @@ class IftPreparation(ctk.CTkFrame):
 
     def create_fitting_view_fields(self, parent_frame):
         """Create and pack Statisitcal Output fields into the specified parent frame."""
-        fitting_view_frame = create_plotting_checklist_ift(self,parent_frame,self.user_input_data.statistical_output)
-        fitting_view_frame.grid(row=2, column=0, sticky="nsew", pady=(10, 0))  # Use row 1
-        # fitting_view_frame.pack(fill="x", expand=True)  # Pack fitting view fields
+        fitting_view_frame = create_plotting_checklist(self,parent_frame,self.user_input_data)
+        fitting_view_frame.grid(row=2, column=0, sticky="nsew", pady=10)  # Use row 1

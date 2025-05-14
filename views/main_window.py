@@ -11,6 +11,7 @@ class MainWindow(ctk.CTk):
         super().__init__()
         self.title("OpenDrop-ML")
         self.geometry("800x400")
+        self.minsize(width=800, height=400)
 
         self.continue_processing = continue_processing
 
@@ -38,8 +39,8 @@ class MainWindow(ctk.CTk):
         button_frame.pack()
 
         # Bind the buttons to the same functions as in the old code
-        self.create_button(button_frame, "Interfacial Tension", open_ift_window,"views/assets/opendrop-ift.png",0)
-        self.create_button(button_frame, "Contact Angle", open_ca_window,"views/assets/opendrop-conan.png", 1)
+        self.create_button(button_frame, "Interfacial Tension", open_ift_window,"assets/opendrop-ift.png",0)
+        self.create_button(button_frame, "Contact Angle", open_ca_window,"assets/opendrop-conan.png", 1)
 
         # Add information button at bottom-right corner
         info_button = ctk.CTkButton(self, text="❗", command=self.show_info_popup, font=(

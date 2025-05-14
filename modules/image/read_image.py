@@ -20,9 +20,7 @@ def get_image(experimental_drop, experimental_setup, frame_number):
         experimental_setup.time_string = datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S")
         if experimental_setup.create_folder_boole:
             filename_less_extension = experimental_setup.filename[:-4] # trim off image extension
-            print(filename_less_extension)
             new_directory = os.path.join(experimental_setup.directory_string, filename_less_extension + "_" + experimental_setup.time_string)
-            print(new_directory)
             os.makedirs(new_directory)
             experimental_setup.directory_string = new_directory
 

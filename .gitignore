@@ -1,11 +1,17 @@
+# Intellij IDEA
+.idea/
+
 # Virtual environments
 venv*/
 env*/
 py38_env/
-
 
 # Python compiled files
 *.pyc
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Build files
+build/
+*.cpp

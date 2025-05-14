@@ -1,13 +1,18 @@
-from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkCheckBox, CTkImage, IntVar
+from customtkinter import *
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
+import io
 import os
 import math
 import cv2
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 from utils.image_handler import ImageHandler
 from utils.config import LEFT_ANGLE, RIGHT_ANGLE, BASELINE_INTERCEPTS, CONTACT_POINTS, TANGENT_LINES, FIT_SHAPE, BASELINE, FIT_SHAPE
 from utils.enums import FittingMethod
+from utils.config import *
+from utils.validators import *
 from views.helper.theme import get_system_text_color
 
 from views.component.CTkXYFrame import *
@@ -25,34 +30,45 @@ class CaAnalysis(CTkFrame):
         self.image_handler = ImageHandler()
 
         self.output = []
-        self.cropped_images = {}  # Dictionary to store cropped images
-        self.cropped_angle_images = {}  # Dictionary to store processed cropped images with angle overlay
+        self.cropped_images = {}              # Cropped pictures
+        self.cropped_angle_images = {}        # Crop diagram after superimposing angles
+        self.left_angles  = []
+        self.right_angles = []
         
-        self.preformed_methods = {key: value for key, value in user_input_data.analysis_methods_ca.items() if value}
+        self.preformed_methods = {
+            key: value for key, value in user_input_data.analysis_methods_ca.items() if value
+        }
 
-        self.table_data = []  # List to store cell references
-        self.create_table(parent=self, rows=user_input_data.number_of_frames, columns=len(self.preformed_methods)+1, headers=['Index'] + list(self.preformed_methods.keys()))
+        self.table_data = []
+        self.create_table(
+            parent=self,
+            rows=user_input_data.number_of_frames,
+            columns=len(self.preformed_methods) + 1,
+            headers=["Index"] + list(self.preformed_methods.keys()),
+        )
 
-        self.images_frame = CTkFrame(self)
-        set_light_only_color(self.images_frame, "outerframe")
-        self.images_frame.grid(row=0, column=1, sticky="nsew", padx=15, pady=(10, 0))
+
+        self.visualisation_container = CTkFrame(self)
+        self.visualisation_container.grid(row=0, column=1, sticky="nsew", padx=15, pady=(10, 0))
+
+        self.image_wrapper_frame = CTkFrame(self.visualisation_container, fg_color="transparent")
+        set_light_only_color(self.image_wrapper_frame, "outerframe")
+        self.image_wrapper_frame.grid(row=1, column=0, sticky="ewsn")
 
         self.current_index = 0
         self.highlight_row(self.current_index)
-        self.initialize_image_display(self.images_frame)
+        self.initialize_image_display(self.image_wrapper_frame)
 
     def create_table(self, parent, rows, columns, headers):
-        # Create a frame for the table
         table_frame = CTkXYFrame(parent)
         set_light_only_color(table_frame, "outerframe")
-        table_frame.grid(row=0, column=0, pady=15, padx=20, sticky='nsew')
+        table_frame.grid(row=0, column=0, pady=(10,0), padx=15, sticky='nsew')
 
-        # Create and place header labels
         for col in range(columns):
             header_label = CTkLabel(table_frame, text=headers[col], font=("Roboto", 14, "bold"))
             header_label.grid(row=0, column=col, padx=10, pady=5)
 
-        # Create and place cell labels for each row
+        self.table_data = []
         for row in range(1, rows + 1):
             row_data = []
             for col in range(columns):
@@ -60,16 +76,20 @@ class CaAnalysis(CTkFrame):
                 if col == 0:
                     text = row
                 cell_label = CTkLabel(table_frame, text=text, font=("Roboto", 12))
-                cell_label.grid(row=row, column=col, padx=10, pady=5)
-                row_data.append(cell_label)  # Store reference to the cell label
+                cell_label.grid(row=row, column=col, padx=10, pady=5, sticky="w")
+                row_data.append(cell_label)
             self.table_data.append(row_data)
 
         self.table_data[len(self.output)][1].configure(text="PROCESSING...")
 
+
+        if isinstance(table_frame, CTkXYFrame):
+            table_frame.update_idletasks()
+            table_frame.onFrameConfigure(table_frame.xy_canvas)
+
     def receive_output(self, extracted_data, experimental_drop=None):
         """Process results and display contact angles"""
         self.output.append(extracted_data)
-        
         index = len(self.output) - 1
 
         # Update table data
@@ -91,11 +111,8 @@ class CaAnalysis(CTkFrame):
             
             # Get cropped image from experimental_drop
             cropped_cv = None
-            print(f"experimental_drop is not None: {experimental_drop is not None}")
-            print(f"hasattr(experimental_drop, 'cropped_image'): {hasattr(experimental_drop, 'cropped_image')}")
             if experimental_drop is not None and hasattr(experimental_drop, 'cropped_image'):
                 cropped_cv = experimental_drop.cropped_image
-                print("Retrieved cropped image from experimental_drop")
             
             # Convert to PIL image and save
             if cropped_cv is not None:
@@ -128,7 +145,7 @@ class CaAnalysis(CTkFrame):
                 # Special handling for ellipse fit only
                 if method in [ FittingMethod.CIRCLE_FIT, FittingMethod.ELLIPSE_FIT] and BASELINE_INTERCEPTS in angles_data:
                     baseline_intercepts = angles_data[BASELINE_INTERCEPTS]
-                    
+
                     # For ellipse fit, determine left and right points
                     if baseline_intercepts[0][0] < baseline_intercepts[1][0]:
                         # The first point is on the left (smaller x-coordinate)
@@ -138,42 +155,42 @@ class CaAnalysis(CTkFrame):
                         # The first point is on the right (larger x-coordinate)
                         left_point = baseline_intercepts[1]
                         right_point = baseline_intercepts[0]
-                        
+
                     # Create contact_points from baseline_intercepts
                     angles_data[CONTACT_POINTS] = [left_point, right_point]
-                    
+
                     # Get the angles
                     left_angle = angles_data[LEFT_ANGLE]
                     right_angle = angles_data[RIGHT_ANGLE]
-                    
+
                     left_angle_rad = math.radians(left_angle)
                     right_angle_rad = math.radians(180 - right_angle)
 
                     # Length of tangent line
                     line_length = 50
-                    
+
                     # Calculate tangent line endpoints
                     left_dx = math.cos(left_angle_rad) * line_length
                     left_dy = math.sin(left_angle_rad) * line_length
                     right_dx = math.cos(right_angle_rad) * line_length
                     right_dy = math.sin(right_angle_rad) * line_length
-                    
+
                     # Create tangent lines in the expected format
                     angles_data[TANGENT_LINES] = (
-                        ((float(left_point[0]), float(left_point[1])), 
+                        ((float(left_point[0]), float(left_point[1])),
                         (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
-                        ((float(right_point[0]), float(right_point[1])), 
+                        ((float(right_point[0]), float(right_point[1])),
                         (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
                     )
                 # Special handling for polynomial fit
                 elif method == FittingMethod.POLYNOMIAL_FIT and CONTACT_POINTS in angles_data:
                     contact_points = angles_data[CONTACT_POINTS]
-                    
+
                     # For polynomial fit, create tangent lines based on the angles
                     if LEFT_ANGLE in angles_data and RIGHT_ANGLE in angles_data:
                         left_angle = angles_data[LEFT_ANGLE]
                         right_angle = angles_data[RIGHT_ANGLE]
-                        
+
                         # Determine left and right points
                         if contact_points[0][0] < contact_points[1][0]:
                             left_point = contact_points[0]
@@ -181,31 +198,31 @@ class CaAnalysis(CTkFrame):
                         else:
                             left_point = contact_points[1]
                             right_point = contact_points[0]
-                        
+
                         # Calculate tangent lines using angles
                         left_angle_rad = math.radians(left_angle)
                         right_angle_rad = math.radians(180 - right_angle)
-                        
+
                         line_length = 50
-                        
+
                         # Calculate tangent line endpoints
                         left_dx = math.cos(left_angle_rad) * line_length
                         left_dy = math.sin(left_angle_rad) * line_length
                         right_dx = math.cos(right_angle_rad) * line_length
                         right_dy = math.sin(right_angle_rad) * line_length
-                        
+
                         # Create tangent lines in the expected format
                         angles_data[TANGENT_LINES] = (
-                            ((float(left_point[0]), float(left_point[1])), 
+                            ((float(left_point[0]), float(left_point[1])),
                             (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
-                            ((float(right_point[0]), float(right_point[1])), 
+                            ((float(right_point[0]), float(right_point[1])),
                             (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
                         )
                 elif method == FittingMethod.YL_FIT and FIT_SHAPE in angles_data and BASELINE in angles_data:
                     # For YL fit, extract contact points from the fit shape and baseline
                     fit_shape = angles_data[FIT_SHAPE]
                     baseline = angles_data[BASELINE]
-                    
+
                     # The first and last points of the fit shape are likely the contact points
                     # Alternatively, use the first and last points of the baseline
                     if len(baseline) >= 2:
@@ -214,31 +231,31 @@ class CaAnalysis(CTkFrame):
                     elif len(fit_shape) >= 2:
                         left_point = fit_shape[0]
                         right_point = fit_shape[len(fit_shape)//2]  # Middle point might be the right contact point
-                    
+
                     # Create contact_points
                     angles_data[CONTACT_POINTS] = [left_point, right_point]
-                    
+
                     # Get the angles
                     left_angle = angles_data[LEFT_ANGLE]
                     right_angle = angles_data[RIGHT_ANGLE]
-                    
+
                     # Calculate tangent lines using angles
                     left_angle_rad = math.radians(left_angle)
                     right_angle_rad = math.radians(180 - right_angle)
-                    
+
                     line_length = 50
-                    
+
                     # Calculate tangent line endpoints
                     left_dx = math.cos(left_angle_rad) * line_length
                     left_dy = math.sin(left_angle_rad) * line_length
                     right_dx = math.cos(right_angle_rad) * line_length
                     right_dy = math.sin(right_angle_rad) * line_length
-                    
+
                     # Create tangent lines in the expected format
                     angles_data[TANGENT_LINES] = (
-                        ((float(left_point[0]), float(left_point[1])), 
+                        ((float(left_point[0]), float(left_point[1])),
                         (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
-                        ((float(right_point[0]), float(right_point[1])), 
+                        ((float(right_point[0]), float(right_point[1])),
                         (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
                     )
                 # Get left and right angle values
@@ -247,12 +264,12 @@ class CaAnalysis(CTkFrame):
                     if key in angles_data:
                         left_angle = angles_data[key]
                         break
-                
+
                 for key in [RIGHT_ANGLE, 'right_angle']:
                     if key in angles_data:
                         right_angle = angles_data[key]
                         break
-                
+
                 if left_angle is not None and right_angle is not None:
                     # Find contact points data
                     contact_points = None
@@ -265,7 +282,7 @@ class CaAnalysis(CTkFrame):
                                 contact_points = angles_data[key]
                             print(f"Found contact points data: {key} = {contact_points}")
                             break
-                    
+
                     # Find tangent line data
                     tangent_lines = None
                     for key in [TANGENT_LINES, 'tangent_lines']:
@@ -273,22 +290,19 @@ class CaAnalysis(CTkFrame):
                             tangent_lines = angles_data[key]
                             print(f"Found tangent lines data: {key} = {tangent_lines}")
                             break
-                    
+
                     # Draw annotations on cropped image
-                    print(f"Index: {index}")
-                    print(f"self.cropped_images:{self.cropped_images}")
-                    print(f"Index in self.cropped_images: {index in self.cropped_images}")
                     if contact_points is not None and tangent_lines is not None and index in self.cropped_images:
                         print(f"Creating angle annotations on cropped image")
-                        
+
                         cropped_img = self.cropped_images[index]
                         cropped_with_overlay = self.draw_on_cropped_image(
                             cropped_img, left_angle, right_angle, contact_points, tangent_lines
                         )
-                        
+
                         # Save annotated cropped image
                         self.cropped_angle_images[index] = cropped_with_overlay
-                        
+
                         # Update display
                         if self.current_index == index and self.show_angles_var.get() == 1:
                             self.display_current_image()
@@ -304,79 +318,106 @@ class CaAnalysis(CTkFrame):
         # Update processing status display
         if len(self.output) < self.user_input_data.number_of_frames:
             self.table_data[len(self.output)][1].configure(text="PROCESSING...")
+        try:
+            for method, res in extracted_data.contact_angles.items():
+                if LEFT_ANGLE in res and RIGHT_ANGLE in res:
+                    self.left_angles.append(res[LEFT_ANGLE])
+                    self.right_angles.append(res[RIGHT_ANGLE])
+                    break
+        except Exception as e:
+            print("[WARN] save failed：", e)
+
 
     def highlight_row(self, row_index):
         # Reset all rows to default color
         for row in self.table_data:
             for cell in row:
-                color = get_system_text_color()
-                cell.configure(text_color=color)  # Reset to default text color
+                cell.configure(text_color=get_system_text_color())
 
-        # Highlight the specified row
         if 0 <= row_index < len(self.table_data):
             for cell in self.table_data[row_index]:
-                cell.configure(text_color="red")  # Change text color to red
+                cell.configure(text_color="red")
+
 
     def initialize_image_display(self, frame):
-        display_frame = CTkFrame(frame)
-        set_light_only_color(display_frame, "outerframe")
-        display_frame.grid(sticky="nsew", padx=15, pady=(10, 0))
+        """Initialize image display directly in the frame (image_wrapper_frame)."""
+        # frame is image_wrapper_frame here
 
-        self.image_label = CTkLabel(display_frame, text="", fg_color="lightgrey", width=400, height=300)
-        self.image_label.grid(padx=10, pady=(10, 5))
+        # --- Configure frame's (image_wrapper_frame) internal grid ---
+        # No longer need the nested display_frame
+        frame.grid_rowconfigure(0, weight=0)    # Filename row
+        frame.grid_rowconfigure(1, weight=1)    # Image row (allow vertical expansion if needed)
+        frame.grid_rowconfigure(2, weight=0)    # Toggle frame row
+        frame.grid_rowconfigure(3, weight=0)    # Navigation frame row
+        frame.grid_columnconfigure(0, weight=1) # Single column expands horizontally
 
-        file_name = os.path.basename(self.user_input_data.import_files[self.current_index])
-        self.name_label = CTkLabel(display_frame, text=file_name)
-        self.name_label.grid()
+        # --- Create widgets directly in 'frame' ---
 
-        # Toggle controls area
-        self.toggle_frame = CTkFrame(display_frame)
+        # Image Label
+        self.image_label = CTkLabel(frame, text="", fg_color="lightgrey", width=400, height=300) # Keep original size for now
+        self.image_label.grid(row=1, column=0, padx=10, pady=(10, 5), sticky="nsew") # Fills cell in wrapper
+
+        # Filename Label
+        file_name = "No image loaded" # Default text
+        if hasattr(self.user_input_data, 'import_files') and self.user_input_data.import_files and self.current_index < len(self.user_input_data.import_files):
+            file_name = os.path.basename(self.user_input_data.import_files[self.current_index])
+        self.name_label = CTkLabel(frame, text=file_name)
+        self.name_label.grid(row=0, column=0, pady=(5,0)) # Above image label
+
+        # Toggle Frame (Radio Buttons)
+        self.toggle_frame = CTkFrame(frame) # Parent is image_wrapper_frame
         set_light_only_color(self.toggle_frame, "innerframe")
-        self.toggle_frame.grid(pady=(5, 0))
-        
-        # Toggle between original/cropped images with contact angles
-        self.show_angles_var = IntVar(value=0)  # Default to showing original image without angles
-        self.show_angles_cb = CTkCheckBox(
-            self.toggle_frame, 
-            text="Show Contact Angles (Cropped View)", 
-            variable=self.show_angles_var, 
-            command=self.toggle_view
-        )
-        self.show_angles_cb.grid(row=0, column=0, padx=10, pady=5)
+        self.toggle_frame.grid(row=2, column=0, pady=(5, 0)) # Below image label
 
-        # Image navigation controls
-        self.image_navigation_frame = CTkFrame(display_frame)
+        self.show_angles_var = IntVar(value=0)
+        self.rb_original = CTkRadioButton(self.toggle_frame, text="Original Image", variable=self.show_angles_var, value=0, command=self.toggle_view)
+        self.rb_cropped = CTkRadioButton(self.toggle_frame, text="Contact Angles", variable=self.show_angles_var, value=1, command=self.toggle_view)
+        self.rb_chart = CTkRadioButton(self.toggle_frame, text="Line Chart", variable=self.show_angles_var, value=2, command=self.toggle_view)
+        self.rb_original.grid(row=0, column=0, padx=10, pady=5)
+        self.rb_cropped.grid(row=0, column=1, padx=10, pady=5)
+        self.rb_chart.grid(row=0, column=2, padx=10, pady=5)
+
+        # Navigation Frame
+        self.image_navigation_frame = CTkFrame(frame) # Parent is image_wrapper_frame
         set_light_only_color(self.image_navigation_frame, "entry")
-        self.image_navigation_frame.grid(pady=20)
+        self.image_navigation_frame.grid(row=3, column=0, pady=20) # Below toggle frame
 
+        # Navigation Buttons (remain the same, parent is image_navigation_frame)
         self.prev_button = CTkButton(self.image_navigation_frame, text="<", command=lambda: self.change_image(-1), width=30)
         self.prev_button.grid(row=0, column=0, padx=5, pady=5)
-
         self.index_entry = CTkEntry(self.image_navigation_frame, width=50)
         self.index_entry.grid(row=0, column=1, padx=5, pady=5)
-        self.index_entry.bind("<Return>", lambda event: self.update_index_from_entry())
-        self.index_entry.insert(0, str(self.current_index + 1))
-
-        self.navigation_label = CTkLabel(self.image_navigation_frame, text=f" of {self.user_input_data.number_of_frames}", font=("Arial", 12))
+        self.index_entry.bind("<Return>", lambda e: self.update_index_from_entry())
+        num_frames = 0
+        if hasattr(self.user_input_data, 'number_of_frames'):
+            num_frames = self.user_input_data.number_of_frames
+        if num_frames > 0:
+             self.index_entry.insert(0, str(self.current_index + 1))
+        self.navigation_label = CTkLabel(self.image_navigation_frame, text=f" of {num_frames}", font=("Arial", 12))
         self.navigation_label.grid(row=0, column=2, padx=5, pady=5)
-
         self.next_button = CTkButton(self.image_navigation_frame, text=">", command=lambda: self.change_image(1), width=30)
         self.next_button.grid(row=0, column=3, padx=5, pady=5)
 
-        self.load_image(self.user_input_data.import_files[self.current_index])
+        # Load initial image
+        if hasattr(self.user_input_data, 'import_files') and self.user_input_data.import_files:
+            self.load_image(self.user_input_data.import_files[self.current_index])
+        else:
+            if hasattr(self, 'image_label') and self.image_label:
+                self.image_label.configure(text="No images selected")
 
     def toggle_view(self):
-        """Toggle between original image and cropped image with angles"""
         self.display_current_image()
-    
+
     def display_current_image(self):
-        """Display appropriate image based on current settings"""
-        if self.show_angles_var.get() == 0:
-            # Show original image without annotations
+        """0=Original picture 1=Crop + Angle 2=Line picture"""
+        mode = self.show_angles_var.get()
+        if mode == 0:
             self.display_original_image()
-        else:
-            # Show cropped image with annotations
+        elif mode == 1:
             self.display_cropped_image()
+        else:
+            self.display_line_chart()
+
 
     def display_original_image(self):
         """Display original image"""
@@ -412,17 +453,34 @@ class CaAnalysis(CTkFrame):
             self.image_label.configure(image=self.tk_image)
             self.image_label.image = self.tk_image
 
-    def load_image(self, selected_image):
-        """Load image and prepare for display"""
-        try:
-            # Load original image
-            self.current_image = Image.open(selected_image)
-            
-            # Display current image
-            self.display_current_image()
-        except Exception as e:
-            print(f"Error loading image: {e}")
-            self.current_image = None
+
+    def display_line_chart(self):
+        if not self.left_angles:
+            self.image_label.configure(text="No angle data yet", image="")
+            return
+
+        frames = list(range(1, len(self.left_angles) + 1))
+
+        fig, ax = plt.subplots(figsize=(5, 4))
+        ax.plot(frames, self.left_angles,  marker="o", label="Left θ")
+        ax.plot(frames, self.right_angles, marker="o", label="Right θ")
+        ax.set_xlabel("Frame")
+        ax.set_ylabel("Angle (°)")
+        ax.set_xticks(frames)
+        ax.set_title("Contact Angles Over Frames")
+        ax.legend()
+        fig.tight_layout()
+
+        canvas = FigureCanvasAgg(fig)
+        canvas.draw()
+        w, h = canvas.get_width_height()
+        buf = canvas.buffer_rgba()
+        img = Image.frombuffer("RGBA", (w, h), buf, "raw", "RGBA", 0, 1).convert("RGB")
+
+        self.tk_image = CTkImage(img, size=(400, 300))
+        self.image_label.configure(image=self.tk_image, text="")
+        self.image_label.image = self.tk_image
+        plt.close(fig)
 
     def draw_on_cropped_image(self, image, left_angle, right_angle, contact_points, tangent_lines):
         """Draw contact angle annotations on cropped image"""
@@ -512,7 +570,7 @@ class CaAnalysis(CTkFrame):
             
             # Add angle label text
             try:
-                font = ImageFont.truetype("views/assets/DejaVuSans.ttf", 16)
+                font = ImageFont.truetype("assets/DejaVuSans.ttf", 16)
             except Exception as e:
                 print(f"Error loading font: {e}")
                 try:
@@ -535,11 +593,13 @@ class CaAnalysis(CTkFrame):
         
         return img
 
-    def change_image(self, direction):
+
+
+    def change_image(self, step):
         """Change displayed image"""
         if self.user_input_data.import_files:
             self.current_index = (
-                self.current_index + direction) % self.user_input_data.number_of_frames
+                self.current_index + step) % self.user_input_data.number_of_frames
             # Load the new image
             self.load_image(
                 self.user_input_data.import_files[self.current_index])
@@ -549,6 +609,18 @@ class CaAnalysis(CTkFrame):
             self.name_label.configure(text=file_name)
 
             self.highlight_row(self.current_index)
+
+    def load_image(self, image_path):
+        """Load image and prepare for display"""
+        try:
+            # Load original image
+            self.current_image = Image.open(image_path)
+
+            # Display current image
+            self.display_current_image()
+        except Exception as e:
+            print(f"Error loading image: {e}")
+            self.current_image = None
 
     def update_index_from_entry(self):
         """Update current index based on user input"""

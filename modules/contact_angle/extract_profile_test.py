@@ -2,10 +2,10 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 import matplotlib
-matplotlib.use('Agg')  # 使用非图形界面后端，避免 plt.show 弹窗
+matplotlib.use('Agg')
 from unittest.mock import patch
 import matplotlib.pyplot as plt
-plt.show = lambda: None  # 阻止显示
+plt.show = lambda: None
 
 import pytest
 import numpy as np
@@ -37,7 +37,7 @@ def mock_user_inputs():
         original_boole = 0
         cropped_boole = 0
         threshold_boole = 0
-        show_popup = 0  # ✅ 添加以避免 AttributeError
+        show_popup = 0
     return UserInputs()
 
 @pytest.fixture
@@ -75,7 +75,7 @@ def test_otsu_auto_threshold(mock_threshold, mock_findContours, mock_raw_experim
     extract_drop_profile(mock_raw_experiment, mock_user_inputs)
 
     assert 0 <= mock_raw_experiment.ret <= 255
-    assert mock_threshold.call_args[0][1] == 0  # ✅ 使用位置参数判断阈值为0（OTSU模式）
+    assert mock_threshold.call_args[0][1] == 0
 
 
 @patch("cv2.findContours")
@@ -109,7 +109,7 @@ def test_invalid_threshold_handling(mock_findContours, mock_raw_experiment):
     mock_findContours.return_value = ([dummy_contour], None)
 
     contour, _ = detect_edges(np.zeros((100, 100), dtype=np.uint8), mock_raw_experiment, None, 1, 300)
-    assert contour is not None and len(contour) > 0  # ✅ 正常运行，不再断言抛异常
+    assert contour is not None and len(contour) > 0
 
 def test_empty_input_handling():
     with pytest.raises(IndexError):
