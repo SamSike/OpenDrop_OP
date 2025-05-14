@@ -217,7 +217,7 @@ def set_drop_region(experimental_drop, experimental_setup, index=0):
     if experimental_setup.drop_ID_method == "Automated":
         from modules.preprocessing.preprocessing import auto_crop
         experimental_drop.cropped_image, (left,right,top,bottom) = auto_crop(experimental_drop.image)
-        print("experimental_drop.cropped_image",experimental_drop.cropped_image is None)
+        # print("experimental_drop.cropped_image",experimental_drop.cropped_image is None)
         if experimental_setup.original_boole == 1: #show found drop
 
             plt.close('all')  # Clear all existing figures to avoid conflicts with residual plots
