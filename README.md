@@ -218,9 +218,9 @@ We recommend [Miniforge (Apple Silicon)](https://github.com/conda-forge/miniforg
 ### For Apple Silicon (M1/M2/M3):
 
 ```bash
-CONDA_SUBDIR=osx-64 conda create -n opendrop_env python=3.8.10 numpy=1.22.4 scipy=1.7.3 pip -c conda-forge
+conda create -n opendrop_env python=3.8.10 numpy=1.22.4  scipy=1.7.3 pip -c conda-forge
 conda activate opendrop_env
-pip install tensorflow-macos
+pip install tensorflow-macos==2.13.0
 ```
 
 ### For Intel Mac:
