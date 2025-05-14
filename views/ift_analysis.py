@@ -127,8 +127,7 @@ class IftAnalysis(CTkFrame):
         show(idx[0])
         # Create a canvas for the figure
         canvas = FigureCanvasTkAgg(fig, self.residuals_frame)
-        canvas.get_tk_widget().pack(fill="both", expand=True)
-
+        
         # Create and pack the navigation toolbar
         toolbar = NavigationToolbar2Tk(canvas, self.residuals_frame)
         toolbar.update()
