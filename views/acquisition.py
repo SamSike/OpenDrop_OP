@@ -49,9 +49,9 @@ class Acquisition(CTkFrame):
             self.edgefinder = OptionMenu(
                 self, image_acquisition_frame, "Edge finder:", EDGEFINDER_OPTIONS, update_edgefinder, rw=2)
 
-        self.frame_interval = IntegerEntry(
-            self, image_acquisition_frame, "frame_interval (s):", self.update_frame_interval, rw=4, cl=0,
-            default_value=self.user_input_data.frame_interval)
+            self.frame_interval = IntegerEntry(
+                self, image_acquisition_frame, "frame_interval (s):", lambda *args: self.update_frame_interval(), rw=4, cl=0,
+                default_value=self.user_input_data.frame_interval)
         
         self.images_frame = CTkFrame(self)
         
