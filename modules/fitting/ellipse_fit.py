@@ -822,6 +822,7 @@ def ell_parameters( a ):
     if V[ 0, 1 ] < 0:
         phi = 2 * np.pi - phi
     ### cw vs ccw and periodicity of pi
+    phi = float(phi)
     phi = -phi % np.pi
 
 #    for i in range(len(E)):

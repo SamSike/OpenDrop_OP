@@ -11,14 +11,28 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 * [Features](#features)
 * [Code Structure Overview](#code-structure-overview)
 * [Quick Start Guide for Windows and Linux](#quick-start-guide-for-windows-and-linux)
+
+  * [1. Install Python](#1-install-python)
+  * [2. Install C/C++ Build Tools](#2-install-cc-build-tools)
+  * [3. Install Python Dependencies](#3-install-python-dependencies)
+  * [4. Build Cython Extensions](#4-build-cython-extensions)
+  * [5. Run the Application](#5-run-the-application)
+  * [6. Build Sundials Library (macOS only)](#6-build-sundials-library-macos-only)
+  * [Troubleshooting](#troubleshooting)
 * [Quick Start Guide for macOS (Intel & Apple Silicon)](#quick-start-guide-for-macos-intel--apple-silicon)
+
+  * [1. Install Python](#1-install-python)
+  * [2. Set Up Virtual Environment (Intel & Apple Silicon)](#2-set-up-virtual-environment-intel--apple-silicon)
+  * [3. Build SUNDIALS Library (macOS only)](#3-build-sundials-library-macos-only)
+  * [4. Build Cython Extensions](#4-build-cython-extensions)
+  * [5. Run the Application](#5-run-the-application)
+  * [Troubleshooting: Architecture Mismatch (macOS)](#troubleshooting-architecture-mismatch-macos)
 * [User Guide](#user-guide)
 * [Developer & Contributor Guide](#developer--contributor-guide)
 * [High-Level Architecture Diagram](#high-level-architecture-diagram)
 * [Unit tests](#unit-tests)
 * [Appropriate use of ML model in Contact Angle Analysis](#appropriate-use-of-ml-model-in-contact-angle-analysis)
 * [Contact & Contribution](#contact--contribution)
-
 
 # Features
 
@@ -91,58 +105,7 @@ python setup.py build_ext --inplace
 python main.py
 ```
 
-
-# Quick Start Guide for MacOS
-
-## 1. Install Python
-
-Check if Python is installed:
-
-```bash
-python --version
-```
-
-If not, download and install [Python 3.8.10](https://www.python.org/downloads/release/python-3810/).
-
-## 2. Install Python Dependencies
-
-### Intel Users
-
-
-```bash
-python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
-pip install -r requirements-3810.txt
-```
-# Quick Start Guide for macOS (Intel & Apple Silicon)
-
-## 1. Install Conda or Python
-
-* Apple Silicon: Install [Miniforge](https://github.com/conda-forge/miniforge)
-* Intel Mac: Conda optional. You can also use system Python or pyenv.
-
-## 2. Create Environment
-
-### Apple Silicon (Must use Conda)
-
-```bash
-CONDA_SUBDIR conda create -n opendrop_env python=3.8.10 numpy=1.22.4 scipy=1.7.3 pip -c conda-forge
-conda activate opendrop_env
-pip install tensorflow-macos==2.13.0
-pip install -r requirements-3810-macos.txt
-```
-
-### Intel Mac (Python prefer,Conda optional)
-
-```bash
-python3 -m venv opendrop_env
-source opendrop_env/bin/activate
-pip install -r requirements-3810.txt
-```
-## 3. Build Sundials Library (macOS only)
-
-
-For macOS users (Intel and Apple Silicon), manually build SUNDIALS:
+## 6. Build Sundials Library (macOS only)
 
 ```bash
 cd dependencies/macos_x86_64   # or macos_arm64
@@ -162,7 +125,76 @@ make -j4
 make install
 ```
 
-Ensure the static `.a` files exist in `dependencies/macos_x86_64/sundials/lib/` or `macos_arm64/sundials/lib/`.
+Ensure the `.a` static libraries are present.
+
+## Troubleshooting
+
+* Confirm Python version is correct
+* Cython installed: `pip install cython`
+* C++ compiler correctly installed
+
+# Quick Start Guide for macOS (Intel & Apple Silicon)
+
+## 1. Install Python
+
+Check if Python is installed:
+
+```bash
+python --version
+```
+
+If not, install [Python 3.8.10](https://www.python.org/downloads/release/python-3810/).
+
+## 2. Set Up Virtual Environment (Intel & Apple Silicon)
+
+### Install Conda or Pyenv
+
+* **Apple Silicon**: Install [Miniforge](https://github.com/conda-forge/miniforge)
+* **Intel Mac**: Conda optional — can use system Python or [pyenv](https://github.com/pyenv/pyenv)
+
+### Create Environment
+
+**Apple Silicon (Must use Conda)**
+
+```bash
+conda create -n opendrop_env python=3.8.10 numpy=1.22.4 scipy=1.7.3 pip -c conda-forge
+conda activate opendrop_env
+pip install tensorflow-macos==2.13.0
+pip install -r requirements-3810-macos.txt
+```
+
+**Intel Mac (Prefer Python, Conda optional)**
+
+```bash
+python3 -m venv opendrop_env
+source opendrop_env/bin/activate
+pip install -r requirements-3810.txt
+```
+
+## 3. Build SUNDIALS Library (macOS only)
+
+```bash
+cd dependencies/macos_x86_64   # or macos_arm64
+
+git clone https://github.com/LLNL/sundials.git
+cd sundials
+mkdir build && cd build
+
+cmake .. \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_STATIC_LIBS=ON \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DSUNDIALS_BUILD_EXAMPLES=OFF \
+  -DCMAKE_INSTALL_PREFIX=../../sundials
+
+make -j4
+make install
+```
+
+Ensure `.a` files are built in:
+
+* `macos_x86_64/sundials/lib/`
+* or `macos_arm64/sundials/lib/`
 
 ## 4. Build Cython Extensions
 
@@ -176,15 +208,40 @@ python setup.py build_ext --inplace
 python main.py
 ```
 
+## Troubleshooting: Architecture Mismatch (macOS)
 
+If you see:
 
-## Troubleshooting
+```
+ImportError: ... incompatible architecture (have 'arm64', need 'x86_64h' or 'x86_64')
+```
+
+or:
+
+```
+ImportError: ... incompatible architecture (have 'x86_64', need 'arm64e' or 'arm64')
+```
+
+This means `.so` files were built under the wrong architecture.
+
+### ✅ Fix Steps
+
+```bash
+python setup.py clean --all
+rm -rf build modules/ift/**/**/*.so
+python setup.py build_ext --inplace
+python main.py
+```
+
+💡 **Tip**: Always recompile if switching between Intel and Apple Silicon.
+
 
 If you encounter errors, verify:
 
 * Python version
 * Cython is installed: `pip install cython`
 * C++ compiler is correctly installed
+
 
 
 # User Guide

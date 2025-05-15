@@ -12,6 +12,9 @@ opendrop_env/
 __pycache__/
 *.py[cod]
 *$py.class
+*.cpython-310.pyc/
+# Ignore all __pycache__ folders and their contents
+__pycache__/
 
 # Build files
 build/
