@@ -15,9 +15,12 @@ __pycache__/
 *.cpython-310.pyc/
 # Ignore all __pycache__ folders and their contents
 __pycache__/
+.pytest_cache/
 
 # Build files
 build/
 *.cpp
+
+# macos 
 modules/ift/hough/hough.cpython-38-darwin.so
 modules/ift/younglaplace/shape.cpython-38-darwin.so
