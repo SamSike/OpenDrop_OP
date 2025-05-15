@@ -4,7 +4,7 @@
 #                David J. Gardner @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -22,10 +22,10 @@
 
 SHELL = sh
 
-prefix       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials
-exec_prefix  = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials
-includedir   = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/include
-libdir       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/lib
+prefix       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials
+exec_prefix  = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials
+includedir   = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/include
+libdir       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/lib
 
 CPP      = 
 CPPFLAGS = 
@@ -34,7 +34,7 @@ CFLAGS   = -O3 -DNDEBUG
 LDFLAGS  = 
 LIBS     =  -lm
 
-LINKFLAGS = -Wl,-rpath,/Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/lib
+LINKFLAGS = -Wl,-rpath,/Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/lib
 
 # -----------------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ LIBRARIES = -lsundials_arkode -lsundials_nvecserial -lsundials_nvecmanyvector -l
 
 # -----------------------------------------------------------------------------------------
 
-EXAMPLES =  ark_analytic ark_analytic_mels ark_analytic_nonlin ark_brusselator_1D_mri ark_brusselator_fp ark_brusselator_mri ark_brusselator ark_brusselator1D_imexmri ark_brusselator1D ark_conserved_exp_entropy_ark ark_conserved_exp_entropy_erk ark_damped_harmonic_symplectic ark_dissipated_exp_entropy ark_harmonic_symplectic ark_heat1D_adapt ark_heat1D ark_kepler ark_kpr_mri ark_KrylovDemo_prec ark_onewaycouple_mri ark_reaction_diffusion_mri ark_robertson_constraints ark_robertson_root ark_robertson ark_twowaycouple_mri
+EXAMPLES =  ark_analytic ark_advection_diffusion_reaction_splitting ark_analytic_lsrk ark_analytic_lsrk_varjac ark_analytic_mels ark_analytic_nonlin ark_analytic_partitioned ark_analytic_ssprk ark_brusselator_1D_mri ark_brusselator_fp ark_brusselator_mri ark_brusselator ark_brusselator1D_imexmri ark_brusselator1D ark_conserved_exp_entropy_ark ark_conserved_exp_entropy_erk ark_damped_harmonic_symplectic ark_dissipated_exp_entropy ark_harmonic_symplectic ark_heat1D_adapt ark_heat1D ark_kepler ark_kpr_mri ark_KrylovDemo_prec ark_lotka_volterra_ASA ark_onewaycouple_mri ark_reaction_diffusion_mri ark_robertson_constraints ark_robertson_root ark_robertson ark_twowaycouple_mri
 EXAMPLES_DEPENDENCIES = 
 
 OBJECTS = ${EXAMPLES:=.o}

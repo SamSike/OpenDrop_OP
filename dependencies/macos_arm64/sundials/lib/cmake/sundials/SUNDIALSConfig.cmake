@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -132,6 +132,16 @@ if("OFF" AND NOT TARGET Kokkos::kokkoskernels)
   find_dependency(KokkosKernels PATHS "")
 endif()
 
+if("OFF" AND NOT TARGET LAPACK::LAPACK)
+  # For some reason find_dependency does not find the libraries if the variables
+  # below are internal rather than CACHE variables
+  set(BLAS_LIBRARIES "" CACHE "FILEPATH" "BLAS libraries")
+  set(BLAS_LINKER_FLAGS "" CACHE "STRING" "BLAS linker flags")
+  set(LAPACK_LIBRARIES "" CACHE "FILEPATH" "LAPACK libraries")
+  set(LAPACK_LINKER_FLAGS "" CACHE "STRING" "LAPACK linker flags")
+  find_dependency(LAPACK)
+endif()
+
 if("OFF" AND NOT TARGET SUNDIALS::PETSC)
   add_library(SUNDIALS::PETSC INTERFACE IMPORTED)
   target_link_libraries(SUNDIALS::PETSC INTERFACE "")
@@ -185,10 +195,8 @@ if("OFF" AND NOT TARGET RAJA)
   find_dependency(RAJA PATHS "")
 endif()
 
-if("OFF" AND NOT TARGET SUNDIALS::TRILINOS)
-  add_library(SUNDIALS::TRILINOS INTERFACE IMPORTED)
-  target_link_libraries(SUNDIALS::TRILINOS INTERFACE "")
-  set_target_properties(SUNDIALS::TRILINOS PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "")
+if("OFF" AND NOT TARGET Tpetra::all_libs)
+  find_dependency(Trilinos COMPONENTS Tpetra PATHS "")
 endif()
 
 if("OFF" AND NOT TARGET SUNDIALS::XBRAID)

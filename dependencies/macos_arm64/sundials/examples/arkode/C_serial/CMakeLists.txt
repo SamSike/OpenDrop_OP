@@ -3,7 +3,7 @@
 #                David J. Gardner @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -46,12 +46,12 @@ include(CTest)
 
 # Specify the path to SUNDIALS header files
 set(SUNDIALS_INCLUDE_DIR
-  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/include
+  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/include
   CACHE PATH "Location of SUNDIALS header files")
 
 # Specify the path to SUNDIALS libraries
 set(SUNDIALS_LIBRARY_DIR
-  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/lib
+  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/lib
   CACHE PATH "Location of SUNDIALS libraries")
 
 find_library(SUNDIALS_CORE_LIB
@@ -92,7 +92,7 @@ include_directories(.)
 # ------------------------------------------------------------------------------
 
 # Set the names of the examples to be built and their dependencies
-set(examples  ark_analytic ark_analytic_mels ark_analytic_nonlin ark_brusselator_1D_mri ark_brusselator_fp ark_brusselator_mri ark_brusselator ark_brusselator1D_imexmri ark_brusselator1D ark_conserved_exp_entropy_ark ark_conserved_exp_entropy_erk ark_damped_harmonic_symplectic ark_dissipated_exp_entropy ark_harmonic_symplectic ark_heat1D_adapt ark_heat1D ark_kepler ark_kpr_mri ark_KrylovDemo_prec ark_onewaycouple_mri ark_reaction_diffusion_mri ark_robertson_constraints ark_robertson_root ark_robertson ark_twowaycouple_mri)
+set(examples  ark_analytic ark_advection_diffusion_reaction_splitting ark_analytic_lsrk ark_analytic_lsrk_varjac ark_analytic_mels ark_analytic_nonlin ark_analytic_partitioned ark_analytic_ssprk ark_brusselator_1D_mri ark_brusselator_fp ark_brusselator_mri ark_brusselator ark_brusselator1D_imexmri ark_brusselator1D ark_conserved_exp_entropy_ark ark_conserved_exp_entropy_erk ark_damped_harmonic_symplectic ark_dissipated_exp_entropy ark_harmonic_symplectic ark_heat1D_adapt ark_heat1D ark_kepler ark_kpr_mri ark_KrylovDemo_prec ark_lotka_volterra_ASA ark_onewaycouple_mri ark_reaction_diffusion_mri ark_robertson_constraints ark_robertson_root ark_robertson ark_twowaycouple_mri)
 set(examples_dependencies )
 if(examples)
   list(REMOVE_DUPLICATES examples)
@@ -221,7 +221,7 @@ set(SUPERLUMT_LIBRARIES
   CACHE STRING "SuperLU_MT libraries")
 
 set(SUPERLUMT_THREAD_TYPE
-  
+  PTHREAD
   CACHE STRING "SuperLU_MT Threading")
 
 # Set the names of the examples to be built and their dependencies

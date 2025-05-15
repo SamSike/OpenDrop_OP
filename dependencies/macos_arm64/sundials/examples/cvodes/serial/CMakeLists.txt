@@ -3,7 +3,7 @@
 #                David J. Gardner @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -46,12 +46,12 @@ include(CTest)
 
 # Specify the path to SUNDIALS header files
 set(SUNDIALS_INCLUDE_DIR
-  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/include
+  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/include
   CACHE PATH "Location of SUNDIALS header files")
 
 # Specify the path to SUNDIALS libraries
 set(SUNDIALS_LIBRARY_DIR
-  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/lib
+  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/lib
   CACHE PATH "Location of SUNDIALS libraries")
 
 find_library(SUNDIALS_CORE_LIB
@@ -92,7 +92,7 @@ include_directories(.)
 # ------------------------------------------------------------------------------
 
 # Set the names of the examples to be built and their dependencies
-set(examples  cvsAdvDiff_ASAi_bnd cvsAdvDiff_FSA_non cvsAdvDiff_bnd cvsAnalytic_mels cvsDirectDemo_ls cvsDiurnal_FSA_kry cvsDiurnal_kry cvsDiurnal_kry_bp cvsFoodWeb_ASAi_kry cvsFoodWeb_ASAp_kry cvsHessian_ASA_FSA cvsKrylovDemo_ls cvsKrylovDemo_prec cvsParticle_dns cvsPendulum_dns cvsRoberts_ASAi_dns cvsRoberts_ASAi_dns_constraints cvsRoberts_FSA_dns cvsRoberts_FSA_dns_Switch cvsRoberts_FSA_dns_constraints cvsRoberts_dns cvsRoberts_dns_constraints cvsRoberts_dns_uw)
+set(examples  cvsAdvDiff_ASAi_bnd cvsAdvDiff_FSA_non cvsAdvDiff_bnd cvsAnalytic_mels cvsDirectDemo_ls cvsDiurnal_FSA_kry cvsDiurnal_kry cvsDiurnal_kry_bp cvsFoodWeb_ASAi_kry cvsFoodWeb_ASAp_kry cvsHessian_ASA_FSA cvsKrylovDemo_ls cvsKrylovDemo_prec cvsLotkaVolterra_ASA cvsParticle_dns cvsPendulum_dns cvsRoberts_ASAi_dns cvsRoberts_ASAi_dns_constraints cvsRoberts_FSA_dns cvsRoberts_FSA_dns_Switch cvsRoberts_FSA_dns_constraints cvsRoberts_dns cvsRoberts_dns_constraints cvsRoberts_dns_uw)
 set(examples_dependencies )
 if(examples)
   list(REMOVE_DUPLICATES examples)
@@ -221,7 +221,7 @@ set(SUPERLUMT_LIBRARIES
   CACHE STRING "SuperLU_MT libraries")
 
 set(SUPERLUMT_THREAD_TYPE
-  
+  PTHREAD
   CACHE STRING "SuperLU_MT Threading")
 
 # Set the names of the examples to be built and their dependencies

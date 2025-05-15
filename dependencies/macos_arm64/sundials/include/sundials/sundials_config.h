@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos, Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -44,12 +44,12 @@
  * -----------------------------------------------------------------*/
 
 
-#define SUNDIALS_VERSION "7.1.1"
+#define SUNDIALS_VERSION "7.3.0"
 #define SUNDIALS_VERSION_MAJOR 7
-#define SUNDIALS_VERSION_MINOR 1
-#define SUNDIALS_VERSION_PATCH 1
+#define SUNDIALS_VERSION_MINOR 3
+#define SUNDIALS_VERSION_PATCH 0
 #define SUNDIALS_VERSION_LABEL ""
-#define SUNDIALS_GIT_VERSION ""
+#define SUNDIALS_GIT_VERSION "v7.3.0"
 
 
 /* ------------------------------------------------------------------
@@ -83,6 +83,11 @@
  * The macro will be defined with a type of the appropriate size.
  */
 #define SUNDIALS_INDEX_TYPE int64_t
+
+/* Define the type used for 'suncountertype'.
+ * The macro will be defined with a type of the appropriate size.
+ */
+#define SUNDIALS_COUNTER_TYPE long int
 
 /* Use POSIX timers if available.
  *     #define SUNDIALS_HAVE_POSIX_TIMERS
@@ -119,8 +124,8 @@
 
 #define SUN_BUILD_TYPE "Release"
 
-#define SUN_JOB_ID "20250513145545"
-#define SUN_JOB_START_TIME "20250513145545"
+#define SUN_JOB_ID "20250515202056"
+#define SUN_JOB_START_TIME "20250515202056"
 
 #define SUN_TPL_LIST ""
 #define SUN_TPL_LIST_SIZE ""
@@ -144,6 +149,9 @@
 /* HYPRE */
 /* #undef SUNDIALS_HYPRE_ENABLED */
 #define SUN_HYPRE_VERSION ""
+#define SUN_HYPRE_VERSION_MAJOR 
+#define SUN_HYPRE_VERSION_MINOR 
+#define SUN_HYPRE_VERSION_PATCH 
 
 /* KLU */
 /* #undef SUNDIALS_KLU_ENABLED */
@@ -239,7 +247,7 @@
 /* #undef SUNDIALS_ONEMKL_USE_GETRS_LOOP */
 
 /* SUPERLUMT threading type */
-#define SUNDIALS_SUPERLUMT_THREAD_TYPE ""
+#define SUNDIALS_SUPERLUMT_THREAD_TYPE "PTHREAD"
 
 /* Trilinos with MPI is available, then
  *    #define SUNDIALS_TRILINOS_HAVE_MPI

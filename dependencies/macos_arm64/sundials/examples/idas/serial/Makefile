@@ -4,7 +4,7 @@
 #                David J. Gardner @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -22,10 +22,10 @@
 
 SHELL = sh
 
-prefix       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials
-exec_prefix  = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials
-includedir   = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/include
-libdir       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/lib
+prefix       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials
+exec_prefix  = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials
+includedir   = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/include
+libdir       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/lib
 
 CPP      = 
 CPPFLAGS = 
@@ -34,7 +34,7 @@ CFLAGS   = -O3 -DNDEBUG
 LDFLAGS  = 
 LIBS     =  -lm
 
-LINKFLAGS = -Wl,-rpath,/Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/lib
+LINKFLAGS = -Wl,-rpath,/Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/lib
 
 # -----------------------------------------------------------------------------------------
 

@@ -4,7 +4,7 @@
 #                David J. Gardner @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -22,10 +22,10 @@
 
 SHELL = sh
 
-prefix       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials
-exec_prefix  = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials
-includedir   = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/include
-libdir       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/lib
+prefix       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials
+exec_prefix  = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials
+includedir   = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/include
+libdir       = /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/lib
 
 CPP      = 
 CPPFLAGS = 
@@ -34,7 +34,7 @@ CFLAGS   = -O3 -DNDEBUG
 LDFLAGS  = 
 LIBS     =  -lm
 
-LINKFLAGS = -Wl,-rpath,/Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/lib
+LINKFLAGS = -Wl,-rpath,/Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/lib
 
 # -----------------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ LIBRARIES = -lsundials_cvodes -lsundials_nvecserial -lsundials_nvecmanyvector -l
 
 # -----------------------------------------------------------------------------------------
 
-EXAMPLES =  cvsAdvDiff_ASAi_bnd cvsAdvDiff_FSA_non cvsAdvDiff_bnd cvsAnalytic_mels cvsDirectDemo_ls cvsDiurnal_FSA_kry cvsDiurnal_kry cvsDiurnal_kry_bp cvsFoodWeb_ASAi_kry cvsFoodWeb_ASAp_kry cvsHessian_ASA_FSA cvsKrylovDemo_ls cvsKrylovDemo_prec cvsParticle_dns cvsPendulum_dns cvsRoberts_ASAi_dns cvsRoberts_ASAi_dns_constraints cvsRoberts_FSA_dns cvsRoberts_FSA_dns_Switch cvsRoberts_FSA_dns_constraints cvsRoberts_dns cvsRoberts_dns_constraints cvsRoberts_dns_uw
+EXAMPLES =  cvsAdvDiff_ASAi_bnd cvsAdvDiff_FSA_non cvsAdvDiff_bnd cvsAnalytic_mels cvsDirectDemo_ls cvsDiurnal_FSA_kry cvsDiurnal_kry cvsDiurnal_kry_bp cvsFoodWeb_ASAi_kry cvsFoodWeb_ASAp_kry cvsHessian_ASA_FSA cvsKrylovDemo_ls cvsKrylovDemo_prec cvsLotkaVolterra_ASA cvsParticle_dns cvsPendulum_dns cvsRoberts_ASAi_dns cvsRoberts_ASAi_dns_constraints cvsRoberts_FSA_dns cvsRoberts_FSA_dns_Switch cvsRoberts_FSA_dns_constraints cvsRoberts_dns cvsRoberts_dns_constraints cvsRoberts_dns_uw
 EXAMPLES_DEPENDENCIES = 
 
 OBJECTS = ${EXAMPLES:=.o}

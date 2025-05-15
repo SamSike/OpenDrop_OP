@@ -3,7 +3,7 @@
 #                David J. Gardner @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -46,12 +46,12 @@ include(CTest)
 
 # Specify the path to SUNDIALS header files
 set(SUNDIALS_INCLUDE_DIR
-  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/include
+  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/include
   CACHE PATH "Location of SUNDIALS header files")
 
 # Specify the path to SUNDIALS libraries
 set(SUNDIALS_LIBRARY_DIR
-  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos/sundials/lib
+  /Users/torili/Desktop/OpenDrop_OP/dependencies/macos_arm64/sundials/lib
   CACHE PATH "Location of SUNDIALS libraries")
 
 find_library(SUNDIALS_CORE_LIB
@@ -221,7 +221,7 @@ set(SUPERLUMT_LIBRARIES
   CACHE STRING "SuperLU_MT libraries")
 
 set(SUPERLUMT_THREAD_TYPE
-  
+  PTHREAD
   CACHE STRING "SuperLU_MT Threading")
 
 # Set the names of the examples to be built and their dependencies

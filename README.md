@@ -171,10 +171,33 @@ source opendrop_env/bin/activate
 pip install -r requirements-3810.txt
 ```
 
-## 3. Build SUNDIALS Library (macOS only)
+## 3. Build SUNDIALS Library (macOS only) 
+If you are on macOS, SUNDIALS static libraries must be available in:
+
+dependencies/macos_x86_64/sundials/lib/   # for Intel Mac  
+dependencies/macos_arm64/sundials/lib/   # for Apple Silicon (M1/M2/M3)
+
+They're on a different architecture (e.g., you're Intel, they're Apple Silicon),
+Or if .a files are missing or broken,
+Then they must recompile using CMake.
+
+### ✅ You can skip this step if:
+
+The correct .a static libraries already exist for your architecture
+Files like the following are present:
+libsundials_arkode.a
+libsundials_nvecserial.a
+libsundials_core.a
+
+### ⚠️ You must build manually with CMake if:
+
+You're on a different architecture than the one the libraries were built for
+The .a files are missing or broken
 
 ```bash
 cd dependencies/macos_x86_64   # or macos_arm64
+
+rm -rf sundials   # delete existing repo if present
 
 git clone https://github.com/LLNL/sundials.git
 cd sundials
@@ -199,6 +222,7 @@ Ensure `.a` files are built in:
 ## 4. Build Cython Extensions
 
 ```bash
+cd ~/Desktop/OpenDrop_OP 
 python setup.py build_ext --inplace
 ```
 
