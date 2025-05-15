@@ -19,3 +19,5 @@ __pycache__/
 # Build files
 build/
 *.cpp
+modules/ift/hough/hough.cpython-38-darwin.so
+modules/ift/younglaplace/shape.cpython-38-darwin.so

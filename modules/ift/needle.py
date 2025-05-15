@@ -6,6 +6,14 @@ import scipy.optimize
 from typing import Sequence, Tuple, NamedTuple, Optional
 from enum import IntEnum, auto
 from modules.ift.hough import hough
+try:
+    from modules.ift.hough import hough
+except ImportError:
+    raise RuntimeError("❗ Failed to load native Cython module 'hough'.\n"
+        "This is likely due to a missing or incompatible build for your architecture.\n"
+        "Please run: `python setup.py build_ext --inplace`\n"
+        "Refer to the README section: 'Troubleshooting: Architecture Mismatch (macOS)'")
+
 from utils.geometry import Rect2
 
 __all__ = ('NeedleFitResult', 'needle_fit',)
