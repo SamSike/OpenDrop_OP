@@ -159,6 +159,8 @@ If not, install [Python 3.8.10](https://www.python.org/downloads/release/python-
 ```bash
 conda create -n opendrop_env python=3.8.10 numpy=1.22.4 scipy=1.7.3 pip -c conda-forge
 conda activate opendrop_env
+
+
 pip install tensorflow-macos==2.13.0
 pip install -r requirements-3810-macos.txt
 ```
@@ -171,7 +173,28 @@ source opendrop_env/bin/activate
 pip install -r requirements-3810.txt
 ```
 
-## 3. Build SUNDIALS Library (macOS only) 
+## 3. Build Library (macOS only) 
+### Boost
+To check if Boost is installed on your system and available for your build, here’s how you can do it per platform:
+
+Apple Silicon
+```bash
+find /usr /opt /homebrew/local -name version.hpp | grep boost
+```
+Apple Intel 
+```bash
+find /usr /opt /usr/local -name version.hpp | grep boost
+```
+
+If it returns a path like /opt/homebrew/include/boost/version.hpp or /usr/local/include/boost/version.hpp, then Boost is installed.
+
+otherwise
+```bash
+brew install boost
+```
+
+
+### SUNDIALS
 If you are on macOS, SUNDIALS static libraries must be available in:
 
 dependencies/macos_x86_64/sundials/lib/   # for Intel Mac  
@@ -232,7 +255,9 @@ python setup.py build_ext --inplace
 python main.py
 ```
 
-## Troubleshooting: Architecture Mismatch (macOS)
+## Troubleshooting: 
+
+### 1. SUNDIALS:Architecture Mismatch (macOS)
 
 If you see:
 
@@ -259,6 +284,43 @@ python main.py
 
 💡 **Tip**: Always recompile if switching between Intel and Apple Silicon.
 
+### 2. Boost: File not found
+
+If you see:
+
+```
+fatal error: 'boost/math/differentiation/autodiff.hpp' file not found
+#include <boost/math/differentiation/autodiff.hpp>
+```
+
+### ✅ Fix Steps
+
+You can resolve this issue by locating all .hpp files present in your Boost directory and ensuring that the path to Boost headers is correctly specified.
+
+1. Find the Boost Header Files
+- Use the following command to find all .hpp files within the Boost directory:
+```bash
+find /opt/homebrew -name  "*.hpp" | grep boost # Apple Silicon
+find /usr/local -name "*.hpp" | grep boost #Apple Intel
+```
+2. Set the BOOST_INCLUDE_DIR Environment Variable
+
+- Once you have identified the correct path to the Boost headers, set the BOOST_INCLUDE_DIR environment variable to this path. 
+
+```bash
+export BOOST_INCLUDE_DIR=/opt/homebrew/Cellar/boost/1.88.0/include/ # Apple Silicon
+#or 
+export CPLUS_INCLUDE_PATH=/opt/homebrew/include:$CPLUS_INCLUDE_PATH
+
+
+export BOOST_INCLUDE_DIR=/usr/local/Cellar/boost/1.88.0/include/ #Apple Intel
+#or
+export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
+
+python setup.py build_ext --inplace
+python main.py
+```
+
 
 If you encounter errors, verify:
 
@@ -276,42 +338,6 @@ If you encounter errors, verify:
 4. View results
 5. Save results to CSV (optional)
 
-# Developer & Contributor Guide
-
-* Add fitting method: `modules/fits.py`
-* Add UI component: `views/component/`
-* Add navigation page: `views/function_window.py`
-
-# High-Level Architecture Diagram
-
-![High-Level Project Plan](./assets/high-level-project-diagram.png)
-
-# Unit tests
-
-Run all tests:
-
-```bash
-python test_all.py
-```
-
-# Appropriate use of ML model in Contact Angle Analysis
-
-ML predictions should be verified in cases involving:
-
-* Contact angles <110°
-* Bond numbers >2
-* Strong reflection/surface roughness
-
-Current model performs best on high angle droplets. Use caution outside training domain.
-
-# Contact & Contribution
-
-* GitHub: [https://github.com/SamSike/OpenDrop\_OP](https://github.com/SamSike/OpenDrop_OP)
-* Use GitHub Issues for bug reports, suggestions, or contributions.
-
----
-
-# User Guide
 After starting the application:
 1. Select one of the functions: Contact Angle or Interfacial Tension
 
@@ -398,3 +424,4 @@ OpenDrop-ML is an open-source project. Contributions are welcome!
 
 - GitHub: https://github.com/SamSike/OpenDrop_OP
 - For issues, use GitHub issue tracker
+
