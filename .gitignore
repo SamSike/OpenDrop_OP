@@ -5,13 +5,19 @@
 venv*/
 env*/
 py38_env/
+opendrop_env/
 
 # Python compiled files
 *.pyc
 __pycache__/
 *.py[cod]
 *$py.class
+*.cpython-310.pyc/
+# Ignore all __pycache__ folders and their contents
+__pycache__/
 
 # Build files
 build/
 *.cpp
+modules/ift/hough/hough.cpython-38-darwin.so
+modules/ift/younglaplace/shape.cpython-38-darwin.so
