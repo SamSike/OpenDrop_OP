@@ -5,7 +5,6 @@ import scipy.optimize
 #from scipy.ndimage import gaussian_filter
 from typing import Sequence, Tuple, NamedTuple, Optional
 from enum import IntEnum, auto
-from modules.ift.hough import hough
 try:
     from modules.ift.hough import hough
 except ImportError:
