@@ -257,7 +257,8 @@ python main.py
 
 ## Troubleshooting: 
 
-### 1. SUNDIALS:Architecture Mismatch (macOS)
+### 1. SUNDIALS:Architecture Mismatch (macOS)   
+
 
 If you see:
 
