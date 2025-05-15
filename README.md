@@ -17,8 +17,7 @@ Current ML implementation is optimized for high angle systems. For lower angle o
   * [3. Install Python Dependencies](#3-install-python-dependencies)
   * [4. Build Cython Extensions](#4-build-cython-extensions)
   * [5. Run the Application](#5-run-the-application)
-  * [6. Build Sundials Library (macOS only)](#6-build-sundials-library-macos-only)
-  * [Troubleshooting](#troubleshooting)
+
 * [Quick Start Guide for macOS (Intel & Apple Silicon)](#quick-start-guide-for-macos-intel--apple-silicon)
 
   * [1. Install Python](#1-install-python)
@@ -104,34 +103,6 @@ python setup.py build_ext --inplace
 ```bash
 python main.py
 ```
-
-## 6. Build Sundials Library (macOS only)
-
-```bash
-cd dependencies/macos_x86_64   # or macos_arm64
-
-git clone https://github.com/LLNL/sundials.git
-cd sundials
-mkdir build && cd build
-
-cmake .. \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_STATIC_LIBS=ON \
-  -DBUILD_SHARED_LIBS=OFF \
-  -DSUNDIALS_BUILD_EXAMPLES=OFF \
-  -DCMAKE_INSTALL_PREFIX=../../sundials
-
-make -j4
-make install
-```
-
-Ensure the `.a` static libraries are present.
-
-## Troubleshooting
-
-* Confirm Python version is correct
-* Cython installed: `pip install cython`
-* C++ compiler correctly installed
 
 # Quick Start Guide for macOS (Intel & Apple Silicon)
 
