@@ -1,59 +1,34 @@
-# OpenDrop-ML 
+# OpenDrop-ML
 
 OpenDrop-ML is an open-source, cross-platform tool for analyzing liquid droplets in surface science using contact angle and pendant drop methods. It integrates classical geometric fitting with machine learning models (via Conan-ML), providing flexible, automated, and high-throughput image processing for researchers, technicians, and developers.
 
-Current ML implementation is optimized for high angle systems. For lower angle or extreme curvature drops, verification of results is strongly advised. See: https://doi.org/10.1021/acs.langmuir.4c01050
+Current ML implementation is optimized for high angle systems. For lower angle or extreme curvature drops, verification of results is strongly advised. See: [https://doi.org/10.1021/acs.langmuir.4c01050](https://doi.org/10.1021/acs.langmuir.4c01050)
 
 # Table of Contents
-- [OpenDrop-ML](#opendrop-ml)
-- [Table of Contents](#table-of-contents)
-- [Features](#features)
-- [Code Structure Overview](#code-structure-overview)
-- [Quick Start Guide for Windows and Linux](#quick-start-guide-for-windows-and-linux)
-  - [1. Install Python](#1-install-python)
-    - [Check if Python is Already Installed](#check-if-python-is-already-installed)
-    - [Install Python (if not already installed)](#install-python-if-not-already-installed)
-  - [2. Install C/C++ Build Tools](#2-install-cc-build-tools)
-    - [Windows](#windows)
-    - [Linux](#linux)
-  - [3. Install Python Dependencies](#3-install-python-dependencies)
-  - [4. Build Cython Extensions](#4-build-cython-extensions)
-  - [5. Run the Application](#5-run-the-application)
-  - [Troubleshooting](#troubleshooting)
-- [Quick Start Guide for macOS (Conda Only)](#quick-start-guide-for-macos-conda-only)
-  - [1. Install Conda](#1-install-conda)
-  - [2. Create Conda Environment](#2-create-conda-environment)
-    - [For Apple Silicon (M1/M2/M3):](#for-apple-silicon-m1m2m3)
-    - [For Intel Mac:](#for-intel-mac)
-  - [3. Install Python Dependencies](#3-install-python-dependencies-1)
-  - [4. Build Cython Extensions](#4-build-cython-extensions-1)
-  - [5. Run the Application](#5-run-the-application-1)
-  - [6. VS Code or Other IDE Setup (Optional but Recommended)](#6-vs-code-or-other-ide-setup-optional-but-recommended)
-- [User Guide](#user-guide)
-- [Developer \& Contributor Guide](#developer--contributor-guide)
-  - [Modular Design](#modular-design)
-  - [Backend \& UI Extensions](#backend--ui-extensions)
-- [High-Level Architecture Diagram](#high-level-architecture-diagram)
-- [Unit tests](#unit-tests)
-- [Appropriate use of ML model in Contact Angle Analysis](#appropriate-use-of-ml-model-in-contact-angle-analysis)
-- [Contact \& Contribution](#contact--contribution)
+
+* [OpenDrop-ML](#opendrop-ml)
+* [Table of Contents](#table-of-contents)
+* [Features](#features)
+* [Code Structure Overview](#code-structure-overview)
+* [Quick Start Guide for Windows and Linux](#quick-start-guide-for-windows-and-linux)
+* [Quick Start Guide for macOS (Intel & Apple Silicon)](#quick-start-guide-for-macos-intel--apple-silicon)
+* [User Guide](#user-guide)
+* [Developer & Contributor Guide](#developer--contributor-guide)
+* [High-Level Architecture Diagram](#high-level-architecture-diagram)
+* [Unit tests](#unit-tests)
+* [Appropriate use of ML model in Contact Angle Analysis](#appropriate-use-of-ml-model-in-contact-angle-analysis)
+* [Contact & Contribution](#contact--contribution)
+
 
 # Features
 
-- Contact Angle & Pendant Drop Analysis
-
-- Multiple Fitting Algorithms: Polynomial, circular, elliptical, Young-Laplace
-
-- Integrated ML Prediction (Conan-ML) for contact angles
-
-- High-throughput Batch Processing of images & videos
-
-- Cross-platform Support: Windows, macOS, Linux
-
-- User-friendly GUI built with CustomTkinter
-
-- Modular Backend for easy customization and extension
-
+* Contact Angle & Pendant Drop Analysis
+* Multiple Fitting Algorithms: Polynomial, circular, elliptical, Young-Laplace
+* Integrated ML Prediction (Conan-ML) for contact angles
+* High-throughput Batch Processing of images & videos
+* Cross-platform Support: Windows, macOS, Linux
+* User-friendly GUI built with CustomTkinter
+* Modular Backend for easy customization and extension
 
 # Code Structure Overview
 
@@ -65,230 +40,204 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 │   ├── BA_fit.py, ellipse_fit.py, etc.
 │   └── ML_model/            # TensorFlow model, input-output conversion
 ├── views/                   # Frontend UI (CustomTkinter)
-│   ├── ca_*.py, ift_*.py    # CA/IFT workflows (acquisition → preparation → analysis → output)
+│   ├── ca_*.py, ift_*.py    # CA/IFT workflows
 │   ├── component/           # Reusable UI widgets
 │   └── function_window.py   # Navigation controller
 ├── utils/                   # Helper code (config, validation, image IO)
 ├── tests/                   # Unit and integration tests
-├── test_all.py              # py file to run all the unit tests
+├── test_all.py              # Run all tests
 └── training files/          # ML training scripts and data
 ```
 
-------
-
 # Quick Start Guide for Windows and Linux
-
-This guide helps you install the necessary dependencies and run the application on your local Windows and Linux machine. MacOS users please refer to [Quick Start Guide for macOS (Conda Only)](#quick-start-guide-for-macos-conda-only).
-
----
 
 ## 1. Install Python
 
-### Check if Python is Already Installed
-Open a terminal (Command Prompt or PowerShell) and run:
+Check if Python is installed:
+
 ```bash
 python --version
 ```
-or:
-```bash
-py --version
-```
-If Python is installed, it will show the version.
 
-### Install Python (if not already installed)
-Download and install [Python 3.8.10](https://www.python.org/downloads/release/python-3810/), which is the recommended version for this project. Choose the installer for your operating system.
-
-> **Windows Users:** During installation, **check the box** that says: *“Add Python to PATH”* 
-> 
->  If you forget, you may need to manually add it to your **environment variables** under "System Properties > Environment Variables > Path".
-
-> **Linux Users:** Python 3 is usually preinstalled, but you can install it via a package manager if needed:
-> 
-> Ubuntu/Debian: ```sudo apt install python3.8 python3.8-venv```
-> 
-> Fedora: ```sudo dnf install python3.8```
-
----
+If not, download and install [Python 3.8.10](https://www.python.org/downloads/release/python-3810/).
 
 ## 2. Install C/C++ Build Tools
 
-Cython and some Python packages require C/C++ compilers to build native extensions.
+* **Windows**: Install [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with Windows 10/11 SDK.
+* **Linux**:
 
-### Windows
-
-- Download and install [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-- During installation, select:
-  - "C++ build tools"
-  - Include the "Windows 10 SDK" or "Windows 11 SDK"
-
-### Linux
-- For Debian/Ubuntu based systems:
-  ```bash
-  sudo apt update
-  sudo apt install build-essential
-  ```
-
-- For Fedora/RHEL based systems:
-  ```bash
-  sudo dnf groupinstall "Development Tools"
-  ```
-
-- For Arch Linux:
-  ```bash
-  sudo pacman -S base-devel
-  ```
-
----
+```bash
+sudo apt install build-essential   # Debian/Ubuntu
+sudo dnf groupinstall "Development Tools"  # Fedora
+```
 
 ## 3. Install Python Dependencies
 
-Make sure you're in the root folder of the project, then run:
-
 ```bash
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install -r requirements-3810.txt
 ```
 
-This will install all necessary packages.
-
-> If you’re using a virtual environment, activate it first:
-
-On Windows
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-
-On Linux
-```bash
-python -m venv venv
-source venv/bin/activate
-```
-
----
-
 ## 4. Build Cython Extensions
-
-You’ll need to compile Cython modules before running the application:
 
 ```bash
 python setup.py build_ext --inplace
 ```
 
-This will generate files from the Cython sources.
-
-> If you encounter errors, ensure:
-> - Cython is installed: `pip install cython`
-> - C/C++ Build Tools are properly installed (step 2)
-
----
-
 ## 5. Run the Application
-
-Once the build is complete, run the main script to start the application:
 
 ```bash
 python main.py
 ```
 
----
 
-## Troubleshooting
+# Quick Start Guide for MacOS
 
-- **Python not recognized?**
-  - Make sure it’s added to `PATH` in your environment variables.
+## 1. Install Python
 
-- **Cython build errors?**
-  - Confirm you installed the C++ Build Tools (step 2).
-  - Try `pip install --upgrade pip setuptools wheel cython`.
-
-- **Wrong Python version?**
-  - Consider using `pyenv`, `conda` (see the next section), or a virtual environment to manage Python versions.
-
-
-# Quick Start Guide for macOS (Conda Only)
-
-## 1. Install Conda
-
-We recommend [Miniforge (Apple Silicon)](https://github.com/conda-forge/miniforge) or [Miniconda (Intel)](https://docs.conda.io/en/latest/miniconda.html).
-
----
-
-## 2. Create Conda Environment
-
-### For Apple Silicon (M1/M2/M3):
+Check if Python is installed:
 
 ```bash
-CONDA_SUBDIR=osx-64 conda create -n opendrop_env python=3.8.10 numpy=1.22.4 scipy=1.7.3 pip -c conda-forge
-conda activate opendrop_env
-pip install tensorflow-macos
+python --version
 ```
 
-### For Intel Mac:
+If not, download and install [Python 3.8.10](https://www.python.org/downloads/release/python-3810/).
+
+## 2. Install Python Dependencies
+
+### Intel Users
+
 
 ```bash
-conda create -n opendrop_env python=3.8.10 numpy=1.22.4 scipy=1.7.3 pip -c conda-forge
-conda activate opendrop_env
-pip install tensorflow==2.13.0
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements-3810.txt
 ```
+# Quick Start Guide for macOS (Intel & Apple Silicon)
 
----
+## 1. Install Conda or Python
 
-## 3. Install Python Dependencies
+* Apple Silicon: Install [Miniforge](https://github.com/conda-forge/miniforge)
+* Intel Mac: Conda optional. You can also use system Python or pyenv.
 
-Make sure you're in the root folder of the project, then run:
+## 2. Create Environment
+
+### Apple Silicon (Must use Conda)
 
 ```bash
+CONDA_SUBDIR conda create -n opendrop_env python=3.8.10 numpy=1.22.4 scipy=1.7.3 pip -c conda-forge
+conda activate opendrop_env
+pip install tensorflow-macos==2.13.0
 pip install -r requirements-3810-macos.txt
 ```
 
-This will install all necessary packages.
-
-> If you’re using a virtual environment, activate it first:
+### Intel Mac (Python prefer,Conda optional)
 
 ```bash
-python -m venv venv
-source venv/bin/activate
+python3 -m venv opendrop_env
+source opendrop_env/bin/activate
+pip install -r requirements-3810.txt
 ```
----
+## 3. Build Sundials Library (macOS only)
+
+
+For macOS users (Intel and Apple Silicon), manually build SUNDIALS:
+
+```bash
+cd dependencies/macos_x86_64   # or macos_arm64
+
+git clone https://github.com/LLNL/sundials.git
+cd sundials
+mkdir build && cd build
+
+cmake .. \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_STATIC_LIBS=ON \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DSUNDIALS_BUILD_EXAMPLES=OFF \
+  -DCMAKE_INSTALL_PREFIX=../../sundials
+
+make -j4
+make install
+```
+
+Ensure the static `.a` files exist in `dependencies/macos_x86_64/sundials/lib/` or `macos_arm64/sundials/lib/`.
 
 ## 4. Build Cython Extensions
-
-You’ll need to compile Cython modules before running the application:
 
 ```bash
 python setup.py build_ext --inplace
 ```
 
-This will generate files from the Cython sources.
-
-> If you encounter errors, ensure:
-> - Cython is installed: `pip install cython`
-
----
-
 ## 5. Run the Application
-
-Once the build is complete, run the main script to start the application:
 
 ```bash
 python main.py
 ```
 
----
 
-## 6. VS Code or Other IDE Setup (Optional but Recommended)
 
-If you are using VS Code or another IDE:
+## Troubleshooting
 
-1. Open the Command Palette (`⇧⌘P` or `Ctrl+Shift+P`)
-2. Run `Python: Select Interpreter`
-3. Choose the one showing your Conda environment, such as:
+If you encounter errors, verify:
 
-   ```
-   Python 3.8.10 ('opendrop_env': conda)
-   ```
+* Python version
+* Cython is installed: `pip install cython`
+* C++ compiler is correctly installed
 
-This ensures VS Code uses the correct environment with the right versions of `numpy`, `scipy`, `tensorflow`, etc.
+
+## 6. Build Sundials Library
+
+Follow the same instructions as [Build Sundials Library (macOS only)](#6-build-sundials-library-macos-only)
+
+## 7. VS Code or Other IDE Setup (Optional)
+
+In VS Code:
+
+* Open Command Palette (`Shift+Cmd+P`)
+* Select Python Interpreter matching `opendrop_env`
+
+# User Guide
+
+1. Select function: Contact Angle or Interfacial Tension
+2. Upload image(s)
+3. Fill in user input
+4. View results
+5. Save results to CSV (optional)
+
+# Developer & Contributor Guide
+
+* Add fitting method: `modules/fits.py`
+* Add UI component: `views/component/`
+* Add navigation page: `views/function_window.py`
+
+# High-Level Architecture Diagram
+
+![High-Level Project Plan](./assets/high-level-project-diagram.png)
+
+# Unit tests
+
+Run all tests:
+
+```bash
+python test_all.py
+```
+
+# Appropriate use of ML model in Contact Angle Analysis
+
+ML predictions should be verified in cases involving:
+
+* Contact angles <110°
+* Bond numbers >2
+* Strong reflection/surface roughness
+
+Current model performs best on high angle droplets. Use caution outside training domain.
+
+# Contact & Contribution
+
+* GitHub: [https://github.com/SamSike/OpenDrop\_OP](https://github.com/SamSike/OpenDrop_OP)
+* Use GitHub Issues for bug reports, suggestions, or contributions.
 
 ---
 
