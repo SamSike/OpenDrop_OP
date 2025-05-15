@@ -6,33 +6,44 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 
 # Table of Contents
 
-* [OpenDrop-ML](#opendrop-ml)
-* [Table of Contents](#table-of-contents)
-* [Features](#features)
-* [Code Structure Overview](#code-structure-overview)
-* [Quick Start Guide for Windows and Linux](#quick-start-guide-for-windows-and-linux)
-
-  * [1. Install Python](#1-install-python)
-  * [2. Install C/C++ Build Tools](#2-install-cc-build-tools)
-  * [3. Install Python Dependencies](#3-install-python-dependencies)
-  * [4. Build Cython Extensions](#4-build-cython-extensions)
-  * [5. Run the Application](#5-run-the-application)
-  * [6. Build Sundials Library (macOS only)](#6-build-sundials-library-macos-only)
-  * [Troubleshooting](#troubleshooting)
-* [Quick Start Guide for macOS (Intel & Apple Silicon)](#quick-start-guide-for-macos-intel--apple-silicon)
-
-  * [1. Install Python](#1-install-python)
-  * [2. Set Up Virtual Environment (Intel & Apple Silicon)](#2-set-up-virtual-environment-intel--apple-silicon)
-  * [3. Build SUNDIALS Library (macOS only)](#3-build-sundials-library-macos-only)
-  * [4. Build Cython Extensions](#4-build-cython-extensions)
-  * [5. Run the Application](#5-run-the-application)
-  * [Troubleshooting: Architecture Mismatch (macOS)](#troubleshooting-architecture-mismatch-macos)
-* [User Guide](#user-guide)
-* [Developer & Contributor Guide](#developer--contributor-guide)
-* [High-Level Architecture Diagram](#high-level-architecture-diagram)
-* [Unit tests](#unit-tests)
-* [Appropriate use of ML model in Contact Angle Analysis](#appropriate-use-of-ml-model-in-contact-angle-analysis)
-* [Contact & Contribution](#contact--contribution)
+- [OpenDrop-ML](#opendrop-ml)
+- [Table of Contents](#table-of-contents)
+- [Features](#features)
+- [Code Structure Overview](#code-structure-overview)
+- [Quick Start Guide for Windows and Linux](#quick-start-guide-for-windows-and-linux)
+  - [1. Install Python](#1-install-python)
+    - [Check if Python is Already Installed](#check-if-python-is-already-installed)
+    - [Install Python (if not already installed)](#install-python-if-not-already-installed)
+  - [2. Install C/C++ Build Tools](#2-install-cc-build-tools)
+  - [3. (Optional) Create and Use a Virtual Environment](#3-optional-create-and-use-a-virtual-environment)
+  - [4. Install Python Dependencies](#4-install-python-dependencies)
+  - [5. Build Cython Extensions](#5-build-cython-extensions)
+  - [6. Run the Application](#6-run-the-application)
+- [Quick Start Guide for macOS (Intel \& Apple Silicon)](#quick-start-guide-for-macos-intel--apple-silicon)
+  - [1. Install Python](#1-install-python-1)
+  - [2. Set Up Virtual Environment (Intel \& Apple Silicon)](#2-set-up-virtual-environment-intel--apple-silicon)
+    - [Install Conda or Pyenv](#install-conda-or-pyenv)
+    - [Create Python Environment](#create-python-environment)
+  - [3. Build Library](#3-build-library)
+    - [Boost](#boost)
+    - [SUNDIALS](#sundials)
+    - [✅ You can skip this step if:](#-you-can-skip-this-step-if)
+    - [⚠️ You must build manually with CMake if:](#️-you-must-build-manually-with-cmake-if)
+  - [4. Build Cython Extensions](#4-build-cython-extensions)
+  - [5. Run the Application](#5-run-the-application)
+  - [Troubleshooting:](#troubleshooting)
+    - [1. SUNDIALS:Architecture Mismatch (macOS)](#1-sundialsarchitecture-mismatch-macos)
+    - [✅ Fix Steps](#-fix-steps)
+    - [2. Boost: File not found](#2-boost-file-not-found)
+    - [✅ Fix Steps](#-fix-steps-1)
+- [User Guide](#user-guide)
+- [Developer \& Contributor Guide](#developer--contributor-guide)
+  - [Modular Design](#modular-design)
+  - [Backend \& UI Extensions](#backend--ui-extensions)
+- [High-Level Architecture Diagram](#high-level-architecture-diagram)
+- [Unit tests](#unit-tests)
+- [Appropriate use of ML model in Contact Angle Analysis](#appropriate-use-of-ml-model-in-contact-angle-analysis)
+- [Contact \& Contribution](#contact--contribution)
 
 # Features
 
@@ -65,19 +76,44 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 
 # Quick Start Guide for Windows and Linux
 
+This guide helps you install the necessary dependencies and run OpenDrop-ML on your local Windows and Linux machine. MacOS users please refer to [Quick Start Guide for macOS (Conda Only)](#quick-start-guide-for-macos-conda-only).
+
 ## 1. Install Python
 
-Check if Python is installed:
+### Check if Python is Already Installed
+Open a terminal (Command Prompt or PowerShell) and run:
 
 ```bash
 python --version
 ```
 
-If not, download and install [Python 3.8.10](https://www.python.org/downloads/release/python-3810/).
+or:
+
+```bash
+py --version
+```
+If Python is installed, it will show the version.
+
+### Install Python (if not already installed)
+Download and install [Python 3.8.10](https://www.python.org/downloads/release/python-3810/), which is the recommended version for this application. Choose the installer for your operating system.
+
+> **Windows Users:** During installation, **check the box** that says: *“Add Python to PATH”* 
+> 
+>  If you forget, you may need to manually add it to your **environment variables** under "System Properties > Environment Variables > Path".
+
+> **Linux Users:** Python 3 is usually preinstalled, but you can install it via a package manager if needed:
+> 
+> Ubuntu/Debian: ```sudo apt install python3.8 python3.8-venv```
+> 
+> Fedora: ```sudo dnf install python3.8```
 
 ## 2. Install C/C++ Build Tools
 
-* **Windows**: Install [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with Windows 10/11 SDK.
+* **Windows**:
+  - Download and install [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+  - During installation, select:
+    - "C++ build tools"
+    - Include the "Windows 10 SDK" or "Windows 11 SDK"
 * **Linux**:
 
 ```bash
@@ -85,53 +121,60 @@ sudo apt install build-essential   # Debian/Ubuntu
 sudo dnf groupinstall "Development Tools"  # Fedora
 ```
 
-## 3. Install Python Dependencies
+## 3. (Optional) Create and Use a Virtual Environment
+
+It is recommended (but not required) to use a Python virtual environment to isolate dependencies.
+
+To create and activate a virtual environment:
 
 ```bash
+# Create the virtual environment (only needed once)
 python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+
+# Activate it
+# On Windows:
+venv\Scripts\activate
+
+# On Linux:
+source venv/bin/activate
+```
+
+Once activated, your shell should show `(venv)` at the beginning of the prompt.
+
+> ⚠️ **Note**: If you choose to use the virtual environment, make sure to activate it every time you want to run the application.
+
+To deactivate the environment at any time:
+
+```bash
+deactivate
+```
+
+You can skip these steps if you prefer to install packages globally (not recommended for development environments since there might be conflicts with existing Python setups or system packages).
+
+
+## 4. Install Python Dependencies
+
+Make sure you're in the root folder of the application, then run:
+
+```bash
 pip install -r requirements-3810.txt
 ```
 
-## 4. Build Cython Extensions
+(Do this **after activating** the virtual environment, if you're using one.)
+
+
+## 5. Build Cython Extensions
 
 ```bash
 python setup.py build_ext --inplace
 ```
 
-## 5. Run the Application
+
+## 6. Run the Application
 
 ```bash
 python main.py
 ```
-
-## 6. Build Sundials Library (macOS only)
-
-```bash
-cd dependencies/macos_x86_64   # or macos_arm64
-
-git clone https://github.com/LLNL/sundials.git
-cd sundials
-mkdir build && cd build
-
-cmake .. \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_STATIC_LIBS=ON \
-  -DBUILD_SHARED_LIBS=OFF \
-  -DSUNDIALS_BUILD_EXAMPLES=OFF \
-  -DCMAKE_INSTALL_PREFIX=../../sundials
-
-make -j4
-make install
-```
-
-Ensure the `.a` static libraries are present.
-
-## Troubleshooting
-
-* Confirm Python version is correct
-* Cython installed: `pip install cython`
-* C++ compiler correctly installed
 
 # Quick Start Guide for macOS (Intel & Apple Silicon)
 
@@ -152,7 +195,7 @@ If not, install [Python 3.8.10](https://www.python.org/downloads/release/python-
 * **Apple Silicon**: Install [Miniforge](https://github.com/conda-forge/miniforge)
 * **Intel Mac**: Conda optional — can use system Python or [pyenv](https://github.com/pyenv/pyenv)
 
-### Create Environment
+### Create Python Environment
 
 **Apple Silicon (Must use Conda)**
 
@@ -168,12 +211,20 @@ pip install -r requirements-3810-macos.txt
 **Intel Mac (Prefer Python, Conda optional)**
 
 ```bash
-python3 -m venv opendrop_env
-source opendrop_env/bin/activate
+python3 -m venv opendrop_env # Skip this line if you want to install the required packages globally
+source opendrop_env/bin/activate # Skip this line if you want to install the required packages globally
 pip install -r requirements-3810.txt
 ```
 
-## 3. Build Library (macOS only) 
+> ⚠️ **Note**: If you choose to use the virtual environment, make sure to activate it every time you want to run the application. If it is activate, `(venv)` will show at the beginning of the prompt.
+
+To deactivate the environment at any time:
+
+```bash
+deactivate
+```
+
+## 3. Build Library
 ### Boost
 To check if Boost is installed on your system and available for your build, here’s how you can do it per platform:
 
