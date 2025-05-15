@@ -187,17 +187,6 @@ If you encounter errors, verify:
 * C++ compiler is correctly installed
 
 
-## 6. Build Sundials Library
-
-Follow the same instructions as [Build Sundials Library (macOS only)](#6-build-sundials-library-macos-only)
-
-## 7. VS Code or Other IDE Setup (Optional)
-
-In VS Code:
-
-* Open Command Palette (`Shift+Cmd+P`)
-* Select Python Interpreter matching `opendrop_env`
-
 # User Guide
 
 1. Select function: Contact Angle or Interfacial Tension
