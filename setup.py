@@ -2,7 +2,7 @@ from setuptools import setup, Extension, find_packages
 from Cython.Build import cythonize
 import os
 import sys
-
+import platform
 # setup for hpp/cpp
 
 # Absolute base directory (project root)
@@ -22,7 +22,11 @@ BOOST_INCLUDE = os.path.join(BASE_DIR, "dependencies","windows", "boost")
 # Compiler settings
 is_windows = sys.platform.startswith("win")
 is_linux = sys.platform.startswith("linux")
+
+#macos - intel & silicon
 is_macos = sys.platform == "darwin"
+arch = platform.machine()
+
 extra_objects = []
 compile_args = []
 if is_windows:
@@ -42,13 +46,22 @@ if is_windows:
     print(f"extra_objects: {extra_objects}")
     print(f"compile_args: {compile_args}")
 elif is_macos:
-    SUNDIALS_INCLUDE = os.path.join(BASE_DIR, "dependencies", "macos", "sundials", "include")
-    SUNDIALS_LIB = os.path.join(BASE_DIR, "dependencies", "macos", "sundials", "lib")
-    BOOST_INCLUDE = os.path.join(BASE_DIR, "dependencies", "macos", "boost")
+    if arch == "arm64":
+        platform_dir = "macos_arm64"
+        print("macOS ARM64 detected.")
+    else:
+        platform_dir = "macos_x86_64"
+        print("macOS Intel detected.")
+    SUNDIALS_INCLUDE = os.path.join(BASE_DIR, "dependencies", platform_dir, "sundials", "include")
+    SUNDIALS_LIB = os.path.join(BASE_DIR, "dependencies", platform_dir, "sundials", "lib")
+    BOOST_INCLUDE = os.path.join(BASE_DIR, "dependencies", platform_dir, "boost")
     extra_objects = [
         os.path.join(SUNDIALS_LIB, "libsundials_arkode.a"),
         os.path.join(SUNDIALS_LIB, "libsundials_nvecserial.a"),
         os.path.join(SUNDIALS_LIB, "libsundials_core.a"),
+        os.path.join(SUNDIALS_LIB, "libsundials_sunmatrixdense.a"),
+        os.path.join(SUNDIALS_LIB, "libsundials_sunlinsoldense.a"),
+        os.path.join(SUNDIALS_LIB, "libsundials_sunnonlinsolnewton.a"),
     ]
     compile_args = ["-std=c++17"]
     print("macOS detected, using macOS-specific settings.")
