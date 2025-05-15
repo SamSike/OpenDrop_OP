@@ -94,7 +94,7 @@ class Acquisition(CTkFrame):
         
         # Empty image label as placeholder
         placeholder_label = CTkLabel(placeholder_frame, text="No image selected", 
-                                    fg_color="lightgrey", width=IMAGE_FRAME_WIDTH, height=IMAGE_FRAME_HEIGHT)
+                                    fg_color="lightgrey", text_color="black", width=IMAGE_FRAME_WIDTH, height=IMAGE_FRAME_HEIGHT)
         placeholder_label.pack(padx=10, pady=10)
 
     def update_image_source(self, selection):
