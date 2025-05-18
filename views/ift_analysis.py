@@ -103,7 +103,7 @@ class IftAnalysis(CTkFrame):
 
         # Create the figure and axis
         # width, height = self.image_frame.image_label.image.size
-        fig, ax = plt.subplots(figsize=(4, 4))
+        fig, ax = plt.subplots(figsize=(4, 4), constrained_layout=True)
         results = self.user_input_data.fit_result  # List of lists: one list per drop
         idx = [0]
 
