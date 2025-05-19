@@ -16,7 +16,6 @@ IMAGE_FRAME_HEIGHT = 400
 class Acquisition(CTkFrame):
     def __init__(self, parent, user_input_data, function_type, **kwargs):
         super().__init__(parent, **kwargs)
-
         self.user_input_data = user_input_data
         self.image_handler = ImageHandler()
 
@@ -58,9 +57,11 @@ class Acquisition(CTkFrame):
             self.edgefinder.optionmenu.grid_configure(sticky="ew")
             image_acquisition_frame.grid_rowconfigure(2, weight=0)  # Height of this row doesn't need to stretch
 
+        default_value = getattr(self.user_input_data, "frame_interval", 1)
+
         self.frame_interval = IntegerEntry(
-            self, image_acquisition_frame, "frame_interval (s):", self.update_frame_interval, rw=4, cl=0,
-            default_value=self.user_input_data.frame_interval)
+            self, image_acquisition_frame, "Frame interval (s):", self.update_frame_interval, rw=4, cl=0,
+            default_value=default_value)
         image_acquisition_frame.grid_rowconfigure(4, weight=0)  # Height of this row doesn't need to stretch
         
         # Create right side frame for image display with vertical centering
