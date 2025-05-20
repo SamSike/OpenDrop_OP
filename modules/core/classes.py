@@ -55,7 +55,7 @@ class ExperimentalSetup(object):
         self.drop_region = None
         self.needle_region = None
         self.import_files = None
-        self.frame_interval = 0
+        self.frame_interval = 1
         self.analysis_method_fields_cm = {}
         self.analysis_methods_ca = {FittingMethod.TANGENT_FIT: False, FittingMethod.POLYNOMIAL_FIT: False, FittingMethod.CIRCLE_FIT: False, FittingMethod.ELLIPSE_FIT: False, FittingMethod.YL_FIT: False, FittingMethod.ML_MODEL: False}
         self.analysis_methods_pd = {INTERFACIAL_TENSION: True}

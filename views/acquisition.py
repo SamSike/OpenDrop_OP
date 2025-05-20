@@ -59,7 +59,7 @@ class Acquisition(CTkFrame):
             image_acquisition_frame.grid_rowconfigure(2, weight=0)  # Height of this row doesn't need to stretch
 
         self.frame_interval = IntegerEntry(
-            self, image_acquisition_frame, "frame_interval (s):", self.update_frame_interval, rw=4, cl=0,
+            self, image_acquisition_frame, "Frame interval (s):", self.update_frame_interval, rw=4, cl=0,
             default_value=self.user_input_data.frame_interval)
         image_acquisition_frame.grid_rowconfigure(4, weight=0)  # Height of this row doesn't need to stretch
         
