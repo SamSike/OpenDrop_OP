@@ -24,17 +24,22 @@ from views.output_page import OutputPage
 from utils.enums import FunctionType, Stage, Move
 
 
-def call_user_input(function_type, fitted_drop_data):
-    FunctionWindow(function_type, fitted_drop_data)
+def call_user_input(function_type, fitted_drop_data,main_window):
+    FunctionWindow(function_type, fitted_drop_data,main_window)
 
-class FunctionWindow(CTk):
-    def __init__(self, function_type, fitted_drop_data):
+class FunctionWindow(CTkToplevel):
+    def __init__(self, function_type, fitted_drop_data,main_window):
         super().__init__()  # Call the parent class constructor
         self.title(function_type.value)
         self.geometry("1000x750")
         self.minsize(1000, 750) 
 
+        # main window
+        self.main_window = main_window
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
+        # after callback
+        self.after_ids = []
         if get_appearance_mode() == LIGHT_MODE:
             self.FG_COLOR = get_color("background")
         else:
@@ -239,29 +244,36 @@ class FunctionWindow(CTk):
     def check_import(self, user_input_data):
         return user_input_data.number_of_frames is not None and user_input_data.number_of_frames > 0 and user_input_data.import_files is not None and len(user_input_data.import_files) > 0 and len(user_input_data.import_files) == user_input_data.number_of_frames
 
+    def register_after(self, delay_ms, callback):
+        after_id = self.after(delay_ms, callback)
+        self.after_ids.append(after_id)
+        return after_id
+
     def on_closing(self):
-        """Handle window close event"""
         try:
-            # Cancel all pending timer events
-            for after_id in self.tk.call('after', 'info'):
+            print("Cleaning up after tasks:", self.after_ids)
+            # ✅ cancel after callback
+            for after_id in self.after_ids:
                 try:
                     self.after_cancel(after_id)
                 except Exception as e:
-                    print('views/function_window.py: on_closing() AfterCancelError:', e)
-            
-            # Clean up all child widgets
+                    print("after_cancel error:", e)
+
+            # ✅ destory all widget
             for widget in self.winfo_children():
                 try:
                     widget.destroy()
                 except Exception as e:
-                    print('views/function_window.py: on_closing() WidgetDestroyError:', e)
-                    
-            # Stop the main loop
+                    print("widget destroy error:", e)
+
             self.quit()
-            
-            # Destroy the window
             self.destroy()
-        except:
-            # If any error occurs, force exit
+
+            # show main window
+            if self.main_window.winfo_exists():
+                self.main_window.deiconify()
+
+        except Exception as e:
+            print("on_closing error:", e)
             import sys
-            sys.exit(0)
+            sys.exit(1)

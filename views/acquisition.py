@@ -16,7 +16,6 @@ IMAGE_FRAME_HEIGHT = 400
 class Acquisition(CTkFrame):
     def __init__(self, parent, user_input_data, function_type, **kwargs):
         super().__init__(parent, **kwargs)
-
         self.user_input_data = user_input_data
         self.image_handler = ImageHandler()
 
@@ -58,9 +57,11 @@ class Acquisition(CTkFrame):
             self.edgefinder.optionmenu.grid_configure(sticky="ew")
             image_acquisition_frame.grid_rowconfigure(2, weight=0)  # Height of this row doesn't need to stretch
 
+        default_value = getattr(self.user_input_data, "frame_interval", 1)
+
         self.frame_interval = IntegerEntry(
-            self, image_acquisition_frame, "frame_interval (s):", self.update_frame_interval, rw=4, cl=0,
-            default_value=self.user_input_data.frame_interval)
+            self, image_acquisition_frame, "Frame interval (s):", self.update_frame_interval, rw=4, cl=0,
+            default_value=default_value)
         image_acquisition_frame.grid_rowconfigure(4, weight=0)  # Height of this row doesn't need to stretch
         
         # Create right side frame for image display with vertical centering
@@ -170,6 +171,7 @@ class Acquisition(CTkFrame):
         display_frame.grid(row=1, column=0, padx=15, pady=15)
 
         # Image label
+
         self.image_label = CTkLabel(display_frame, text="", 
                                     fg_color="lightgrey", width=IMAGE_FRAME_WIDTH, height=IMAGE_FRAME_HEIGHT)
         self.image_label.pack(padx=10, pady=10)
@@ -221,9 +223,10 @@ class Acquisition(CTkFrame):
         width, height = self.current_image.size
         new_width, new_height = self.image_handler.get_fitting_dimensions(width, height, max_width=IMAGE_FRAME_WIDTH, max_height=IMAGE_FRAME_HEIGHT)
         self.tk_image = CTkImage(self.current_image, size=(new_width, new_height))
+        
+        self.image_label.image = self.tk_image  
+        self.update_idletasks()
         self.image_label.configure(image=self.tk_image)
-        # Keep a reference to avoid garbage collection
-        self.image_label.image = self.tk_image
 
     def change_image(self, direction):
         """Change the currently displayed image based on the direction."""
