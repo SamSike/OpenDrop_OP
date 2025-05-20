@@ -171,6 +171,7 @@ class Acquisition(CTkFrame):
         display_frame.grid(row=1, column=0, padx=15, pady=15)
 
         # Image label
+
         self.image_label = CTkLabel(display_frame, text="", 
                                     fg_color="lightgrey", width=IMAGE_FRAME_WIDTH, height=IMAGE_FRAME_HEIGHT)
         self.image_label.pack(padx=10, pady=10)
@@ -222,9 +223,10 @@ class Acquisition(CTkFrame):
         width, height = self.current_image.size
         new_width, new_height = self.image_handler.get_fitting_dimensions(width, height, max_width=IMAGE_FRAME_WIDTH, max_height=IMAGE_FRAME_HEIGHT)
         self.tk_image = CTkImage(self.current_image, size=(new_width, new_height))
+        
+        self.image_label.image = self.tk_image  
+        self.update_idletasks()
         self.image_label.configure(image=self.tk_image)
-        # Keep a reference to avoid garbage collection
-        self.image_label.image = self.tk_image
 
     def change_image(self, direction):
         """Change the currently displayed image based on the direction."""
