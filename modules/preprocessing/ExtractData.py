@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 import numpy as np
+import os
 
 class ExtractedData(object):
     def __init__(self, n_frames, n_params):
@@ -29,7 +30,10 @@ class ExtractedData(object):
         # also - this outputs variables into a csv file with 5 significant figures
 
         out = []
-        out.append(str(input_files[i]))
+        filepath = input_files[i]
+        if isinstance(filepath, tuple): 
+            filepath = filepath[0]
+        out.append(str(filepath)) 
         out.append(self.time[i])
         header = []
         header.append("Filename,")
@@ -49,7 +53,7 @@ class ExtractedData(object):
         if not location:
             location = './outputs/'
 
-        output_file = location + '/' + filename
+        output_file = os.path.join(location, filename)
         with open(output_file, 'a') as f:
             if i==0:
                 f.write(string+'\n')
