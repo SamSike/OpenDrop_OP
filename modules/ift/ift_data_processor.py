@@ -176,12 +176,18 @@ class iftDataProcessor:
         for i in range(len(translated_fitted_x)):
             x_coord = int(translated_fitted_x[i])
             y_coord = int(translated_fitted_y[i])
-            cv2.circle(img_to_draw_on, (x_coord, y_coord),
-                       point_radius, point_color_bgr, point_thickness)
+            cv2.circle(img_to_draw_on, (x_coord, y_coord), point_radius, point_color_bgr, point_thickness)
+        
+        save_dir = os.path.join("outputs", "contour_images")
+        os.makedirs(save_dir, exist_ok=True)
 
-        image_pil = Image.fromarray(cv2.cvtColor(
-            img_to_draw_on, cv2.COLOR_BGR2RGB))
-        user_input_data.drop_contour_images[drop_index] = image_pil
+        original_path = user_input_data.import_files[drop_index]
+        original_name = os.path.basename(original_path)
+
+        save_path = os.path.join(save_dir, original_name)
+        cv2.imwrite(save_path, img_to_draw_on)
+
+        user_input_data.drop_contour_images[drop_index] = save_path
 
     def save_result(self, input_file, output_directory, filename, user_input_data):
         """

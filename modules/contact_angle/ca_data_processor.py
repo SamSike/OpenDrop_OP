@@ -6,6 +6,7 @@ from modules.image.select_regions import set_drop_region,set_surface_line, corre
 from modules.contact_angle.extract_profile import extract_drop_profile
 from modules.fitting.fits import perform_fits
 import timeit
+import copy
 from utils.enums import FittingMethod
 from utils.config import *
 from multiprocessing import Process,Queue
@@ -93,8 +94,7 @@ class CaDataProcessor:
                     print(key1+' '+key2+': ')
                     print('    ',extracted_data.contact_angles[key1][key2])
                     print()
-
-            self.output.append(extracted_data)
+            self.output.append(copy.deepcopy(extracted_data))
 
             if callback:
                 callback(extracted_data,raw_experiment)
