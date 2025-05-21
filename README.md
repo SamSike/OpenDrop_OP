@@ -200,12 +200,10 @@ If not, install [Python 3.8.10](https://www.python.org/downloads/release/python-
 **Apple Silicon (Must use Conda)**
 
 ```bash
-conda create -n opendrop_env python=3.8.10 numpy=1.22.4 scipy=1.7.3 pip -c conda-forge
+conda create -n opendrop_env -c conda-forge python=3.8.10
 conda activate opendrop_env
 
-
-pip install tensorflow-macos==2.13.0
-pip install -r requirements-3810-macos.txt
+pip install -r requirements-3810.txt
 ```
 
 **Intel Mac (Prefer Python, Conda optional)**
@@ -224,83 +222,14 @@ To deactivate the environment at any time:
 deactivate
 ```
 
-## 3. Build Library
-### Boost
-To check if Boost is installed on your system and available for your build, here’s how you can do it per platform:
-
-Apple Silicon
-```bash
-find /usr /opt /homebrew/local -name version.hpp | grep boost
-```
-Apple Intel 
-```bash
-find /usr /opt /usr/local -name version.hpp | grep boost
-```
-
-If it returns a path like /opt/homebrew/include/boost/version.hpp or /usr/local/include/boost/version.hpp, then Boost is installed.
-
-otherwise
-```bash
-brew install boost
-```
-
-
-### SUNDIALS
-If you are on macOS, SUNDIALS static libraries must be available in:
-
-dependencies/macos_x86_64/sundials/lib/   # for Intel Mac  
-dependencies/macos_arm64/sundials/lib/   # for Apple Silicon (M1/M2/M3)
-
-They're on a different architecture (e.g., you're Intel, they're Apple Silicon),
-Or if .a files are missing or broken,
-Then they must recompile using CMake.
-
-### ✅ You can skip this step if:
-
-The correct .a static libraries already exist for your architecture
-Files like the following are present:
-libsundials_arkode.a
-libsundials_nvecserial.a
-libsundials_core.a
-
-### ⚠️ You must build manually with CMake if:
-
-You're on a different architecture than the one the libraries were built for
-The .a files are missing or broken
-
-```bash
-cd dependencies/macos_x86_64   # or macos_arm64
-
-rm -rf sundials   # delete existing repo if present
-
-git clone https://github.com/LLNL/sundials.git
-cd sundials
-mkdir build && cd build
-
-cmake .. \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_STATIC_LIBS=ON \
-  -DBUILD_SHARED_LIBS=OFF \
-  -DSUNDIALS_BUILD_EXAMPLES=OFF \
-  -DCMAKE_INSTALL_PREFIX=../../sundials
-
-make -j4
-make install
-```
-
-Ensure `.a` files are built in:
-
-* `macos_x86_64/sundials/lib/`
-* or `macos_arm64/sundials/lib/`
-
-## 4. Build Cython Extensions
+## 3. Build Cython Extensions
 
 ```bash
 cd ~/Desktop/OpenDrop_OP 
 python setup.py build_ext --inplace
 ```
 
-## 5. Run the Application
+## 4. Run the Application
 
 ```bash
 python main.py
@@ -373,6 +302,74 @@ python setup.py build_ext --inplace
 python main.py
 ```
 
+### 3. Check Build Library
+### Boost
+To check if Boost is installed on your system and available for your build, here’s how you can do it per platform:
+
+Apple Silicon
+```bash
+find /usr /opt /homebrew/local -name version.hpp | grep boost
+```
+Apple Intel 
+```bash
+find /usr /opt /usr/local -name version.hpp | grep boost
+```
+
+If it returns a path like /opt/homebrew/include/boost/version.hpp or /usr/local/include/boost/version.hpp, then Boost is installed.
+
+otherwise
+```bash
+brew install boost
+```
+
+
+###  About SUNDIALS
+If you are on macOS, SUNDIALS static libraries must be available in:
+
+dependencies/macos_x86_64/sundials/lib/   # for Intel Mac  
+dependencies/macos_arm64/sundials/lib/   # for Apple Silicon (M1/M2/M3)
+
+They're on a different architecture (e.g., you're Intel, they're Apple Silicon),
+Or if .a files are missing or broken,
+Then they must recompile using CMake.
+
+### ✅ You can skip this step if:
+
+The correct .a static libraries already exist for your architecture
+Files like the following are present:
+libsundials_arkode.a
+libsundials_nvecserial.a
+libsundials_core.a
+
+### ⚠️ You must build manually with CMake if:
+
+You're on a different architecture than the one the libraries were built for
+The .a files are missing or broken
+
+```bash
+cd dependencies/macos_x86_64   # or macos_arm64
+
+rm -rf sundials   # delete existing repo if present
+
+git clone https://github.com/LLNL/sundials.git
+cd sundials
+mkdir build && cd build
+
+cmake .. \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_STATIC_LIBS=ON \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DSUNDIALS_BUILD_EXAMPLES=OFF \
+  -DCMAKE_INSTALL_PREFIX=../../sundials
+
+make -j4
+make install
+```
+
+Ensure `.a` files are built in:
+
+* `macos_x86_64/sundials/lib/`
+* or `macos_arm64/sundials/lib/`
 
 If you encounter errors, verify:
 
