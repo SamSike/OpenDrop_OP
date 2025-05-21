@@ -24,3 +24,6 @@ build/
 #shared .so files
 modules/ift/younglaplace/*.so
 modules/ift/hough/*.so
+
+# Output file
+outputs/*.csv

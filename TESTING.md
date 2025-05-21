@@ -4,15 +4,7 @@ This project uses `unittest` as the main testing framework. All test cases are l
 
 ## 1. Environment Setup
 
-Make sure all dependencies are installed:
-
-```bash
-pip install -r requirements.txt
-pip install scikit-learn
-pip install numba
-pip install matplotlib
-
-```
+Follow the setup guide in [README.md](./README.md) to complete the environment setup.
 
 ## 2. Run All Tests
 
