@@ -5,7 +5,7 @@ import os
 
 
 class ImageGallery(ctk.CTkFrame):
-    def __init__(self, parent, import_files,on_image_change_callback=None):
+    def __init__(self, parent, import_files):
         # Pass fg_color='transparent' if the parent wrapper already has the desired background
         super().__init__(parent, fg_color='transparent')
         self.filename_label = ctk.CTkLabel(
@@ -28,7 +28,7 @@ class ImageGallery(ctk.CTkFrame):
         self.current_index = 0
         self.current_image = None # Store the original PIL Image
         self.tk_image = None # Store the CTkImage
-        self.on_image_change_callback = on_image_change_callback
+
         # Remove the extra main_frame, use self (ImageGallery frame) directly for simplicity
         # This makes binding Configure easier and reduces nesting
 
@@ -48,24 +48,38 @@ class ImageGallery(ctk.CTkFrame):
 
         # Navigation buttons frame
         self.button_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.button_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(0, 5))
+        self.button_frame.grid(row=2, column=0, columnspan=2, pady=(0, 5))
+        self.button_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
         self.button_frame.grid_columnconfigure(0, weight=1)
         self.button_frame.grid_columnconfigure(1, weight=1)
 
 
-        # Previous and Next buttons (place inside button_frame)
+        # < Entry > of N
+        self.button_frame.grid_columnconfigure(0, weight=0)
+        self.button_frame.grid_columnconfigure(1, weight=0)
+        self.button_frame.grid_columnconfigure(2, weight=0)
+        self.button_frame.grid_columnconfigure(3, weight=0)
+
+        # < button
         self.prev_button = ctk.CTkButton(
-            self.button_frame, text="Previous", command=lambda: self.change_image(-1), width=80, height=25)
-        # Use pack for easier centering within the button frame or adjust grid columns
-        # self.prev_button.pack(side="left", padx=20, pady=5)
-        self.prev_button.grid(row=0, column=0, padx=(20, 5), sticky="e")
+            self.button_frame, text="<", width=30, command=lambda: self.change_image(-1))
+        self.prev_button.grid(row=0, column=0, padx=(10, 5))
 
+        # input fame
+        self.index_entry = ctk.CTkEntry(self.button_frame, width=50)
+        self.index_entry.grid(row=0, column=1)
+        self.index_entry.insert(0, str(self.current_index + 1))
+        self.index_entry.bind("<Return>", lambda e: self.update_index_from_entry())
 
+        # of N label
+        self.total_label = ctk.CTkLabel(
+            self.button_frame, text=f"of {len(self.image_paths)}", font=("Arial", 12))
+        self.total_label.grid(row=0, column=2, padx=5)
+
+        # > button
         self.next_button = ctk.CTkButton(
-            self.button_frame, text="Next", command=lambda: self.change_image(1), width=80, height=25)
-        # self.next_button.pack(side="right", padx=20, pady=5)
-        self.next_button.grid(row=0, column=1, padx=(5, 20), sticky="w")
-
+            self.button_frame, text=">", width=30, command=lambda: self.change_image(1))
+        self.next_button.grid(row=0, column=3, padx=(5, 10))
 
         if self.image_paths:
             self.load_image(self.image_paths[self.current_index], path_hint=self.image_paths[self.current_index])
@@ -145,10 +159,23 @@ class ImageGallery(ctk.CTkFrame):
         if self.image_paths:
             self.current_index = (self.current_index + direction) % len(self.image_paths)  # Wrap around
         self.load_image(self.image_paths[self.current_index], path_hint=self.image_paths[self.current_index])
-            if self.on_image_change_callback:
-                self.on_image_change_callback(self.current_index)
+        self.update_index_entry()
     
     def set_image(self, img):
         """Set and display a new image in the gallery."""
         self.current_image = img
         self.display_image()
+
+    def update_index_entry(self):
+        self.index_entry.delete(0, 'end')
+        self.index_entry.insert(0, str(self.current_index + 1))
+
+    def update_index_from_entry(self):
+        try:
+            new_index = int(self.index_entry.get()) - 1
+            if 0 <= new_index < len(self.image_paths):
+                self.current_index = new_index
+                self.load_image(self.image_paths[self.current_index], path_hint=self.image_paths[self.current_index])
+        except ValueError:
+            print("Invalid input index")
+        self.update_index_entry()
