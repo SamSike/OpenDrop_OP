@@ -31,6 +31,7 @@ opencv-python
 opt-einsum
 packaging
 Pillow
+pre-commit
 protobuf
 pyasn1
 pyasn1-modules
