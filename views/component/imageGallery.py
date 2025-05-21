@@ -5,7 +5,7 @@ import os
 
 
 class ImageGallery(ctk.CTkFrame):
-    def __init__(self, parent, import_files):
+    def __init__(self, parent, import_files,on_image_change_callback=None):
         # Pass fg_color='transparent' if the parent wrapper already has the desired background
         super().__init__(parent, fg_color='transparent')
         self.filename_label = ctk.CTkLabel(
@@ -28,7 +28,7 @@ class ImageGallery(ctk.CTkFrame):
         self.current_index = 0
         self.current_image = None # Store the original PIL Image
         self.tk_image = None # Store the CTkImage
-
+        self.on_image_change_callback = on_image_change_callback
         # Remove the extra main_frame, use self (ImageGallery frame) directly for simplicity
         # This makes binding Configure easier and reduces nesting
 
@@ -145,6 +145,8 @@ class ImageGallery(ctk.CTkFrame):
         if self.image_paths:
             self.current_index = (self.current_index + direction) % len(self.image_paths)  # Wrap around
         self.load_image(self.image_paths[self.current_index], path_hint=self.image_paths[self.current_index])
+            if self.on_image_change_callback:
+                self.on_image_change_callback(self.current_index)
     
     def set_image(self, img):
         """Set and display a new image in the gallery."""

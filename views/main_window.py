@@ -74,10 +74,6 @@ class MainWindow(ctk.CTk):
         button.image = button_photo  # Keep a reference to avoid garbage collection
         button.grid(row=0, column=column, padx=20)
 
-    def run_function(self, func):
-        # TO DO: change the code to fix the warning
-        self.destroy()
-        func()
         
         
 
@@ -85,16 +81,41 @@ class MainWindow(ctk.CTk):
         messagebox.showinfo(
             "Information", "Interfacial Tension: Measures the force at the surface of liquids.\n\nContact Angle: Measures the angle between the liquid surface and the solid surface.")
         
+    
+
+
+    def run_function(self, func):
+        self.withdraw() 
+        func(self)
+        # self.after(100, lambda: self.open_function_window(func))
+
+    # def open_function_window(self, func):
+    #     func()  
+    #     self.after(500, self.check_reopen)
+
+    # def check_reopen(self):
+    #     print("Toplevel windows:", [w for w in self.winfo_children() if isinstance(w, ctk.CTkToplevel)])
+
+    #     if not any(isinstance(w, ctk.CTkToplevel) for w in self.winfo_children()):
+    #         self.deiconify()
+    #     else:
+    #         self.after(500, self.check_reopen)
+
+    def show_info_popup(self):
+        messagebox.showinfo(
+            "Information", 
+            "Interfacial Tension: Measures the force at the surface of liquids.\n\n"
+            "Contact Angle: Measures the angle between the liquid surface and the solid surface."
+        )
+
     def close_window(self):
         self.continue_processing["status"] = False
-        self.destroy()
+        try:
+            self.quit()  
+            self.destroy()  
+        except Exception as e:
+            print("Error during destroy:", e)
+        finally:
+            import sys
+            sys.exit(0) 
 
-    def display_image(self, image_path):
-        # Load the image using PIL
-        image = Image.open(image_path)
-        photo = ctk.CTkImage(image, size=(300, 200))
-
-        # Create a CTkLabel to display the image
-        image_label = ctk.CTkLabel(self, image=photo)
-        image_label.image = photo  # Keep a reference to avoid garbage collection
-        image_label.pack(pady=20)

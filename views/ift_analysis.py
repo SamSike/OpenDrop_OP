@@ -1,3 +1,5 @@
+from modules.ift.ift_data_processor import iftDataProcessor 
+
 from customtkinter import CTkImage, CTkFrame, CTkScrollableFrame, CTkTabview, CTkLabel
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -5,7 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from views.component.imageGallery import ImageGallery
 
 class IftAnalysis(CTkFrame):
-    def __init__(self, parent, user_input_data,ift_processor, **kwargs):
+    def __init__(self, parent, user_input_data, ift_processor: iftDataProcessor, **kwargs):
         super().__init__(parent, **kwargs)
 
         self.user_input_data = user_input_data
@@ -92,7 +94,7 @@ class IftAnalysis(CTkFrame):
     def create_image_frame(self, parent):
         """Create an Image Gallery that allows back and forth between base images into the parent frame"""
         self.image_frame = ImageGallery(
-            parent, self.user_input_data.drop_contour_images)
+            parent, self.user_input_data.drop_contour_images,on_image_change_callback=self.update_residual_graph)
         self.image_frame.grid(row=0, column=0, sticky="nsew")
 
     def create_residuals_frame(self, parent):
@@ -123,20 +125,12 @@ class IftAnalysis(CTkFrame):
                 idx[0] = (idx[0] - 1) % len(results)
                 show(idx[0])
 
-        fig.canvas.mpl_connect('key_press_event', on_key)
-        show(idx[0])
-        # Create a canvas for the figure
-        canvas = FigureCanvasTkAgg(fig, self.residuals_frame)
-        
-        # Create and pack the navigation toolbar
-        toolbar = NavigationToolbar2Tk(canvas, self.residuals_frame)
+        self.residual_canvas = FigureCanvasTkAgg(fig, self.residuals_frame)  
+        toolbar = NavigationToolbar2Tk(self.residual_canvas, self.residuals_frame)
         toolbar.update()
-
-        # Ensure the canvas is packed after the toolbar
-        canvas.get_tk_widget().pack(fill="both", expand=True)
-
-        # Draw the canvas to show the figure
-        canvas.draw()
+        self.residual_canvas.get_tk_widget().pack(fill="both", expand=True)
+        self.residual_canvas.draw()
+        self.update_residual_graph(0)
 
     def create_graph_tab(self, parent):
         """Create a full sized graph into the parent frame"""
@@ -178,7 +172,17 @@ class IftAnalysis(CTkFrame):
         # self.create_image_frame(self.visualisation_frame)
         # self.create_residuals_frame(self.visualisation_frame)
 
-            
+    def update_residual_graph(self, index):
+        if not hasattr(self, 'residual_ax'):
+            return  
+        self.residual_ax.clear()
+        result = self.user_input_data.fit_result[index]
+        self.residual_ax.scatter(result.arclengths, result.residuals, color='black')
+        self.residual_ax.set_title(f"Residuals for Drop {index + 1}")
+        self.residual_ax.set_xlabel("Arclengths")
+        self.residual_ax.set_ylabel("Residuals")
+        self.residual_canvas.draw_idle()
+
     def destroy(self):
         plt.close('all')
         return super().destroy()

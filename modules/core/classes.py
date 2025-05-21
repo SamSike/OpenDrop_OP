@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 from modules.fitting.de_YoungLaplace import ylderiv
+from utils.enums import RegionSelect, ThresholdSelect
 #from .interpolation_function import cubic_interpolation_function
 from scipy.integrate import odeint
 
@@ -23,11 +24,11 @@ class Tolerances(object):
 class ExperimentalSetup(object):
     def __init__(self):
         self.screen_resolution = None
-        self.drop_ID_method = 'Automated'
-        self.threshold_method = 'Automated'
-        self.needle_region_method = 'Automated'
+        self.drop_ID_method = RegionSelect.AUTOMATED
+        self.threshold_method = ThresholdSelect.AUTOMATED
+        self.needle_region_method = RegionSelect.AUTOMATED
         self.threshold_val = None
-        self.baseline_method = 'Automated'
+        self.baseline_method = ThresholdSelect.AUTOMATED
         self.edgefinder = None
         ###user input vvvvv
         self.density_outer = None # contininous density
@@ -55,7 +56,7 @@ class ExperimentalSetup(object):
         self.drop_region = None
         self.needle_region = None
         self.import_files = None
-        self.frame_interval = 0
+        self.frame_interval = 1
         self.analysis_method_fields_cm = {}
         self.analysis_methods_ca = {FittingMethod.TANGENT_FIT: False, FittingMethod.POLYNOMIAL_FIT: False, FittingMethod.CIRCLE_FIT: False, FittingMethod.ELLIPSE_FIT: False, FittingMethod.YL_FIT: False, FittingMethod.ML_MODEL: False}
         self.analysis_methods_pd = {INTERFACIAL_TENSION: True}
