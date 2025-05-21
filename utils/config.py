@@ -1,11 +1,12 @@
 import os
+from utils.enums import RegionSelect, ThresholdSelect
 
 VERSION = '1.0'
 
-AUTO_MANUAL_OPTIONS = ["Automated", "User-selected"] 
-DROP_ID_OPTIONS = ["Automated", "User-selected"]
-THRESHOLD_OPTIONS = ["Automated", "User-selected"]
-BASELINE_OPTIONS = ["Automated", "User-selected"]
+AUTO_MANUAL_OPTIONS = [RegionSelect.AUTOMATED, RegionSelect.USER_SELECTED] 
+DROP_ID_OPTIONS = [RegionSelect.AUTOMATED, RegionSelect.USER_SELECTED] 
+THRESHOLD_OPTIONS = [ThresholdSelect.AUTOMATED, ThresholdSelect.USER_SELECTED] 
+BASELINE_OPTIONS = [ThresholdSelect.AUTOMATED, ThresholdSelect.USER_SELECTED] 
 NEEDLE_OPTIONS = ['0.7176', '1.270', '1.651']
 FILE_SOURCE_OPTIONS_CA = ["Local images", "Flea3", "USB camera"]
 FILE_SOURCE_OPTIONS_IFT = ["Local images", "cv2.VideoCapture", "GenlCam"]
