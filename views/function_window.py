@@ -251,7 +251,7 @@ class FunctionWindow(CTkToplevel):
 
     def on_closing(self):
         try:
-            print("Cleaning up after tasks:", self.after_ids)
+            # print("Cleaning up after tasks:", self.after_ids)
             # ✅ cancel after callback
             for after_id in self.after_ids:
                 try:
