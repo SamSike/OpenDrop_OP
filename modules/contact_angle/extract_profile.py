@@ -35,7 +35,7 @@ def extract_drop_profile(raw_experiment, user_inputs):
             plt.show()
             plt.close(fig)
 
-    elif user_inputs.threshold_method == "Automated":
+    elif user_inputs.threshold_method == ThresholdSelect.AUTOMATED:
         if raw_experiment.ret == None:
             raw_experiment.contour, raw_experiment.ret = extract_edges_CV(
                 raw_experiment.cropped_image, return_thresholed_value=True)
