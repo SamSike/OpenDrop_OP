@@ -1,3 +1,5 @@
+from modules.ift.ift_data_processor import iftDataProcessor 
+
 from customtkinter import CTkImage, CTkFrame, CTkScrollableFrame, CTkTabview, CTkLabel
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -5,7 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from views.component.imageGallery import ImageGallery
 
 class IftAnalysis(CTkFrame):
-    def __init__(self, parent, user_input_data,ift_processor, **kwargs):
+    def __init__(self, parent, user_input_data, ift_processor: iftDataProcessor, **kwargs):
         super().__init__(parent, **kwargs)
 
         self.user_input_data = user_input_data
