@@ -1,8 +1,20 @@
 from enum import Enum
 
+
+class RegionSelect(str, Enum):
+    AUTOMATED = "Automated"
+    USER_SELECTED = "User-selected"
+
+
+class ThresholdSelect(str, Enum):
+    AUTOMATED = "Automated"
+    USER_SELECTED = "User-selected"
+
+
 class FunctionType(Enum):
     INTERFACIAL_TENSION = "Interfacial Tension"
     CONTACT_ANGLE = "Contact Angle"
+
 
 class Stage(Enum):
     ACQUISITION = 1
@@ -10,9 +22,11 @@ class Stage(Enum):
     ANALYSIS = 3
     OUTPUT = 4
 
+
 class Move(Enum):
     Next = 1
     Back = -1
+
 
 class FittingMethod(str, Enum):
     TANGENT_FIT = 'tangent fit'
