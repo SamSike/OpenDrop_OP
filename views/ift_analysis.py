@@ -110,8 +110,8 @@ class IftAnalysis(CTkFrame):
         self.residual_fig = fig
 
         self.residual_canvas = FigureCanvasTkAgg(fig, self.residuals_frame)  
-        # toolbar = NavigationToolbar2Tk(self.residual_canvas, self.residuals_frame)
-        # toolbar.update()
+        toolbar = NavigationToolbar2Tk(self.residual_canvas, self.residuals_frame)
+        toolbar.update()
         self.residual_canvas.get_tk_widget().pack(fill="both", expand=True)
         self.residual_canvas.draw()
         self.update_residual_graph(0)
