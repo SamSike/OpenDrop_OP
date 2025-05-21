@@ -192,7 +192,7 @@ If not, install [Python 3.8.10](https://www.python.org/downloads/release/python-
 
 ### Install Conda or Pyenv
 
-* **Apple Silicon**: Install [Miniforge](https://github.com/conda-forge/miniforge)
+* **Apple Silicon**: Install [Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install)
 * **Intel Mac**: Conda optional — can use system Python or [pyenv](https://github.com/pyenv/pyenv)
 
 ### Create Python Environment
@@ -202,8 +202,6 @@ If not, install [Python 3.8.10](https://www.python.org/downloads/release/python-
 ```bash
 conda create -n opendrop_env -c conda-forge python=3.8.10
 conda activate opendrop_env
-
-pip install -r requirements-3810.txt
 ```
 
 **Intel Mac (Prefer Python, Conda optional)**
@@ -211,6 +209,11 @@ pip install -r requirements-3810.txt
 ```bash
 python3 -m venv opendrop_env # Skip this line if you want to install the required packages globally
 source opendrop_env/bin/activate # Skip this line if you want to install the required packages globally
+```
+### Install Python Dependencies
+
+Make sure you're in the root folder of the application, then run:
+```bash
 pip install -r requirements-3810.txt
 ```
 
@@ -225,7 +228,6 @@ deactivate
 ## 3. Build Cython Extensions
 
 ```bash
-cd ~/Desktop/OpenDrop_OP 
 python setup.py build_ext --inplace
 ```
 
@@ -276,15 +278,20 @@ fatal error: 'boost/math/differentiation/autodiff.hpp' file not found
 
 ### ✅ Fix Steps
 
+1. Use Pre-included Dependencies (Preferred)
+
+This project already includes a dependencies/ folder containing Boost and Sundials.
+Make sure your build system or environment points to those directories.
+
 You can resolve this issue by locating all .hpp files present in your Boost directory and ensuring that the path to Boost headers is correctly specified.
 
-1. Find the Boost Header Files
+2. Locate Boost Header Files (If using system-installed Boost)
 - Use the following command to find all .hpp files within the Boost directory:
 ```bash
 find /opt/homebrew -name  "*.hpp" | grep boost # Apple Silicon
 find /usr/local -name "*.hpp" | grep boost #Apple Intel
 ```
-2. Set the BOOST_INCLUDE_DIR Environment Variable
+- Set the BOOST_INCLUDE_DIR Environment Variable
 
 - Once you have identified the correct path to the Boost headers, set the BOOST_INCLUDE_DIR environment variable to this path. 
 
@@ -298,6 +305,7 @@ export BOOST_INCLUDE_DIR=/usr/local/Cellar/boost/1.88.0/include/ #Apple Intel
 #or
 export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
 
+⚙️ Rebuild After Setting Path
 python setup.py build_ext --inplace
 python main.py
 ```
