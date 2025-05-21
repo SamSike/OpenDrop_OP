@@ -13,19 +13,23 @@ class ExtractedData(object):
         self.worthington = np.zeros(n_frames)
         self.parameters = np.zeros((n_frames, n_params))
         self.contact_angles = np.zeros((n_frames,2))
+        self.bond = np.zeros(n_frames)
+        self.drop_contour_image = np.zeros(n_frames)
+        self.residuals = []
+        self.arc_lengths = []
 
     def time_IFT_vol_area(self, i):
         # build the time-IFT-volume-area array used in the plotting function
-        return [self.time[i], self.gamma_IFT_mN[i], self.volume[i], self.area[i]]
+        return [self.time[i], self.gamma_IFT_mN[i], self.volume[i], self.area[i], self.bond[i], self.worthington[i]]
 
-    def export_data(self, input_file, location, filename, i):
+    def export_data(self, input_files, location, filename, i):
 
         # header and comment not supported for version number < 1.7
         # this is a hack routine to check this...
         # also - this outputs variables into a csv file with 5 significant figures
 
         out = []
-        out.append(str(input_file))
+        out.append(str(input_files[i]))
         out.append(self.time[i])
         header = []
         header.append("Filename,")
@@ -56,8 +60,8 @@ class ExtractedData(object):
         if 0:
             try:
                 f = open(output_file,'a')
-                np.savetxt(f, self.output_data(input_file,i), delimiter=',', fmt='%10.5f', header=self.header_string(i), comments='')
+                np.savetxt(f, self.output_data(input_files,i), delimiter=',', fmt='%10.5f', header=self.header_string(i), comments='')
                 f.close()
             except:
                 #np.savetxt(f, self.output_data(), delimiter=',', fmt='%10.5f')
-                np.savetxt(f, self.output_data(input_file,i), fmt='%10.5f') # was This
+                np.savetxt(f, self.output_data(input_files,i), fmt='%10.5f') # was This

@@ -6,6 +6,7 @@ from views.component.float_combobox import FloatCombobox
 from views.component.check_button import CheckButton
 from views.helper.style import set_light_only_color
 from utils.enums import FittingMethod
+from utils.tooltip_util import create_tooltip
 LABEL_WIDTH = 200  # Adjust as needed
 
 # ift [User Input]
@@ -39,7 +40,7 @@ def create_user_input_fields_ift(self, parent, user_input_data):
     # Update the input value functions
     def update_drop_region_method(*args):
         user_input_data.drop_ID_method = self.drop_region_method.get_value()
-        self.image_app.update_image_processing_button()
+        # self.image_app.update_image_processing_button()
 
     def update_needle_region_method(*args):
         user_input_data.needle_region_method = self.needle_region_method.get_value()
@@ -89,8 +90,21 @@ def create_user_input_fields_ift(self, parent, user_input_data):
         default_value=user_input_data.pixel_mm
     )
 
+    create_tooltip(self.drop_region_method.label, "The method to detect the droplet region.")
+    create_tooltip(self.needle_region_method.label, "The method to detect the needle region.")
+    create_tooltip(self.drop_density_method.label, "The density of the droplet in kg/m³. Used for interfacial tension calculation.")
+    create_tooltip(self.continuous_density.label, "The density of the surrounding fluid (e.g., air or oil) in kg/m³.")
+    create_tooltip(self.needle_diameter.label, "The needle diameter, used for image scale calibration.")
+    create_tooltip(self.pixel_mm.label, "The pixel-to-millimeter scale for image-based measurements (optional).")
+
     # Returning the user input frame
     return user_input_frame
+
+# Add tooltip messages
+def add_help_icon(parent, row, column, tooltip_text):
+    icon = CTkLabel(parent, text="❓", font=("Arial", 12, "bold"), cursor="question_arrow", text_color="red")
+    icon.grid(row=row, column=column, padx=(2, 5), pady=5, sticky="w")
+    create_tooltip(icon, tooltip_text)
 
 # ift [Analysis Methods]
 def create_analysis_checklist_ift(self,parent,user_input_data):
@@ -151,7 +165,7 @@ def create_user_inputs_cm(self,parent,user_input_data):
     input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
 
     # Configure the grid of input_fields_frame to be resizable
-    for i in range(6):
+    for i in range(4):
         input_fields_frame.grid_rowconfigure(i, weight=1)
     input_fields_frame.grid_columnconfigure(0, weight=0)  # Label column fixed width
     input_fields_frame.grid_columnconfigure(1, weight=1)  # Widget column expands
@@ -175,12 +189,6 @@ def create_user_inputs_cm(self,parent,user_input_data):
         user_input_data.baseline_method = self.baseline_method.get_value()
         # user_input_data.threshold_val = None
         # self.image_app.update_button_visibility()
-
-    def update_density_outer(*args):
-        user_input_data.density_outer = self.density_outer.get_value()
-
-    def update_needle_diameter(*args):
-        user_input_data.needle_diameter_mm = self.needle_diameter.get_value()
 
     # Create input fields with the associated update methods
     self.drop_ID_method = OptionMenu(
@@ -207,17 +215,10 @@ def create_user_inputs_cm(self,parent,user_input_data):
     )
     self.baseline_method.optionmenu.grid_configure(sticky="ew")
 
-    self.density_outer = FloatEntry(
-        self, input_fields_frame, "Continuous density (kg/m³):",
-        lambda *args: update_density_outer(*args), rw=4, default_value=user_input_data.density_outer
-    )
-    self.density_outer.entry.grid_configure(sticky="ew")
-
-    self.needle_diameter = FloatCombobox(
-        self, input_fields_frame, "Needle diameter (mm):", NEEDLE_OPTIONS,
-        lambda *args: update_needle_diameter(*args), rw=5, default_value=user_input_data.needle_diameter_mm
-    )
-    self.needle_diameter.combobox.grid_configure(sticky="ew")
+    create_tooltip(self.drop_ID_method.label, "The method to identify the droplet region")
+    create_tooltip(self.threshold_method.label, "The method for threshold value selection (automatic or custom).")
+    create_tooltip(self.threshold_val.label, "The threshold value for edge detection (only applicable for the manual threshold value selection).")
+    create_tooltip(self.baseline_method.label, "The baseline detection method for fitting the contact angle.")
 
     return user_input_frame
 
@@ -238,7 +239,9 @@ def create_plotting_checklist(self, parent, user_input_data):
 
     # Create a label for the checklist
     label = CTkLabel(plotting_clist_frame, text="Visible during fitting (method = automated)", font=("Roboto", 16, "bold"))
-    label.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")  # Grid for label
+    label.grid(row=0, column=0, padx=(10,0), pady=5, sticky="w")  # Grid for label
+
+    add_help_icon(plotting_clist_frame, 0, 1, "Additional pop-up images may appear during analysis. Since these must be closed to continue, it is recommended to deselect these options when analyzing a large number of images.")
 
     # Create a frame to hold all checkbox fields
     input_fields_frame = CTkFrame(plotting_clist_frame)
@@ -266,7 +269,7 @@ def create_plotting_checklist(self, parent, user_input_data):
         self, input_fields_frame, "Original Image(s)", update_original_boole, rw=0, cl=0, state_specify='normal', default_value=user_input_data.original_boole
     )
     self.cropped_boole = CheckButton(
-        self, input_fields_frame, "Cropped Images(s)", update_cropped_boole, rw=1, cl=0, state_specify='normal', default_value=user_input_data.cropped_boole
+        self, input_fields_frame, "Cropped Image(s)", update_cropped_boole, rw=1, cl=0, state_specify='normal', default_value=user_input_data.cropped_boole
     )
     self.threshold_boole = CheckButton(
         self, input_fields_frame, "Threhold Image(s)", update_threshold_boole, rw=2, cl=0, state_specify='normal', default_value=user_input_data.threshold_boole
@@ -290,7 +293,7 @@ def create_analysis_checklist_cm(self, parent, user_input_data):
 
 
     # Create a label for the analysis checklist
-    label = CTkLabel(analysis_clist_frame, text="Analysis methods", font=("Roboto", 16, "bold"))
+    label = CTkLabel(analysis_clist_frame, text="Analysis methods*", font=("Roboto", 16, "bold"))
     label.grid(row=0, column=0, padx=10, pady=5, sticky="w") # Removed columnspan
 
     # Create a frame to hold all checkbox fields

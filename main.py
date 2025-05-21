@@ -61,11 +61,19 @@ def main():
         """
         # user_inputs = ExperimentalSetup()
         
-        MainWindow(
+        def open_ift(main_window):
+            call_user_input(FunctionType.INTERFACIAL_TENSION, fitted_drop_data, main_window)
+
+        def open_ca(main_window):
+            call_user_input(FunctionType.CONTACT_ANGLE, fitted_drop_data, main_window)
+
+        # 创建 MainWindow 实例并传递引用
+        main_window = MainWindow(
             continue_processing,
-            lambda: call_user_input(FunctionType.PENDANT_DROP, fitted_drop_data),
-            lambda: call_user_input(FunctionType.CONTACT_ANGLE, fitted_drop_data)
+            open_ift,
+            open_ca
         )
+       
 
 #    cheeky_pause()
 

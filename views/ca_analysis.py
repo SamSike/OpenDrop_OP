@@ -23,8 +23,8 @@ class CaAnalysis(CTkFrame):
         super().__init__(parent, **kwargs)
         self.user_input_data = user_input_data
 
-        self.grid_columnconfigure(0, weight=2)  # Let table expand
-        self.grid_columnconfigure(1, weight=1)  # Prevent images_frame from expanding
+        self.grid_columnconfigure(0, weight=1)  # Let table expand
+        self.grid_columnconfigure(1, weight=0)  # Prevent images_frame from expanding
         self.grid_rowconfigure(0, weight=1)
         
         self.image_handler = ImageHandler()
@@ -34,6 +34,8 @@ class CaAnalysis(CTkFrame):
         self.cropped_angle_images = {}        # Crop diagram after superimposing angles
         self.left_angles  = []
         self.right_angles = []
+        
+        self.available_methods = {}   # {index: [methods]}
         
         self.preformed_methods = {
             key: value for key, value in user_input_data.analysis_methods_ca.items() if value
@@ -50,14 +52,10 @@ class CaAnalysis(CTkFrame):
 
         self.visualisation_container = CTkFrame(self)
         self.visualisation_container.grid(row=0, column=1, sticky="nsew", padx=15, pady=(10, 0))
-        self.visualisation_container.grid_rowconfigure(0, weight=1)
-        self.visualisation_container.grid_rowconfigure(1, weight=0)
-        self.visualisation_container.grid_rowconfigure(2, weight=1)
-        self.visualisation_container.grid_columnconfigure(0, weight=1)
 
         self.image_wrapper_frame = CTkFrame(self.visualisation_container, fg_color="transparent")
         set_light_only_color(self.image_wrapper_frame, "outerframe")
-        self.image_wrapper_frame.grid(row=1, column=0, sticky="ew")
+        self.image_wrapper_frame.grid(row=1, column=0, sticky="ewsn")
 
         self.current_index = 0
         self.highlight_row(self.current_index)
@@ -66,7 +64,7 @@ class CaAnalysis(CTkFrame):
     def create_table(self, parent, rows, columns, headers):
         table_frame = CTkXYFrame(parent)
         set_light_only_color(table_frame, "outerframe")
-        table_frame.grid(row=0, column=0, pady=15, padx=20, sticky='nsew')
+        table_frame.grid(row=0, column=0, pady=(10,0), padx=15, sticky='nsew')
 
         for col in range(columns):
             header_label = CTkLabel(table_frame, text=headers[col], font=("Roboto", 14, "bold"))
@@ -115,11 +113,8 @@ class CaAnalysis(CTkFrame):
             
             # Get cropped image from experimental_drop
             cropped_cv = None
-            print(f"experimental_drop is not None: {experimental_drop is not None}")
-            print(f"hasattr(experimental_drop, 'cropped_image'): {hasattr(experimental_drop, 'cropped_image')}")
             if experimental_drop is not None and hasattr(experimental_drop, 'cropped_image'):
                 cropped_cv = experimental_drop.cropped_image
-                print("Retrieved cropped image from experimental_drop")
             
             # Convert to PIL image and save
             if cropped_cv is not None:
@@ -138,188 +133,50 @@ class CaAnalysis(CTkFrame):
             
             # Check for contact angle data
             if hasattr(extracted_data, 'contact_angles'):
-
-                # Find available method
-                method = extract_method(extracted_data.contact_angles)
-
-                if method is None:
-                    print(f"Image {index+1} has no supported contact angle method")
-                    return
+                available_methods = []
                 
-                angles_data = extracted_data.contact_angles[method]
-                print(f"Using method '{method}' data, keys: {angles_data.keys()}")
-
-                # Special handling for ellipse fit only
-                if method in [ FittingMethod.CIRCLE_FIT, FittingMethod.ELLIPSE_FIT] and BASELINE_INTERCEPTS in angles_data:
-                    baseline_intercepts = angles_data[BASELINE_INTERCEPTS]
-
-                    # For ellipse fit, determine left and right points
-                    if baseline_intercepts[0][0] < baseline_intercepts[1][0]:
-                        # The first point is on the left (smaller x-coordinate)
-                        left_point = baseline_intercepts[0]
-                        right_point = baseline_intercepts[1]
+                # Initialize cropped_angle_images dictionary for this index
+                if index not in self.cropped_angle_images:
+                    self.cropped_angle_images[index] = {}
+                
+                # Process each method and create corresponding annotations
+                for method in extracted_data.contact_angles.keys():
+                    # Check if method is in preformed_methods
+                    # Handle both string and enum cases
+                    method_in_preformed = False
+                    if isinstance(method, str):
+                        method_in_preformed = method in self.preformed_methods
+                    elif hasattr(method, 'value'):
+                        method_in_preformed = method.value in self.preformed_methods or method in self.preformed_methods
                     else:
-                        # The first point is on the right (larger x-coordinate)
-                        left_point = baseline_intercepts[1]
-                        right_point = baseline_intercepts[0]
-
-                    # Create contact_points from baseline_intercepts
-                    angles_data[CONTACT_POINTS] = [left_point, right_point]
-
-                    # Get the angles
-                    left_angle = angles_data[LEFT_ANGLE]
-                    right_angle = angles_data[RIGHT_ANGLE]
-
-                    left_angle_rad = math.radians(left_angle)
-                    right_angle_rad = math.radians(180 - right_angle)
-
-                    # Length of tangent line
-                    line_length = 50
-
-                    # Calculate tangent line endpoints
-                    left_dx = math.cos(left_angle_rad) * line_length
-                    left_dy = math.sin(left_angle_rad) * line_length
-                    right_dx = math.cos(right_angle_rad) * line_length
-                    right_dy = math.sin(right_angle_rad) * line_length
-
-                    # Create tangent lines in the expected format
-                    angles_data[TANGENT_LINES] = (
-                        ((float(left_point[0]), float(left_point[1])),
-                        (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
-                        ((float(right_point[0]), float(right_point[1])),
-                        (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
-                    )
-                # Special handling for polynomial fit
-                elif method == FittingMethod.POLYNOMIAL_FIT and CONTACT_POINTS in angles_data:
-                    contact_points = angles_data[CONTACT_POINTS]
-
-                    # For polynomial fit, create tangent lines based on the angles
-                    if LEFT_ANGLE in angles_data and RIGHT_ANGLE in angles_data:
-                        left_angle = angles_data[LEFT_ANGLE]
-                        right_angle = angles_data[RIGHT_ANGLE]
-
-                        # Determine left and right points
-                        if contact_points[0][0] < contact_points[1][0]:
-                            left_point = contact_points[0]
-                            right_point = contact_points[1]
+                        method_in_preformed = method in self.preformed_methods
+                    
+                    if not method_in_preformed:
+                        continue
+                        
+                    angles_data = extracted_data.contact_angles[method]
+                    # print(f"Processing method '{method}' data")
+                    
+                    # Process annotation for specific method
+                    success = self.process_method_annotation(method, angles_data, index)
+                    if success:
+                        # Add method to available methods list - use display name
+                        if isinstance(method, str):
+                            available_methods.append(method)
+                        elif hasattr(method, 'value'):
+                            available_methods.append(method.value)
                         else:
-                            left_point = contact_points[1]
-                            right_point = contact_points[0]
-
-                        # Calculate tangent lines using angles
-                        left_angle_rad = math.radians(left_angle)
-                        right_angle_rad = math.radians(180 - right_angle)
-
-                        line_length = 50
-
-                        # Calculate tangent line endpoints
-                        left_dx = math.cos(left_angle_rad) * line_length
-                        left_dy = math.sin(left_angle_rad) * line_length
-                        right_dx = math.cos(right_angle_rad) * line_length
-                        right_dy = math.sin(right_angle_rad) * line_length
-
-                        # Create tangent lines in the expected format
-                        angles_data[TANGENT_LINES] = (
-                            ((float(left_point[0]), float(left_point[1])),
-                            (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
-                            ((float(right_point[0]), float(right_point[1])),
-                            (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
-                        )
-                elif method == FittingMethod.YL_FIT and FIT_SHAPE in angles_data and BASELINE in angles_data:
-                    # For YL fit, extract contact points from the fit shape and baseline
-                    fit_shape = angles_data[FIT_SHAPE]
-                    baseline = angles_data[BASELINE]
-
-                    # The first and last points of the fit shape are likely the contact points
-                    # Alternatively, use the first and last points of the baseline
-                    if len(baseline) >= 2:
-                        left_point = baseline[0]
-                        right_point = baseline[-1]
-                    elif len(fit_shape) >= 2:
-                        left_point = fit_shape[0]
-                        right_point = fit_shape[len(fit_shape)//2]  # Middle point might be the right contact point
-
-                    # Create contact_points
-                    angles_data[CONTACT_POINTS] = [left_point, right_point]
-
-                    # Get the angles
-                    left_angle = angles_data[LEFT_ANGLE]
-                    right_angle = angles_data[RIGHT_ANGLE]
-
-                    # Calculate tangent lines using angles
-                    left_angle_rad = math.radians(left_angle)
-                    right_angle_rad = math.radians(180 - right_angle)
-
-                    line_length = 50
-
-                    # Calculate tangent line endpoints
-                    left_dx = math.cos(left_angle_rad) * line_length
-                    left_dy = math.sin(left_angle_rad) * line_length
-                    right_dx = math.cos(right_angle_rad) * line_length
-                    right_dy = math.sin(right_angle_rad) * line_length
-
-                    # Create tangent lines in the expected format
-                    angles_data[TANGENT_LINES] = (
-                        ((float(left_point[0]), float(left_point[1])),
-                        (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
-                        ((float(right_point[0]), float(right_point[1])),
-                        (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
-                    )
-                # Get left and right angle values
-                left_angle = right_angle = None
-                for key in [LEFT_ANGLE, 'left_angle']:
-                    if key in angles_data:
-                        left_angle = angles_data[key]
-                        break
-
-                for key in [RIGHT_ANGLE, 'right_angle']:
-                    if key in angles_data:
-                        right_angle = angles_data[key]
-                        break
-
-                if left_angle is not None and right_angle is not None:
-                    # Find contact points data
-                    contact_points = None
-                    for key in ['contact_points', 'tangent contact points', CONTACT_POINTS, BASELINE_INTERCEPTS]:
-                        if key in angles_data:
-                            if key == BASELINE_INTERCEPTS:
-                                # Convert baseline intercepts to contact points format
-                                contact_points = angles_data[key]
-                            else:
-                                contact_points = angles_data[key]
-                            print(f"Found contact points data: {key} = {contact_points}")
-                            break
-
-                    # Find tangent line data
-                    tangent_lines = None
-                    for key in [TANGENT_LINES, 'tangent_lines']:
-                        if key in angles_data:
-                            tangent_lines = angles_data[key]
-                            print(f"Found tangent lines data: {key} = {tangent_lines}")
-                            break
-
-                    # Draw annotations on cropped image
-                    print(f"Index: {index}")
-                    print(f"self.cropped_images:{self.cropped_images}")
-                    print(f"Index in self.cropped_images: {index in self.cropped_images}")
-                    if contact_points is not None and tangent_lines is not None and index in self.cropped_images:
-                        print(f"Creating angle annotations on cropped image")
-
-                        cropped_img = self.cropped_images[index]
-                        cropped_with_overlay = self.draw_on_cropped_image(
-                            cropped_img, left_angle, right_angle, contact_points, tangent_lines
-                        )
-
-                        # Save annotated cropped image
-                        self.cropped_angle_images[index] = cropped_with_overlay
-
-                        # Update display
-                        if self.current_index == index and self.show_angles_var.get() == 1:
-                            self.display_current_image()
-                    else:
-                        print(f"Cannot create cropped image annotations: missing required data")
-                else:
-                    print(f"Image {index+1} missing angle data")
+                            available_methods.append(str(method))
+                
+                # Save available methods list
+                self.available_methods[index] = available_methods
+                
+                # Update UI if this is the currently displayed image
+                if self.current_index == index:
+                    self.update_method_dropdown()
+                    if self.show_angles_var.get() == 1:
+                        self.display_current_image()
+                        
         except Exception as e:
             print(f"Error processing contact angle data: {e}")
             import traceback
@@ -328,6 +185,8 @@ class CaAnalysis(CTkFrame):
         # Update processing status display
         if len(self.output) < self.user_input_data.number_of_frames:
             self.table_data[len(self.output)][1].configure(text="PROCESSING...")
+        
+        # Save first method's angles (for compatibility)
         try:
             for method, res in extracted_data.contact_angles.items():
                 if LEFT_ANGLE in res and RIGHT_ANGLE in res:
@@ -337,6 +196,66 @@ class CaAnalysis(CTkFrame):
         except Exception as e:
             print("[WARN] save failed：", e)
 
+    def process_method_annotation(self, method, angles_data, index):
+        """Process annotation for a specific method"""
+        try:
+            # Get angle values
+            left_angle = angles_data.get(LEFT_ANGLE)
+            right_angle = angles_data.get(RIGHT_ANGLE)
+            
+            if left_angle is None or right_angle is None:
+                print(f"Method {method} missing angle data")
+                return False
+            
+            # Convert method to FittingMethod enum if it's a string
+            if isinstance(method, str):
+                for fitting_method in FittingMethod:
+                    if fitting_method.value == method:
+                        method_enum = fitting_method
+                        break
+                else:
+                    method_enum = method
+            else:
+                method_enum = method
+            
+            # Process data based on method type
+            if method_enum in [FittingMethod.CIRCLE_FIT, FittingMethod.ELLIPSE_FIT]:
+                # Special handling for circle/ellipse fit
+                if BASELINE_INTERCEPTS in angles_data:
+                    baseline_intercepts = angles_data[BASELINE_INTERCEPTS]
+                    self.create_contact_points_and_tangents(angles_data, baseline_intercepts, left_angle, right_angle)
+                    
+            elif method_enum == FittingMethod.POLYNOMIAL_FIT:
+                # Special handling for polynomial fit
+                if CONTACT_POINTS in angles_data:
+                    self.create_tangent_lines_from_angles(angles_data, left_angle, right_angle)
+                    
+            elif method_enum == FittingMethod.YL_FIT:
+                # Special handling for YL fit
+                if FIT_SHAPE in angles_data and BASELINE in angles_data:
+                    self.create_yl_annotations(angles_data, left_angle, right_angle)
+            
+            # Get contact points and tangent lines
+            contact_points = self.get_contact_points(angles_data)
+            tangent_lines = self.get_tangent_lines(angles_data)
+            
+            if contact_points and tangent_lines and index in self.cropped_images:
+                # Create annotated image
+                cropped_img = self.cropped_images[index]
+                annotated_img = self.draw_on_cropped_image(
+                    cropped_img, left_angle, right_angle, contact_points, tangent_lines
+                )
+                
+                # Save to method-specific dictionary using display name
+                display_name = method if isinstance(method, str) else method.value
+                self.cropped_angle_images[index][display_name] = annotated_img
+                # print(f"Successfully created annotation for method {display_name}")
+                return True
+                
+        except Exception as e:
+            print(f"Error processing method {method}: {e}")
+            
+        return False
 
     def highlight_row(self, row_index):
         # Reset all rows to default color
@@ -348,7 +267,6 @@ class CaAnalysis(CTkFrame):
             for cell in self.table_data[row_index]:
                 cell.configure(text_color="red")
 
-
     def initialize_image_display(self, frame):
         """Initialize image display directly in the frame (image_wrapper_frame)."""
         # frame is image_wrapper_frame here
@@ -358,7 +276,8 @@ class CaAnalysis(CTkFrame):
         frame.grid_rowconfigure(0, weight=0)    # Filename row
         frame.grid_rowconfigure(1, weight=1)    # Image row (allow vertical expansion if needed)
         frame.grid_rowconfigure(2, weight=0)    # Toggle frame row
-        frame.grid_rowconfigure(3, weight=0)    # Navigation frame row
+        frame.grid_rowconfigure(3, weight=0)    # Method dropdown row
+        frame.grid_rowconfigure(4, weight=0)    # Navigation frame row
         frame.grid_columnconfigure(0, weight=1) # Single column expands horizontally
 
         # --- Create widgets directly in 'frame' ---
@@ -387,10 +306,25 @@ class CaAnalysis(CTkFrame):
         self.rb_cropped.grid(row=0, column=1, padx=10, pady=5)
         self.rb_chart.grid(row=0, column=2, padx=10, pady=5)
 
+        # Method dropdown (only shown in Contact Angles mode)
+        self.method_frame = CTkFrame(frame)
+        self.method_frame.grid(row=3, column=0, pady=(5, 0))
+        self.method_frame.grid_remove()  # Initially hidden
+        
+        self.method_label = CTkLabel(self.method_frame, text="Method:")
+        self.method_label.grid(row=0, column=0, padx=(10, 5))
+        
+        self.selected_method = StringVar()
+        self.method_dropdown = CTkComboBox(self.method_frame, 
+                                         variable=self.selected_method,
+                                         command=self.on_method_changed,
+                                         width=150)
+        self.method_dropdown.grid(row=0, column=1, padx=(5, 10))
+
         # Navigation Frame
         self.image_navigation_frame = CTkFrame(frame) # Parent is image_wrapper_frame
         set_light_only_color(self.image_navigation_frame, "entry")
-        self.image_navigation_frame.grid(row=3, column=0, pady=20) # Below toggle frame
+        self.image_navigation_frame.grid(row=4, column=0, pady=20)
 
         # Navigation Buttons (remain the same, parent is image_navigation_frame)
         self.prev_button = CTkButton(self.image_navigation_frame, text="<", command=lambda: self.change_image(-1), width=30)
@@ -416,7 +350,52 @@ class CaAnalysis(CTkFrame):
                 self.image_label.configure(text="No images selected")
 
     def toggle_view(self):
+        """Toggle view - controls dropdown visibility"""
+        mode = self.show_angles_var.get()
+        
+        # Control method dropdown visibility
+        if mode == 1:  # Contact Angles mode
+            self.method_frame.grid()
+            self.update_method_dropdown()
+        else:
+            self.method_frame.grid_remove()
+        
         self.display_current_image()
+
+    def update_method_dropdown(self):
+        """Update method dropdown options"""
+        if self.current_index in self.available_methods:
+            methods = self.available_methods[self.current_index]
+            if methods:
+                # Convert method names to display format
+                display_methods = []
+                for method in methods:
+                    if isinstance(method, FittingMethod):
+                        # Convert enum to display name
+                        display_name = method.value if hasattr(method, 'value') else str(method)
+                        display_methods.append(display_name)
+                    else:
+                        display_methods.append(str(method))
+                
+                # Clear and update dropdown values
+                self.method_dropdown.configure(values=display_methods)
+                
+                # Set default selection
+                if not self.selected_method.get() or self.selected_method.get() not in display_methods:
+                    self.method_dropdown.set(display_methods[0])
+                else:
+                    self.method_dropdown.set(self.selected_method.get())
+            else:
+                self.method_dropdown.configure(values=["No methods available"])
+                self.method_dropdown.set("No methods available")
+        else:
+            self.method_dropdown.configure(values=["Processing..."])
+            self.method_dropdown.set("Processing...")
+
+    def on_method_changed(self, selected_method):
+        """Called when selected method changes"""
+        if self.show_angles_var.get() == 1:  # Only update display in Contact Angles mode
+            self.display_current_image()
 
     def display_current_image(self):
         """0=Original picture 1=Crop + Angle 2=Line picture"""
@@ -427,7 +406,6 @@ class CaAnalysis(CTkFrame):
             self.display_cropped_image()
         else:
             self.display_line_chart()
-
 
     def display_original_image(self):
         """Display original image"""
@@ -441,19 +419,35 @@ class CaAnalysis(CTkFrame):
             self.image_label.configure(image=None, text="No image")
 
     def display_cropped_image(self):
-        """Display cropped image with angle annotations"""
+        """Display cropped image with angle annotations - supports multiple methods"""
+        selected_method = self.selected_method.get()
+        
+        # Try to get annotation image for selected method
         if self.current_index in self.cropped_angle_images:
-            # Use cropped image with annotations
-            img = self.cropped_angle_images[self.current_index]
+            method_images = self.cropped_angle_images[self.current_index]
             
-            # Resize and display
-            width, height = img.size
-            new_width, new_height = self.image_handler.get_fitting_dimensions(width, height)
-            self.tk_image = CTkImage(img, size=(new_width, new_height))
-            self.image_label.configure(image=self.tk_image)
-            self.image_label.image = self.tk_image
-        elif self.current_index in self.cropped_images:
-            # Fall back to cropped image without annotations
+            # Try different possible keys for the method
+            img = None
+            if selected_method in method_images:
+                img = method_images[selected_method]
+            else:
+                # Try to find matching method by comparing values
+                for key, value in method_images.items():
+                    if str(key) == selected_method or (hasattr(key, 'value') and key.value == selected_method):
+                        img = value
+                        break
+            
+            if img:
+                # Resize and display
+                width, height = img.size
+                new_width, new_height = self.image_handler.get_fitting_dimensions(width, height)
+                self.tk_image = CTkImage(img, size=(new_width, new_height))
+                self.image_label.configure(image=self.tk_image)
+                self.image_label.image = self.tk_image
+                return
+        
+        # Fall back to cropped image without annotations
+        if self.current_index in self.cropped_images:
             img = self.cropped_images[self.current_index]
             
             # Resize and display
@@ -462,7 +456,8 @@ class CaAnalysis(CTkFrame):
             self.tk_image = CTkImage(img, size=(new_width, new_height))
             self.image_label.configure(image=self.tk_image)
             self.image_label.image = self.tk_image
-
+        else:
+            self.image_label.configure(image=None, text="No cropped image available")
 
     def display_line_chart(self):
         if not self.left_angles:
@@ -580,7 +575,7 @@ class CaAnalysis(CTkFrame):
             
             # Add angle label text
             try:
-                font = ImageFont.truetype("views/assets/DejaVuSans.ttf", 16)
+                font = ImageFont.truetype("assets/DejaVuSans.ttf", 16)
             except Exception as e:
                 print(f"Error loading font: {e}")
                 try:
@@ -603,8 +598,6 @@ class CaAnalysis(CTkFrame):
         
         return img
 
-
-
     def change_image(self, step):
         """Change displayed image"""
         if self.user_input_data.import_files:
@@ -619,6 +612,10 @@ class CaAnalysis(CTkFrame):
             self.name_label.configure(text=file_name)
 
             self.highlight_row(self.current_index)
+            
+            # Update method dropdown
+            if self.show_angles_var.get() == 1:
+                self.update_method_dropdown()
 
     def load_image(self, image_path):
         """Load image and prepare for display"""
@@ -649,6 +646,10 @@ class CaAnalysis(CTkFrame):
                 
                 # Highlight current row
                 self.highlight_row(self.current_index)
+                
+                # Update method dropdown if in contact angles mode
+                if self.show_angles_var.get() == 1:
+                    self.update_method_dropdown()
             else:
                 print("Index out of range")
         except ValueError:
@@ -661,6 +662,119 @@ class CaAnalysis(CTkFrame):
         self.index_entry.delete(0, 'end')  # Clear current entry
         # Insert new index (1-based)
         self.index_entry.insert(0, str(self.current_index + 1))
+
+    # Helper functions
+    def create_contact_points_and_tangents(self, angles_data, baseline_intercepts, left_angle, right_angle):
+        """Create contact points and tangent lines for circle/ellipse fit"""
+        # Determine left and right points
+        if baseline_intercepts[0][0] < baseline_intercepts[1][0]:
+            left_point = baseline_intercepts[0]
+            right_point = baseline_intercepts[1]
+        else:
+            left_point = baseline_intercepts[1]
+            right_point = baseline_intercepts[0]
+
+        # Create contact_points
+        angles_data[CONTACT_POINTS] = [left_point, right_point]
+
+        # Calculate tangent lines
+        left_angle_rad = math.radians(left_angle)
+        right_angle_rad = math.radians(180 - right_angle)
+
+        line_length = 50
+
+        left_dx = math.cos(left_angle_rad) * line_length
+        left_dy = math.sin(left_angle_rad) * line_length
+        right_dx = math.cos(right_angle_rad) * line_length
+        right_dy = math.sin(right_angle_rad) * line_length
+
+        # Create tangent lines
+        angles_data[TANGENT_LINES] = (
+            ((float(left_point[0]), float(left_point[1])),
+             (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
+            ((float(right_point[0]), float(right_point[1])),
+             (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
+        )
+
+    def create_tangent_lines_from_angles(self, angles_data, left_angle, right_angle):
+        """Create tangent lines for polynomial fit"""
+        contact_points = angles_data[CONTACT_POINTS]
+        
+        # Determine left and right points
+        if contact_points[0][0] < contact_points[1][0]:
+            left_point = contact_points[0]
+            right_point = contact_points[1]
+        else:
+            left_point = contact_points[1]
+            right_point = contact_points[0]
+
+        # Calculate tangent lines
+        left_angle_rad = math.radians(left_angle)
+        right_angle_rad = math.radians(180 - right_angle)
+
+        line_length = 50
+
+        left_dx = math.cos(left_angle_rad) * line_length
+        left_dy = math.sin(left_angle_rad) * line_length
+        right_dx = math.cos(right_angle_rad) * line_length
+        right_dy = math.sin(right_angle_rad) * line_length
+
+        # Create tangent lines
+        angles_data[TANGENT_LINES] = (
+            ((float(left_point[0]), float(left_point[1])),
+             (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
+            ((float(right_point[0]), float(right_point[1])),
+             (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
+        )
+
+    def create_yl_annotations(self, angles_data, left_angle, right_angle):
+        """Create annotations for YL fit"""
+        fit_shape = angles_data[FIT_SHAPE]
+        baseline = angles_data[BASELINE]
+
+        # Extract contact points
+        if len(baseline) >= 2:
+            left_point = baseline[0]
+            right_point = baseline[-1]
+        elif len(fit_shape) >= 2:
+            left_point = fit_shape[0]
+            right_point = fit_shape[len(fit_shape)//2]
+
+        # Create contact_points
+        angles_data[CONTACT_POINTS] = [left_point, right_point]
+
+        # Calculate tangent lines
+        left_angle_rad = math.radians(left_angle)
+        right_angle_rad = math.radians(180 - right_angle)
+
+        line_length = 50
+
+        left_dx = math.cos(left_angle_rad) * line_length
+        left_dy = math.sin(left_angle_rad) * line_length
+        right_dx = math.cos(right_angle_rad) * line_length
+        right_dy = math.sin(right_angle_rad) * line_length
+
+        # Create tangent lines
+        angles_data[TANGENT_LINES] = (
+            ((float(left_point[0]), float(left_point[1])),
+             (float(left_point[0] + left_dx), float(left_point[1] - left_dy))),
+            ((float(right_point[0]), float(right_point[1])),
+             (float(right_point[0] + right_dx), float(right_point[1] - right_dy)))
+        )
+
+    def get_contact_points(self, angles_data):
+        """Get contact points from angles_data"""
+        for key in [CONTACT_POINTS, 'contact_points', 'tangent contact points', BASELINE_INTERCEPTS]:
+            if key in angles_data:
+                return angles_data[key]
+        return None
+
+    def get_tangent_lines(self, angles_data):
+        """Get tangent lines from angles_data"""
+        for key in [TANGENT_LINES, 'tangent_lines']:
+            if key in angles_data:
+                return angles_data[key]
+        return None
 
 def extract_method(contact_angles):
     """Extract the first available method from contact angles data"""

@@ -20,21 +20,6 @@ class Tolerances(object):
         self.NEEDLE_TOL = needle_tol
         self.NEEDLE_STEPS = needle_steps
 
-
-# class ExperimentalSetup(object):
-#     def __init__(self):
-#         self.density_drop = None
-#         self.density_outer = None
-#         self.needle_diameter_m = None
-#         self.plot_residuals = None
-#         self.plot_profiles = None
-#         self.plot_IFT = None
-#         self.img_src = None
-#         self.total_images = None
-#         self.wait_time = None
-#         self.save_images = None
-#         self.filename = None
-
 class ExperimentalSetup(object):
     def __init__(self):
         self.screen_resolution = None
@@ -44,10 +29,17 @@ class ExperimentalSetup(object):
         self.threshold_val = None
         self.baseline_method = 'Automated'
         self.edgefinder = None
+        ###user input vvvvv
         self.density_outer = None # contininous density
         self.needle_diameter_mm = None
         self.drop_density = None
         self.pixel_mm = None
+        self.image = None
+        self.fit_result = None
+        self.drop_contour_images = None
+        self.processed_images = None
+        self.ift_results = None
+        ###user input ^^^^^
         self.original_boole = 0
         self.cropped_boole = 0
         self.threshold_boole = 0
@@ -55,14 +47,15 @@ class ExperimentalSetup(object):
         self.show_popup = 0
         self.number_of_frames = None
         self.wait_time = None
-        self.save_images_boole = None
+        self.save_images_boole = False
+        self.create_folder_boole = False
         self.filename = None
         self.time_string = None
         self.local_files = None
         self.drop_region = None
         self.needle_region = None
         self.import_files = None
-        self.frame_interval = 0
+        self.frame_interval = 1
         self.analysis_method_fields_cm = {}
         self.analysis_methods_ca = {FittingMethod.TANGENT_FIT: False, FittingMethod.POLYNOMIAL_FIT: False, FittingMethod.CIRCLE_FIT: False, FittingMethod.ELLIPSE_FIT: False, FittingMethod.YL_FIT: False, FittingMethod.ML_MODEL: False}
         self.analysis_methods_pd = {INTERFACIAL_TENSION: True}
@@ -75,6 +68,15 @@ class ExperimentalSetup(object):
         self.cv2_capture_num = None
         self.genlcam_capture_num = None
         self.output_directory = None
+        self.drop_points = None
+        self.needle_diameter_px = None
+        self.fit_result = None
+        self.drop_contour_images = None
+        self.processed_images = None
+        self.ift_results = None
+        self.analyzed_ift = None
+        self.drop_contour = None
+        self.analysis_duration = None
 
 class ExperimentalDrop(object):
     def __init__(self):

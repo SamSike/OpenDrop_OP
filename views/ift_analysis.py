@@ -1,25 +1,26 @@
+from modules.ift.ift_data_processor import iftDataProcessor 
+
 from customtkinter import CTkImage, CTkFrame, CTkScrollableFrame, CTkTabview, CTkLabel
 from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from views.component.imageGallery import ImageGallery
-from views.helper.style import get_color, set_light_only_color
 
 class IftAnalysis(CTkFrame):
-    def __init__(self, parent, user_input_data, **kwargs):
+    def __init__(self, parent, user_input_data, ift_processor: iftDataProcessor, **kwargs):
         super().__init__(parent, **kwargs)
-        set_light_only_color(self, "outerframe")
 
         self.user_input_data = user_input_data
-
+        self.ift_processor = ift_processor
+        self.ift_processor.process_data(self.user_input_data)
         # Create tabs
         self.tab_view = CTkTabview(self)
-        set_light_only_color(self.tab_view, "innerframe")
         self.tab_view.pack(fill="both", expand=True)
 
         # Add "Results" and "Graphs" tabs
         self.tab_view.add("Results")
         self.tab_view.add("Graphs")
+
         # Initialize content for each tab
         self.create_results_tab(self.tab_view.tab("Results"))
         self.create_graph_tab(self.tab_view.tab("Graphs"))
@@ -29,36 +30,24 @@ class IftAnalysis(CTkFrame):
 
         # Configure the grid to allow expansion for both columns
         parent.grid_rowconfigure(0, weight=1)
-        # Explicitly set weights to ensure 50/50 split, though weight=1 for both should achieve this
-        parent.grid_columnconfigure(0, weight=1)
-        parent.grid_columnconfigure(1, weight=1)
+        parent.grid_columnconfigure(0, weight=1)  # Left column for table
+        parent.grid_columnconfigure(
+            1, weight=1)  # Right column for visuals
 
         # Table can be large, so scrollable
         self.table_frame = CTkScrollableFrame(parent)
-        # Removed pady=(10, 0) to potentially reduce wasted space, added padx for consistency
-        self.table_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        self.table_frame.grid(row=0, column=0, sticky="nsew", padx=15, pady=(
+            10, 0))  # Left side for table
 
-        # --- Right side container for vertical centering ---
-        self.visualisation_container = CTkFrame(parent) # Renamed for clarity
-        self.visualisation_container.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-        # Configure grid for vertical centering: add spacers top and bottom
-        self.visualisation_container.grid_rowconfigure(0, weight=1) # Spacer Top
-        self.visualisation_container.grid_rowconfigure(1, weight=0) # Image Frame (no expansion)
-        self.visualisation_container.grid_rowconfigure(2, weight=0) # Residuals Frame (no expansion)
-        self.visualisation_container.grid_rowconfigure(3, weight=1) # Spacer Bottom
-        self.visualisation_container.grid_columnconfigure(0, weight=1) # Allow content to fill horizontally
+        self.visualisation_frame = CTkFrame(parent)
+        self.visualisation_frame.grid(row=0, column=1, padx=10, sticky="nsew")
+        self.visualisation_frame.grid_rowconfigure(0, weight=1)
+        self.visualisation_frame.grid_rowconfigure(1, weight=1)
+        self.visualisation_frame.grid_columnconfigure(0, weight=1)
 
-        # Create and place the actual content frames within the container
-        self.image_frame_wrapper = CTkFrame(self.visualisation_container, fg_color="transparent") # Wrapper to hold image gallery
-        self.image_frame_wrapper.grid(row=1, column=0, sticky="nsew", pady=(0, 5))
-
-        self.residuals_frame_wrapper = CTkFrame(self.visualisation_container, fg_color="transparent") # Wrapper to hold residuals
-        self.residuals_frame_wrapper.grid(row=2, column=0, sticky="nsew", pady=(5, 0))
-
-        # Call creation methods with the new wrappers as parents
         self.create_table(self.table_frame)
-        self.create_image_frame(self.image_frame_wrapper) # Pass wrapper instead of container
-        self.create_residuals_frame(self.residuals_frame_wrapper) # Pass wrapper instead of container
+        self.create_image_frame(self.visualisation_frame)
+        self.create_residuals_frame(self.visualisation_frame)
 
     def create_table(self, parent_frame):
         """Create a table into the parent frame. Headings are: Time, IFT, V, SA, Bond, Worth"""
@@ -67,15 +56,33 @@ class IftAnalysis(CTkFrame):
         parent_frame.grid_rowconfigure(0, weight=1)
         parent_frame.grid_columnconfigure(0, weight=1)
 
-        headings = ["Time", "IFT", "V", "SA", "Bond", "Worth"]
+        paddingX = 5
+
+        headings = ["Time", "IFT (mN/m)", "V (mm^3)", "SA (mm^2)", "Bond", "Worth"]
         for j, heading in enumerate(headings):
             cell = CTkLabel(parent_frame, text=heading)
-            cell.grid(row=0, column=j, padx=10, pady=10, sticky="nsew")
+            cell.grid(row=0, column=j, padx=paddingX, pady=10, sticky="nsew")
 
-        for i in range(1, 21):  # Adjusted to create more rows for better scrolling
-            for j in range(len(headings)):
-                cell = CTkLabel(parent_frame, text=f"Cell ({i},{j + 1})")
-                cell.grid(row=i, column=j, padx=10, pady=10, sticky="nsew")
+        results = self.user_input_data.ift_results
+        for i , result in enumerate(results, start=1):
+            # Time column
+            time_cell = CTkLabel(self.table_frame, text=f"{result[5]}", anchor="center")
+            time_cell.grid(row=i, column=0, padx=paddingX, pady=5, sticky="nsew")
+            # IFT column
+            ift_cell = CTkLabel(self.table_frame, text=f"{result[0]:.1f}", anchor="center")
+            ift_cell.grid(row=i, column=1, padx=paddingX, pady=5, sticky="nsew")
+            # Volume (V) column
+            volume_cell = CTkLabel(self.table_frame, text=f"{result[1]:.2f}", anchor="center")
+            volume_cell.grid(row=i, column=2, padx=paddingX, pady=5, sticky="nsew")
+            # Surface Area (SA) column
+            sa_cell = CTkLabel(self.table_frame, text=f"{result[2]:.2f}", anchor="center")
+            sa_cell.grid(row=i, column=3, padx=paddingX, pady=5, sticky="nsew")
+            # Bond column
+            bond_cell = CTkLabel(self.table_frame, text=f"{result[3]:.4f}", anchor="center")
+            bond_cell.grid(row=i, column=4, padx=paddingX, pady=5, sticky="nsew")
+            # Worth column
+            worth_cell = CTkLabel(self.table_frame, text=f"{result[4]:.4f}", anchor="center")
+            worth_cell.grid(row=i, column=5, padx=paddingX, pady=5, sticky="nsew")
 
         for j in range(len(headings)):
             parent_frame.grid_columnconfigure(j, weight=1)
@@ -86,79 +93,80 @@ class IftAnalysis(CTkFrame):
 
     def create_image_frame(self, parent):
         """Create an Image Gallery that allows back and forth between base images into the parent frame"""
-        # parent is image_frame_wrapper from create_results_tab
-
-        # Configure the parent frame (wrapper) to center the ImageGallery instance
-        parent.grid_rowconfigure(0, weight=1)
-        parent.grid_columnconfigure(0, weight=1)
-
         self.image_frame = ImageGallery(
-            parent, self.user_input_data.import_files)
-
-        # Use grid to place ImageGallery inside the wrapper and allow it to expand/center
-        # sticky="nsew" allows the ImageGallery frame to resize
-        # The internal configure binding in ImageGallery will handle the image itself
+            parent, self.user_input_data.drop_contour_images,on_image_change_callback=self.update_residual_graph)
         self.image_frame.grid(row=0, column=0, sticky="nsew")
 
     def create_residuals_frame(self, parent):
-        plt.close('all')
         """Create a graph containing residuals into the parent frame. Graph is of same size as the Image Gallery."""
 
-        # Residuals frame now lives inside its wrapper (parent)
-        # No need for self.residuals_frame = CTkFrame(parent) unless more structure needed inside
-        # Assume the parent (wrapper) is sufficient
+        self.residuals_frame = CTkFrame(parent)
+        self.residuals_frame.grid(row=1, column=0, sticky="nsew")
 
         # Create the figure and axis
-        fig, ax = plt.subplots(figsize=(4, 2)) # Keep size reasonable
-        ax.plot([1, 2, 3], [2, 5, 10])
-        ax.set_title('Residuals')
-        fig.tight_layout() # Adjust layout to prevent labels overlapping
+        # width, height = self.image_frame.image_label.image.size
+        fig, ax = plt.subplots(figsize=(4, 4))
+        self.residual_ax = ax  
+        self.residual_fig = fig
 
-        # Create a canvas for the figure, place it in the parent (wrapper)
-        canvas = FigureCanvasTkAgg(fig, parent) # Use parent directly
-        canvas_widget = canvas.get_tk_widget()
-        canvas_widget.pack(side="top", fill="x", expand=False, pady=(0, 5)) # Pack canvas at top, fill horizontally
-
-        # Create and pack the navigation toolbar, place it in the parent (wrapper) below canvas
-        toolbar = NavigationToolbar2Tk(canvas, parent)
+        self.residual_canvas = FigureCanvasTkAgg(fig, self.residuals_frame)  
+        toolbar = NavigationToolbar2Tk(self.residual_canvas, self.residuals_frame)
         toolbar.update()
-        toolbar.pack(side="bottom", fill="x", expand=False) # Pack toolbar at bottom
-
-        # Draw the canvas to show the figure
-        canvas.draw()
+        self.residual_canvas.get_tk_widget().pack(fill="both", expand=True)
+        self.residual_canvas.draw()
+        self.update_residual_graph(0)
 
     def create_graph_tab(self, parent):
         """Create a full sized graph into the parent frame"""
 
-        fig, ax = plt.subplots(figsize=(4, 3))
-        ax.plot([1, 2, 3], [1, 4, 9])
+        fig, ax = plt.subplots(figsize=(4, 4))
+        results = self.user_input_data.fit_result  # List of lists: one list per drop
+        idx = [0]
 
-        # Create the canvas for the figure
+        def show(index):
+            ax.clear()
+            ax.scatter(results[index].arclengths, results[index].residuals, color='black')  # Example data for the residuals
+            ax.set_title(f"Residuals for Drop {index + 1}")
+            ax.set_xlabel("Arclengths")
+            ax.set_ylabel("Residuals")
+            fig.canvas.draw_idle()
+
+        def on_key(event):
+            if event.key == 'right':
+                idx[0] = (idx[0] + 1) % len(results)
+                show(idx[0])
+            elif event.key == 'left':
+                idx[0] = (idx[0] - 1) % len(results)
+                show(idx[0])
+
+        fig.canvas.mpl_connect('key_press_event', on_key)
+        show(idx[0])
+
         canvas = FigureCanvasTkAgg(fig, parent)
-        canvas.get_tk_widget().pack(fill="both", expand=True)
-
-        # Create and pack the navigation toolbar
         toolbar = NavigationToolbar2Tk(canvas, parent)
         toolbar.update()
+        canvas.get_tk_widget().pack(fill="both", expand=True)
         canvas.draw()
 
-    def receive_output(self , extracted_data):
-        self.output.append(extracted_data)
+    def receive_output(self , user_input_data):
+        print("Received output in IftAnalysis")
+        # self.user_input_data = user_input_data
+        # self.pd_processor.process_data(self.user_input_data)
+        # self.create_table(self.table_frame)
+        # self.create_image_frame(self.visualisation_frame)
+        # self.create_residuals_frame(self.visualisation_frame)
 
-        for method in extracted_data.contact_angles.keys():
-            preformed_method_list = list(self.preformed_methods.keys())
-            
-            if method in preformed_method_list:
-                column_index = preformed_method_list.index(method)+1
-                result = extracted_data.contact_angles[method]
-                self.table_data[len(self.output)-1][column_index].configure(text=f"({result[LEFT_ANGLE]:.2f}, {result[RIGHT_ANGLE]:.2f})")
-            else:
-                print(f"Unknown method. Skipping the method.")
-            
+    def update_residual_graph(self, index):
+        if not hasattr(self, 'residual_ax'):
+            return  
+        self.residual_ax.clear()
+        result = self.user_input_data.fit_result[index]
+        self.residual_ax.scatter(result.arclengths, result.residuals, color='black')
+        self.residual_ax.set_title(f"Residuals for Drop {index + 1}")
+        self.residual_ax.set_xlabel("Arclengths")
+        self.residual_ax.set_ylabel("Residuals")
+        self.residual_canvas.draw_idle()
 
-        if len(self.output) < self.user_input_data.number_of_frames:
-            self.table_data[len(self.output)][1].configure(text="PROCESSING...")
-            
     def destroy(self):
         plt.close('all')
         return super().destroy()

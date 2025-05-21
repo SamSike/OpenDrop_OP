@@ -1,12 +1,26 @@
+# Intellij IDEA
+.idea/
+
 # Virtual environments
 venv*/
 env*/
 py38_env/
-
+opendrop_env/
 
 # Python compiled files
 *.pyc
 __pycache__/
 *.py[cod]
 *$py.class
-outputs/123_2025-04-16-195635.csv
+*.cpython-310.pyc/
+# Ignore all __pycache__ folders and their contents
+__pycache__/
+.pytest_cache/
+
+# Build files
+build/
+*.cpp
+
+#shared .so files
+modules/ift/younglaplace/*.so
+modules/ift/hough/*.so

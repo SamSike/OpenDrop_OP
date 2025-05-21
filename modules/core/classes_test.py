@@ -29,7 +29,7 @@ def test_tolerances():
 def test_experimental_setup():
     setup = ExperimentalSetup()
     setup.needle_diameter_mm = 1.0
-    # ✅ 手动添加 user_input_fields 模拟结构
+
     setup.user_input_fields = {
         'drop_density': 1000.0,
         'continuous_density': 0.0,
