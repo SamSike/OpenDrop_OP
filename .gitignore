@@ -21,6 +21,6 @@ __pycache__/
 build/
 *.cpp
 
-# macos 
-modules/ift/hough/hough.cpython-38-darwin.so
-modules/ift/younglaplace/shape.cpython-38-darwin.so
+#shared .so files
+modules/ift/younglaplace/*.so
+modules/ift/hough/*.so
