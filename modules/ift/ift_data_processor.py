@@ -58,7 +58,7 @@ class iftDataProcessor:
     def processPreparation(self, user_input_data):
         n_frames = user_input_data.number_of_frames
         # Initialize drop_images if not already
-        print("####################################: ",len(user_input_data.import_files))
+        #print("####################################: ",len(user_input_data.import_files))
         user_input_data.drop_images = ["None"] * n_frames
         #num_of_images = len(user_input_data.import_files)
         user_input_data.drop_points = ["None"] * n_frames

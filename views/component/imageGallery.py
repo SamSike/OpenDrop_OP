@@ -10,6 +10,7 @@ class ImageGallery(ctk.CTkFrame):
         super().__init__(parent, fg_color='transparent')
 
         self.image_handler = ImageHandler()
+        self.parent = parent
         self.image_paths = import_files
         self.current_index = 0
         self.current_image = None # Store the original PIL Image
@@ -91,7 +92,9 @@ class ImageGallery(ctk.CTkFrame):
             # Use ImageHandler or similar logic to get fitting dimensions based on max_height
             # Assuming ImageHandler has a method like this, or implement simple scaling
             # --- Using a fixed max_height (e.g., 250) ---
-            max_height = 250 # Or another value you prefer
+            max_height = self.parent.visualisation_frame.winfo_height()
+            print(f"Max height: {max_height}")
+            #max_height = 250 # Or another value you prefer
             aspect_ratio = original_width / original_height
             if original_height > max_height:
                 new_height = max_height
