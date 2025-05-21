@@ -90,7 +90,6 @@ class ImageGallery(ctk.CTkFrame):
 
     def load_image(self, selected_image, path_hint=None):
         """Load the selected image, and optionally provide a path to show filename."""
-        print("Loading image: ", selected_image)
         try:
             if isinstance(selected_image, Image.Image):
                 self.current_image = selected_image
