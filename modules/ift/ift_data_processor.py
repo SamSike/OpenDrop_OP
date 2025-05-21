@@ -7,6 +7,8 @@ from modules.image.read_image import get_image
 import cv2
 from utils.enums import *
 from utils.config import *
+from utils.geometry import Rect2
+
 import os
 import numpy as np
 import timeit
@@ -21,7 +23,6 @@ from modules.ift.younglaplace.shape import YoungLaplaceShape
 class iftDataProcessor:
     def process_data(self, user_input_data: ExperimentalSetup, callback=None):
 
-        print("user_input_data: ", user_input_data)
         n_frames = user_input_data.number_of_frames
         time = 0
 
@@ -96,12 +97,20 @@ class iftDataProcessor:
             screen_position = set_screen_position(screen_size)
 
             if user_input_data.drop_ID_method == RegionSelect.USER_SELECTED:
-                drop_region, _ = user_select_region(
+                print("Select drop region for Image {i}")
+                [(min_x, min_y), (max_x, max_y)], _ = user_select_region(
                     image, f"Select drop region for Image {i}", scale, screen_position)
+                drop_region = Rect2(int(min_x), int(min_y),
+                                    int(max_x), int(max_y))
+                print("Drop region: ", drop_region)
 
             if user_input_data.needle_region_method == RegionSelect.USER_SELECTED:
-                needle_region, _ = user_select_region(
+                print("Select needle region for Image {i}")
+                [(min_x, min_y), (max_x, max_y)], _ = user_select_region(
                     image, f"Select needle region for Image {i}", scale, screen_position)
+                needle_region = Rect2(int(min_x), int(min_y),
+                                      int(max_x), int(max_y))
+                print("Needle region: ", needle_region)
 
             drop_points, needle_diameter_px, drop_region, needle_region, image, drop_image, needle_fit_result = extract_pendant_features(
                 image, drop_region, needle_region)

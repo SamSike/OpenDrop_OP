@@ -3,9 +3,10 @@ from tkinter import messagebox
 
 from modules.contact_angle.ca_data_processor import CaDataProcessor
 from modules.ift.ift_data_processor import iftDataProcessor
-from modules.core.classes import ExperimentalSetup, ExperimentalDrop #, DropData, Tolerances
+# , DropData, Tolerances
+from modules.core.classes import ExperimentalSetup, ExperimentalDrop
 
-from views.helper.validation import validate_user_input_data_ift,validate_user_input_data_cm,validate_frame_interval
+from views.helper.validation import validate_user_input_data_ift, validate_user_input_data_cm, validate_frame_interval
 
 from views.helper.theme import *
 from views.helper.style import get_color, set_light_only_color
@@ -24,15 +25,16 @@ from views.output_page import OutputPage
 from utils.enums import FunctionType, Stage, Move
 
 
-def call_user_input(function_type, fitted_drop_data,main_window):
-    FunctionWindow(function_type, fitted_drop_data,main_window)
+def call_user_input(function_type, fitted_drop_data, main_window):
+    FunctionWindow(function_type, fitted_drop_data, main_window)
+
 
 class FunctionWindow(CTkToplevel):
-    def __init__(self, function_type, fitted_drop_data,main_window):
+    def __init__(self, function_type, fitted_drop_data, main_window):
         super().__init__()  # Call the parent class constructor
         self.title(function_type.value)
         self.geometry("1000x750")
-        self.minsize(1000, 750) 
+        self.minsize(1000, 750)
 
         # main window
         self.main_window = main_window
@@ -55,22 +57,22 @@ class FunctionWindow(CTkToplevel):
 
         user_input_data.screen_resolution = [
             self.winfo_screenwidth(), self.winfo_screenheight()]
-        
-        self.widgets(function_type, user_input_data,experimental_drop,fitted_drop_data)
+
+        self.widgets(function_type, user_input_data,
+                     experimental_drop, fitted_drop_data)
 
         self.stages = list(Stage)
         self.current_stage = Stage.ACQUISITION
 
         self.mainloop()  # Start the main loop
 
-    def widgets(self, function_type, user_input_data,experimental_drop,fitted_drop_data):
+    def widgets(self, function_type, user_input_data, experimental_drop, fitted_drop_data):
         # Create the navigation bar (progress bar style)
         self.next_stage, self.prev_stage = create_navigation(self)
-        
 
         # Initialise frame for first stage
         self.acquisition_frame = Acquisition(
-                self, user_input_data, function_type, fg_color=self.FG_COLOR)      
+            self, user_input_data, function_type, fg_color=self.FG_COLOR)
         self.acquisition_frame.pack(fill="both", expand=True)
 
         # Frame for navigation buttons
@@ -83,7 +85,7 @@ class FunctionWindow(CTkToplevel):
             self.button_frame, text="Back", command=lambda: self.back(function_type, user_input_data))
 
         self.next_button = CTkButton(
-            self.button_frame, text="Next", command=lambda: self.next(function_type, user_input_data, experimental_drop,fitted_drop_data))
+            self.button_frame, text="Next", command=lambda: self.next(function_type, user_input_data, experimental_drop, fitted_drop_data))
         self.next_button.pack(side="right", padx=10, pady=10)
 
         # Add save button for OutputPage (initially hidden)
@@ -116,7 +118,7 @@ class FunctionWindow(CTkToplevel):
                 self.ift_analysis_frame.pack(fill="both", expand=True)
             else:
                 self.ca_analysis_frame.pack(fill="both", expand=True)
-            
+
             self.output_frame.pack_forget()
 
             # Show the next button and hide the save button when going back
@@ -128,48 +130,52 @@ class FunctionWindow(CTkToplevel):
             self.update_stage(Move.Next.value)
             # Handle the "Next" button functionality
             if self.current_stage == Stage.PREPARATION:
-                
+
                 # First check if the user has imported files
                 if not self.check_import(user_input_data):
                     self.update_stage(Move.Back.value)
-                    messagebox.showinfo("No Selection", "Please select at least one file.",parent=self)
+                    messagebox.showinfo(
+                        "No Selection", "Please select at least one file.", parent=self)
                     return
 
                 # Then check if the frame interval is valid
                 # if function_type == FunctionType.INTERFACIAL_TENSION:
                 if not validate_frame_interval(user_input_data):
                     self.update_stage(Move.Back.value)
-                    messagebox.showinfo("Missing", "Frame Interval is required.",parent=self)
+                    messagebox.showinfo(
+                        "Missing", "Frame Interval is required.", parent=self)
                     return
                 self.back_button.pack(side="left", padx=10, pady=10)
-                #self.ift_processor.processPreparation(user_input_data)
+                # self.ift_processor.processPreparation(user_input_data)
                 # user have selected at least one file
                 self.acquisition_frame.pack_forget()
                 # Initialise Preparation frame
                 if function_type == FunctionType.INTERFACIAL_TENSION:
                     self.ift_preparation_frame = IftPreparation(
-                    self, user_input_data, experimental_drop,self.ift_processor, fg_color=self.FG_COLOR)
+                        self, user_input_data, experimental_drop, self.ift_processor, fg_color=self.FG_COLOR)
                     self.ift_preparation_frame.pack(fill="both", expand=True)
-                    
+
                 else:
                     self.ca_preparation_frame = CaPreparation(
-                    self, user_input_data, experimental_drop,fg_color=self.FG_COLOR)
-                    self.ca_preparation_frame.pack(fill="both", expand=True) 
-
+                        self, user_input_data, experimental_drop, fg_color=self.FG_COLOR)
+                    self.ca_preparation_frame.pack(fill="both", expand=True)
 
             elif self.current_stage == Stage.ANALYSIS:
                 # Validate user input data
                 if function_type == FunctionType.INTERFACIAL_TENSION:
-                    validation_messages = validate_user_input_data_ift(user_input_data)
-                    
+                    validation_messages = validate_user_input_data_ift(
+                        user_input_data)
+
                 elif function_type == FunctionType.CONTACT_ANGLE:
-                    validation_messages = validate_user_input_data_cm(user_input_data,experimental_drop)
-                
+                    validation_messages = validate_user_input_data_cm(
+                        user_input_data, experimental_drop)
+
                 if validation_messages:
                     self.update_stage(Move.Back.value)
                     all_messages = "\n".join(validation_messages)
                     # Show a single pop-up message with all validation messages
-                    messagebox.showinfo("Missing: \n", all_messages,parent=self)
+                    messagebox.showinfo(
+                        "Missing: \n", all_messages, parent=self)
                 else:
                     if function_type == FunctionType.INTERFACIAL_TENSION:
                         self.ift_preparation_frame.pack_forget()
@@ -178,7 +184,8 @@ class FunctionWindow(CTkToplevel):
                         self.ift_analysis_frame.pack(fill="both", expand=True)
                         print("FunctionType.PENDANT_DROP")
                         self.withdraw()
-                        self.ift_processor.process_data(user_input_data, callback=self.ift_analysis_frame.receive_output)
+                        self.ift_processor.process_data(
+                            user_input_data, callback=self.ift_analysis_frame.receive_output)
                         self.deiconify()
 
                     else:
@@ -186,10 +193,11 @@ class FunctionWindow(CTkToplevel):
                         self.ca_analysis_frame = CaAnalysis(
                             self, user_input_data, fg_color=self.FG_COLOR)
                         self.ca_analysis_frame.pack(fill="both", expand=True)
-                        
+
                         # analysis the given input data and send the output to the ca_analysis_frame for display
                         self.withdraw()
-                        self.ca_processor.process_data(fitted_drop_data, user_input_data, callback=self.ca_analysis_frame.receive_output)
+                        self.ca_processor.process_data(
+                            fitted_drop_data, user_input_data, callback=self.ca_analysis_frame.receive_output)
                         self.deiconify()
 
             elif self.current_stage == Stage.OUTPUT:
@@ -199,8 +207,8 @@ class FunctionWindow(CTkToplevel):
                     self.ca_analysis_frame.pack_forget()
 
                 # Initialise Output frame
-                self.output_frame = OutputPage(self, user_input_data,fg_color=self.FG_COLOR)
-
+                self.output_frame = OutputPage(
+                    self, user_input_data, fg_color=self.FG_COLOR)
 
                 # Show the OutputPage
                 self.output_frame.pack(fill="both", expand=True)
@@ -212,16 +220,16 @@ class FunctionWindow(CTkToplevel):
             # Catch any unexpected exception and show it
             print(f"[Error] Unexpected exception: {e}")
             messagebox.showerror(
-               "Invalid Image", f"This image is not suitable for {function_type.value} analysis.\nPlease go back and select another image or application.",
-               parent=self
+                "Invalid Image", f"This image is not suitable for {function_type.value} analysis.\nPlease go back and select another image or application.",
+                parent=self
             )
             self.on_closing()
             return
 
-
     def save_output(self, function_type, user_input_data):
         if user_input_data.output_directory is None:
-            messagebox.showerror("Invalid Path","Output directory is missing. File not saved.",parent=self)
+            messagebox.showerror(
+                "Invalid Path", "Output directory is missing. File not saved.", parent=self)
             return
         if function_type == FunctionType.INTERFACIAL_TENSION:
             from datetime import datetime
@@ -230,10 +238,12 @@ class FunctionWindow(CTkToplevel):
                 filename = user_input_data.filename + "_" + timestamp + ".csv"
             else:
                 filename = "Extracted_data_"+timestamp+".csv"
-            
-            self.ift_processor.save_result(user_input_data.import_files, user_input_data.output_directory,filename, user_input_data)
 
-            messagebox.showinfo("Success", "File saved successfully!",parent=self)
+            self.ift_processor.save_result(
+                user_input_data.import_files, user_input_data.output_directory, filename, user_input_data)
+
+            messagebox.showinfo(
+                "Success", "File saved successfully!", parent=self)
             self.on_closing()
         else:
             # filename = user_input_data.filename[:-4] + '_' + user_input_data.time_string + ".csv"
@@ -242,14 +252,16 @@ class FunctionWindow(CTkToplevel):
             else:
                 filename = "Extracted_data" + '_' + user_input_data.time_string + ".csv"
             # export_filename = os.path.join(user_input_data.directory_string, filename)
-            self.ca_processor.save_result(user_input_data.import_files, user_input_data.output_directory, filename)
+            self.ca_processor.save_result(
+                user_input_data.import_files, user_input_data.output_directory, filename)
 
-            messagebox.showinfo("Success", "File saved successfully!",parent=self)
+            messagebox.showinfo(
+                "Success", "File saved successfully!", parent=self)
             self.on_closing()
-        
-    
+
     def update_stage(self, direction):
-        self.current_stage = self.stages[(self.stages.index(self.current_stage) + direction) % len(self.stages)]
+        self.current_stage = self.stages[(self.stages.index(
+            self.current_stage) + direction) % len(self.stages)]
         if direction == Move.Next.value:
             self.next_stage()
         elif direction == Move.Back.value:
