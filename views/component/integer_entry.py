@@ -10,12 +10,14 @@ class IntegerEntry():
         self.label.grid(row=rw, column=cl, sticky="w", padx=padx, pady=pady)
         self.text_variable = ctk.StringVar()
 
-        if callback:
-            self.text_variable.trace_add("write", callback)
-
         # Fallback to 0 if default_value is None
         if default_value is not None:
             self.text_variable.set(str(int(default_value)))
+            
+        if callback:
+            self.text_variable.trace_add("write", callback)
+
+        
 
         vcmd_int = (parent.register(validate_int),
                     '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')

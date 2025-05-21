@@ -35,9 +35,11 @@ class iftDataProcessor:
             # 1. Extract drop and needle regions
             #drop_points, needle_diameter_px, drop_region, needle_region, image, drop_image, needle_fit_result = extract_pendant_features(image)
             print(user_input_data.fit_result[i])
-            analyzed_ift =  analyze_ift(user_input_data.fit_result[i],drop_density = user_input_data.drop_density,
-                continuous_density = user_input_data.density_outer,needle_diameter_mm = user_input_data.needle_diameter_mm,
-                 needle_diameter_px = user_input_data.needle_diameter_px[i])
+            analyzed_ift =  analyze_ift(user_input_data.fit_result[i],
+                                        drop_density = user_input_data.drop_density,
+                                        continuous_density = user_input_data.density_outer,
+                                        needle_diameter_mm = user_input_data.needle_diameter_mm,
+                                        needle_diameter_px = user_input_data.needle_diameter_px[i])
             self.draw_fitted_shape(user_input_data, i, image)
             time_end = timeit.default_timer()
             duration = time_end - time_start

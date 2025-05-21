@@ -389,6 +389,9 @@ def analyze_ift(
     surface_area_px = fit_result.surface_area
     bond = fit_result.bond
 
+    if continuous_density is None:
+        continuous_density = 0
+        print("Continuous density not provided, assuming 0.")
     delta_density = abs(drop_density - continuous_density)
     radius = radius_px * px_per_mm
     surface_area = surface_area_px * px_per_mm**2
