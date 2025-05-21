@@ -32,8 +32,11 @@ class CaAnalysis(CTkFrame):
         self.output = []
         self.cropped_images = {}              # Cropped pictures
         self.cropped_angle_images = {}        # Crop diagram after superimposing angles
-        self.left_angles  = []
-        self.right_angles = []
+        self.left_angles  = []                # Keep the original list for backward compatibility
+        self.right_angles = []                # Keep the original list for backward compatibility
+        
+        # Add a dictionary that stores angle data by method
+        self.method_angles = {}               # {method_name: {'left': [], 'right': []}}
         
         self.available_methods = {}   # {index: [methods]}
         
@@ -104,6 +107,20 @@ class CaAnalysis(CTkFrame):
                 
                 if LEFT_ANGLE in result and RIGHT_ANGLE in result:
                     self.table_data[index][column_index].configure(text=f"({result[LEFT_ANGLE]:.2f}, {result[RIGHT_ANGLE]:.2f})")
+                    
+                    # Add storage for method perspective data
+                    method_name = method if isinstance(method, str) else method.value
+                    if method_name not in self.method_angles:
+                        self.method_angles[method_name] = {'left': [], 'right': []}
+                    
+                    # Ensure that the data list is of consistent length (populate None up to the current index)
+                    while len(self.method_angles[method_name]['left']) < index:
+                        self.method_angles[method_name]['left'].append(None)
+                        self.method_angles[method_name]['right'].append(None)
+                    
+                    # Add new angle data
+                    self.method_angles[method_name]['left'].append(result[LEFT_ANGLE])
+                    self.method_angles[method_name]['right'].append(result[RIGHT_ANGLE])
                 else:
                     print(f"Missing angle data, available keys: {result.keys()}")
         
@@ -194,7 +211,7 @@ class CaAnalysis(CTkFrame):
                     self.right_angles.append(res[RIGHT_ANGLE])
                     break
         except Exception as e:
-            print("[WARN] save failed：", e)
+            print("[WARN] save failed:", e)
 
     def process_method_annotation(self, method, angles_data, index):
         """Process annotation for a specific method"""
@@ -306,7 +323,7 @@ class CaAnalysis(CTkFrame):
         self.rb_cropped.grid(row=0, column=1, padx=10, pady=5)
         self.rb_chart.grid(row=0, column=2, padx=10, pady=5)
 
-        # Method dropdown (only shown in Contact Angles mode)
+        # Method dropdown (only shown in Contact Angles mode or Line Chart mode)
         self.method_frame = CTkFrame(frame)
         self.method_frame.grid(row=3, column=0, pady=(5, 0))
         self.method_frame.grid_remove()  # Initially hidden
@@ -354,7 +371,7 @@ class CaAnalysis(CTkFrame):
         mode = self.show_angles_var.get()
         
         # Control method dropdown visibility
-        if mode == 1:  # Contact Angles mode
+        if mode == 1 or mode == 2:  # Contact Angles mode or Line Chart mode
             self.method_frame.grid()
             self.update_method_dropdown()
         else:
@@ -394,7 +411,7 @@ class CaAnalysis(CTkFrame):
 
     def on_method_changed(self, selected_method):
         """Called when selected method changes"""
-        if self.show_angles_var.get() == 1:  # Only update display in Contact Angles mode
+        if self.show_angles_var.get() == 1 or self.show_angles_var.get() == 2:  # Update display in Contact Angles or Line Chart mode
             self.display_current_image()
 
     def display_current_image(self):
@@ -460,19 +477,56 @@ class CaAnalysis(CTkFrame):
             self.image_label.configure(image=None, text="No cropped image available")
 
     def display_line_chart(self):
-        if not self.left_angles:
-            self.image_label.configure(text="No angle data yet", image="")
-            return
+        """Show line graphs of touch angles, support different methods of selection"""
+        selected_method = self.selected_method.get()
+        
+        # Trying to get data from the method perspective data dictionary
+        left_angles = None
+        right_angles = None
+        
+        if selected_method in self.method_angles:
+            left_angles = self.method_angles[selected_method]['left']
+            right_angles = self.method_angles[selected_method]['right']
+            
+            # Filter out None values
+            valid_indices = []
+            valid_left = []
+            valid_right = []
+            
+            for i, (left, right) in enumerate(zip(left_angles, right_angles)):
+                if left is not None and right is not None:
+                    valid_indices.append(i + 1)  # 1-based frame numbering
+                    valid_left.append(left)
+                    valid_right.append(right)
+            
+            left_angles = valid_left
+            right_angles = valid_right
+            frames = valid_indices
+        else:
+            # Fallback to original data structure (compatible with older versions)
+            if not self.left_angles:
+                self.image_label.configure(text="No available angle data", image="")
+                return
+            left_angles = self.left_angles
+            right_angles = self.right_angles
+            frames = list(range(1, len(left_angles) + 1))
 
-        frames = list(range(1, len(self.left_angles) + 1))
-
+        # plot
         fig, ax = plt.subplots(figsize=(5, 4))
-        ax.plot(frames, self.left_angles,  marker="o", label="Left θ")
-        ax.plot(frames, self.right_angles, marker="o", label="Right θ")
+        ax.plot(frames, left_angles, marker="o", label="Left θ")
+        ax.plot(frames, right_angles, marker="o", label="Right θ")
         ax.set_xlabel("Frame")
         ax.set_ylabel("Angle (°)")
-        ax.set_xticks(frames)
-        ax.set_title("Contact Angles Over Frames")
+        
+        # Setting the right scale
+        if len(frames) > 20:
+            # If there are too many frames, show part of the scale to avoid crowding
+            step = max(1, len(frames) // 10)
+            ax.set_xticks(frames[::step])
+        else:
+            ax.set_xticks(frames)
+            
+        ax.set_title(f"Contact Angles ({selected_method})")
         ax.legend()
         fig.tight_layout()
 
@@ -614,7 +668,7 @@ class CaAnalysis(CTkFrame):
             self.highlight_row(self.current_index)
             
             # Update method dropdown
-            if self.show_angles_var.get() == 1:
+            if self.show_angles_var.get() == 1 or self.show_angles_var.get() == 2:
                 self.update_method_dropdown()
 
     def load_image(self, image_path):
@@ -647,8 +701,8 @@ class CaAnalysis(CTkFrame):
                 # Highlight current row
                 self.highlight_row(self.current_index)
                 
-                # Update method dropdown if in contact angles mode
-                if self.show_angles_var.get() == 1:
+                # Update method dropdown if in contact angles or line chart mode
+                if self.show_angles_var.get() == 1 or self.show_angles_var.get() == 2:
                     self.update_method_dropdown()
             else:
                 print("Index out of range")
