@@ -10,13 +10,14 @@ from sklearn.cluster import OPTICS  # DS 7/6/21 - for clustering algorithm
 # import time
 # import datetime
 from modules.preprocessing.preprocessing import extract_edges_CV
+from utils.enums import ThresholdSelect, RegionSelect
 
 BLUR_SIZE = 3
 VERSION_CV2 = cv2.__version__
 
 
 def extract_drop_profile(raw_experiment, user_inputs):
-    if user_inputs.threshold_method == "User-selected":
+    if user_inputs.threshold_method == ThresholdSelect.USER_SELECTED:
         # profile_edges = detect_edges(raw_experiment.cropped_image, raw_experiment, user_inputs.drop_region)
         # profile, raw_experiment.ret = detect_edges(raw_experiment.cropped_image, raw_experiment, user_inputs.drop_region)
         raw_experiment.contour, raw_experiment.ret = detect_edges(
