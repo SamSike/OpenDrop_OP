@@ -79,7 +79,7 @@ class MainWindow(ctk.CTk):
 
     def show_info_popup(self):
         messagebox.showinfo(
-            "Information", "Interfacial Tension: Measures the force at the surface of liquids.\n\nContact Angle: Measures the angle between the liquid surface and the solid surface.")
+            "Information", "Interfacial Tension: Measures the force at the surface of liquids.\n\nContact Angle: Measures the angle between the liquid surface and the solid surface.",parent=self)
         
     
 
@@ -105,7 +105,8 @@ class MainWindow(ctk.CTk):
         messagebox.showinfo(
             "Information", 
             "Interfacial Tension: Measures the force at the surface of liquids.\n\n"
-            "Contact Angle: Measures the angle between the liquid surface and the solid surface."
+            "Contact Angle: Measures the angle between the liquid surface and the solid surface.",
+            parent=self
         )
 
     def close_window(self):
