@@ -3,6 +3,7 @@ from unittest.mock import patch, MagicMock
 import matplotlib
 matplotlib.use("Agg")
 
+
 @pytest.fixture
 def dummy_data():
     from modules.core.classes import ExperimentalSetup
@@ -10,6 +11,7 @@ def dummy_data():
     data.import_files = ["img1.bmp", "img2.bmp"]
     data.number_of_frames = 2
     return data
+
 
 @pytest.fixture
 def instance(dummy_data):
@@ -22,25 +24,30 @@ def instance(dummy_data):
         obj.table_data = []
         return obj
 
+
 def test_create_results_tab(instance):
     instance.create_results_tab = MagicMock()
     instance.create_results_tab(MagicMock())
     instance.create_results_tab.assert_called()
+
 
 def test_create_table(instance):
     instance.create_table = MagicMock()
     instance.create_table(MagicMock())
     instance.create_table.assert_called()
 
+
 def test_create_image_frame(instance):
     instance.create_image_frame = MagicMock()
     instance.create_image_frame(MagicMock())
     instance.create_image_frame.assert_called()
 
+
 def test_create_residuals_frame(instance):
     instance.create_residuals_frame = MagicMock()
     instance.create_residuals_frame(MagicMock())
     instance.create_residuals_frame.assert_called()
+
 
 def test_create_graph_tab(instance):
     instance.create_graph_tab = MagicMock()
@@ -48,5 +55,5 @@ def test_create_graph_tab(instance):
     instance.create_graph_tab.assert_called()
 
 
-
-
+def test_fail():
+    assert False, "This test is not implemented yet."
