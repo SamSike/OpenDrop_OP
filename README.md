@@ -157,7 +157,7 @@ You can skip these steps if you prefer to install packages globally (not recomme
 Make sure you're in the root folder of the application, then run:
 
 ```bash
-pip install -r requirements-3810.txt
+pip install -r requirements.txt
 ```
 
 (Do this **after activating** the virtual environment, if you're using one.)
@@ -214,7 +214,7 @@ source opendrop_env/bin/activate # Skip this line if you want to install the req
 
 Make sure you're in the root folder of the application, then run:
 ```bash
-pip install -r requirements-3810.txt
+pip install -r requirements.txt
 ```
 
 > ⚠️ **Note**: If you choose to use the virtual environment, make sure to activate it every time you want to run the application. If it is activate, `(venv)` will show at the beginning of the prompt.
