@@ -1,3 +1,4 @@
+from tkinter import messagebox
 from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
 # from modules.PlotManager import PlotManager
 from modules.preprocessing.ExtractData import ExtractedData
@@ -196,6 +197,7 @@ class iftDataProcessor:
         """
         import csv
         import os
+        
 
         # Prepare output path
         if not os.path.exists(output_directory):
