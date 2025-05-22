@@ -132,14 +132,14 @@ class FunctionWindow(CTkToplevel):
                 # First check if the user has imported files
                 if not self.check_import(user_input_data):
                     self.update_stage(Move.Back.value)
-                    messagebox.showinfo("No Selection", "Please select at least one file.")
+                    messagebox.showinfo("No Selection", "Please select at least one file.",parent=self)
                     return
 
                 # Then check if the frame interval is valid
                 # if function_type == FunctionType.INTERFACIAL_TENSION:
                 if not validate_frame_interval(user_input_data):
                     self.update_stage(Move.Back.value)
-                    messagebox.showinfo("Missing", "Frame Interval is required.")
+                    messagebox.showinfo("Missing", "Frame Interval is required.",parent=self)
                     return
                 self.back_button.pack(side="left", padx=10, pady=10)
                 #self.ift_processor.processPreparation(user_input_data)
@@ -169,7 +169,7 @@ class FunctionWindow(CTkToplevel):
                     self.update_stage(Move.Back.value)
                     all_messages = "\n".join(validation_messages)
                     # Show a single pop-up message with all validation messages
-                    messagebox.showinfo("Missing: \n", all_messages)
+                    messagebox.showinfo("Missing: \n", all_messages,parent=self)
                 else:
                     if function_type == FunctionType.INTERFACIAL_TENSION:
                         self.ift_preparation_frame.pack_forget()
@@ -208,26 +208,12 @@ class FunctionWindow(CTkToplevel):
                 # Hide the next button and show the save button
                 self.next_button.pack_forget()
                 self.save_button.pack(side="right", padx=10, pady=10)
-        except ValueError as e:
-            # Check if the error message indicates a numerical issue (NaN or infinity)
-            if "NaN" in str(e) or "inf" in str(e):
-                messagebox.showerror(
-                    "Fit Failed",
-                    "YL fitting failed: This image is not suitable for Contact Angle analysis.\nPlease go back and select another one image or application."
-                )
-            else:
-                
-                messagebox.showerror(
-                "Fit Error", "This image is not suitable for Contact Angle analysis.\nPlease go back and select another one image or application."
-                )
-            # Close current frame and return to the main function window
-            self.on_closing()
-            return
-
         except Exception as e:
             # Catch any unexpected exception and show it
+            print(f"[Error] Unexpected exception: {e}")
             messagebox.showerror(
-               "Invalid Image", "This image is not suitable for Interfacial Tension analysis.\nPlease go back and select another one image or application."
+               "Invalid Image", f"This image is not suitable for {function_type.value} analysis.\nPlease go back and select another image or application.",
+               parent=self
             )
             self.on_closing()
             return
@@ -235,7 +221,7 @@ class FunctionWindow(CTkToplevel):
 
     def save_output(self, function_type, user_input_data):
         if user_input_data.output_directory is None:
-            messagebox.showerror("Invalid Path","Output directory is missing. File not saved.")
+            messagebox.showerror("Invalid Path","Output directory is missing. File not saved.",parent=self)
             return
         if function_type == FunctionType.INTERFACIAL_TENSION:
             from datetime import datetime
@@ -247,7 +233,7 @@ class FunctionWindow(CTkToplevel):
             
             self.ift_processor.save_result(user_input_data.import_files, user_input_data.output_directory,filename, user_input_data)
 
-            messagebox.showinfo("Success", "File saved successfully!")
+            messagebox.showinfo("Success", "File saved successfully!",parent=self)
             self.on_closing()
         else:
             # filename = user_input_data.filename[:-4] + '_' + user_input_data.time_string + ".csv"
@@ -258,7 +244,7 @@ class FunctionWindow(CTkToplevel):
             # export_filename = os.path.join(user_input_data.directory_string, filename)
             self.ca_processor.save_result(user_input_data.import_files, user_input_data.output_directory, filename)
 
-            messagebox.showinfo("Success", "File saved successfully!")
+            messagebox.showinfo("Success", "File saved successfully!",parent=self)
             self.on_closing()
         
     
