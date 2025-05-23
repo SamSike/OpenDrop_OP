@@ -75,7 +75,12 @@ class ExperimentalSetup(object):
 
                 # Update nested dicts like analysis_methods_ca
                 if isinstance(current_attr, dict) and isinstance(value, dict):
-                    current_attr.update(value)
+                    for subkey, subvalue in value.items():
+                        if key == "analysis_methods_ca":
+                            enum_key = getattr(FittingMethod, subkey, subkey)
+                            current_attr[enum_key] = subvalue
+                        elif key == "analysis_methods_pd":
+                            current_attr[subkey] = subvalue
                 else:
                     # Enum mapping for specific fields
                     if key in ["drop_ID_method", "needle_region_method"]:
