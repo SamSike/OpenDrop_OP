@@ -1,5 +1,6 @@
-from utils.enums import ThresholdSelect
+from utils.enums import ThresholdSelect, RegionSelect
 from modules.core.classes import ExperimentalDrop, ExperimentalSetup
+from modules.ift.ift_data_processor import IftDataProcessor
 
 # frame_interval
 
@@ -50,6 +51,10 @@ def validate_user_input_data_ift(user_input_data: ExperimentalSetup):
     # Check if analysis_method_fields has at least one method selected
     if not any(user_input_data.analysis_methods_pd.values()):
         messages.append("At least one analysis method must be selected.")
+
+    # Allow user to select regions manually if chosen
+    if user_input_data.drop_id_method != RegionSelect.AUTOMATED or user_input_data.needle_region_method != RegionSelect.AUTOMATED:
+        IftDataProcessor().process_preparation(user_input_data)
 
     return messages
 
