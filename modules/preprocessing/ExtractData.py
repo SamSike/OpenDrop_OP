@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # coding=utf-8
+from typing import List
 import numpy as np
 import os
+
 
 class ExtractedData(object):
     def __init__(self, n_frames, n_params):
@@ -13,17 +15,23 @@ class ExtractedData(object):
         self.area = np.zeros(n_frames)
         self.worthington = np.zeros(n_frames)
         self.parameters = np.zeros((n_frames, n_params))
-        self.contact_angles = np.zeros((n_frames,2))
+        self.contact_angles = np.zeros((n_frames, 2))
         self.bond = np.zeros(n_frames)
         self.drop_contour_image = np.zeros(n_frames)
         self.residuals = []
         self.arc_lengths = []
 
-    def time_IFT_vol_area(self, i):
+    def time_ift_vol_area(self, i):
         # build the time-IFT-volume-area array used in the plotting function
-        return [self.time[i], self.gamma_IFT_mN[i], self.volume[i], self.area[i], self.bond[i], self.worthington[i]]
+        return [self.time[i],
+                self.gamma_IFT_mN[i],
+                self.volume[i],
+                self.area[i],
+                self.bond[i],
+                self.worthington[i]
+                ]
 
-    def export_data(self, input_files, location, filename, i):
+    def export_data(self, input_files: List[str], location: str, filename: str, i: int):
 
         # header and comment not supported for version number < 1.7
         # this is a hack routine to check this...
@@ -31,9 +39,9 @@ class ExtractedData(object):
 
         out = []
         filepath = input_files[i]
-        if isinstance(filepath, tuple): 
+        if isinstance(filepath, tuple):
             filepath = filepath[0]
-        out.append(str(filepath)) 
+        out.append(str(filepath))
         out.append(self.time[i])
         header = []
         header.append("Filename,")
@@ -55,17 +63,19 @@ class ExtractedData(object):
 
         output_file = os.path.join(location, filename)
         with open(output_file, 'a') as f:
-            if i==0:
+            if i == 0:
                 f.write(string+'\n')
-            #for val in array[0]:
+            # for val in array[0]:
             for val in out:
                 f.write(str(val)+',')
             f.write('\n')
         if 0:
             try:
-                f = open(output_file,'a')
-                np.savetxt(f, self.output_data(input_files,i), delimiter=',', fmt='%10.5f', header=self.header_string(i), comments='')
+                f = open(output_file, 'a')
+                np.savetxt(f, self.output_data(input_files, i), delimiter=',',
+                           fmt='%10.5f', header=self.header_string(i), comments='')
                 f.close()
             except:
-                #np.savetxt(f, self.output_data(), delimiter=',', fmt='%10.5f')
-                np.savetxt(f, self.output_data(input_files,i), fmt='%10.5f') # was This
+                # np.savetxt(f, self.output_data(), delimiter=',', fmt='%10.5f')
+                np.savetxt(f, self.output_data(input_files, i),
+                           fmt='%10.5f')  # was This

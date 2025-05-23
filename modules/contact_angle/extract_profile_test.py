@@ -1,18 +1,20 @@
 from modules.contact_angle.extract_profile import (
     extract_drop_profile,
     detect_edges,
-    prepare_hydrophobic,
+    prepare_hydrophobic
 )
-from unittest.mock import patch, MagicMock
-import cv2
-import numpy as np
-import pytest
-import matplotlib.pyplot as plt
-from utils.enums import ThresholdSelect, RegionSelect
 from unittest.mock import patch
-import matplotlib
-import sys
+from utils.enums import ThresholdSelect
+
+from unittest.mock import patch
+import matplotlib.pyplot as plt
+import pytest
+import numpy as np
+import cv2
 import os
+import sys
+import matplotlib
+
 sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../../')))
 matplotlib.use('Agg')

@@ -1,36 +1,54 @@
-from customtkinter import CTkFrame, CTkButton, CTk, get_appearance_mode
-from tkinter import messagebox
 
 from modules.contact_angle.ca_data_processor import CaDataProcessor
-from modules.ift.ift_data_processor import iftDataProcessor
-# , DropData, Tolerances
-from modules.core.classes import ExperimentalSetup, ExperimentalDrop
-
+from modules.ift.ift_data_processor import IftDataProcessor
+from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData
 from views.helper.validation import validate_user_input_data_ift, validate_user_input_data_cm, validate_frame_interval
-
-from views.helper.theme import *
 from views.helper.style import get_color, set_light_only_color
+from views.helper.theme import LIGHT_MODE
 from views.navigation import create_navigation
-
 from views.acquisition import Acquisition
-
 from views.ift_preparation import IftPreparation
 from views.ift_analysis import IftAnalysis
-
 from views.ca_preparation import CaPreparation
 from views.ca_analysis import CaAnalysis
-
+from views.main_window import MainWindow
 from views.output_page import OutputPage
-
 from utils.enums import FunctionType, Stage, Move
 
+from customtkinter import CTkFrame, CTkButton, CTkToplevel, get_appearance_mode
+from tkinter import messagebox
+from typing import List, Callable
 
-def call_user_input(function_type, fitted_drop_data, main_window):
+
+def call_user_input(function_type: FunctionType, fitted_drop_data: DropData, main_window: MainWindow):
     FunctionWindow(function_type, fitted_drop_data, main_window)
 
 
 class FunctionWindow(CTkToplevel):
-    def __init__(self, function_type, fitted_drop_data, main_window):
+    main_window: MainWindow
+    ca_processor: CaDataProcessor
+    ift_processor: IftDataProcessor
+    acquisition_frame: Acquisition
+    ca_preparation_frame: CaPreparation
+    ca_analysis_frame: CaAnalysis
+    ift_preparation_frame: IftPreparation
+    ift_analysis_frame: IftAnalysis
+    output_frame: OutputPage
+    after_ids: List[int]
+    button_frame: CTkFrame
+    back_button: CTkButton
+    next_button: CTkButton
+    save_button: CTkButton
+    stages: List[Stage]
+    current_stage: Stage
+    next_stage: Callable[[], None]
+    prev_stage: Callable[[], None]
+
+    def __init__(self,
+                 function_type: FunctionType,
+                 fitted_drop_data: DropData,
+                 main_window: MainWindow
+                 ):
         super().__init__()  # Call the parent class constructor
         self.title(function_type.value)
         self.geometry("1000x750")
@@ -43,20 +61,22 @@ class FunctionWindow(CTkToplevel):
         # after callback
         self.after_ids = []
         if get_appearance_mode() == LIGHT_MODE:
-            self.FG_COLOR = get_color("background")
+            self.FG_COLOR: str = get_color("background")
         else:
             self.FG_COLOR = self.cget("fg_color")
 
         set_light_only_color(self, "background")
 
         self.ca_processor = CaDataProcessor()
-        self.ift_processor = iftDataProcessor()
+        self.ift_processor = IftDataProcessor()
 
-        user_input_data = ExperimentalSetup()
-        experimental_drop = ExperimentalDrop()
+        user_input_data: ExperimentalSetup = ExperimentalSetup()
+        experimental_drop: ExperimentalDrop = ExperimentalDrop()
 
         user_input_data.screen_resolution = [
-            self.winfo_screenwidth(), self.winfo_screenheight()]
+            self.winfo_screenwidth(),
+            self.winfo_screenheight()
+        ]
 
         self.widgets(function_type, user_input_data,
                      experimental_drop, fitted_drop_data)
@@ -66,7 +86,12 @@ class FunctionWindow(CTkToplevel):
 
         self.mainloop()  # Start the main loop
 
-    def widgets(self, function_type, user_input_data, experimental_drop, fitted_drop_data):
+    def widgets(self,
+                function_type: FunctionType,
+                user_input_data: ExperimentalSetup,
+                experimental_drop: ExperimentalDrop,
+                fitted_drop_data: DropData
+                ):
         # Create the navigation bar (progress bar style)
         self.next_stage, self.prev_stage = create_navigation(self)
 
@@ -92,7 +117,7 @@ class FunctionWindow(CTkToplevel):
         self.save_button = CTkButton(
             self.button_frame, text="Save", command=lambda: self.save_output(function_type, user_input_data))
 
-    def back(self, function_type, user_input_data):
+    def back(self, function_type: FunctionType, user_input_data: ExperimentalSetup):
         self.update_stage(Move.Back.value)
         # Go back to the previous screen
         if self.current_stage == Stage.ACQUISITION:
@@ -226,7 +251,7 @@ class FunctionWindow(CTkToplevel):
             self.on_closing()
             return
 
-    def save_output(self, function_type, user_input_data):
+    def save_output(self, function_type: FunctionType, user_input_data: ExperimentalSetup):
         if user_input_data.output_directory is None:
             messagebox.showerror(
                 "Invalid Path", "Output directory is missing. File not saved.", parent=self)
@@ -235,9 +260,9 @@ class FunctionWindow(CTkToplevel):
             from datetime import datetime
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             if user_input_data.filename:
-                filename = user_input_data.filename + "_" + timestamp + ".csv"
+                filename = f"{user_input_data.filename}_{timestamp}.csv"
             else:
-                filename = "Extracted_data_"+timestamp+".csv"
+                filename = f"Extracted_data_{timestamp}.csv"
 
             self.ift_processor.save_result(
                 user_input_data.import_files, user_input_data.output_directory, filename, user_input_data)
@@ -259,7 +284,7 @@ class FunctionWindow(CTkToplevel):
                 "Success", "File saved successfully!", parent=self)
             self.on_closing()
 
-    def update_stage(self, direction):
+    def update_stage(self, direction: int):
         self.current_stage = self.stages[(self.stages.index(
             self.current_stage) + direction) % len(self.stages)]
         if direction == Move.Next.value:
@@ -267,10 +292,10 @@ class FunctionWindow(CTkToplevel):
         elif direction == Move.Back.value:
             self.prev_stage()
 
-    def check_import(self, user_input_data):
+    def check_import(self, user_input_data: ExperimentalSetup) -> bool:
         return user_input_data.number_of_frames is not None and user_input_data.number_of_frames > 0 and user_input_data.import_files is not None and len(user_input_data.import_files) > 0 and len(user_input_data.import_files) == user_input_data.number_of_frames
 
-    def register_after(self, delay_ms, callback):
+    def register_after(self, delay_ms, callback: Callable):
         after_id = self.after(delay_ms, callback)
         self.after_ids.append(after_id)
         return after_id
@@ -285,7 +310,7 @@ class FunctionWindow(CTkToplevel):
                 except Exception as e:
                     print("after_cancel error:", e)
 
-            # ✅ destory all widget
+            # ✅ destroy all widgets
             for widget in self.winfo_children():
                 try:
                     widget.destroy()

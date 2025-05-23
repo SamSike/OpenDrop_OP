@@ -1,5 +1,7 @@
-from customtkinter import *
+from customtkinter import CTkFrame, CTkLabel, CTkProgressBar, CTk
 from views.helper.style import set_light_only_color
+
+
 def create_navigation(parent):
     # Create a frame for the navigation
     navigation_frame = CTkFrame(parent)
@@ -10,7 +12,7 @@ def create_navigation(parent):
     stages = ["Acquisition", "Preparation", "Analysis", "Output"]
 
     progress_bar = CTkProgressBar(navigation_frame)
-    progress_bar.pack(fill='x', expand=True, padx=130, pady=(20,10))
+    progress_bar.pack(fill='x', expand=True, padx=130, pady=(20, 10))
 
     progress_bar.set(0)
 
@@ -44,12 +46,14 @@ def create_navigation(parent):
     stage_labels = []
     for i, stage in enumerate(stages):
         # Create a label for each stage
-        label = CTkLabel(navigation_frame, text=stage, font=("Roboto", 13), anchor='e')
+        label = CTkLabel(navigation_frame, text=stage,
+                         font=("Roboto", 13), anchor='e')
         label.pack(side='left', expand=True)
         stage_labels.append(label)
 
     # Return the control functions
     return next_stage, prev_stage
+
 
 # Main application window
 if __name__ == "__main__":

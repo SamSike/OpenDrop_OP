@@ -1,8 +1,10 @@
-import pytest
-from unittest.mock import MagicMock
 from views.ca_analysis import CaAnalysis, extract_method
 from utils.enums import FittingMethod
+
+from unittest.mock import MagicMock
 from PIL import Image
+import pytest
+
 
 def test_extract_method_priority():
     contact_angles = {
@@ -12,10 +14,12 @@ def test_extract_method_priority():
     method = extract_method(contact_angles)
     assert method == FittingMethod.CIRCLE_FIT or method == FittingMethod.YL_FIT
 
+
 def test_extract_method_none():
     contact_angles = {}
     method = extract_method(contact_angles)
     assert method is None
+
 
 def test_draw_on_cropped_image_returns_image():
     user_input_data = MagicMock()

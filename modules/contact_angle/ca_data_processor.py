@@ -1,26 +1,41 @@
-from tkinter import messagebox
-from modules.core.classes import ExperimentalDrop
-# from modules.PlotManager import PlotManager
+from modules.core.classes import ExperimentalDrop, ExperimentalSetup, DropData
 from modules.preprocessing.ExtractData import ExtractedData
 from modules.image.read_image import get_image
-from modules.image.select_regions import set_drop_region, set_surface_line, correct_tilt, run_set_surface_line
+from modules.image.select_regions import (
+    set_drop_region,
+    set_surface_line,
+    correct_tilt,
+    # run_set_surface_line
+)
 from modules.contact_angle.extract_profile import extract_drop_profile
 from modules.fitting.fits import perform_fits
+from utils.enums import FittingMethod, ThresholdSelect
+from utils.config import LEFT_ANGLE, RIGHT_ANGLE
+
+from typing import Callable, Dict, List
+from tkinter import messagebox
 import timeit
 import copy
-from utils.enums import FittingMethod
-from utils.config import *
-from multiprocessing import Process, Queue
+# from multiprocessing import Process, Queue
+# from modules.PlotManager import PlotManager
 
 
 class CaDataProcessor:
-    def process_data(self, fitted_drop_data, user_input_data, callback):
+    def __init__(self):
+        self.output: List[ExtractedData]
 
-        analysis_methods = dict(user_input_data.analysis_methods_ca)
-        n_frames = user_input_data.number_of_frames
+    def process_data(self,
+                     fitted_drop_data: DropData,
+                     user_input_data: ExperimentalSetup,
+                     callback: Callable
+                     ) -> None:
+
+        analysis_methods: Dict[FittingMethod, bool] = dict(
+            user_input_data.analysis_methods_ca
+        )
+        n_frames: int = user_input_data.number_of_frames
         extracted_data = ExtractedData(
             n_frames, fitted_drop_data.parameter_dimensions)
-        raw_experiment = ExperimentalDrop()
 
         # if user_input_data.interfacial_tension_boole:
         #    plots = PlotManager(user_input_data.wait_time, n_frames)
@@ -30,11 +45,12 @@ class CaDataProcessor:
         self.output = []
 
         for i in range(n_frames):
-            print("\nProcessing frame %d of %d..." % (i+1, n_frames))
+            print(f"\nProcessing frame {i+1} of {n_frames}...")
             input_file = user_input_data.import_files[i]
-            print("\nProceccing " + input_file)
+            print(f"\nProcessing {input_file}")
             time_start = timeit.default_timer()
             raw_experiment = ExperimentalDrop()
+
             # save image in here...
             get_image(raw_experiment, user_input_data, i)
             set_drop_region(raw_experiment, user_input_data, i+1)
@@ -55,7 +71,8 @@ class CaDataProcessor:
             # these methods don't need tilt correction
             if user_input_data.baseline_method == ThresholdSelect.AUTOMATED:
                 if analysis_methods[FittingMethod.TANGENT_FIT] or analysis_methods[FittingMethod.POLYNOMIAL_FIT] or analysis_methods[FittingMethod.CIRCLE_FIT] or analysis_methods[FittingMethod.ELLIPSE_FIT]:
-                    perform_fits(raw_experiment, tangent=analysis_methods[FittingMethod.TANGENT_FIT],
+                    perform_fits(raw_experiment,
+                                 tangent=analysis_methods[FittingMethod.TANGENT_FIT],
                                  polynomial=analysis_methods[FittingMethod.POLYNOMIAL_FIT], circle=analysis_methods[FittingMethod.CIRCLE_FIT],
                                  ellipse=analysis_methods[FittingMethod.ELLIPSE_FIT])
 
@@ -73,7 +90,7 @@ class CaDataProcessor:
                 if analysis_methods[FittingMethod.YL_FIT]:
                     print('Performing YL fit...')
                     perform_fits(raw_experiment,
-                                 YL=analysis_methods[FittingMethod.YL_FIT])
+                                 yl=analysis_methods[FittingMethod.YL_FIT])
                 if analysis_methods[FittingMethod.ML_MODEL]:
 
                     from modules.ML_model.prepare_experimental import prepare4model_v03, experimental_pred
@@ -97,7 +114,7 @@ class CaDataProcessor:
             print('Extracted outputs:')
             for key1 in extracted_data.contact_angles.keys():
                 for key2 in extracted_data.contact_angles[key1].keys():
-                    print(key1+' '+key2+': ')
+                    print(f"{key1} {key2}: ")
                     print('    ', extracted_data.contact_angles[key1][key2])
                     print()
             self.output.append(copy.deepcopy(extracted_data))
@@ -105,8 +122,7 @@ class CaDataProcessor:
             if callback:
                 callback(extracted_data, raw_experiment)
 
-    def save_result(self, input_files, output_directory, filename):
-
+    def save_result(self, input_files: List[str], output_directory: str, filename: str) -> None:
         for index, extracted_data in enumerate(self.output):
             extracted_data.export_data(
                 input_files, output_directory, filename, index)

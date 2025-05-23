@@ -35,3 +35,8 @@ class FittingMethod(str, Enum):
     CIRCLE_FIT = 'circle fit'
     YL_FIT = 'YL fit'
     ML_MODEL = 'ML model'
+
+
+class FitType(str, Enum):
+    CIRCULAR = 'circular'
+    BASHFORTH_ADAMS = 'bashforth-adams'

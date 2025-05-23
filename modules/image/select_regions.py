@@ -1,17 +1,21 @@
 #!/usr/bin/env python
 # coding=utf-8
-from __future__ import print_function
+
 from modules.core.classes import ExperimentalDrop, ExperimentalSetup
+from utils.enums import FittingMethod
+# from utils.keymap import *
+
 from typing import List, Tuple
-# from subprocess import call
-# import numpy as np
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import tkinter.messagebox as msgbox
 import tkinter.simpledialog as simpledialog
-from utils.enums import FittingMethod
-from utils.keymap import *
+# from __future__ import print_function
+
+
+# from subprocess import call
+# import numpy as np
 # import time
 # import datetime
 # from Tkinter import *
@@ -235,7 +239,7 @@ def set_drop_region(experimental_drop: ExperimentalDrop, experimental_setup: Exp
     scale: float = set_scale(image_size, screen_size)
     screen_position = set_screen_position(screen_size)
 
-    if experimental_setup.drop_ID_method == RegionSelect.AUTOMATED:
+    if experimental_setup.drop_id_method == RegionSelect.AUTOMATED:
         from modules.preprocessing.preprocessing import auto_crop
         experimental_drop.cropped_image, (left, right, top, bottom) = auto_crop(
             experimental_drop.image)
@@ -259,24 +263,28 @@ def set_drop_region(experimental_drop: ExperimentalDrop, experimental_setup: Exp
             plt.show()
             plt.close(fig)
         experimental_setup.drop_region = [(left, top), (right, bottom)]
-    elif experimental_setup.drop_ID_method == RegionSelect.USER_SELECTED:
+    elif experimental_setup.drop_id_method == RegionSelect.USER_SELECTED:
         experimental_setup.drop_region, experimental_drop.cropped_image = user_select_region(
             experimental_drop.image, f"Select drop region for Image {index}", scale, screen_position)
 
 
-def find_image_edge(img, low=50, high=150, apertureSize=3):
+def find_image_edge(img: np.ndarray, low=50, high=150, apertureSize=3):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(gray, low, high, apertureSize=apertureSize)
     return edges
 
 
 def user_select_region(image: np.ndarray, title: str, scale: float, screen_position) -> Tuple[Rect2, np.ndarray]:
-    region = user_ROI(image, title, scale, screen_position)
+    region = user_roi(image, title, scale, screen_position)
     cropped_image = image_crop(image, region)
     return (region, cropped_image)
 
 
-def set_needle_region(experimental_drop: ExperimentalDrop, experimental_setup: ExperimentalSetup, center_x: float = None, index: int = 0) -> None:
+def set_needle_region(experimental_drop: ExperimentalDrop,
+                      experimental_setup: ExperimentalSetup,
+                      center_x: float = None,
+                      index: int = 0
+                      ) -> None:
     screen_size = experimental_setup.screen_resolution
     image_size = experimental_drop.image.shape
     scale = set_scale(image_size, screen_size)
@@ -389,7 +397,7 @@ def set_needle_region(experimental_drop: ExperimentalDrop, experimental_setup: E
             experimental_drop.image, f"Select drop region for Image {index}", scale, screen_position)
 
 
-def crop_needle(img):
+def crop_needle(img: np.ndarray) -> np.ndarray:
     padding = 10
     angle_tolerance = 15
     original_img = img.copy()
@@ -487,17 +495,19 @@ def crop_needle(img):
     return img
 
 
-def image_crop(image, points):
+def image_crop(image: np.ndarray, points):
     # return image[min(y):max(y), min(x),max(x)]
     return image[int(points[0][1]):int(points[1][1]), int(points[0][0]):int(points[1][0])]
 
 
-def set_surface_line(experimental_drop, experimental_setup):
+def set_surface_line(experimental_drop: ExperimentalDrop,
+                     experimental_setup: ExperimentalSetup
+                     ) -> None:
     # message = []
 
     #
     # if experimental_drop.cropped_image is None:
-    #     if experimental_setup.drop_ID_method == "User-selected":
+    #     if experimental_setup.drop_id_method == "User-selected":
     #         msgbox.showwarning("Warning", "Please select the drop region")
     #         set_drop_region(experimental_drop, experimental_setup)
     #         return
@@ -522,7 +532,9 @@ def set_surface_line(experimental_drop, experimental_setup):
         user_line(experimental_drop, experimental_setup)
 
 
-def correct_tilt(experimental_drop, experimental_setup):
+def correct_tilt(experimental_drop: ExperimentalDrop,
+                 experimental_setup: ExperimentalSetup
+                 ) -> None:
     if experimental_setup.baseline_method == ThresholdSelect.AUTOMATED:
         experimental_drop.cropped_image = tilt_correction(
             experimental_drop.cropped_image, experimental_drop.contact_points)
@@ -535,7 +547,7 @@ def correct_tilt(experimental_drop, experimental_setup):
             img, experimental_drop.contact_points, user_set_baseline=True)
 
 
-def set_scale(image_size, screen_size) -> float:
+def set_scale(image_size: Tuple[int, int, int], screen_size: List[int]) -> float:
     x_ratio = image_size[1]/float(screen_size[0])
     y_ratio = image_size[0]/float(screen_size[1])
     max_ratio = max(x_ratio, y_ratio)
@@ -545,17 +557,17 @@ def set_scale(image_size, screen_size) -> float:
     return scale
 
 
-def set_screen_position(screen_size) -> List[int]:
+def set_screen_position(screen_size: List[int]) -> List[int]:
     # percentage room free
-    prec_free_space = 0.5 * (1 - MAX_IMAGE_TO_SCREEN_RATIO)
-    x_position = int(prec_free_space * screen_size[0])
+    percent_free_space = 0.5 * (1 - MAX_IMAGE_TO_SCREEN_RATIO)
+    x_position = int(percent_free_space * screen_size[0])
     # 0.5 moves window a little bit higher
-    y_position = int(0.5 * prec_free_space * screen_size[1])
+    y_position = int(0.5 * percent_free_space * screen_size[1])
     return [x_position, y_position]
 
 
 # , line_colour=(0, 0, 255), line_thickness=2):
-def user_ROI(raw_image: np.ndarray, title: str, scale: float, screen_position) -> List[Tuple[float, float]]:
+def user_roi(raw_image: np.ndarray, title: str, scale: float, screen_position) -> List[Tuple[float, float]]:
     global drawing
     global ix, iy
     global fx, fy
@@ -598,7 +610,7 @@ def user_ROI(raw_image: np.ndarray, title: str, scale: float, screen_position) -
     return [(min_x, min_y), (max_x, max_y)]
 
 
-def user_line(experimental_drop, experimental_setup):
+def user_line(experimental_drop: ExperimentalDrop, experimental_setup: ExperimentalSetup) -> None:
     # scale = set_scale(experimental_drop.image.shape, experimental_setup.screen_resolution)
     screen_position = set_screen_position(experimental_setup.screen_resolution)
     raw_image = experimental_drop.cropped_image
@@ -867,7 +879,7 @@ def user_line(experimental_drop, experimental_setup):
     max_y = max(iy, fy) / scale
 
 
-def run_set_surface_line(experimental_drop, experimental_setup, result_queue):
+def run_set_surface_line(experimental_drop: ExperimentalDrop, experimental_setup: ExperimentalSetup, result_queue):
 
     set_surface_line(experimental_drop, experimental_setup)
     result_queue.put(experimental_drop.contact_angles)
@@ -875,7 +887,7 @@ def run_set_surface_line(experimental_drop, experimental_setup, result_queue):
 # mouse callback function
 
 
-def draw_rectangle(event, x, y, flags, param):
+def draw_rectangle(event: int, x, y, flags, param):
     global ix, iy, drawing
     global fx, fy
     global image_TEMP
@@ -902,7 +914,7 @@ def draw_rectangle(event, x, y, flags, param):
 # mouse callback function
 
 
-def draw_line(event, x, y, flags, param):
+def draw_line(event: int, x, y, flags, param):
     global ix, iy, drawing
     global fx, fy
     global image_TEMP
@@ -931,10 +943,10 @@ def kill():
     sys.exit()
 
 
-def distance(P1, P2):
+def distance(p1, p2):
     """This function computes the distance between 2 points defined by
     P1 = (x1,y1) and P2 = (x2,y2) """
-    return ((P1[0] - P2[0])**2 + (P1[1] - P2[1])**2) ** 0.5
+    return ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2) ** 0.5
 
 
 def optimized_path(coords, start=None):

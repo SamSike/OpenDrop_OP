@@ -1,27 +1,34 @@
 #!/usr/bin/env python
 # coding=utf-8
-from __future__ import print_function
-from sklearn.cluster import OPTICS  # for clustering algorithm
+from modules.core.classes import ExperimentalDrop, ExperimentalSetup
+from modules.preprocessing.preprocessing import extract_edges_cv
+from utils.enums import ThresholdSelect
+
+from sklearn.cluster import OPTICS  # DS 7/6/21 - for clustering algorithm
+import matplotlib.pyplot as plt
 import numpy as np
 import cv2
-from typing import List, Tuple
-import matplotlib.pyplot as plt
-from sklearn.cluster import OPTICS  # DS 7/6/21 - for clustering algorithm
+# from __future__ import print_function
+# from typing import List, Tuple
 # import time
 # import datetime
-from modules.preprocessing.preprocessing import extract_edges_CV
-from utils.enums import ThresholdSelect, RegionSelect
 
 BLUR_SIZE = 3
 VERSION_CV2 = cv2.__version__
 
 
-def extract_drop_profile(raw_experiment, user_inputs):
+def extract_drop_profile(raw_experiment: ExperimentalDrop,
+                         user_inputs: ExperimentalSetup) -> None:
     if user_inputs.threshold_method == ThresholdSelect.USER_SELECTED:
         # profile_edges = detect_edges(raw_experiment.cropped_image, raw_experiment, user_inputs.drop_region)
         # profile, raw_experiment.ret = detect_edges(raw_experiment.cropped_image, raw_experiment, user_inputs.drop_region)
         raw_experiment.contour, raw_experiment.ret = detect_edges(
-            raw_experiment.cropped_image, raw_experiment, user_inputs.drop_region, 1, user_inputs.threshold_val)
+            raw_experiment.cropped_image,
+            raw_experiment,
+            user_inputs.drop_region,
+            1,
+            user_inputs.threshold_val
+        )
 
         if 1:
             plt.close('all')
@@ -29,16 +36,16 @@ def extract_drop_profile(raw_experiment, user_inputs):
             plt.imshow(raw_experiment.cropped_image)
             plt.plot(raw_experiment.contour[:, 0],
                      raw_experiment.contour[:, 1], 'r,')
-            plt.title('Extracted drop profile\nTheshold value of : ' +
-                      str(raw_experiment.ret))
+            plt.title(
+                f"Extracted drop profile\nTheshold value of : {raw_experiment.ret}")
             plt.axis('equal')
             plt.show()
             plt.close(fig)
 
     elif user_inputs.threshold_method == ThresholdSelect.AUTOMATED:
         if raw_experiment.ret == None:
-            raw_experiment.contour, raw_experiment.ret = extract_edges_CV(
-                raw_experiment.cropped_image, return_thresholed_value=True)
+            raw_experiment.contour, raw_experiment.ret = extract_edges_cv(
+                raw_experiment.cropped_image, return_threshold_value=True)
 
             if user_inputs.threshold_boole == 1:
                 # Clear all existing figures to avoid conflicts with residual plots
@@ -48,15 +55,15 @@ def extract_drop_profile(raw_experiment, user_inputs):
                 plt.plot(raw_experiment.contour[:, 0],
                          raw_experiment.contour[:, 1], 'r,')
                 plt.title(
-                    'Extracted drop profile\nTheshold value of : '+str(raw_experiment.ret))
+                    'Extracted drop profile\nThreshold value of : ', raw_experiment.ret)
                 plt.axis('equal')
                 plt.show()
                 plt.close(fig)
 
         else:
             # if a threshold value has been selected then use this
-            raw_experiment.contour = extract_edges_CV(
-                raw_experiment.cropped_image, threshold_val=raw_experiment.ret, return_thresholed_value=False)
+            raw_experiment.contour = extract_edges_cv(
+                raw_experiment.cropped_image, threshold_val=raw_experiment.ret, return_threshold_value=False)
 
     # needle_crop = image_crop(raw_experiment.image, user_inputs.needle_region)
     # raw_experiment.needle_data, ret = detect_edges(needle_crop, raw_experiment, user_inputs.needle_region, raw_experiment.ret, 2)
@@ -71,7 +78,7 @@ def image_crop(image, points):  # loaded in conan.py
     return image[int(points[0][1]):int(points[1][1]), int(points[0][0]):int(points[1][0])]
 
 
-def detect_edges(image: np.ndarray, raw_experiment, points, n_contours: List[Tuple[float, float]], threshValue):
+def detect_edges(image: np.ndarray, raw_experiment: ExperimentalDrop, points, n_contours: int, threshold_value: int):
 
     if len(image.shape) != 2:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -82,7 +89,7 @@ def detect_edges(image: np.ndarray, raw_experiment, points, n_contours: List[Tup
 
     #    if ret == -1:
     # +cv2.THRESH_OTSU) # calculate thresholding
-    ret, thresh = cv2.threshold(blur, threshValue, 255, cv2.THRESH_BINARY)
+    ret, thresh = cv2.threshold(blur, threshold_value, 255, cv2.THRESH_BINARY)
     # else:
     #     ret, thresh = cv2.threshold(blur,ret,255,cv2.THRESH_BINARY) # calculate thresholding
     # these values seem to agree with
@@ -110,7 +117,6 @@ def detect_edges(image: np.ndarray, raw_experiment, points, n_contours: List[Tup
     for index in indexed_contours_to_return:
         current_contour = contours[index][:, 0]
         for i in range(current_contour.shape[0]):
-            current_contour[i, 1] = current_contour[i, 1]
             current_contour[i, :] = current_contour[i, :] + offset
             # points.append(current_contour[current_contour[:,1].argsort()])
 
@@ -246,7 +252,7 @@ def optimized_path(coords, start=None):
     return path
 
 
-def prepare_hydrophobic(coords, xi=0.8):
+def prepare_hydrophobic(coords, xi: float = 0.8):
     """takes an array (n,2) of coordinate points, and returns the left and right halfdrops of the contour.
     xi determines the minimum steepness on the reachability plot that constitutes a cluster boundary of the
     clustering algorithm.
@@ -258,7 +264,7 @@ def prepare_hydrophobic(coords, xi=0.8):
     ################  MAY NEED TO OPTIMIZE eps/xi TO FIND APPROPRIATE GROUPINGS  ####################
     if 0:  # turn this off bc using synthetic drops without lensing effect
         input_contour = coords
-        dic, dic2 = cluster_OPTICS(input_contour, xi=xi), cluster_OPTICS(
+        dic, dic2 = cluster_optics(input_contour, xi=xi), cluster_optics(
             input_contour, out_style='xy', xi=xi)
 
         # print("number of groups: ",len(list(dic.keys())))
@@ -295,7 +301,7 @@ def prepare_hydrophobic(coords, xi=0.8):
     # print("first few x coordinates of the longest contour: ",xlongest[:3])
     # print("first few y coordinates of the longest contour: ",ylongest[:3])
 
-    # Find a appropriate epsilon value for cluster_OPTICS, this will remove noise in the bottom 10% of the drop
+    # Find a appropriate epsilon value for cluster_optics, this will remove noise in the bottom 10% of the drop
     # .   most importantly noise is reduced at contact points.
 
     # variables in this process are how much and what part of the top of the droplet we use to be representative of
@@ -333,14 +339,14 @@ def prepare_hydrophobic(coords, xi=0.8):
         print('Average dist between points is: ', sum(dists)/len(dists))
         print('20% over the Max dist is: ', max(dists)*1.2)
         print()
-        print('Sort using cluster_OPTICS with an epsilon value of ', max(dists)*1.2)
+        print('Sort using cluster_optics with an epsilon value of ', max(dists)*1.2)
 
     # how epsilon is chosen here is important
     # eps = (sum(dists)/len(dists))*2 # eps is 2 times the average distance between points
     # eps is 2.5 times the average distance between points
     eps = (sum(dists)/len(dists))*2.5
     input_contour = longest
-    dic, dic2 = cluster_OPTICS(input_contour, eps=eps), cluster_OPTICS(
+    dic, dic2 = cluster_optics(input_contour, eps=eps), cluster_optics(
         input_contour, out_style='xy', eps=eps)
 
     # print("number of groups: ",len(list(dic.keys())))
@@ -843,7 +849,7 @@ def optimized_path(coords, start=None):
     return path
 
 
-def cluster_OPTICS(sample, out_style='coords', xi=None, eps=None, verbose=0):
+def cluster_optics(sample, out_style='coords', xi=None, eps=None, verbose=0):
     """Takes an array (or list) of the form [[x1,y1],[x2,y2],...,[xn,yn]].
     Clusters are outputted in the form of a dictionary.
 
@@ -869,15 +875,16 @@ def cluster_OPTICS(sample, out_style='coords', xi=None, eps=None, verbose=0):
         # original had xi = 0.05, xi as 0.1 in function input
         clustering = OPTICS(min_samples=2, xi=xi).fit(sample)
     else:
-        raise 'Error: only one of eps and xi can be chosen but not neither nor both'
+        raise ValueError(
+            "only one of eps and xi can be chosen but not neither nor both")
     groups = list(set(clustering.labels_))
 
     if verbose == 2:
         print(clustering.labels_)
     elif verbose == 1:
         print(groups)
-    elif verbose == 0:
-        pass
+    # elif verbose == 0:
+    #     pass
 
     dic = {}
     for n in groups:

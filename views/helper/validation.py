@@ -1,4 +1,4 @@
-from utils.enums import RegionSelect, ThresholdSelect
+from utils.enums import ThresholdSelect
 from modules.core.classes import ExperimentalDrop, ExperimentalSetup
 
 # frame_interval
@@ -24,7 +24,7 @@ def validate_user_input_data_ift(user_input_data: ExperimentalSetup):
     messages = []
 
     # Ensure if drop region is chosen, it must not be None
-    # if user_input_data.drop_ID_method != 'Automated' and user_input_data.ift_drop_region is None:
+    # if user_input_data.drop_id_method != 'Automated' and user_input_data.ift_drop_region is None:
     #     messages.append("Please select drop region")
 
     # # Ensure if needle region is chosen, it must not be None
