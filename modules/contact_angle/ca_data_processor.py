@@ -1,13 +1,12 @@
 from tkinter import messagebox
 from modules.core.classes import ExperimentalDrop
-#from modules.PlotManager import PlotManager
-from modules.preprocessing.ExtractData import ExtractedData
 from modules.image.read_image import get_image
 from modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt,run_set_surface_line
 from modules.contact_angle.extract_profile import extract_drop_profile
 from modules.fitting.fits import perform_fits
 import timeit
 import copy
+import numpy as np
 from utils.enums import FittingMethod
 from utils.config import *
 from multiprocessing import Process,Queue
@@ -17,15 +16,9 @@ class CaDataProcessor:
 
         analysis_methods = dict(user_input_data.analysis_methods_ca)
         n_frames = user_input_data.number_of_frames
-        extracted_data = ExtractedData(n_frames, fitted_drop_data.parameter_dimensions)
         raw_experiment = ExperimentalDrop()
 
-        #if user_input_data.interfacial_tension_boole:
-        #    plots = PlotManager(user_input_data.wait_time, n_frames)
-
-        #get_image(raw_experiment, user_input_data, -1) #is this needed?
-
-        self.output = []
+        self.results = []
 
         for i in range(n_frames):
             print("\nProcessing frame %d of %d..." % (i+1, n_frames))
@@ -38,8 +31,6 @@ class CaDataProcessor:
             # extract_drop_profile(raw_experiment, user_input_data)
             extract_drop_profile(raw_experiment, user_input_data)
 
-            if i == 0:
-                extracted_data.initial_image_time = raw_experiment.time
             # result_queue = Queue()
             # p = Process(target=run_set_surface_line, args=(raw_experiment, user_input_data,result_queue))
             set_surface_line(raw_experiment, user_input_data) #fits performed here if baseline_method is User-selected
@@ -86,21 +77,55 @@ class CaDataProcessor:
                     raw_experiment.contact_angles[FittingMethod.ML_MODEL][RIGHT_ANGLE] = ML_predictions[1,0]
                     raw_experiment.contact_angles[FittingMethod.ML_MODEL]['timings'] = timings
 
-            extracted_data.contact_angles = raw_experiment.contact_angles # DS 7/6/21
+            self.results.append(copy.deepcopy(raw_experiment.contact_angles))
 
-            #print(extracted_data.contact_angles) #for the dictionary output
             print('Extracted outputs:')
-            for key1 in extracted_data.contact_angles.keys():
-                for key2 in extracted_data.contact_angles[key1].keys():
+            for key1 in raw_experiment.contact_angles.keys():
+                for key2 in raw_experiment.contact_angles[key1].keys():
                     print(key1+' '+key2+': ')
-                    print('    ',extracted_data.contact_angles[key1][key2])
+                    print('    ', raw_experiment.contact_angles[key1][key2])
                     print()
-            self.output.append(copy.deepcopy(extracted_data))
 
             if callback:
-                callback(extracted_data,raw_experiment)
+                callback(i+1, raw_experiment)
 
-    def save_result(self, input_files, output_directory, filename):
+    def save_result(self, user_input_data, filename):
 
-        for index, extracted_data in enumerate(self.output):
-            extracted_data.export_data(input_files, output_directory, filename, index)
+        if not user_input_data.output_directory:
+            user_input_data.output_directory = './outputs/'
+
+        # Prepare output path
+        if not os.path.exists(user_input_data.output_directory):
+            os.makedirs(user_input_data.output_directory)
+
+        output_file = os.path.join(user_input_data.output_directory, filename)
+
+        for index, contact_angles in enumerate(self.results):
+            out = []
+            filepath = user_input_data.import_files[index]
+            if isinstance(filepath, tuple): 
+                filepath = filepath[0]
+            out.append(str(filepath)) 
+            out.append(user_input_data.frame_interval * index)
+            header = []
+            header.append("Filename,")
+            header.append("Time (s),")
+            for key1 in contact_angles.keys():
+                for key2 in contact_angles[key1].keys():
+                    if 'angle' in key2:
+                        header.append(key1+' '+key2+',')
+                        out.append(str(contact_angles[key1][key2]))
+            string = ''
+            for heading in header:
+                string = string+heading
+            string = string[:-1]
+            array = np.array(out)
+            array = array.reshape(1, array.shape[0])
+
+            with open(output_file, 'a') as f:
+                if index == 0:
+                    f.write(string+'\n')
+                #for val in array[0]:
+                for val in out:
+                    f.write(str(val)+',')
+                f.write('\n')

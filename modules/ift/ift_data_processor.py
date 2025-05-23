@@ -1,13 +1,12 @@
 from tkinter import messagebox
 from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
-# from modules.PlotManager import PlotManager
-from modules.preprocessing.ExtractData import ExtractedData
 from modules.image.select_regions import user_ROI, set_scale, set_screen_position, user_select_region
 from modules.image.read_image import get_image
 import cv2
 from utils.enums import *
 from utils.config import *
 import os
+import csv
 import numpy as np
 import timeit
 from PIL import Image
@@ -53,6 +52,7 @@ class iftDataProcessor:
 
             print("Time taken for frame %d: %.2f seconds" % (i+1, duration))
             print("callback: ", i)
+
         if callback:
             callback(user_input_data)
 
@@ -190,20 +190,18 @@ class iftDataProcessor:
 
         user_input_data.drop_contour_images[drop_index] = save_path
 
-    def save_result(self, input_file, output_directory, filename, user_input_data):
-        """
-        Save experiment results to a CSV file with columns:
-        Filename, Time, IFT, V, SA, Bond, Worth
-        """
-        import csv
-        import os
-        
+    def save_result(self, user_input_data, filename):
+        output_directory = user_input_data.output_directory
+
+        if not output_directory:
+                output_directory = './outputs/'
 
         # Prepare output path
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
+
         output_file = os.path.join(output_directory, filename)
-        # Write CSV header and data
+
         with open(output_file, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["Filename", "Time", "IFT (mN/m)",
@@ -211,11 +209,6 @@ class iftDataProcessor:
             for i, result in enumerate(user_input_data.ift_results):
                 if result is not None and result != "None":
                     # result: [IFT, V, SA, Bond, Worth, Time]
-                    filename = (
-                        user_input_data.import_files[i]
-                        if hasattr(user_input_data, "import_files") and len(user_input_data.import_files) > i
-                        else f"Image_{i+1}"
-                    )
                     writer.writerow([
                         user_input_data.import_files[i],
                         f"{result[5]:.1f}",
@@ -225,4 +218,3 @@ class iftDataProcessor:
                         f"{result[3]:.4f}",
                         f"{result[4]:.4f}"
                     ])
-        print(f"Results saved to {output_file}")

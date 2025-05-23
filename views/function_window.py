@@ -176,11 +176,9 @@ class FunctionWindow(CTkToplevel):
                         self.ift_analysis_frame = IftAnalysis(
                             self, user_input_data, self.ift_processor, fg_color=self.FG_COLOR)
                         self.ift_analysis_frame.pack(fill="both", expand=True)
-                        print("FunctionType.PENDANT_DROP")
                         self.withdraw()
-                        self.ift_processor.process_data(user_input_data, callback=self.ift_analysis_frame.receive_output)
+                        self.ift_processor.process_data(user_input_data, callback=None)
                         self.deiconify()
-
                     else:
                         self.ca_preparation_frame.pack_forget()
                         self.ca_analysis_frame = CaAnalysis(
@@ -231,7 +229,7 @@ class FunctionWindow(CTkToplevel):
             else:
                 filename = "Extracted_data_"+timestamp+".csv"
             
-            self.ift_processor.save_result(user_input_data.import_files, user_input_data.output_directory,filename, user_input_data)
+            self.ift_processor.save_result(user_input_data, filename)
 
             messagebox.showinfo("Success", "File saved successfully!",parent=self)
             self.on_closing()
@@ -242,7 +240,7 @@ class FunctionWindow(CTkToplevel):
             else:
                 filename = "Extracted_data" + '_' + user_input_data.time_string + ".csv"
             # export_filename = os.path.join(user_input_data.directory_string, filename)
-            self.ca_processor.save_result(user_input_data.import_files, user_input_data.output_directory, filename)
+            self.ca_processor.save_result(user_input_data, filename)
 
             messagebox.showinfo("Success", "File saved successfully!",parent=self)
             self.on_closing()
