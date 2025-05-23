@@ -51,6 +51,7 @@ class FunctionWindow(CTkToplevel):
         self.ift_processor = iftDataProcessor()
 
         user_input_data = ExperimentalSetup()
+        user_input_data.from_yaml("user_config.yaml")
         experimental_drop = ExperimentalDrop()
 
         user_input_data.screen_resolution = [

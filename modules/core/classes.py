@@ -5,10 +5,11 @@ from utils.enums import RegionSelect, ThresholdSelect
 #from .interpolation_function import cubic_interpolation_function
 from scipy.integrate import odeint
 
+import yaml
 import numpy as np
 
 from utils.config import INTERFACIAL_TENSION
-from utils.enums import FittingMethod
+from utils.enums import FittingMethod, RegionSelect, ThresholdSelect
 
 class Tolerances(object):
     def __init__(self, delta_tol, gradient_tol, maximum_fitting_steps, objective_tol, arclength_tol, maximum_arclength_steps, needle_tol, needle_steps):
@@ -63,6 +64,26 @@ class ExperimentalSetup(object):
         self.processed_images = None
         self.drop_contour = None
         self.analysis_duration = None
+
+    def from_yaml(self, yaml_path):
+        with open(yaml_path, 'r') as file:
+            config = yaml.safe_load(file)
+
+        for key, value in config.items():
+            if hasattr(self, key):
+                current_attr = getattr(self, key)
+
+                # Update nested dicts like analysis_methods_ca
+                if isinstance(current_attr, dict) and isinstance(value, dict):
+                    current_attr.update(value)
+                else:
+                    # Enum mapping for specific fields
+                    if key in ["drop_ID_method", "needle_region_method"]:
+                        value = getattr(RegionSelect, value.upper(), value)
+                    elif key in ["threshold_method", "baseline_method"]:
+                        value = getattr(ThresholdSelect, value.upper(), value)
+
+                    setattr(self, key, value)
 
 class ExperimentalDrop(object):
     def __init__(self):

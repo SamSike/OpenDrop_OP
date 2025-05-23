@@ -1,38 +1,28 @@
-# --- Display and image capture settings ---
-screen_resolution: [1920, 1080]     # Resolution of the display in pixels
-drop_ID_method: Automated           # Method for drop identification for both CA and IFT (Automated or Manual)
-threshold_method: Automated         # Method for image thresholding for CA analysis (Automated or Manual)
-needle_region_method: Automated     # Method for locating the needle region for IFT analysis (Automated or Manual)
+# --- Image capture settings ---
+drop_ID_method: Automated           # Method for drop identification for both CA and IFT (Automated or User-selected)
+threshold_method: Automated         # Method for image thresholding for CA analysis (Automated or User-selected)
+needle_region_method: Automated     # Method for locating the needle region for IFT analysis (Automated or User-selected)
 threshold_val: null                 # Custom threshold number value (if not automated)
-baseline_method: Automated          # Method for detecting the baseline for CA analysis (Automated or Manual)
-edgefinder: null                    # Edge detection algorithm (if used)
+baseline_method: Automated          # Method for detecting the baseline for CA analysis (Automated or User-selected)
+edgefinder: OpenCV                  # Edge detection algorithm (OpenCV, Subpixel or Both)
 
 # --- Physical properties input by user ---
-density_outer: 1.0                  # Density of surrounding fluid (g/cm³)
-needle_diameter_mm: 0.52            # Diameter of the needle in mm
-drop_density: 0.95                  # Density of drop fluid (g/cm³)
-pixel_mm: 0.015                     # Calibration factor: mm per pixel
-
-# --- Image and processing data ---
-image: null                         # Current image (not loaded from YAML)
+drop_density: 1000                  # Density of drop fluid (g/cm³)
+density_outer: 0                    # Density of surrounding fluid (g/cm³)
+needle_diameter_mm: 0.7176          # Diameter of the needle in mm
+pixel_mm: null                      # Calibration factor: mm per pixel
 
 # --- Processing control flags ---
 original_boole: 0                   # To show original image during analysing (1 for true and 0 for false)
-cropped_boole: 0                    # Whether cropping has occurred (1 for true and 0 for false)
-threshold_boole: 0                  # Whether thresholding has occurred (1 for true and 0 for false)
+cropped_boole: 0                    # To show cropped image during analysing (1 for true and 0 for false)
+threshold_boole: 0                  # To show threshold image during analysing (1 for true and 0 for false)
 image_source: Local images          # Source of images (only have Local images option for now)
-show_popup: 0                       # Show popup windows during run
-wait_time: 5                        # Wait time between frames (s)
 
-# --- File and region definitions ---
-local_files:                        # List of images to load
-  - image1.png
-  - image2.png00
+# --- Acquisition ---
 import_files: null                  # Optional import file list
-frame_interval: 0.033               # Time between frames (seconds)
+frame_interval: 1                   # Time between frames (seconds)
 
 # --- Analysis methods ---
-analysis_method_fields_cm: {}       # Custom measurement fields (cm)
 analysis_methods_ca:                # Contact angle fitting methods
   TANGENT_FIT: true
   POLYNOMIAL_FIT: true
@@ -42,13 +32,9 @@ analysis_methods_ca:                # Contact angle fitting methods
   ML_MODEL: false
 analysis_methods_pd:                # IFT fitting methods
   INTERFACIAL_TENSION: true
-drop_points: null                   # Drop edge points
-needle_diameter_px: 35              # Needle diameter in pixels
-drop_contour: null                  # Contour coordinates of drop
-analysis_duration: 12.5             # Total analysis duration in seconds
 
 # --- Output ---
-save_images_boole: true             # Save image outputs (not working now)
-create_folder_boole: true           # Create folder for output files (not working now)
-filename: experiment_001            # Output filename prefix
+save_images_boole: false            # Save image outputs
+create_folder_boole: false          # Create folder for output files
+filename: result                    # Output filename prefix
 output_directory: ./outputs/        # Save directory
