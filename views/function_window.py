@@ -124,91 +124,105 @@ class FunctionWindow(CTkToplevel):
             self.save_button.pack_forget()
 
     def next(self, function_type, user_input_data, experimental_drop, fitted_drop_data):
-        self.update_stage(Move.Next.value)
-        # Handle the "Next" button functionality
-        if self.current_stage == Stage.PREPARATION:
-            
-            # First check if the user has imported files
-            if not self.check_import(user_input_data):
-                self.update_stage(Move.Back.value)
-                messagebox.showinfo("No Selection", "Please select at least one file.")
-                return
-
-            # Then check if the frame interval is valid
-            # if function_type == FunctionType.INTERFACIAL_TENSION:
-            if not validate_frame_interval(user_input_data):
-                self.update_stage(Move.Back.value)
-                messagebox.showinfo("Missing", "Frame Interval is required.")
-                return
-            self.back_button.pack(side="left", padx=10, pady=10)
-            #self.ift_processor.processPreparation(user_input_data)
-            # user have selected at least one file
-            self.acquisition_frame.pack_forget()
-            # Initialise Preparation frame
-            if function_type == FunctionType.INTERFACIAL_TENSION:
-                self.ift_preparation_frame = IftPreparation(
-                self, user_input_data, experimental_drop,self.ift_processor, fg_color=self.FG_COLOR)
-                self.ift_preparation_frame.pack(fill="both", expand=True)
+        try:
+            self.update_stage(Move.Next.value)
+            # Handle the "Next" button functionality
+            if self.current_stage == Stage.PREPARATION:
                 
-            else:
-                self.ca_preparation_frame = CaPreparation(
-                self, user_input_data, experimental_drop,fg_color=self.FG_COLOR)
-                self.ca_preparation_frame.pack(fill="both", expand=True) 
+                # First check if the user has imported files
+                if not self.check_import(user_input_data):
+                    self.update_stage(Move.Back.value)
+                    messagebox.showinfo("No Selection", "Please select at least one file.",parent=self)
+                    return
 
-
-        elif self.current_stage == Stage.ANALYSIS:
-            # Validate user input data
-            if function_type == FunctionType.INTERFACIAL_TENSION:
-                validation_messages = validate_user_input_data_ift(user_input_data)
-                
-            elif function_type == FunctionType.CONTACT_ANGLE:
-                validation_messages = validate_user_input_data_cm(user_input_data,experimental_drop)
-            
-            if validation_messages:
-                self.update_stage(Move.Back.value)
-                all_messages = "\n".join(validation_messages)
-                # Show a single pop-up message with all validation messages
-                messagebox.showinfo("Missing: \n", all_messages)
-            else:
+                # Then check if the frame interval is valid
+                # if function_type == FunctionType.INTERFACIAL_TENSION:
+                if not validate_frame_interval(user_input_data):
+                    self.update_stage(Move.Back.value)
+                    messagebox.showinfo("Missing", "Frame Interval is required.",parent=self)
+                    return
+                self.back_button.pack(side="left", padx=10, pady=10)
+                #self.ift_processor.processPreparation(user_input_data)
+                # user have selected at least one file
+                self.acquisition_frame.pack_forget()
+                # Initialise Preparation frame
                 if function_type == FunctionType.INTERFACIAL_TENSION:
-                    self.ift_preparation_frame.pack_forget()
-                    self.ift_analysis_frame = IftAnalysis(
-                        self, user_input_data, self.ift_processor, fg_color=self.FG_COLOR)
-                    self.ift_analysis_frame.pack(fill="both", expand=True)
-                    print("FunctionType.PENDANT_DROP")
-                    self.withdraw()
-                    self.ift_processor.process_data(user_input_data, callback=self.ift_analysis_frame.receive_output)
-                    self.deiconify()
-
-                else:
-                    self.ca_preparation_frame.pack_forget()
-                    self.ca_analysis_frame = CaAnalysis(
-                        self, user_input_data, fg_color=self.FG_COLOR)
-                    self.ca_analysis_frame.pack(fill="both", expand=True)
+                    self.ift_preparation_frame = IftPreparation(
+                    self, user_input_data, experimental_drop,self.ift_processor, fg_color=self.FG_COLOR)
+                    self.ift_preparation_frame.pack(fill="both", expand=True)
                     
-                    # analysis the given input data and send the output to the ca_analysis_frame for display
-                    self.withdraw()
-                    self.ca_processor.process_data(fitted_drop_data, user_input_data, callback=self.ca_analysis_frame.receive_output)
-                    self.deiconify()
-
-        elif self.current_stage == Stage.OUTPUT:
-            if function_type == FunctionType.INTERFACIAL_TENSION:
-                self.ift_analysis_frame.pack_forget()
-            else:
-                self.ca_analysis_frame.pack_forget()
-
-            # Initialise Output frame
-            self.output_frame = OutputPage(self, user_input_data,fg_color=self.FG_COLOR)
+                else:
+                    self.ca_preparation_frame = CaPreparation(
+                    self, user_input_data, experimental_drop,fg_color=self.FG_COLOR)
+                    self.ca_preparation_frame.pack(fill="both", expand=True) 
 
 
-            # Show the OutputPage
-            self.output_frame.pack(fill="both", expand=True)
+            elif self.current_stage == Stage.ANALYSIS:
+                # Validate user input data
+                if function_type == FunctionType.INTERFACIAL_TENSION:
+                    validation_messages = validate_user_input_data_ift(user_input_data)
+                    
+                elif function_type == FunctionType.CONTACT_ANGLE:
+                    validation_messages = validate_user_input_data_cm(user_input_data,experimental_drop)
+                
+                if validation_messages:
+                    self.update_stage(Move.Back.value)
+                    all_messages = "\n".join(validation_messages)
+                    # Show a single pop-up message with all validation messages
+                    messagebox.showinfo("Missing: \n", all_messages,parent=self)
+                else:
+                    if function_type == FunctionType.INTERFACIAL_TENSION:
+                        self.ift_preparation_frame.pack_forget()
+                        self.ift_analysis_frame = IftAnalysis(
+                            self, user_input_data, self.ift_processor, fg_color=self.FG_COLOR)
+                        self.ift_analysis_frame.pack(fill="both", expand=True)
+                        print("FunctionType.PENDANT_DROP")
+                        self.withdraw()
+                        self.ift_processor.process_data(user_input_data, callback=self.ift_analysis_frame.receive_output)
+                        self.deiconify()
 
-            # Hide the next button and show the save button
-            self.next_button.pack_forget()
-            self.save_button.pack(side="right", padx=10, pady=10)
+                    else:
+                        self.ca_preparation_frame.pack_forget()
+                        self.ca_analysis_frame = CaAnalysis(
+                            self, user_input_data, fg_color=self.FG_COLOR)
+                        self.ca_analysis_frame.pack(fill="both", expand=True)
+                        
+                        # analysis the given input data and send the output to the ca_analysis_frame for display
+                        self.withdraw()
+                        self.ca_processor.process_data(fitted_drop_data, user_input_data, callback=self.ca_analysis_frame.receive_output)
+                        self.deiconify()
+
+            elif self.current_stage == Stage.OUTPUT:
+                if function_type == FunctionType.INTERFACIAL_TENSION:
+                    self.ift_analysis_frame.pack_forget()
+                else:
+                    self.ca_analysis_frame.pack_forget()
+
+                # Initialise Output frame
+                self.output_frame = OutputPage(self, user_input_data,fg_color=self.FG_COLOR)
+
+
+                # Show the OutputPage
+                self.output_frame.pack(fill="both", expand=True)
+
+                # Hide the next button and show the save button
+                self.next_button.pack_forget()
+                self.save_button.pack(side="right", padx=10, pady=10)
+        except Exception as e:
+            # Catch any unexpected exception and show it
+            print(f"[Error] Unexpected exception: {e}")
+            messagebox.showerror(
+               "Invalid Image", f"This image is not suitable for {function_type.value} analysis.\nPlease go back and select another image or application.",
+               parent=self
+            )
+            self.on_closing()
+            return
+
 
     def save_output(self, function_type, user_input_data):
+        if user_input_data.output_directory is None:
+            messagebox.showerror("Invalid Path","Output directory is missing. File not saved.",parent=self)
+            return
         if function_type == FunctionType.INTERFACIAL_TENSION:
             from datetime import datetime
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -219,8 +233,8 @@ class FunctionWindow(CTkToplevel):
             
             self.ift_processor.save_result(user_input_data.import_files, user_input_data.output_directory,filename, user_input_data)
 
-            messagebox.showinfo("Success", "File saved successfully!")
-            self.destroy()
+            messagebox.showinfo("Success", "File saved successfully!",parent=self)
+            self.on_closing()
         else:
             # filename = user_input_data.filename[:-4] + '_' + user_input_data.time_string + ".csv"
             if user_input_data.filename:
@@ -230,8 +244,8 @@ class FunctionWindow(CTkToplevel):
             # export_filename = os.path.join(user_input_data.directory_string, filename)
             self.ca_processor.save_result(user_input_data.import_files, user_input_data.output_directory, filename)
 
-            messagebox.showinfo("Success", "File saved successfully!")
-            self.destroy()
+            messagebox.showinfo("Success", "File saved successfully!",parent=self)
+            self.on_closing()
         
     
     def update_stage(self, direction):

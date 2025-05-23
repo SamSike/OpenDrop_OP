@@ -37,9 +37,9 @@ class CTkInputPopup(CTkToplevel):
             self.on_confirm(input_value)
             self.destroy()
         else:
-            messagebox.showwarning("Input Required", "Please enter a value.")
+            messagebox.showwarning("Input Required", "Please enter a value.",parent=self)
 
     def default_confirm(self, value):
         """Default confirmation function if none is provided."""
         print(f"Input value: {value}")
-        messagebox.showinfo("Input Received", f"Entered Value: {value}")
+        messagebox.showinfo("Input Received", f"Entered Value: {value}",parent=self)

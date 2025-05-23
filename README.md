@@ -157,7 +157,7 @@ You can skip these steps if you prefer to install packages globally (not recomme
 Make sure you're in the root folder of the application, then run:
 
 ```bash
-pip install -r requirements-3810.txt
+pip install -r requirements.txt
 ```
 
 (Do this **after activating** the virtual environment, if you're using one.)
@@ -192,7 +192,7 @@ If not, install [Python 3.8.10](https://www.python.org/downloads/release/python-
 
 ### Install Conda or Pyenv
 
-* **Apple Silicon**: Install [Miniforge](https://github.com/conda-forge/miniforge)
+* **Apple Silicon**: Install [Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install)
 * **Intel Mac**: Conda optional — can use system Python or [pyenv](https://github.com/pyenv/pyenv)
 
 ### Create Python Environment
@@ -200,12 +200,8 @@ If not, install [Python 3.8.10](https://www.python.org/downloads/release/python-
 **Apple Silicon (Must use Conda)**
 
 ```bash
-conda create -n opendrop_env python=3.8.10 numpy=1.22.4 scipy=1.7.3 pip -c conda-forge
+conda create -n opendrop_env -c conda-forge python=3.8.10
 conda activate opendrop_env
-
-
-pip install tensorflow-macos==2.13.0
-pip install -r requirements-3810-macos.txt
 ```
 
 **Intel Mac (Prefer Python, Conda optional)**
@@ -213,7 +209,12 @@ pip install -r requirements-3810-macos.txt
 ```bash
 python3 -m venv opendrop_env # Skip this line if you want to install the required packages globally
 source opendrop_env/bin/activate # Skip this line if you want to install the required packages globally
-pip install -r requirements-3810.txt
+```
+### Install Python Dependencies
+
+Make sure you're in the root folder of the application, then run:
+```bash
+pip install -r requirements.txt
 ```
 
 > ⚠️ **Note**: If you choose to use the virtual environment, make sure to activate it every time you want to run the application. If it is activate, `(venv)` will show at the beginning of the prompt.
@@ -224,83 +225,13 @@ To deactivate the environment at any time:
 deactivate
 ```
 
-## 3. Build Library
-### Boost
-To check if Boost is installed on your system and available for your build, here’s how you can do it per platform:
-
-Apple Silicon
-```bash
-find /usr /opt /homebrew/local -name version.hpp | grep boost
-```
-Apple Intel 
-```bash
-find /usr /opt /usr/local -name version.hpp | grep boost
-```
-
-If it returns a path like /opt/homebrew/include/boost/version.hpp or /usr/local/include/boost/version.hpp, then Boost is installed.
-
-otherwise
-```bash
-brew install boost
-```
-
-
-### SUNDIALS
-If you are on macOS, SUNDIALS static libraries must be available in:
-
-dependencies/macos_x86_64/sundials/lib/   # for Intel Mac  
-dependencies/macos_arm64/sundials/lib/   # for Apple Silicon (M1/M2/M3)
-
-They're on a different architecture (e.g., you're Intel, they're Apple Silicon),
-Or if .a files are missing or broken,
-Then they must recompile using CMake.
-
-### ✅ You can skip this step if:
-
-The correct .a static libraries already exist for your architecture
-Files like the following are present:
-libsundials_arkode.a
-libsundials_nvecserial.a
-libsundials_core.a
-
-### ⚠️ You must build manually with CMake if:
-
-You're on a different architecture than the one the libraries were built for
-The .a files are missing or broken
+## 3. Build Cython Extensions
 
 ```bash
-cd dependencies/macos_x86_64   # or macos_arm64
-
-rm -rf sundials   # delete existing repo if present
-
-git clone https://github.com/LLNL/sundials.git
-cd sundials
-mkdir build && cd build
-
-cmake .. \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_STATIC_LIBS=ON \
-  -DBUILD_SHARED_LIBS=OFF \
-  -DSUNDIALS_BUILD_EXAMPLES=OFF \
-  -DCMAKE_INSTALL_PREFIX=../../sundials
-
-make -j4
-make install
-```
-
-Ensure `.a` files are built in:
-
-* `macos_x86_64/sundials/lib/`
-* or `macos_arm64/sundials/lib/`
-
-## 4. Build Cython Extensions
-
-```bash
-cd ~/Desktop/OpenDrop_OP 
 python setup.py build_ext --inplace
 ```
 
-## 5. Run the Application
+## 4. Run the Application
 
 ```bash
 python main.py
@@ -347,15 +278,20 @@ fatal error: 'boost/math/differentiation/autodiff.hpp' file not found
 
 ### ✅ Fix Steps
 
+1. Use Pre-included Dependencies (Preferred)
+
+This project already includes a dependencies/ folder containing Boost and Sundials.
+Make sure your build system or environment points to those directories.
+
 You can resolve this issue by locating all .hpp files present in your Boost directory and ensuring that the path to Boost headers is correctly specified.
 
-1. Find the Boost Header Files
+2. Locate Boost Header Files (If using system-installed Boost)
 - Use the following command to find all .hpp files within the Boost directory:
 ```bash
 find /opt/homebrew -name  "*.hpp" | grep boost # Apple Silicon
 find /usr/local -name "*.hpp" | grep boost #Apple Intel
 ```
-2. Set the BOOST_INCLUDE_DIR Environment Variable
+- Set the BOOST_INCLUDE_DIR Environment Variable
 
 - Once you have identified the correct path to the Boost headers, set the BOOST_INCLUDE_DIR environment variable to this path. 
 
@@ -369,10 +305,79 @@ export BOOST_INCLUDE_DIR=/usr/local/Cellar/boost/1.88.0/include/ #Apple Intel
 #or
 export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
 
+⚙️ Rebuild After Setting Path
 python setup.py build_ext --inplace
 python main.py
 ```
 
+### 3. Check Build Library
+### Boost
+To check if Boost is installed on your system and available for your build, here’s how you can do it per platform:
+
+Apple Silicon
+```bash
+find /usr /opt /homebrew/local -name version.hpp | grep boost
+```
+Apple Intel 
+```bash
+find /usr /opt /usr/local -name version.hpp | grep boost
+```
+
+If it returns a path like /opt/homebrew/include/boost/version.hpp or /usr/local/include/boost/version.hpp, then Boost is installed.
+
+otherwise
+```bash
+brew install boost
+```
+
+
+###  About SUNDIALS
+If you are on macOS, SUNDIALS static libraries must be available in:
+
+dependencies/macos_x86_64/sundials/lib/   # for Intel Mac  
+dependencies/macos_arm64/sundials/lib/   # for Apple Silicon (M1/M2/M3)
+
+They're on a different architecture (e.g., you're Intel, they're Apple Silicon),
+Or if .a files are missing or broken,
+Then they must recompile using CMake.
+
+### ✅ You can skip this step if:
+
+The correct .a static libraries already exist for your architecture
+Files like the following are present:
+libsundials_arkode.a
+libsundials_nvecserial.a
+libsundials_core.a
+
+### ⚠️ You must build manually with CMake if:
+
+You're on a different architecture than the one the libraries were built for
+The .a files are missing or broken
+
+```bash
+cd dependencies/macos_x86_64   # or macos_arm64
+
+rm -rf sundials   # delete existing repo if present
+
+git clone https://github.com/LLNL/sundials.git
+cd sundials
+mkdir build && cd build
+
+cmake .. \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_STATIC_LIBS=ON \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DSUNDIALS_BUILD_EXAMPLES=OFF \
+  -DCMAKE_INSTALL_PREFIX=../../sundials
+
+make -j4
+make install
+```
+
+Ensure `.a` files are built in:
+
+* `macos_x86_64/sundials/lib/`
+* or `macos_arm64/sundials/lib/`
 
 If you encounter errors, verify:
 
