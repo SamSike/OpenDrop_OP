@@ -6,7 +6,7 @@ threshold_val: null                 # Custom threshold number value (if not auto
 baseline_method: Automated          # Method for detecting the baseline for CA analysis (Automated or User-selected)
 edgefinder: OpenCV                  # Edge detection algorithm (OpenCV, Subpixel or Both)
 
-# --- Physical properties input by user ---
+# --- Physical properties input by user (used in IFT analysis) ---
 drop_density: 1000                  # Density of drop fluid (g/cm³)
 density_outer: 0                    # Density of surrounding fluid (g/cm³)
 needle_diameter_mm: 0.7176          # Diameter of the needle in mm
@@ -18,7 +18,7 @@ cropped_boole: 0                    # To show cropped image during analysing (1 
 threshold_boole: 0                  # To show threshold image during analysing (1 for true and 0 for false)
 image_source: Local images          # Source of images (only have Local images option for now)
 
-# --- Acquisition ---
+# --- Image acquisition ---
 import_files: null                  # Optional import file list
 frame_interval: 1                   # Time between frames (seconds)
 
