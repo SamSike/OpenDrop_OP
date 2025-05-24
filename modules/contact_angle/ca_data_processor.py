@@ -1,6 +1,5 @@
 from modules.core.classes import ExperimentalDrop
 from modules.core.classes import ExperimentalDrop, ExperimentalSetup, DropData
-from modules.preprocessing.ExtractData import ExtractedData
 from modules.image.read_image import get_image
 from modules.image.select_regions import (
     set_drop_region,
@@ -20,9 +19,6 @@ import copy
 import os
 
 class CaDataProcessor:
-    def __init__(self):
-        self.output: List[ExtractedData]
-
     def process_data(self,
                      fitted_drop_data: DropData,
                      user_input_data: ExperimentalSetup,

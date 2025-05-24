@@ -1,5 +1,4 @@
 from modules.core.classes import ExperimentalSetup, ExperimentalDrop
-from modules.preprocessing.ExtractData import ExtractedData
 from utils.image_handler import ImageHandler
 from utils.config import LEFT_ANGLE, RIGHT_ANGLE, BASELINE_INTERCEPTS, CONTACT_POINTS, TANGENT_LINES, FIT_SHAPE, BASELINE, FIT_SHAPE
 from utils.enums import FittingMethod
