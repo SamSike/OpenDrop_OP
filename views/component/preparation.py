@@ -86,12 +86,12 @@ def create_user_input_fields_ift(self, parent, user_input_data: ExperimentalSetu
     self.needle_region_method.optionmenu.grid_configure(sticky="ew")
 
     self.drop_density_method = FloatEntry(
-        self, input_fields_frame, "Drop Density(kg/m³):", lambda *args: update_drop_density(*args), rw=2,
+        self, input_fields_frame, "Drop Density(kg/m³)*:", lambda *args: update_drop_density(*args), rw=2,
         default_value=user_input_data.drop_density
     )
 
     self.continuous_density = FloatEntry(
-        self, input_fields_frame, "Continuous density (kg/m):", lambda *args: update_continuous_density(*args), rw=3,
+        self, input_fields_frame, "Continuous density (kg/m)*:", lambda *args: update_continuous_density(*args), rw=3,
         default_value=user_input_data.density_outer
     )
 
@@ -103,7 +103,7 @@ def create_user_input_fields_ift(self, parent, user_input_data: ExperimentalSetu
     needle_frame.grid_columnconfigure(2, weight=0)  # Buttons don't need to stretch
 
     # Create needle diameter label
-    needle_label = CTkLabel(input_fields_frame, text="Needle diameter (mm):", width=LABEL_WIDTH, anchor="w")
+    needle_label = CTkLabel(input_fields_frame, text="Needle diameter (mm)*:", width=LABEL_WIDTH, anchor="w")
     needle_label.grid(row=4, column=0, sticky="w", padx=(5, 5), pady=(5, 5))
 
     # Create needle diameter combobox
@@ -225,7 +225,7 @@ def create_analysis_checklist_ift(self, parent, user_input_data: ExperimentalSet
 
     # Create a label for the dynamic content
     label = CTkLabel(analysis_clist_frame,
-                     text="Analysis methods", font=("Roboto", 16, "bold"))
+                     text="Analysis methods*", font=("Roboto", 16, "bold"))
     label.grid(row=0, column=0, padx=10, pady=5,
                sticky="w")  # Removed columnspan
 

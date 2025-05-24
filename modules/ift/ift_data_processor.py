@@ -199,24 +199,12 @@ class IftDataProcessor:
 
         user_input_data.drop_contour_images[drop_index] = save_path
 
-    def save_result(self, user_input_data: ExperimentalSetup, filename: str):
+    def save_result(self, user_input_data: ExperimentalSetup, output_file_path: str):
         """
         Save experiment results to a CSV file with columns:
         Filename, Time, IFT, V, SA, Bond, Worth
         """
-        
-        output_directory = user_input_data.output_directory
-
-        if not output_directory:
-                output_directory = './outputs/'
-
-        # Prepare output path
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
-
-        output_file = os.path.join(output_directory, filename)
-
-        with open(output_file, 'w', newline='') as csvfile:
+        with open(output_file_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["Filename", "Time", "IFT (mN/m)",
                             "Volume (mm^3)", "Surface Area (mm^2)", "Bond", "Worth"])

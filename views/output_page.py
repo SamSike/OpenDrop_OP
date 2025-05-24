@@ -4,8 +4,9 @@ from modules.core.classes import ExperimentalSetup
 from views.helper.style import set_light_only_color
 
 from tkinter import filedialog
-import tkinter as tk
 import customtkinter as ctk
+import os
+import tkinter as tk
 from utils.tooltip_util import create_tooltip
 
 
@@ -37,8 +38,11 @@ class OutputPage(ctk.CTkFrame):
         # Location row
         ctk.CTkLabel(output_frame, text="Location:", anchor="w") \
            .grid(row=1, column=0, sticky="w", padx=10, pady=5)
+
         self.location_entry = ctk.CTkEntry(output_frame, width=300)
         self.location_entry.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
+        self.location_entry._entry.insert(0, user_input_data.output_directory)
+
         ctk.CTkButton(
             output_frame, text="Browse", command=self.browse_location
         ).grid(row=1, column=3, padx=10, pady=5)
@@ -46,7 +50,7 @@ class OutputPage(ctk.CTkFrame):
         # Filename row
         ctk.CTkLabel(output_frame, text="Filename:", anchor="w") \
            .grid(row=2, column=0, sticky="w", padx=10, pady=(5,10))
-        self.filename_var = ctk.StringVar()
+        self.filename_var = ctk.StringVar(value=user_input_data.filename)
         self.filename_var.trace_add("write", self.on_filename_change)
         self.filename_entry = ctk.CTkEntry(
             output_frame, width=300, textvariable=self.filename_var
@@ -84,8 +88,9 @@ class OutputPage(ctk.CTkFrame):
         # -----------------------
     
     def browse_location(self):
-        """Open a directory chooser and update the location entry."""
-        directory = filedialog.askdirectory()
+        default_dir = self.user_input_data.output_directory or os.getcwd()
+        directory = filedialog.askdirectory(initialdir=default_dir)
+
         if directory:
             self.location_entry.delete(0, tk.END)
             self.location_entry.insert(0, directory)
