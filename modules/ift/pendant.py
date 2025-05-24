@@ -1,15 +1,16 @@
-from typing import NamedTuple, Optional, Tuple
+from modules.ift.younglaplace.younglaplace import YoungLaplaceFitResult
+from modules.ift.circle import circle_fit, CircleFitResult
+from modules.ift.needle import needle_fit, NeedleFitResult
+from modules.image.select_regions import get_ift_regions
+from utils.geometry import Rect2, Vector2
+from utils.misc import rotation_mat2d
+
+from typing import NamedTuple, Optional, Tuple, List
 import math
 import cv2
 import numpy as np
-from utils.geometry import Rect2, Vector2
-from .circle import circle_fit
-from .needle import needle_fit
-from utils.misc import rotation_mat2d
 
 __all__ = ('PendantFeatures', 'extract_pendant_features', 'find_pendant_apex')
-
-from ..image.select_regions import get_ift_regions
 
 # Math constants.
 PI = math.pi
@@ -54,6 +55,11 @@ def extract_pendant_features(
         thresh2: float = 160.0,
         labels: bool = False,
 ) -> PendantFeatures:
+    """
+    Extract needle and drop features from the given image.
+    If the regions are not provided, they will be automatically detected.
+    Returns a PendantFeatures object containing the extracted features.
+    """
 
     if drop_region is None or needle_region is None:
         automated_drop_region, automated_needle_region = get_ift_regions(image)
@@ -130,7 +136,7 @@ def extract_pendant_features(
              np.arange(needle_edges.shape[0])],
         ])
 
-        needle_fit_result = needle_fit(needle_outer_points)
+        needle_fit_result: NeedleFitResult = needle_fit(needle_outer_points)
         if needle_fit_result is not None:
             needle_residuals = np.abs(needle_fit_result.residuals)
             needle_lmask = needle_fit_result.lmask
@@ -256,7 +262,7 @@ def find_pendant_apex(data: Tuple[np.ndarray, np.ndarray]) -> Optional[tuple]:
     radius = np.hypot(x - xc, y - yc).mean()
 
     # Fit a circle to the most circular part of the data.
-    circle_fit_result = circle_fit(
+    circle_fit_result: CircleFitResult = circle_fit(
         data,
         loss='arctan',
         f_scale=radius/100,
@@ -382,13 +388,13 @@ def _circle_jac(params, x, y):
 
 
 def analyze_ift(
-    fit_result,
+    fit_result: YoungLaplaceFitResult,
     *,
     drop_density: float,
-    continuous_density: float,
+    continuous_density: float = 0,
     needle_diameter_mm: float,
     needle_diameter_px: float = 0
-) -> tuple:
+):
     gravity = 9.81
     # 1) figure out how many pixels per millimetre
     px_per_mm = (needle_diameter_mm / needle_diameter_px)
@@ -398,10 +404,6 @@ def analyze_ift(
     volume_px = fit_result.volume
     surface_area_px = fit_result.surface_area
     bond = fit_result.bond
-
-    if continuous_density is None:
-        continuous_density = 0
-        print("Continuous density not provided, assuming 0.")
     delta_density = abs(drop_density - continuous_density)
     radius = radius_px * px_per_mm
     surface_area = surface_area_px * px_per_mm**2
@@ -412,7 +414,14 @@ def analyze_ift(
     worthington = ((delta_density * gravity * volume) /
                    (PI * IFT * needle_diameter_mm))/1000
 
-    return [IFT, volume, surface_area, bond, worthington, None]
+    return [
+        IFT,
+        volume,
+        surface_area,
+        bond,
+        worthington,
+        None
+    ]
 
 
 def auto_crop(img: np.ndarray,
@@ -421,7 +430,7 @@ def auto_crop(img: np.ndarray,
               drop_frac: float = 1,
               scharr_block: int = 5,
               canny1: float = 80,
-              canny2: float = 160) -> (np.ndarray, tuple):
+              canny2: float = 160) -> Tuple[np.ndarray, tuple]:
 
     original = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -533,7 +542,7 @@ def auto_crop(img: np.ndarray,
     if not found_expansion_point:
         print(
             f"No clear expansion point found. Initial needle width ~{avg_needle_width:.1f}px. Using drop_frac based fallback: {calculated_row_thresh}.")
-        pass  # Already defaulted to drop_frac based
+        # Already defaulted to drop_frac based
     row_thresh = calculated_row_thresh
 
     # print(f"Row threshold for drop detection: {row_thresh} (calculated)")

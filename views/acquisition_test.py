@@ -1,7 +1,8 @@
-import pytest
+from views.acquisition import Acquisition
+
 from unittest.mock import patch, MagicMock
 from unittest import mock
-from views.acquisition import Acquisition
+import pytest
 
 
 @pytest.fixture(autouse=True)
