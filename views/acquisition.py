@@ -69,7 +69,7 @@ class Acquisition(CTkFrame):
         default_value = getattr(self.user_input_data, "frame_interval", 1)
 
         self.frame_interval = FloatEntry(
-            self, image_acquisition_frame, "Frame interval (s):", self.update_frame_interval, rw=4, cl=0,
+            self, image_acquisition_frame, "Frame interval (s)*:", self.update_frame_interval, rw=4, cl=0,
             default_value=default_value)
         # Height of this row doesn't need to stretch
         image_acquisition_frame.grid_rowconfigure(4, weight=0)
@@ -127,7 +127,7 @@ class Acquisition(CTkFrame):
 
     def setup_choose_files_frame(self, frame):
         self.choose_files_label = CTkLabel(
-            frame, text="Image Files: ", width=150, anchor="w")
+            frame, text="Image files *:", width=150, anchor="w")
         self.choose_files_label.grid(
             row=1, column=0, sticky="w", padx=(5, 5), pady=(5, 5))
 
