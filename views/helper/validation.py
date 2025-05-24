@@ -54,6 +54,10 @@ def validate_user_input_data_ift(user_input_data: ExperimentalSetup):
 
     # Allow user to select regions manually if chosen
     if user_input_data.drop_id_method != RegionSelect.AUTOMATED or user_input_data.needle_region_method != RegionSelect.AUTOMATED:
+        if user_input_data.drop_id_method != RegionSelect.AUTOMATED:
+            user_input_data.drop_region = None
+        if user_input_data.needle_region_method != RegionSelect.AUTOMATED:
+            user_input_data.needle_region = None
         IftDataProcessor().process_preparation(user_input_data)
 
     return messages
