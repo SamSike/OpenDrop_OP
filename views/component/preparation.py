@@ -7,6 +7,10 @@ from views.component.check_button import CheckButton
 from views.helper.style import set_light_only_color
 from utils.enums import FittingMethod
 from utils.tooltip_util import create_tooltip
+import re
+import os
+from tkinter import simpledialog, messagebox
+
 LABEL_WIDTH = 200  # Adjust as needed
 
 # ift [User Input]
@@ -80,10 +84,95 @@ def create_user_input_fields_ift(self, parent, user_input_data):
         default_value=user_input_data.density_outer
     )
 
-    self.needle_diameter = FloatCombobox(
-        self, input_fields_frame, "Needle diameter (mm):", NEEDLE_OPTIONS,
-        lambda *args: update_needle_diameter(*args), rw=4, default_value=user_input_data.needle_diameter_mm
-    )
+    # Create a frame to hold the needle diameter combobox and management buttons
+    needle_frame = CTkFrame(input_fields_frame)
+    needle_frame.grid(row=4, column=1, sticky="ew", padx=(5, 5), pady=(5, 5))
+    needle_frame.grid_columnconfigure(0, weight=1)  # Combobox takes most space
+    needle_frame.grid_columnconfigure(1, weight=0)  # Buttons don't need to stretch
+    needle_frame.grid_columnconfigure(2, weight=0)  # Buttons don't need to stretch
+
+    # Create needle diameter label
+    needle_label = CTkLabel(input_fields_frame, text="Needle diameter (mm):", width=LABEL_WIDTH, anchor="w")
+    needle_label.grid(row=4, column=0, sticky="w", padx=(5, 5), pady=(5, 5))
+    
+    # Create needle diameter combobox
+    needle_var = StringVar()
+    if user_input_data.needle_diameter_mm is not None:
+        needle_var.set(str(user_input_data.needle_diameter_mm))
+    
+    needle_combobox = CTkComboBox(needle_frame, variable=needle_var, values=NEEDLE_OPTIONS, width=110)
+    needle_combobox.grid(row=0, column=0, sticky="ew", padx=(0, 5))
+    
+    # Add/remove button functions
+    def add_needle_diameter():
+        # Show input dialog
+        new_value = simpledialog.askstring("Add Needle Diameter", "Enter new needle diameter (mm):")
+        if new_value:
+            try:
+                # Validate as a valid float
+                float_value = float(new_value)
+                # Format as string
+                formatted_value = str(float_value)
+                
+                # Check if already exists
+                if formatted_value not in NEEDLE_OPTIONS:
+                    # Add to NEEDLE_OPTIONS
+                    NEEDLE_OPTIONS.append(formatted_value)
+                    # Update combobox
+                    needle_combobox.configure(values=NEEDLE_OPTIONS)
+                    # Set value to newly added value
+                    needle_var.set(formatted_value)
+                    # Save to config.py
+                    save_needle_options_to_config()
+            except ValueError:
+                # Show error message
+                messagebox.showerror("Invalid Input", "Please enter a valid number.")
+    
+    def remove_needle_diameter():
+        current_value = needle_var.get()
+        # Ensure there's a selected value and it's not the last option
+        if current_value and current_value in NEEDLE_OPTIONS and len(NEEDLE_OPTIONS) > 1:
+            # Remove from NEEDLE_OPTIONS
+            NEEDLE_OPTIONS.remove(current_value)
+            # Update combobox
+            needle_combobox.configure(values=NEEDLE_OPTIONS)
+            # Set to first value
+            needle_var.set(NEEDLE_OPTIONS[0])
+            # Save to config.py
+            save_needle_options_to_config()
+    
+    # Add buttons
+    add_button = CTkButton(needle_frame, text="+", width=30, command=add_needle_diameter)
+    add_button.grid(row=0, column=1, padx=(0, 5))
+    
+    remove_button = CTkButton(needle_frame, text="-", width=30, command=remove_needle_diameter)
+    remove_button.grid(row=0, column=2)
+    
+    # Add tooltips
+    create_tooltip(needle_label, "The needle diameter, used for image scale calibration.")
+    create_tooltip(add_button, "Add a new needle diameter value")
+    create_tooltip(remove_button, "Remove the selected needle diameter value")
+    
+    # Create object for update_needle_diameter callback
+    def get_needle_value():
+        try:
+            return float(needle_var.get())
+        except ValueError:
+            return None
+    
+    # Create a compatible object that supports the expected interface
+    self.needle_diameter = type('obj', (object,), {
+        'get_value': get_needle_value,
+        'set_value': lambda value: needle_var.set(str(value)) if value is not None else None,
+        'label': needle_label
+    })
+    
+    # Set initial value
+    if user_input_data.needle_diameter_mm is not None:
+        self.needle_diameter.set_value(user_input_data.needle_diameter_mm)
+
+    # Set up needle_var to call update_needle_diameter
+    needle_var.trace_add("write", update_needle_diameter)
 
     self.pixel_mm = FloatEntry(
         self, input_fields_frame, "Pixel scale(px/mm):", lambda *args: update_pixel_mm(*args), rw=5,
@@ -94,7 +183,6 @@ def create_user_input_fields_ift(self, parent, user_input_data):
     create_tooltip(self.needle_region_method.label, "The method to detect the needle region.")
     create_tooltip(self.drop_density_method.label, "The density of the droplet in kg/m³. Used for interfacial tension calculation.")
     create_tooltip(self.continuous_density.label, "The density of the surrounding fluid (e.g., air or oil) in kg/m³.")
-    create_tooltip(self.needle_diameter.label, "The needle diameter, used for image scale calibration.")
     create_tooltip(self.pixel_mm.label, "The pixel-to-millimeter scale for image-based measurements (optional).")
 
     # Returning the user input frame
@@ -354,6 +442,24 @@ def create_analysis_checklist_cm(self, parent, user_input_data):
     )
 
     return analysis_clist_frame
+
+# 在文件中添加这个函数用于保存NEEDLE_OPTIONS到config.py文件
+def save_needle_options_to_config():
+    """Save NEEDLE_OPTIONS to config.py file"""
+    config_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'utils', 'config.py')
+    
+    if os.path.exists(config_file_path):
+        with open(config_file_path, 'r') as file:
+            content = file.read()
+        
+        # Use regex to find and replace NEEDLE_OPTIONS line
+        needle_options_str = "NEEDLE_OPTIONS = " + str(NEEDLE_OPTIONS)
+        pattern = r'NEEDLE_OPTIONS\s*=\s*\[[^\]]*\]'
+        if re.search(pattern, content):
+            new_content = re.sub(pattern, needle_options_str, content)
+            
+            with open(config_file_path, 'w') as file:
+                file.write(new_content)
 
 if __name__ == "__main__":
     root = CTk()  # Create a CTk instance
