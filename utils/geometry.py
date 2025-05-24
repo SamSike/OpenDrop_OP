@@ -28,10 +28,16 @@
 
 import math
 import operator
-from typing import Any, Callable, Generic, Iterable, Sequence, Tuple, TypeVar, overload
-
-from typing import Literal, Protocol
-
+from typing import (Callable,
+                    Generic,
+                    Iterable,
+                    Sequence,
+                    Tuple,
+                    TypeVar,
+                    Literal,
+                    Protocol,
+                    overload
+                    )
 
 T = TypeVar('T')
 
@@ -111,21 +117,24 @@ class Ring(
     Neg[T],
     Pos[T],
     Protocol[T],
-): ...
+):
+    ...
 
 
 class Ring_and_Abs(
     Ring[T],
     Abs[U_co],
     Protocol[T, U_co],
-): ...
+):
+    ...
 
 
 class Ring_and_Comparable(
     Ring[T],
     Comparable[U_contra],
     Protocol[T, U_contra],
-): ...
+):
+    ...
 
 
 A_co = TypeVar('A_co', bound=Ring, covariant=True)
@@ -182,8 +191,8 @@ class Vector2(_Vector2[A_co]):
         unexpected_names = set(kwargs.keys()) - {'x', 'y'}
         if unexpected_names:
             raise ValueError(
-                    'Got unexpected field names: {!r}'
-                    .format(list(unexpected_names))
+                'Got unexpected field names: {!r}'
+                .format(list(unexpected_names))
             )
 
         new_x = self.x
@@ -212,7 +221,9 @@ class Vector2(_Vector2[A_co]):
             return NotImplemented
 
     @overload
-    def __add__(self: _Vector2[Add[T, B]], other: Sequence[T]) -> 'Vector2[B]': ...
+    def __add__(self: _Vector2[Add[T, B]], other: Sequence[T]) -> 'Vector2[B]':
+        ...
+
     @overload
     def __add__(self, other: Sequence[RAdd[A_co, B]]) -> 'Vector2[B]': ...
 
@@ -224,7 +235,9 @@ class Vector2(_Vector2[A_co]):
             return NotImplemented
 
     @overload
-    def __radd__(self: _Vector2[RAdd[T, B]], other: Sequence[T]) -> 'Vector2[B]': ...
+    def __radd__(self: _Vector2[RAdd[T, B]], other: Sequence[T]) -> 'Vector2[B]':
+        ...
+
     @overload
     def __radd__(self, other: Sequence[Add[A_co, B]]) -> 'Vector2[B]': ...
 
@@ -236,7 +249,9 @@ class Vector2(_Vector2[A_co]):
             return NotImplemented
 
     @overload
-    def __sub__(self: _Vector2[Sub[T, B]], other: Sequence[T]) -> 'Vector2[B]': ...
+    def __sub__(self: _Vector2[Sub[T, B]], other: Sequence[T]) -> 'Vector2[B]':
+        ...
+
     @overload
     def __sub__(self, other: Sequence[RSub[A_co, B]]) -> 'Vector2[B]': ...
 
@@ -248,7 +263,9 @@ class Vector2(_Vector2[A_co]):
             return NotImplemented
 
     @overload
-    def __rsub__(self: _Vector2[RSub[T, B]], other: Sequence[T]) -> 'Vector2[B]': ...
+    def __rsub__(self: _Vector2[RSub[T, B]], other: Sequence[T]) -> 'Vector2[B]':
+        ...
+
     @overload
     def __rsub__(self, other: Sequence[Sub[A_co, B]]) -> 'Vector2[B]': ...
 
@@ -266,7 +283,8 @@ class Vector2(_Vector2[A_co]):
     def __mul__(self, other: RMul[A_co, B]) -> 'Vector2[B]': ...
 
     @overload
-    def __mul__(self: _Vector2[Mul[T, B]], other: Sequence[T]) -> 'Vector2[B]': ...
+    def __mul__(self: _Vector2[Mul[T, B]], other: Sequence[T]) -> 'Vector2[B]':
+        ...
 
     @overload
     def __mul__(self, other: Sequence[RMul[A_co, B]]) -> 'Vector2[B]': ...
@@ -291,7 +309,8 @@ class Vector2(_Vector2[A_co]):
     def __rmul__(self, other: Mul[A_co, B]) -> 'Vector2[B]': ...
 
     @overload
-    def __rmul__(self: _Vector2[RMul[T, B]], other: Sequence[T]) -> 'Vector2[B]': ...
+    def __rmul__(self: _Vector2[RMul[T, B]], other: Sequence[T]) -> 'Vector2[B]':
+        ...
 
     @overload
     def __rmul__(self, other: Sequence[Mul[A_co, B]]) -> 'Vector2[B]': ...
@@ -310,7 +329,9 @@ class Vector2(_Vector2[A_co]):
         return Vector2(map(operator.mul, other, self))
 
     @overload
-    def __truediv__(self: _Vector2[TrueDiv[T, B]], other: T) -> 'Vector2[B]': ...
+    def __truediv__(self: _Vector2[TrueDiv[T, B]], other: T) -> 'Vector2[B]':
+        ...
+
     @overload
     def __truediv__(self, other: RTrueDiv[A_co, B]) -> 'Vector2[B]': ...
 
@@ -321,7 +342,9 @@ class Vector2(_Vector2[A_co]):
             return NotImplemented
 
     @overload
-    def __floordiv__(self: _Vector2[FloorDiv[T, B]], other: T) -> 'Vector2[B]': ...
+    def __floordiv__(self: _Vector2[FloorDiv[T, B]], other: T) -> 'Vector2[B]':
+        ...
+
     @overload
     def __floordiv__(self, other: RFloorDiv[A_co, B]) -> 'Vector2[B]': ...
 
@@ -334,13 +357,15 @@ class Vector2(_Vector2[A_co]):
     def __matmul__(self: _Vector2[B], other: Sequence[B]) -> B:
         """Return dot product with other."""
         if len(other) != 2:
-            raise ValueError(f"dimension mismatch, got sequence with length {len(other)}")
+            raise ValueError(
+                f"dimension mismatch, got sequence with length {len(other)}")
         return self.x * other[0] + self.y * other[1]
 
     @staticmethod
     def _check_dimensions(seq: Sequence) -> None:
         if len(seq) != 2:
-            raise ValueError(f"dimension mismatch, got sequence with length {len(seq)}")
+            raise ValueError(
+                f"dimension mismatch, got sequence with length {len(seq)}")
 
     def __abs__(self: _Vector2[Ring_and_Abs[T, T]]) -> float:
         return (abs(self.x)**2 + abs(self.y)**2)**0.5
@@ -390,10 +415,14 @@ class Rect2(_Rect2[B_co]):
     def __init__(self, pt0: Iterable[B_co], pt1: Iterable[B_co]) -> None: ...
     @overload
     def __init__(self, *, x: B_co, y: B_co, w: B_co, h: B_co) -> None: ...
+
     @overload
-    def __init__(self, *, x: B_co, y: B_co, width: B_co, height: B_co) -> None: ...
+    def __init__(self, *, x: B_co, y: B_co,
+                 width: B_co, height: B_co) -> None: ...
+
     @overload
-    def __init__(self, *, position: Iterable[B_co], size: Iterable[B_co]) -> None: ...
+    def __init__(
+        self, *, position: Iterable[B_co], size: Iterable[B_co]) -> None: ...
 
     def __init__(self, *args, **kwargs):
         if len(args) == 1:
@@ -407,7 +436,8 @@ class Rect2(_Rect2[B_co]):
         elif 'x' in kwargs and 'w' in kwargs:
             return self._from_xywh(**kwargs)
         elif 'x' in kwargs and 'width' in kwargs:
-            args = (kwargs['x'], kwargs['y'], kwargs['width'], kwargs['height'])
+            args = (kwargs['x'], kwargs['y'],
+                    kwargs['width'], kwargs['height'])
             return self._from_xywh(*args)
         elif 'pt0' in kwargs:
             return self._from_pt0pt1(**kwargs)
@@ -510,9 +540,12 @@ class Rect2(_Rect2[B_co]):
                .format(class_name=type(self).__name__, x0=self.x0, y0=self.y0, x1=self.x1, y1=self.y1)
 
     @overload
-    def contains(self: _Rect2[Comparable[T]], point: Iterable[T], include_boundary: bool = True) -> bool: ...
+    def contains(self: _Rect2[Comparable[T]], point: Iterable[T],
+                 include_boundary: bool = True) -> bool: ...
+
     @overload
-    def contains(self, point: Iterable[Comparable[B_co]], include_boundary: bool = True) -> bool: ...
+    def contains(self, point: Iterable[Comparable[B_co]],
+                 include_boundary: bool = True) -> bool: ...
 
     def contains(self, point, include_boundary=True):
         point_vec = Vector2(point)
@@ -522,7 +555,9 @@ class Rect2(_Rect2[B_co]):
             return self.x0 < point_vec.x < self.x1 and self.y0 < point_vec.y < self.y1
 
     @overload
-    def intersects(self: _Rect2[Comparable[T]], other: Iterable[T]) -> bool: ...
+    def intersects(self: _Rect2[Comparable[T]],
+                   other: Iterable[T]) -> bool: ...
+
     @overload
     def intersects(self, other: Iterable[Comparable[B_co]]) -> bool: ...
 
@@ -545,7 +580,9 @@ class Rect2(_Rect2[B_co]):
             return NotImplemented
 
     @overload
-    def __radd__(self: _Rect2[RAdd[T, C]], other: Sequence[T]) -> 'Rect2[C]': ...
+    def __radd__(self: _Rect2[RAdd[T, C]], other: Sequence[T]) -> 'Rect2[C]':
+        ...
+
     @overload
     def __radd__(self, other: Sequence[Add[B_co, C]]) -> 'Rect2[C]': ...
 
@@ -567,6 +604,7 @@ class Rect2(_Rect2[B_co]):
             return Rect2(self.pt0 - t, self.pt1 - t)
         except TypeError:
             return NotImplemented
+
 
 class Line2:
     def __init__(self, pt0: Iterable[float], pt1: Iterable[float]) -> None:
@@ -608,7 +646,7 @@ class Line2:
             return math.copysign(dy, math.inf)
 
         return dy/dx
-    
+
     @property
     def angle(self) -> float:
         unit = self.unit
@@ -676,7 +714,7 @@ class Line2:
                .format(class_name=type(self).__name__, pt0=tuple(self.pt0), pt1=tuple(self.pt1))
 
 
-def isiterable(x: Any) -> bool:
+def isiterable(x: any) -> bool:
     try:
         iter(x)
     except TypeError:

@@ -2,13 +2,15 @@
 # coding=utf-8
 from modules.fitting.de_YoungLaplace import ylderiv
 from utils.enums import RegionSelect, ThresholdSelect
-#from .interpolation_function import cubic_interpolation_function
-from scipy.integrate import odeint
-
-import numpy as np
-
 from utils.config import INTERFACIAL_TENSION
 from utils.enums import FittingMethod
+
+from typing import Dict, List, Optional, Tuple
+from scipy.integrate import odeint
+import numpy as np
+
+# from .interpolation_function import cubic_interpolation_function
+
 
 class Tolerances(object):
     def __init__(self, delta_tol, gradient_tol, maximum_fitting_steps, objective_tol, arclength_tol, maximum_arclength_steps, needle_tol, needle_steps):
@@ -21,45 +23,59 @@ class Tolerances(object):
         self.NEEDLE_TOL = needle_tol
         self.NEEDLE_STEPS = needle_steps
 
+
 class ExperimentalSetup(object):
     def __init__(self):
-        self.screen_resolution = None
-        self.drop_ID_method = RegionSelect.AUTOMATED
-        self.threshold_method = ThresholdSelect.AUTOMATED
-        self.needle_region_method = RegionSelect.AUTOMATED
+        self.screen_resolution: Optional[List[int]] = None
+        self.drop_id_method: RegionSelect = RegionSelect.AUTOMATED
+        self.threshold_method: ThresholdSelect = ThresholdSelect.AUTOMATED
+        self.needle_region_method: RegionSelect = RegionSelect.AUTOMATED
+        self.baseline_method: ThresholdSelect = ThresholdSelect.AUTOMATED
+
         self.threshold_val = None
-        self.baseline_method = ThresholdSelect.AUTOMATED
         self.edgefinder = None
-        ###user input vvvvv
-        self.density_outer = None # contininous density
-        self.needle_diameter_mm = None
-        self.drop_density = None
+
+        # user input vvvvv
+        self.density_outer = None  # continuous density
+        self.needle_diameter_mm: Optional[float] = None
+        self.drop_density: Optional[float] = None
         self.pixel_mm = None
         self.image = None
         self.fit_result = None
         self.drop_contour_images = None
         self.processed_images = None
         self.ift_results = None
-        ###user input ^^^^^
+        # user input ^^^^^
+
         self.original_boole = 0
         self.cropped_boole = 0
         self.threshold_boole = 0
         self.image_source = "Local images"
         self.show_popup = 0
-        self.number_of_frames = None
+        self.number_of_frames: int = 0
         self.wait_time = None
         self.save_images_boole = False
         self.create_folder_boole = False
-        self.filename = None
+        self.directory_string: Optional[str] = None
+        self.filename: Optional[str] = None
         self.time_string = None
         self.local_files = None
-        self.drop_region = None
+        self.drop_region: Optional[List[Tuple[int, int]]] = None
         self.needle_region = None
-        self.import_files = None
+        self.import_files: Optional[List[str]] = None
         self.frame_interval = 1
         self.analysis_method_fields_cm = {}
-        self.analysis_methods_ca = {FittingMethod.TANGENT_FIT: False, FittingMethod.POLYNOMIAL_FIT: False, FittingMethod.CIRCLE_FIT: False, FittingMethod.ELLIPSE_FIT: False, FittingMethod.YL_FIT: False, FittingMethod.ML_MODEL: False}
-        self.analysis_methods_pd = {INTERFACIAL_TENSION: True}
+        self.analysis_methods_ca: Dict[FittingMethod, bool] = {
+            FittingMethod.TANGENT_FIT: False,
+            FittingMethod.POLYNOMIAL_FIT: False,
+            FittingMethod.CIRCLE_FIT: False,
+            FittingMethod.ELLIPSE_FIT: False,
+            FittingMethod.YL_FIT: False,
+            FittingMethod.ML_MODEL: False
+        }
+        self.analysis_methods_pd: Dict[str, bool] = {
+            INTERFACIAL_TENSION: True
+        }
         self.statistical_output = {}
         self.statistical_output_cm = {}
         self.ift_drop_region = None
@@ -73,11 +89,12 @@ class ExperimentalSetup(object):
         self.needle_diameter_px = None
         self.fit_result = None
         self.drop_contour_images = None
-        self.processed_images = None
+        self.drop_images = None
         self.ift_results = None
         self.analyzed_ift = None
         self.drop_contour = None
         self.analysis_duration = None
+
 
 class ExperimentalDrop(object):
     def __init__(self):
@@ -92,7 +109,7 @@ class ExperimentalDrop(object):
         self.ret = None
         self.time = None
         self.pixels_to_mm = None
-        
+
         # self.time_full = None
         # self.filename = None
         # self.img_src = 2
@@ -128,38 +145,39 @@ class DropData(object):
         # self.number_experiments = None
         # self.wait_time = None
 
-
     # todo: original function. needs to be updated
-    if 0:# interpolates the theoretical profile data
+    if 0:  # interpolates the theoretical profile data
         def profile(self, s):
             if (s < 0):
                 raise ValueError("s value outside domain")
             if (s > self.max_s):
                 # if the profile is called outside of the current region, expand
-                self.max_s = 1.2 * s # expand region to include s_max
-            Delta_s = self.max_s / self.s_points
-            n1 = int(s / Delta_s)
+                self.max_s = 1.2 * s  # expand region to include s_max
+            delta_s = self.max_s / self.s_points
+            n1 = int(s / delta_s)
             n2 = n1 + 1
-            t =  s / Delta_s - n1
+            t = s / delta_s - n1
             vec1 = np.array(self.theoretical_data[n1])
             vec2 = np.array(self.theoretical_data[n2])
             bond_number = self.bond()
-            Dvec1 = np.array(ylderiv(vec1, 0, bond_number))
-            Dvec2 = np.array(ylderiv(vec2, 0, bond_number))
-            value_at_s = cubic_interpolation_function(vec1, vec2, Dvec1, Dvec2, Delta_s, t)
+            d_vec1 = np.array(ylderiv(vec1, 0, bond_number))
+            d_vec2 = np.array(ylderiv(vec2, 0, bond_number))
+            value_at_s = cubic_interpolation_function(
+                vec1, vec2, d_vec1, d_vec2, delta_s, t)
             return value_at_s
 
     # generates a new drop profile
     def generate_profile_data(self):
         if (self._max_s is not None) and (self._s_points is not None) and (self._params is not None):
-        # if [self.max_s, self.s_points, self.params].all():
+            # if [self.max_s, self.s_points, self.params].all():
             # self.fitted = False
             # s_data_points = np.arange(0, self.max_s*(1+2/self.s_points), self.max_s/self.s_points)
             s_data_points = np.linspace(0, self.max_s, self.s_points + 1)
 
             x_vec_initial = [.000001, 0., 0., 0., 0., 0.]
             bond_number = self.bond()
-            self.theoretical_data = odeint(ylderiv, x_vec_initial, s_data_points, args=(bond_number,))
+            self.theoretical_data = odeint(
+                ylderiv, x_vec_initial, s_data_points, args=(bond_number,))
 
     # # generates a new drop profile
     # def generate_profile_volume_area_data(self):
@@ -186,8 +204,8 @@ class DropData(object):
     # def s_needle(self):
     #     return 100
 
-
     # generate new profile when params are changed
+
     @property
     def params(self):
         return self._params
@@ -197,7 +215,7 @@ class DropData(object):
         if len(vector) != self.parameter_dimensions:
             raise ValueError("Parameter array incorrect dimensions")
         self._params = vector
-        self.generate_profile_data() # generate new profile when the parameters are changed
+        self.generate_profile_data()  # generate new profile when the parameters are changed
 
     # generate new profile when max_s is changed
     @property
@@ -209,7 +227,8 @@ class DropData(object):
         if value <= 0:
             raise ValueError("Maximum arc length must be positive")
         self._max_s = float(value)
-        self.generate_profile_data() # generate new profile when the maximum arc length is changed
+        # generate new profile when the maximum arc length is changed
+        self.generate_profile_data()
 
     # test validity of variable s_points + generate new profile when s_points are
     @property
@@ -223,7 +242,8 @@ class DropData(object):
         if not isinstance(value, int):
             raise ValueError("Number of points must be an integer")
         self._s_points = value
-        self.generate_profile_data() # generate new profile when the maximum arc length is changed
+        # generate new profile when the maximum arc length is changed
+        self.generate_profile_data()
 
     # def calculate_interfacial_tension(self):
     #     if self.fitted:

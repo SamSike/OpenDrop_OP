@@ -1,12 +1,15 @@
-import os
 from utils.enums import RegionSelect, ThresholdSelect
 
-VERSION = '1.0'
+import os
+import cv2
 
-AUTO_MANUAL_OPTIONS = [RegionSelect.AUTOMATED, RegionSelect.USER_SELECTED] 
-DROP_ID_OPTIONS = [RegionSelect.AUTOMATED, RegionSelect.USER_SELECTED] 
-THRESHOLD_OPTIONS = [ThresholdSelect.AUTOMATED, ThresholdSelect.USER_SELECTED] 
-BASELINE_OPTIONS = [ThresholdSelect.AUTOMATED, ThresholdSelect.USER_SELECTED] 
+VERSION = '1.0'
+CV2_VERSION = tuple(map(int, cv2.__version__.split(".")))
+
+AUTO_MANUAL_OPTIONS = [RegionSelect.AUTOMATED, RegionSelect.USER_SELECTED]
+DROP_ID_OPTIONS = [RegionSelect.AUTOMATED, RegionSelect.USER_SELECTED]
+THRESHOLD_OPTIONS = [ThresholdSelect.AUTOMATED, ThresholdSelect.USER_SELECTED]
+BASELINE_OPTIONS = [ThresholdSelect.AUTOMATED, ThresholdSelect.USER_SELECTED]
 NEEDLE_OPTIONS = ['0.7176', '1.270', '1.651']
 FILE_SOURCE_OPTIONS_CA = ["Local images", "Flea3", "USB camera"]
 FILE_SOURCE_OPTIONS_IFT = ["Local images", "cv2.VideoCapture", "GenlCam"]
@@ -47,9 +50,9 @@ NEEDLE_STEPS = 20
 MAX_ARCLENGTH = 100
 
 IMAGE_TYPE = [
-            ("Image Files", "*.png"),
-            ("Image Files", "*.jpg"),
-            ("Image Files", "*.jpeg"),
-            ("Image Files", "*.gif"),
-            ("Image Files", "*.bmp")
-        ]
+    ("Image Files", "*.png"),
+    ("Image Files", "*.jpg"),
+    ("Image Files", "*.jpeg"),
+    ("Image Files", "*.gif"),
+    ("Image Files", "*.bmp")
+]

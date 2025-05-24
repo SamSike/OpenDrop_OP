@@ -1,6 +1,6 @@
 # style.py
 
-from views.helper.theme import *
+from views.helper.theme import get_appearance_mode, LIGHT_MODE
 
 # This is for light mode. In dark mode, use the default color
 APP_COLORS = {
@@ -16,6 +16,7 @@ APP_COLORS = {
     "SUCCESS": "#4BB543",
     "BORDER": "#C4CBD4",
 }
+
 
 def get_color(name: str) -> str:
     """Get a named color from the scientific colorboard."""

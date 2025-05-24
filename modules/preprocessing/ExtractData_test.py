@@ -1,11 +1,13 @@
+from modules.preprocessing.ExtractData import ExtractedData
+
+from unittest import mock
+from typing import List
 import pytest
 import numpy as np
 import sys
 import os
-from unittest import mock
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from modules.preprocessing.ExtractData import ExtractedData
 
 
 # 1. Test Object Initialization
@@ -52,13 +54,14 @@ def test_time_IFT_vol_area():
     data.bond[index] = 5.0
     data.worthington[index] = 6.0
 
-    result = data.time_IFT_vol_area(index)
+    result = data.time_ift_vol_area(index)
     assert result == [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+
 
 def test_time_IFT_vol_area_index_out_of_bounds():
     data = ExtractedData(5, 5)
     with pytest.raises(IndexError):
-        data.time_IFT_vol_area(5)
+        data.time_ift_vol_area(5)
 
 
 # 3. Test export_data Method (Mocking file writing)

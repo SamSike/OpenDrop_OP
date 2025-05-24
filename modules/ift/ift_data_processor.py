@@ -1,27 +1,27 @@
-from tkinter import messagebox
-from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
-# from modules.PlotManager import PlotManager
-from modules.preprocessing.ExtractData import ExtractedData
-from modules.image.select_regions import user_ROI, set_scale, set_screen_position, user_select_region
+from modules.core.classes import ExperimentalSetup
+from modules.image.select_regions import user_roi, set_scale, set_screen_position, user_select_region
 from modules.image.read_image import get_image
+from modules.ift.younglaplace.younglaplace import young_laplace_fit
+from modules.ift.younglaplace.shape import YoungLaplaceShape
+from modules.ift.pendant import extract_pendant_features, analyze_ift
+from utils.misc import rotation_mat2d
+from utils.enums import RegionSelect
+from utils.config import MAX_ARCLENGTH
+from utils.geometry import Rect2
+
+from PIL import Image
+from typing import Callable
+from tkinter import messagebox
 import cv2
-from utils.enums import *
-from utils.config import *
 import os
 import numpy as np
 import timeit
-from PIL import Image
-
-from utils.misc import rotation_mat2d
-from .pendant import extract_pendant_features, analyze_ift
-from modules.ift.younglaplace.younglaplace import young_laplace_fit
-from modules.ift.younglaplace.shape import YoungLaplaceShape
+# from modules.PlotManager import PlotManager
 
 
-class iftDataProcessor:
-    def process_data(self, user_input_data: ExperimentalSetup, callback=None):
+class IftDataProcessor:
+    def process_data(self, user_input_data: ExperimentalSetup, callback: Callable = None):
 
-        print("user_input_data: ", user_input_data)
         n_frames = user_input_data.number_of_frames
         time = 0
 
@@ -56,7 +56,7 @@ class iftDataProcessor:
         if callback:
             callback(user_input_data)
 
-    def processPreparation(self, user_input_data: ExperimentalSetup):
+    def process_preparation(self, user_input_data: ExperimentalSetup):
         n_frames = user_input_data.number_of_frames
         # Initialize drop_images if not already
         print("####################################: ",
@@ -95,13 +95,21 @@ class iftDataProcessor:
             scale = set_scale(image_size, screen_size)
             screen_position = set_screen_position(screen_size)
 
-            if user_input_data.drop_ID_method == RegionSelect.USER_SELECTED:
-                drop_region, _ = user_select_region(
+            if user_input_data.drop_id_method == RegionSelect.USER_SELECTED:
+                print("Select drop region for Image {i}")
+                [(min_x, min_y), (max_x, max_y)], _ = user_select_region(
                     image, f"Select drop region for Image {i}", scale, screen_position)
+                drop_region = Rect2(int(min_x), int(min_y),
+                                    int(max_x), int(max_y))
+                print("Drop region: ", drop_region)
 
             if user_input_data.needle_region_method == RegionSelect.USER_SELECTED:
-                needle_region, _ = user_select_region(
+                print("Select needle region for Image {i}")
+                [(min_x, min_y), (max_x, max_y)], _ = user_select_region(
                     image, f"Select needle region for Image {i}", scale, screen_position)
+                needle_region = Rect2(int(min_x), int(min_y),
+                                      int(max_x), int(max_y))
+                print("Needle region: ", needle_region)
 
             drop_points, needle_diameter_px, drop_region, needle_region, image, drop_image, needle_fit_result = extract_pendant_features(
                 image, drop_region, needle_region)
@@ -113,7 +121,7 @@ class iftDataProcessor:
             user_input_data.needle_region[i] = needle_region
             self.draw_regions(user_input_data, i, image)
 
-    def draw_regions(self, user_input_data, i, image):
+    def draw_regions(self, user_input_data: ExperimentalSetup, i: int, image: np.ndarray):
         drop_region = user_input_data.drop_region[i]
         needle_region = user_input_data.needle_region[i]
         regions_image = image.copy()
@@ -137,7 +145,7 @@ class iftDataProcessor:
             cv2.cvtColor(regions_image, cv2.COLOR_BGR2RGB))
         user_input_data.processed_images[i] = image_pil
 
-    def draw_fitted_shape(self, user_input_data, drop_index, image):
+    def draw_fitted_shape(self, user_input_data: ExperimentalSetup, drop_index: int, image: np.ndarray):
         fit_result = user_input_data.fit_result[drop_index]
         shape = YoungLaplaceShape(fit_result.bond)
         _ = shape(MAX_ARCLENGTH)
@@ -177,8 +185,9 @@ class iftDataProcessor:
         for i in range(len(translated_fitted_x)):
             x_coord = int(translated_fitted_x[i])
             y_coord = int(translated_fitted_y[i])
-            cv2.circle(img_to_draw_on, (x_coord, y_coord), point_radius, point_color_bgr, point_thickness)
-        
+            cv2.circle(img_to_draw_on, (x_coord, y_coord),
+                       point_radius, point_color_bgr, point_thickness)
+
         save_dir = os.path.join("outputs", "contour_images")
         os.makedirs(save_dir, exist_ok=True)
 
@@ -190,14 +199,13 @@ class iftDataProcessor:
 
         user_input_data.drop_contour_images[drop_index] = save_path
 
-    def save_result(self, input_file, output_directory, filename, user_input_data):
+    def save_result(self, input_file, output_directory: str, filename: str, user_input_data: ExperimentalSetup):
         """
         Save experiment results to a CSV file with columns:
         Filename, Time, IFT, V, SA, Bond, Worth
         """
         import csv
         import os
-        
 
         # Prepare output path
         if not os.path.exists(output_directory):
