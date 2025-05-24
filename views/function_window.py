@@ -309,14 +309,14 @@ class FunctionWindow(CTkToplevel):
     def on_closing(self):
         try:
             # print("Cleaning up after tasks:", self.after_ids)
-            # ✅ cancel after callback
+            # cancel after callback
             for after_id in self.after_ids:
                 try:
                     self.after_cancel(after_id)
                 except Exception as e:
                     print("after_cancel error:", e)
 
-            # ✅ destroy all widgets
+            # destroy all widgets
             for widget in self.winfo_children():
                 try:
                     widget.destroy()

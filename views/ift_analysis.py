@@ -1,6 +1,7 @@
 from modules.core.classes import ExperimentalSetup
 from modules.ift.ift_data_processor import IftDataProcessor
 from views.component.imageGallery import ImageGallery
+from views.helper.theme import get_system_text_color
 
 from customtkinter import CTkImage, CTkFrame, CTkScrollableFrame, CTkTabview, CTkLabel
 from PIL import Image
@@ -54,62 +55,42 @@ class IftAnalysis(CTkFrame):
     def create_table(self, parent_frame):
         """Create a table into the parent frame. Headings are: Time, IFT, V, SA, Bond, Worth"""
 
-        # Configure the row and column weights for expansion
         parent_frame.grid_rowconfigure(0, weight=1)
         parent_frame.grid_columnconfigure(0, weight=1)
 
         padding_x = 5
+        headings = ["Time", "IFT (mN/m)", "V (mm^3)", "SA (mm^2)", "Bond", "Worth"]
 
-        headings = ["Time", "IFT (mN/m)", "V (mm^3)",
-                    "SA (mm^2)", "Bond", "Worth"]
         for j, heading in enumerate(headings):
             cell = CTkLabel(parent_frame, text=heading)
             cell.grid(row=0, column=j, padx=padding_x, pady=10, sticky="nsew")
 
         results = self.user_input_data.ift_results
+        self.table_data = []  # Store each row's labels for later updates
+
         for i, result in enumerate(results, start=1):
-            # Time column
-            time_cell = CTkLabel(
-                self.table_frame, text=f"{result[5]}", anchor="center")
-            time_cell.grid(row=i, column=0, padx=padding_x,
-                           pady=5, sticky="nsew")
-            # IFT column
-            ift_cell = CTkLabel(
-                self.table_frame, text=f"{result[0]:.1f}", anchor="center")
-            ift_cell.grid(row=i, column=1, padx=padding_x,
-                          pady=5, sticky="nsew")
-            # Volume (V) column
-            volume_cell = CTkLabel(
-                self.table_frame, text=f"{result[1]:.2f}", anchor="center")
-            volume_cell.grid(row=i, column=2, padx=padding_x,
-                             pady=5, sticky="nsew")
-            # Surface Area (SA) column
-            sa_cell = CTkLabel(
-                self.table_frame, text=f"{result[2]:.2f}", anchor="center")
-            sa_cell.grid(row=i, column=3, padx=padding_x,
-                         pady=5, sticky="nsew")
-            # Bond column
-            bond_cell = CTkLabel(
-                self.table_frame, text=f"{result[3]:.4f}", anchor="center")
-            bond_cell.grid(row=i, column=4, padx=padding_x,
-                           pady=5, sticky="nsew")
-            # Worth column
-            worth_cell = CTkLabel(
-                self.table_frame, text=f"{result[4]:.4f}", anchor="center")
-            worth_cell.grid(row=i, column=5, padx=padding_x,
-                            pady=5, sticky="nsew")
+            row_widgets = []
+            values = [f"{result[5]}", f"{result[0]:.1f}", f"{result[1]:.2f}",
+                    f"{result[2]:.2f}", f"{result[3]:.4f}", f"{result[4]:.4f}"]
+
+            for j, val in enumerate(values):
+                label = CTkLabel(self.table_frame, text=val, anchor="center")
+                label.grid(row=i, column=j, padx=padding_x, pady=5, sticky="nsew")
+                row_widgets.append(label)
+
+            self.table_data.append(row_widgets)
 
         for j in range(len(headings)):
             parent_frame.grid_columnconfigure(j, weight=1)
 
-        # Set row configuration to allow for vertical scrolling
-        for i in range(21):  # Adjust the range as needed
+        for i in range(len(results) + 1):  # +1 for the header row
             parent_frame.grid_rowconfigure(i, weight=1)
+
 
     def create_image_frame(self, parent):
         """Create an Image Gallery that allows back and forth between base images into the parent frame"""
         self.image_frame = ImageGallery(
-            parent, self.user_input_data.drop_contour_images)
+            parent, self.user_input_data.drop_contour_images, on_index_change=self.highlight_row)
         self.image_frame.grid(row=0, column=0, sticky="nsew")
 
     def create_residuals_frame(self, parent):
@@ -190,6 +171,16 @@ class IftAnalysis(CTkFrame):
         toolbar.update()
         canvas.get_tk_widget().pack(fill="both", expand=True)
         canvas.draw()
+
+    def highlight_row(self, row_index: int):
+        # Reset all rows to default color
+        for row in self.table_data:
+            for cell in row:
+                cell.configure(text_color=get_system_text_color())
+
+        if 0 <= row_index < len(self.table_data):
+            for cell in self.table_data[row_index]:
+                cell.configure(text_color="red")
  
     def destroy(self):
         plt.close('all')

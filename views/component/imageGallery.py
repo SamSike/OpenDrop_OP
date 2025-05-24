@@ -7,7 +7,7 @@ import os
 
 
 class ImageGallery(ctk.CTkFrame):
-    def __init__(self, parent, import_files):
+    def __init__(self, parent, import_files, on_index_change=None):
         # Pass fg_color='transparent' if the parent wrapper already has the desired background
         super().__init__(parent, fg_color='transparent')
         self.filename_label = ctk.CTkLabel(
@@ -31,8 +31,7 @@ class ImageGallery(ctk.CTkFrame):
         self.current_image = None  # Store the original PIL Image
         self.tk_image = None  # Store the CTkImage
 
-        # Remove the extra main_frame, use self (ImageGallery frame) directly for simplicity
-        # This makes binding Configure easier and reduces nesting
+        self.on_index_change = on_index_change
 
         # Configure grid for self (ImageGallery frame)
         self.grid_rowconfigure(0, weight=0)
@@ -43,8 +42,6 @@ class ImageGallery(ctk.CTkFrame):
 
         # Image display label - Center the label itself within its grid cell
         # The parent (ift_analysis.image_frame_wrapper) will center this whole ImageGallery widget
-        # sticky="" (default) or "ns" or "n" or "s" might be better if we don't want label itself to expand
-        # Let's try default sticky first. The PIL image size will dictate label size.
         self.image_label = ctk.CTkLabel(self, text="", fg_color="transparent")
         self.image_label.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
 
@@ -109,6 +106,9 @@ class ImageGallery(ctk.CTkFrame):
 
             self.filename_label.configure(text=file_name)
 
+            if self.on_index_change:
+                self.on_index_change(self.current_index)
+
         except FileNotFoundError:
             print(f"Error: The image file {selected_image} was not found.")
             self.current_image = None
@@ -133,8 +133,8 @@ class ImageGallery(ctk.CTkFrame):
 
             # Use ImageHandler or similar logic to get fitting dimensions based on max_height
             # Assuming ImageHandler has a method like this, or implement simple scaling
-            # --- Using a fixed max_height (e.g., 250) ---
-            max_height = 250  # Or another value you prefer
+            # --- Using a fixed max_height (250) ---
+            max_height = 250
             aspect_ratio = original_width / original_height
             if original_height > max_height:
                 new_height = max_height
