@@ -701,10 +701,9 @@ def user_line(experimental_drop: ExperimentalDrop, experimental_setup: Experimen
     ix, fx = ix0, fx0
     iy, fy = iy0, fy0
 
-    # cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
-    # cv2.moveWindow(title, screen_position[0], screen_position[1])
-    cv2.namedWindow(title, cv2.WINDOW_NORMAL)
-    cv2.resizeWindow(title, 800, 600)  # or image.shape[1], image.shape[0]
+    cv2.namedWindow(title, cv2.WINDOW_NORMAL)     
+    cv2.resizeWindow(title, 500, 400)             
+    cv2.moveWindow(title, screen_position[0], screen_position[1]) 
     try:
         cv2.setWindowProperty(title, 5, 0)  # Lock size (if supported)
     except:
@@ -736,6 +735,7 @@ def user_line(experimental_drop: ExperimentalDrop, experimental_setup: Experimen
     print("ESC = Exit\n")
 
     while (1):
+        img = cv2.resize(img, (500, 400))
         cv2.imshow(title, img)
         # cv2.circle(img,(200,200),5,(255,255,0),2)
         # line_colour,line_thickness)
@@ -895,9 +895,17 @@ def user_line(experimental_drop: ExperimentalDrop, experimental_setup: Experimen
 
         img = image_TEMP.copy()
         # cv2.line(img, (ix, iy), (fx, fy), (0, 255, 0), 2)
-        cv2.putText(img, "Use W/A/S/D to move. Enter/Space = confirm. ESC = cancel.",
-                    (10, img.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
-                    0.25, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(img,
+            "Use W/A/S/D to move. ESC = cancel.",
+            (10, img.shape[0] - 15),  
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.3, (255, 255, 255), 1, cv2.LINE_AA)
+
+        cv2.putText(img,
+                    "Enter/Space = confirm.",
+                    (10, img.shape[0] - 5),  
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.3, (255, 255, 255), 1, cv2.LINE_AA)
         cv2.line(img, (ix, iy), (fx, fy), (0, 255, 0), 2)
 
     cv2.destroyAllWindows()
