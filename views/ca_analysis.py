@@ -92,18 +92,31 @@ class CaAnalysis(CTkFrame):
             table_frame.update_idletasks()
             table_frame.onFrameConfigure(table_frame.xy_canvas)
 
-    def receive_output(self, extracted_data, experimental_drop=None):
+    def receive_output(self, num_of_processed, experimental_drop=None):
         """Process results and display contact angles"""
-        self.output.append(extracted_data)
-        index = len(self.output) - 1
+        if len(self.output) < num_of_processed:
+            # Extend output list to accommodate new processed data
+            self.output.extend([None] * (num_of_processed - len(self.output)))
+        
+        index = num_of_processed - 1
+        
+        #check if experimental_drop is None or has no contact_angles attribute
+        if experimental_drop is None or not hasattr(experimental_drop, 'contact_angles'):
+            print("Warning: experimental_drop has no contact_angles attribute")
+            return
+            
+        contact_angles = experimental_drop.contact_angles
+        
+        # save the experimental drop object for this index
+        self.output[index] = experimental_drop
 
         # Update table data
-        for method in extracted_data.contact_angles.keys():
+        for method in contact_angles.keys():
             preformed_method_list = list(self.preformed_methods.keys())
             
             if method in preformed_method_list:
                 column_index = preformed_method_list.index(method)+1
-                result = extracted_data.contact_angles[method]
+                result = contact_angles[method]
                 
                 if LEFT_ANGLE in result and RIGHT_ANGLE in result:
                     self.table_data[index][column_index].configure(text=f"({result[LEFT_ANGLE]:.2f}, {result[RIGHT_ANGLE]:.2f})")
@@ -149,7 +162,7 @@ class CaAnalysis(CTkFrame):
                     print(f"Successfully saved cropped image, size: {cropped_pil.size}")
             
             # Check for contact angle data
-            if hasattr(extracted_data, 'contact_angles'):
+            if hasattr(experimental_drop, 'contact_angles'):
                 available_methods = []
                 available_chart_methods = []  # Maintain a separate method list for line charts
                 
@@ -158,7 +171,7 @@ class CaAnalysis(CTkFrame):
                     self.cropped_angle_images[index] = {}
                 
                 # Process each method and create corresponding annotations
-                for method in extracted_data.contact_angles.keys():
+                for method in experimental_drop.contact_angles.keys():
                     # Check if method is in preformed_methods
                     # Handle both string and enum cases
                     method_in_preformed = False
@@ -172,7 +185,7 @@ class CaAnalysis(CTkFrame):
                     if not method_in_preformed:
                         continue
                         
-                    angles_data = extracted_data.contact_angles[method]
+                    angles_data = experimental_drop.contact_angles[method]
                     
                     # Get display name for method
                     display_name = method if isinstance(method, str) else (method.value if hasattr(method, 'value') else str(method))
@@ -212,7 +225,7 @@ class CaAnalysis(CTkFrame):
         
         # Save first method's angles (for compatibility)
         try:
-            for method, res in extracted_data.contact_angles.items():
+            for method, res in experimental_drop.contact_angles.items():
                 if LEFT_ANGLE in res and RIGHT_ANGLE in res:
                     self.left_angles.append(res[LEFT_ANGLE])
                     self.right_angles.append(res[RIGHT_ANGLE])
