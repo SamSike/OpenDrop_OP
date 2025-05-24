@@ -23,5 +23,6 @@ KEY_ESC = [27]
 KEY_O = [ord('o'), ord('O')]
 KEY_P = [ord('p'), ord('P')]
 
+
 def key_in(k, key_group):
     return k in key_group

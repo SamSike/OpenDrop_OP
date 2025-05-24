@@ -1,12 +1,12 @@
+from matplotlib import pyplot as plt
+
 import datetime
 import os
 import pickle
-
 import numpy as np
-from matplotlib import pyplot as plt
 import matplotlib
-matplotlib.use('Agg')
 import csv
+matplotlib.use('Agg')
 
 # set the initial variables
 directory_path = './contour_dataset_4par/'
@@ -16,9 +16,12 @@ save_path = 'contour_dataset_4par.pkl'
 ds = {}
 
 # define .pkl load function
-def load_obj(name ):
+
+
+def load_obj(name: str):
     with open(name, 'rb') as f:
         return pickle.load(f)
+
 
 # iterate over all files in the directory
 for filename in os.listdir(directory_path):

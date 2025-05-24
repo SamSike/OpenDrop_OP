@@ -1,13 +1,16 @@
-import customtkinter as ctk
-from tkinter import filedialog, messagebox
+from modules.core.classes import ExperimentalSetup
 from views.helper.style import set_light_only_color
 
+from tkinter import filedialog, messagebox
+import customtkinter as ctk
+
+
 class OutputPage(ctk.CTkFrame):
-    def __init__(self, parent, user_input_data, **kwargs):
+    def __init__(self, parent, user_input_data: ExperimentalSetup, **kwargs):
         super().__init__(parent, **kwargs)
 
         self.user_input_data = user_input_data
-        
+
         # Set up the grid configuration for the entire frame
         self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -38,13 +41,14 @@ class OutputPage(ctk.CTkFrame):
         self.filename_var = ctk.StringVar()
         self.filename_var.trace_add("write", self.on_filename_change)
 
-        self.filename_entry = ctk.CTkEntry(output_frame, width=300, textvariable=self.filename_var)
+        self.filename_entry = ctk.CTkEntry(
+            output_frame, width=300, textvariable=self.filename_var)
         self.filename_entry.grid(row=2, column=1, padx=10, pady=5)
 
         # Figure Section
         figure_frame = ctk.CTkFrame(self)
         # hide this for now
-        #figure_frame.grid(row=2, column=0, padx=20, pady=20, sticky="nsew")
+        # figure_frame.grid(row=2, column=0, padx=20, pady=20, sticky="nsew")
 
         figure_label = ctk.CTkLabel(
             figure_frame, text="Figure", font=ctk.CTkFont(size=14, weight="bold"))
@@ -80,7 +84,6 @@ class OutputPage(ctk.CTkFrame):
         selected_count = sum(var.get() == "on" for var in self.check_vars)
         self.plot_summary_label.configure(
             text=f"{selected_count} plots selected")
-        
+
     def on_filename_change(self, *args):
         self.user_input_data.filename = self.filename_var.get()
-
