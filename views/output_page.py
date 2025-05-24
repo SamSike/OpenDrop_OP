@@ -1,94 +1,101 @@
+# views/output_page.py
+
 from modules.core.classes import ExperimentalSetup
 from views.helper.style import set_light_only_color
 
 from tkinter import filedialog
 import customtkinter as ctk
 import os
+import tkinter as tk
+from utils.tooltip_util import create_tooltip
 
 
 class OutputPage(ctk.CTkFrame):
     def __init__(self, parent, user_input_data: ExperimentalSetup, **kwargs):
         super().__init__(parent, **kwargs)
-
         self.user_input_data = user_input_data
 
-        # Set up the grid configuration for the entire frame
+        # allow the middle column to expand when resized
         self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(0, weight=1)
-        # Output Data Location Section
+
+        # -----------------------
+        # Output Location Section
+        # -----------------------
         output_frame = ctk.CTkFrame(self)
         set_light_only_color(output_frame, "outerframe")
         output_frame.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+        output_frame.grid_columnconfigure(1, weight=1)
 
-        # Output Location Label inside the gray frame (output_frame)
-        output_location_label = ctk.CTkLabel(
-            output_frame, text="Output Location", font=ctk.CTkFont(size=14, weight="bold"), anchor="w")
-        output_location_label.grid(
-            row=0, column=0, columnspan=3, padx=10, pady=(10, 5), sticky="w")
+        # Section title
+        ctk.CTkLabel(
+            output_frame,
+            text="Output Location",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            anchor="w"
+        ).grid(row=0, column=0, columnspan=4, padx=10, pady=(10,5), sticky="w")
 
-        location_label = ctk.CTkLabel(
-            output_frame, text="Location:", anchor='w')
-        location_label.grid(row=1, column=0, sticky='w', padx=10, pady=5)
+        # Location row
+        ctk.CTkLabel(output_frame, text="Location:", anchor="w") \
+           .grid(row=1, column=0, sticky="w", padx=10, pady=5)
 
         self.location_entry = ctk.CTkEntry(output_frame, width=300)
-        self.location_entry.grid(row=1, column=1, padx=10, pady=5)
+        self.location_entry.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
         self.location_entry._entry.insert(0, user_input_data.output_directory)
 
-        browse_btn = ctk.CTkButton(
-            output_frame, text="Browse", command=self.browse_location)
-        browse_btn.grid(row=1, column=2, padx=10, pady=5)
+        ctk.CTkButton(
+            output_frame, text="Browse", command=self.browse_location
+        ).grid(row=1, column=3, padx=10, pady=5)
 
-        filename_label = ctk.CTkLabel(
-            output_frame, text="Filename:", anchor='w')
-        filename_label.grid(row=2, column=0, sticky='w', padx=10, pady=(5, 10))
-
+        # Filename row
+        ctk.CTkLabel(output_frame, text="Filename:", anchor="w") \
+           .grid(row=2, column=0, sticky="w", padx=10, pady=(5,10))
         self.filename_var = ctk.StringVar(value=user_input_data.filename)
         self.filename_var.trace_add("write", self.on_filename_change)
-
         self.filename_entry = ctk.CTkEntry(
-            output_frame, width=300, textvariable=self.filename_var)
-        self.filename_entry.grid(row=2, column=1, padx=10, pady=5)
+            output_frame, width=300, textvariable=self.filename_var
+        )
+        self.filename_entry.grid(row=2, column=1, padx=10, pady=(5,10), sticky="ew")
 
-        # Figure Section
-        figure_frame = ctk.CTkFrame(self)
-        # hide this for now
-        # figure_frame.grid(row=2, column=0, padx=20, pady=20, sticky="nsew")
+        # "❓" help icon next to filename
+        help_label = ctk.CTkLabel(
+            output_frame,
+            text="❓",
+            font=ctk.CTkFont(size=16, weight="bold"),
+            cursor="question_arrow"
+        )
+        help_label.grid(row=2, column=2, padx=5, pady=(5,10), sticky="w")
 
-        figure_label = ctk.CTkLabel(
-            figure_frame, text="Figure", font=ctk.CTkFont(size=14, weight="bold"))
-        figure_label.pack(pady=10)
+        # Combined tooltip: naming convention + default folder notice
+        tooltip_text = (
+            "Output files are named as:\n"
+            "  Extracted_data_YYYYMMDD_HHMMSS\n\n"
+            "Example:\n"
+            "Extracted_data_20250524_192455\n\n"
+            "Extracted_data: is if there is no specify filename\n"
+            "then it will be like this Extracted_data;\n"
+            "if there is fill in filename then it will be filename_YYYYMMDD_HHMMSS\n\n"
+            "• YYYYMMDD   — extraction date (year-month-day)\n"
+            "• HHMMSS     — save time (hour, minute, second)\n\n"
+            "Ensures unique filenames for each run.\n\n"
+            "If no location is specified, files will be\n"
+            "saved to './output' folder by default."
+        )
+        create_tooltip(help_label, tooltip_text)
 
-        # Scrollable area for plots
-        scrollable_frame = ctk.CTkScrollableFrame(
-            figure_frame, height=150)
-        scrollable_frame.pack(fill='both', expand=True, padx=10, pady=5)
-
-        self.check_vars = []
-        for i in range(20):
-            var = ctk.StringVar()
-            self.check_vars.append(var)
-            plot_check = ctk.CTkCheckBox(scrollable_frame, text=f"Plot {i+1}", variable=var, onvalue="on", offvalue="off",
-                                         command=self.update_plot_summary)
-            plot_check.grid(row=i // 2, column=i %
-                            2, padx=20, pady=5, sticky='w')
-
-        # Plot selection summary (Centered below the plots)
-        self.plot_summary_label = ctk.CTkLabel(
-            figure_frame, text="0 plots selected", anchor='center')
-        self.plot_summary_label.pack(pady=10)
-
+        # -----------------------
+        # Figure Section (hidden)
+        # -----------------------
+    
     def browse_location(self):
         default_dir = self.user_input_data.output_directory or os.getcwd()
         directory = filedialog.askdirectory(initialdir=default_dir)
 
         if directory:
+            self.location_entry.delete(0, tk.END)
             self.location_entry.insert(0, directory)
             self.user_input_data.output_directory = directory
 
-    def update_plot_summary(self):
-        selected_count = sum(var.get() == "on" for var in self.check_vars)
-        self.plot_summary_label.configure(
-            text=f"{selected_count} plots selected")
-
     def on_filename_change(self, *args):
+        """Store the filename in the user_input_data when changed."""
         self.user_input_data.filename = self.filename_var.get()
