@@ -55,6 +55,11 @@ def extract_pendant_features(
         thresh2: float = 160.0,
         labels: bool = False,
 ) -> PendantFeatures:
+    """
+    Extract needle and drop features from the given image.
+    If the regions are not provided, they will be automatically detected.
+    Returns a PendantFeatures object containing the extracted features.
+    """
 
     if drop_region is None or needle_region is None:
         automated_drop_region, automated_needle_region = get_ift_regions(image)

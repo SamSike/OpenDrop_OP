@@ -41,6 +41,9 @@ def get_ift_regions(img: np.ndarray,
                     scharr_block: int = 5,
                     canny1: float = 80,
                     canny2: float = 160) -> Tuple[np.ndarray, tuple]:
+    """
+    Automatically detects the drop and needle regions in an image.
+    """
 
     original = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -275,6 +278,13 @@ def find_image_edge(img: np.ndarray, low=50, high=150, apertureSize=3):
 
 
 def user_select_region(image: np.ndarray, title: str, scale: float, screen_position) -> Tuple[Rect2, np.ndarray]:
+    """
+    Function to manually select a region of interest (ROI) in an image using mouse events.
+    User can click and drag to create a rectangle, and press Enter to confirm the selection.
+    Returns: 
+        - A Rect2 object representing the selected region.
+        - The cropped image based on the selected region.
+    """
     region = user_roi(image, title, scale, screen_position)
     cropped_image = image_crop(image, region)
     return (region, cropped_image)
@@ -568,6 +578,10 @@ def set_screen_position(screen_size: List[int]) -> List[int]:
 
 # , line_colour=(0, 0, 255), line_thickness=2):
 def user_roi(raw_image: np.ndarray, title: str, scale: float, screen_position) -> List[Tuple[float, float]]:
+    """
+    Function to select a region of interest (ROI) in an image using mouse events.
+    User can click and drag to create a rectangle, and press Enter to confirm the selection.
+    """
     global drawing
     global ix, iy
     global fx, fy
