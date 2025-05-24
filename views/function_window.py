@@ -277,10 +277,16 @@ class FunctionWindow(CTkToplevel):
             if user_input_data.filename:
                 filename = f"{user_input_data.filename}_{user_input_data.time_string}.csv"
             else:
-                if user_input_data.drop_id_method != RegionSelect.AUTOMATED or user_input_data.needle_region_method != RegionSelect.AUTOMATED:
-                    filename = f"Manual_data_{user_input_data.time_string}.csv"
+
+                if function_type == FunctionType.CONTACT_ANGLE:
+                    filename = "ContactAngle"
                 else:
-                    filename = f"Automated_data_{user_input_data.time_string}.csv"
+                    filename = "InterfacialTension"
+
+                if user_input_data.drop_id_method != RegionSelect.AUTOMATED or user_input_data.needle_region_method != RegionSelect.AUTOMATED:
+                    filename += f"Manual_data_{user_input_data.time_string}.csv"
+                else:
+                    filename += f"Automated_data_{user_input_data.time_string}.csv"
             # export_filename = os.path.join(user_input_data.directory_string, filename)
             self.ca_processor.save_result(
                 user_input_data.import_files, user_input_data.output_directory, filename)
