@@ -1,11 +1,15 @@
-from customtkinter import CTkImage, CTkFrame, CTkScrollableFrame, CTkTabview, CTkLabel
-from PIL import Image
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from modules.core.classes import ExperimentalSetup
+from modules.ift.ift_data_processor import IftDataProcessor
 from views.component.imageGallery import ImageGallery
 
+from customtkinter import CTkImage, CTkFrame, CTkScrollableFrame, CTkTabview, CTkLabel
+from PIL import Image
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+import matplotlib.pyplot as plt
+
+
 class IftAnalysis(CTkFrame):
-    def __init__(self, parent, user_input_data,ift_processor, **kwargs):
+    def __init__(self, parent, user_input_data: ExperimentalSetup, ift_processor: IftDataProcessor, **kwargs):
         super().__init__(parent, **kwargs)
 
         self.user_input_data = user_input_data
@@ -54,33 +58,46 @@ class IftAnalysis(CTkFrame):
         parent_frame.grid_rowconfigure(0, weight=1)
         parent_frame.grid_columnconfigure(0, weight=1)
 
-        paddingX = 5
+        padding_x = 5
 
-        headings = ["Time", "IFT (mN/m)", "V (mm^3)", "SA (mm^2)", "Bond", "Worth"]
+        headings = ["Time", "IFT (mN/m)", "V (mm^3)",
+                    "SA (mm^2)", "Bond", "Worth"]
         for j, heading in enumerate(headings):
             cell = CTkLabel(parent_frame, text=heading)
-            cell.grid(row=0, column=j, padx=paddingX, pady=10, sticky="nsew")
+            cell.grid(row=0, column=j, padx=padding_x, pady=10, sticky="nsew")
 
         results = self.user_input_data.ift_results
-        for i , result in enumerate(results, start=1):
+        for i, result in enumerate(results, start=1):
             # Time column
-            time_cell = CTkLabel(self.table_frame, text=f"{result[5]}", anchor="center")
-            time_cell.grid(row=i, column=0, padx=paddingX, pady=5, sticky="nsew")
+            time_cell = CTkLabel(
+                self.table_frame, text=f"{result[5]}", anchor="center")
+            time_cell.grid(row=i, column=0, padx=padding_x,
+                           pady=5, sticky="nsew")
             # IFT column
-            ift_cell = CTkLabel(self.table_frame, text=f"{result[0]:.1f}", anchor="center")
-            ift_cell.grid(row=i, column=1, padx=paddingX, pady=5, sticky="nsew")
+            ift_cell = CTkLabel(
+                self.table_frame, text=f"{result[0]:.1f}", anchor="center")
+            ift_cell.grid(row=i, column=1, padx=padding_x,
+                          pady=5, sticky="nsew")
             # Volume (V) column
-            volume_cell = CTkLabel(self.table_frame, text=f"{result[1]:.2f}", anchor="center")
-            volume_cell.grid(row=i, column=2, padx=paddingX, pady=5, sticky="nsew")
+            volume_cell = CTkLabel(
+                self.table_frame, text=f"{result[1]:.2f}", anchor="center")
+            volume_cell.grid(row=i, column=2, padx=padding_x,
+                             pady=5, sticky="nsew")
             # Surface Area (SA) column
-            sa_cell = CTkLabel(self.table_frame, text=f"{result[2]:.2f}", anchor="center")
-            sa_cell.grid(row=i, column=3, padx=paddingX, pady=5, sticky="nsew")
+            sa_cell = CTkLabel(
+                self.table_frame, text=f"{result[2]:.2f}", anchor="center")
+            sa_cell.grid(row=i, column=3, padx=padding_x,
+                         pady=5, sticky="nsew")
             # Bond column
-            bond_cell = CTkLabel(self.table_frame, text=f"{result[3]:.4f}", anchor="center")
-            bond_cell.grid(row=i, column=4, padx=paddingX, pady=5, sticky="nsew")
+            bond_cell = CTkLabel(
+                self.table_frame, text=f"{result[3]:.4f}", anchor="center")
+            bond_cell.grid(row=i, column=4, padx=padding_x,
+                           pady=5, sticky="nsew")
             # Worth column
-            worth_cell = CTkLabel(self.table_frame, text=f"{result[4]:.4f}", anchor="center")
-            worth_cell.grid(row=i, column=5, padx=paddingX, pady=5, sticky="nsew")
+            worth_cell = CTkLabel(
+                self.table_frame, text=f"{result[4]:.4f}", anchor="center")
+            worth_cell.grid(row=i, column=5, padx=padding_x,
+                            pady=5, sticky="nsew")
 
         for j in range(len(headings)):
             parent_frame.grid_columnconfigure(j, weight=1)
@@ -109,7 +126,9 @@ class IftAnalysis(CTkFrame):
 
         def show(index):
             ax.clear()
-            ax.scatter(results[index].arclengths, results[index].residuals, color='black')  # Example data for the residuals
+            # Example data for the residuals
+            ax.scatter(results[index].arclengths,
+                       results[index].residuals, color='black')
             ax.set_title(f"Residuals for Drop {index + 1}")
             ax.set_xlabel("Arclengths")
             ax.set_ylabel("Residuals")
@@ -127,7 +146,7 @@ class IftAnalysis(CTkFrame):
         show(idx[0])
         # Create a canvas for the figure
         canvas = FigureCanvasTkAgg(fig, self.residuals_frame)
-        
+
         # Create and pack the navigation toolbar
         toolbar = NavigationToolbar2Tk(canvas, self.residuals_frame)
         toolbar.update()
@@ -147,7 +166,9 @@ class IftAnalysis(CTkFrame):
 
         def show(index):
             ax.clear()
-            ax.scatter(results[index].arclengths, results[index].residuals, color='black')  # Example data for the residuals
+            # Example data for the residuals
+            ax.scatter(results[index].arclengths,
+                       results[index].residuals, color='black')
             ax.set_title(f"Residuals for Drop {index + 1}")
             ax.set_xlabel("Arclengths")
             ax.set_ylabel("Residuals")
@@ -170,15 +191,14 @@ class IftAnalysis(CTkFrame):
         canvas.get_tk_widget().pack(fill="both", expand=True)
         canvas.draw()
 
-    def receive_output(self , user_input_data):
-        print("Received output in IftAnalysis")
+    def receive_output(self, user_input_data: ExperimentalSetup):
+        print("Received output in IftAnalysis {user_input_data}")
         # self.user_input_data = user_input_data
         # self.pd_processor.process_data(self.user_input_data)
         # self.create_table(self.table_frame)
         # self.create_image_frame(self.visualisation_frame)
         # self.create_residuals_frame(self.visualisation_frame)
 
-            
     def destroy(self):
         plt.close('all')
         return super().destroy()

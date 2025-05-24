@@ -25,22 +25,22 @@
 # should have received a copy of the GNU General Public License along
 # with this software.  If not, see <https://www.gnu.org/licenses/>.
 
+from utils.misc import rotation_mat2d
+from modules.ift.younglaplace.shape import YoungLaplaceShape
+
 from typing import Sequence, Tuple, NamedTuple, Optional
 from enum import IntEnum, auto
 import math
 import numpy as np
 import scipy.optimize
-from modules.ift.pendant import find_pendant_apex
-from utils.misc import rotation_mat2d
-from modules.ift.younglaplace.shape import YoungLaplaceShape
 
 
 __all__ = ('YoungLaplaceFitResult', 'young_laplace_fit',)
 
-DELTA_TOL     = 1.e-8
-GRADIENT_TOL  = 1.e-8
+DELTA_TOL = 1.e-8
+GRADIENT_TOL = 1.e-8
 OBJECTIVE_TOL = 1.e-8
-MAX_STEPS     = 50
+MAX_STEPS = 50
 # Math constants.
 PI = math.pi
 NAN = math.nan
@@ -72,11 +72,11 @@ def young_laplace_fit(data: Tuple[np.ndarray, np.ndarray], verbose: bool = False
     def jac(params: Sequence[float], model: YoungLaplaceModel) -> np.ndarray:
         model.set_params(params)
         return model.jac
-    
+
     initial_params = young_laplace_guess(data)
     if initial_params is None:
         raise ValueError("Parameter estimatation failed for this data set")
-    
+
     model.set_params(initial_params)
 
     optimize_result = scipy.optimize.least_squares(
@@ -115,8 +115,8 @@ def young_laplace_fit(data: Tuple[np.ndarray, np.ndarray], verbose: bool = False
     return result
 
 
-
 def young_laplace_guess(data: Tuple[np.ndarray, np.ndarray]) -> Optional[tuple]:
+    from modules.ift.pendant import find_pendant_apex
     params = np.empty(len(YoungLaplaceParam))
 
     ans = find_pendant_apex(data)
@@ -125,7 +125,7 @@ def young_laplace_guess(data: Tuple[np.ndarray, np.ndarray]) -> Optional[tuple]:
 
     apex, radius, rotation = ans
 
-    r, z = rotation_mat2d(-rotation) @ (data - np.reshape(apex, (2, 1))) 
+    r, z = rotation_mat2d(-rotation) @ (data - np.reshape(apex, (2, 1)))
     bond = _bond_selected_plane(r, z, radius)
 
     params[YoungLaplaceParam.BOND] = bond
@@ -133,7 +133,7 @@ def young_laplace_guess(data: Tuple[np.ndarray, np.ndarray]) -> Optional[tuple]:
     params[YoungLaplaceParam.APEX_X] = apex.x
     params[YoungLaplaceParam.APEX_Y] = apex.y
     params[YoungLaplaceParam.ROTATION] = rotation
-    
+
     return params
 
 
@@ -141,7 +141,8 @@ def _bond_selected_plane(r: np.ndarray, z: np.ndarray, radius: float) -> float:
     """Estimate Bond number by method of selected plane."""
     z_ix = np.argsort(z)
     if np.searchsorted(z, 2.0*radius, sorter=z_ix) < len(z):
-        lower, upper = np.searchsorted(z, [1.95*radius, 2.05*radius], sorter=z_ix)
+        lower, upper = np.searchsorted(
+            z, [1.95*radius, 2.05*radius], sorter=z_ix)
         radii = np.abs(r[z_ix][lower:upper+1])
         x = radii.mean()/radius
         bond = max(0.10, 0.1756 * x**2 + 0.5234 * x**3 - 0.2563 * x**4)
@@ -168,20 +169,20 @@ class YoungLaplaceModel:
         if self._params_set and (self._params == params).all():
             return
 
-        bond   = params[YoungLaplaceParam.BOND]
+        bond = params[YoungLaplaceParam.BOND]
         radius = params[YoungLaplaceParam.RADIUS]
-        X0     = params[YoungLaplaceParam.APEX_X]
-        Y0     = params[YoungLaplaceParam.APEX_Y]
-        w      = params[YoungLaplaceParam.ROTATION]
+        X0 = params[YoungLaplaceParam.APEX_X]
+        Y0 = params[YoungLaplaceParam.APEX_Y]
+        w = params[YoungLaplaceParam.ROTATION]
 
         s = self._s
 
         residuals = self._residuals
         de_dBo = self._jac[:, YoungLaplaceParam.BOND]
-        de_dR  = self._jac[:, YoungLaplaceParam.RADIUS]
+        de_dR = self._jac[:, YoungLaplaceParam.RADIUS]
         de_dX0 = self._jac[:, YoungLaplaceParam.APEX_X]
         de_dY0 = self._jac[:, YoungLaplaceParam.APEX_Y]
-        de_dw  = self._jac[:, YoungLaplaceParam.ROTATION]
+        de_dw = self._jac[:, YoungLaplaceParam.ROTATION]
 
         shape = self._get_shape(bond)
         Q = rotation_mat2d(w)
@@ -200,10 +201,13 @@ class YoungLaplaceModel:
         e[np.signbit(e_r) != np.signbit(r)] *= -1
 
         residuals[:] = e
-        de_dBo[:] = -(e_r*dr_dBo + e_z*dz_dBo) / e   # derivative w.r.t. Bond number
+        de_dBo[:] = -(e_r*dr_dBo + e_z*dz_dBo) / \
+            e   # derivative w.r.t. Bond number
         de_dR[:] = -(e_r*r + e_z*z) / (radius * e)   # derivative w.r.t. radius
-        de_dX0[:], de_dY0[:] = -Q @ (e_r, e_z) / e   # derivative w.r.t. apex (x, y)-coordinates
-        de_dw[:] = (e_r*z - e_z*r) / e               # derivative w.r.t. rotation
+        # derivative w.r.t. apex (x, y)-coordinates
+        de_dX0[:], de_dY0[:] = -Q @ (e_r, e_z) / e
+        # derivative w.r.t. rotation
+        de_dw[:] = (e_r*z - e_z*r) / e
 
         self._params[:] = params
 
@@ -239,11 +243,11 @@ class YoungLaplaceModel:
     def closest(self) -> np.ndarray:
         xy = np.empty_like(self.data, dtype=float)
 
-        bond   = self._params[YoungLaplaceParam.BOND]
+        bond = self._params[YoungLaplaceParam.BOND]
         radius = self._params[YoungLaplaceParam.RADIUS]
-        X0     = self._params[YoungLaplaceParam.APEX_X]
-        Y0     = self._params[YoungLaplaceParam.APEX_Y]
-        w      = self._params[YoungLaplaceParam.ROTATION]
+        X0 = self._params[YoungLaplaceParam.APEX_X]
+        Y0 = self._params[YoungLaplaceParam.APEX_Y]
+        w = self._params[YoungLaplaceParam.ROTATION]
 
         shape = self._get_shape(bond)
         Q = rotation_mat2d(w)
@@ -262,7 +266,7 @@ class YoungLaplaceModel:
 
     @property
     def volume(self) -> float:
-        bond   = self._params[YoungLaplaceParam.BOND]
+        bond = self._params[YoungLaplaceParam.BOND]
         radius = self._params[YoungLaplaceParam.RADIUS]
 
         shape = self._get_shape(bond)
@@ -272,7 +276,7 @@ class YoungLaplaceModel:
 
     @property
     def surface_area(self) -> float:
-        bond   = self._params[YoungLaplaceParam.BOND]
+        bond = self._params[YoungLaplaceParam.BOND]
         radius = self._params[YoungLaplaceParam.RADIUS]
 
         shape = self._get_shape(bond)
@@ -282,8 +286,8 @@ class YoungLaplaceModel:
 
 
 class YoungLaplaceParam(IntEnum):
-    BOND     = 0
-    RADIUS   = auto()
-    APEX_X   = auto()
-    APEX_Y   = auto()
+    BOND = 0
+    RADIUS = auto()
+    APEX_X = auto()
+    APEX_Y = auto()
     ROTATION = auto()
