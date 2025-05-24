@@ -1,6 +1,5 @@
 from modules.core.classes import ExperimentalSetup
 from modules.image.select_regions import user_roi, set_scale, set_screen_position, user_select_region
-from modules.image.read_image import get_image
 from modules.ift.younglaplace.younglaplace import young_laplace_fit
 from modules.ift.younglaplace.shape import YoungLaplaceShape
 from modules.ift.pendant import extract_pendant_features, analyze_ift
@@ -11,9 +10,9 @@ from utils.geometry import Rect2
 
 from PIL import Image
 from typing import Callable
-from tkinter import messagebox
 import cv2
 import os
+import csv
 import numpy as np
 import timeit
 # from modules.PlotManager import PlotManager
@@ -53,6 +52,7 @@ class IftDataProcessor:
 
             print("Time taken for frame %d: %.2f seconds" % (i+1, duration))
             print("callback: ", i)
+
         if callback:
             callback(user_input_data)
 
@@ -199,31 +199,18 @@ class IftDataProcessor:
 
         user_input_data.drop_contour_images[drop_index] = save_path
 
-    def save_result(self, input_file, output_directory: str, filename: str, user_input_data: ExperimentalSetup):
+    def save_result(self, user_input_data: ExperimentalSetup, output_file_path: str):
         """
         Save experiment results to a CSV file with columns:
         Filename, Time, IFT, V, SA, Bond, Worth
         """
-        import csv
-        import os
-
-        # Prepare output path
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
-        output_file = os.path.join(output_directory, filename)
-        # Write CSV header and data
-        with open(output_file, 'w', newline='') as csvfile:
+        with open(output_file_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["Filename", "Time", "IFT (mN/m)",
                             "Volume (mm^3)", "Surface Area (mm^2)", "Bond", "Worth"])
             for i, result in enumerate(user_input_data.ift_results):
                 if result is not None and result != "None":
                     # result: [IFT, V, SA, Bond, Worth, Time]
-                    filename = (
-                        user_input_data.import_files[i]
-                        if hasattr(user_input_data, "import_files") and len(user_input_data.import_files) > i
-                        else f"Image_{i+1}"
-                    )
                     writer.writerow([
                         user_input_data.import_files[i],
                         f"{result[5]:.1f}",
@@ -233,4 +220,3 @@ class IftDataProcessor:
                         f"{result[3]:.4f}",
                         f"{result[4]:.4f}"
                     ])
-        print(f"Results saved to {output_file}")

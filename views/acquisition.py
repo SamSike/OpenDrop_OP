@@ -3,7 +3,7 @@ from utils.image_handler import ImageHandler
 from utils.enums import FunctionType
 from utils.config import PATH_TO_SCRIPT, IMAGE_TYPE, FILE_SOURCE_OPTIONS_CA, EDGEFINDER_OPTIONS
 from views.component.option_menu import OptionMenu
-from views.component.integer_entry import IntegerEntry
+from views.component.float_entry import FloatEntry
 from views.helper.style import set_light_only_color
 
 from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkImage
@@ -68,8 +68,8 @@ class Acquisition(CTkFrame):
 
         default_value = getattr(self.user_input_data, "frame_interval", 1)
 
-        self.frame_interval = IntegerEntry(
-            self, image_acquisition_frame, "Frame interval (s):", self.update_frame_interval, rw=4, cl=0,
+        self.frame_interval = FloatEntry(
+            self, image_acquisition_frame, "Frame interval (s)*:", self.update_frame_interval, rw=4, cl=0,
             default_value=default_value)
         # Height of this row doesn't need to stretch
         image_acquisition_frame.grid_rowconfigure(4, weight=0)
@@ -127,7 +127,7 @@ class Acquisition(CTkFrame):
 
     def setup_choose_files_frame(self, frame):
         self.choose_files_label = CTkLabel(
-            frame, text="Image Files: ", width=150, anchor="w")
+            frame, text="Image files *:", width=150, anchor="w")
         self.choose_files_label.grid(
             row=1, column=0, sticky="w", padx=(5, 5), pady=(5, 5))
 

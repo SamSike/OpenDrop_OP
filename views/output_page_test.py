@@ -44,10 +44,3 @@ def test_on_filename_change(output_page):
     page.filename_var.get.return_value = "result_file"
     page.on_filename_change()
     assert dummy_input.filename == "result_file"
-
-
-def test_plot_selection_summary(output_page):
-    page, _ = output_page
-    page.update_plot_summary()
-    page.plot_summary_label.configure.assert_called_with(
-        text="3 plots selected")

@@ -18,6 +18,8 @@ from utils.enums import FunctionType, Stage, Move, RegionSelect
 from customtkinter import CTkFrame, CTkButton, CTkToplevel, get_appearance_mode
 from tkinter import messagebox
 from typing import List, Callable
+from datetime import datetime
+import os
 
 
 def call_user_input(function_type: FunctionType, fitted_drop_data: DropData, main_window: MainWindow):
@@ -71,6 +73,7 @@ class FunctionWindow(CTkToplevel):
         self.ift_processor = IftDataProcessor()
 
         user_input_data: ExperimentalSetup = ExperimentalSetup()
+        user_input_data.from_yaml("user_config.yaml")
         experimental_drop: ExperimentalDrop = ExperimentalDrop()
 
         user_input_data.screen_resolution = [
@@ -207,12 +210,9 @@ class FunctionWindow(CTkToplevel):
                         self.ift_analysis_frame = IftAnalysis(
                             self, user_input_data, self.ift_processor, fg_color=self.FG_COLOR)
                         self.ift_analysis_frame.pack(fill="both", expand=True)
-                        print("FunctionType.PENDANT_DROP")
                         self.withdraw()
-                        self.ift_processor.process_data(
-                            user_input_data, callback=self.ift_analysis_frame.receive_output)
+                        self.ift_processor.process_data(user_input_data)
                         self.deiconify()
-
                     else:
                         self.ca_preparation_frame.pack_forget()
                         self.ca_analysis_frame = CaAnalysis(
@@ -256,40 +256,39 @@ class FunctionWindow(CTkToplevel):
             messagebox.showerror(
                 "Invalid Path", "Output directory is missing. File not saved.", parent=self)
             return
-        if function_type == FunctionType.INTERFACIAL_TENSION:
-            from datetime import datetime
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            if user_input_data.filename:
-                filename = f"{user_input_data.filename}_{timestamp}.csv"
-            else:
-                filename = "InterfacialTension"
-                if user_input_data.drop_id_method != RegionSelect.AUTOMATED or user_input_data.needle_region_method != RegionSelect.AUTOMATED:
-                    filename += f"Manual_data_{timestamp}.csv"
-                else:
-                    filename += f"Automated_data_{timestamp}.csv"
 
+        if not user_input_data.output_directory:
+            user_input_data.output_directory = './outputs/'
+
+        # Prepare output path
+        if not os.path.exists(user_input_data.output_directory):
+            os.makedirs(user_input_data.output_directory)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename: str = ""
+        if user_input_data.filename is not None:
+            filename = f"{user_input_data.filename}_{timestamp}.csv"
+        else:
+            function_type_formatted = function_type.value.replace(
+                " ", "_")  # Interfacial Tension -> Interfacial_Tension
+            if user_input_data.drop_id_method != RegionSelect.AUTOMATED or user_input_data.needle_region_method != RegionSelect.AUTOMATED:
+                filename = f"Manual_{function_type_formatted}_{timestamp}.csv"
+            else:
+                filename = f"Automated_{function_type_formatted}_{timestamp}.csv"
+
+        if function_type == FunctionType.INTERFACIAL_TENSION:
             self.ift_processor.save_result(
                 user_input_data.import_files, user_input_data.output_directory, filename, user_input_data)
-
-            messagebox.showinfo(
-                "Success", "File saved successfully!", parent=self)
-            self.on_closing()
         else:
-            if user_input_data.filename:
-                filename = f"{user_input_data.filename}_{user_input_data.time_string}.csv"
-            else:
-                filename = "ContactAngle"
-                if user_input_data.drop_id_method != RegionSelect.AUTOMATED or user_input_data.needle_region_method != RegionSelect.AUTOMATED:
-                    filename += f"Manual_data_{user_input_data.time_string}.csv"
-                else:
-                    filename += f"Automated_data_{user_input_data.time_string}.csv"
-            # export_filename = os.path.join(user_input_data.directory_string, filename)
             self.ca_processor.save_result(
                 user_input_data.import_files, user_input_data.output_directory, filename)
 
-            messagebox.showinfo(
-                "Success", "File saved successfully!", parent=self)
-            self.on_closing()
+        messagebox.showinfo(
+            "Save Successful",
+            f"Results have been saved to:\n{filename}",
+            parent=self
+        )
+        self.on_closing()
 
     def update_stage(self, direction: int):
         self.current_stage = self.stages[(self.stages.index(
