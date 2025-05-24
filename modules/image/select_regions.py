@@ -589,7 +589,21 @@ def user_roi(raw_image: np.ndarray, title: str, scale: float, screen_position) -
     img = image_TEMP.copy()
 
     while (1):
-        cv2.imshow(title, img)
+        # Add message to the image before showing
+        img_display = img.copy()
+        msg = "Press Enter to Confirm Region"
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.6
+        color = (255, 255, 255)
+        thickness = 2
+        # Position: bottom left, 10px from left, 10px from bottom
+        text_size, _ = cv2.getTextSize(msg, font, font_scale, thickness)
+        text_x = 10
+        text_y = img_display.shape[0] - 10
+        cv2.putText(img_display, msg, (text_x, text_y), font,
+                    font_scale, color, thickness, cv2.LINE_AA)
+
+        cv2.imshow(title, img_display)
 
         k = cv2.waitKey(1) & 0xFF
         if k != 255:
