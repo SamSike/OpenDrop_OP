@@ -9,7 +9,7 @@ from utils.enums import FittingMethod
 from utils.tooltip_util import create_tooltip
 import re
 import os
-from tkinter import simpledialog, messagebox
+from tkinter import messagebox
 
 LABEL_WIDTH = 200  # Adjust as needed
 
@@ -105,8 +105,8 @@ def create_user_input_fields_ift(self, parent, user_input_data):
     
     # Add/remove button functions
     def add_needle_diameter():
-        # Show input dialog
-        new_value = simpledialog.askstring("Add Needle Diameter", "Enter new needle diameter (mm):")
+        # Get value directly from the input field, no dialog popup
+        new_value = needle_var.get()
         if new_value:
             try:
                 # Validate as a valid float
@@ -120,8 +120,6 @@ def create_user_input_fields_ift(self, parent, user_input_data):
                     NEEDLE_OPTIONS.append(formatted_value)
                     # Update combobox
                     needle_combobox.configure(values=NEEDLE_OPTIONS)
-                    # Set value to newly added value
-                    needle_var.set(formatted_value)
                     # Save to config.py
                     save_needle_options_to_config()
             except ValueError:
@@ -445,21 +443,46 @@ def create_analysis_checklist_cm(self, parent, user_input_data):
 
 # 在文件中添加这个函数用于保存NEEDLE_OPTIONS到config.py文件
 def save_needle_options_to_config():
-    """Save NEEDLE_OPTIONS to config.py file"""
-    config_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'utils', 'config.py')
-    
-    if os.path.exists(config_file_path):
-        with open(config_file_path, 'r') as file:
-            content = file.read()
+    """Save NEEDLE_OPTIONS to config.py file to ensure persistence"""
+    try:
+        # Get the absolute path to the utils directory
+        current_dir = os.path.dirname(os.path.abspath(__file__))  # component directory
+        parent_dir = os.path.dirname(current_dir)  # views directory
+        root_dir = os.path.dirname(parent_dir)  # project root directory
+        config_file_path = os.path.join(root_dir, 'utils', 'config.py')
         
-        # Use regex to find and replace NEEDLE_OPTIONS line
-        needle_options_str = "NEEDLE_OPTIONS = " + str(NEEDLE_OPTIONS)
-        pattern = r'NEEDLE_OPTIONS\s*=\s*\[[^\]]*\]'
-        if re.search(pattern, content):
-            new_content = re.sub(pattern, needle_options_str, content)
+        if os.path.exists(config_file_path):
+            # Read current file content
+            with open(config_file_path, 'r', encoding='utf-8') as file:
+                content = file.read()
             
-            with open(config_file_path, 'w') as file:
-                file.write(new_content)
+            # Properly format NEEDLE_OPTIONS, ensuring consistent string format
+            formatted_options = []
+            for option in NEEDLE_OPTIONS:
+                formatted_options.append(f"'{option}'")
+            
+            needle_options_str = "NEEDLE_OPTIONS = [" + ", ".join(formatted_options) + "]"
+            
+            # Use regex to find and replace the NEEDLE_OPTIONS line
+            pattern = r'NEEDLE_OPTIONS\s*=\s*\[[^\]]*\]'
+            if re.search(pattern, content):
+                new_content = re.sub(pattern, needle_options_str, content)
+                
+                # Write back to the file to ensure persistence
+                with open(config_file_path, 'w', encoding='utf-8') as file:
+                    file.write(new_content)
+                print(f"Successfully saved needle options to {config_file_path}")
+                return True
+            else:
+                print("Could not find NEEDLE_OPTIONS in config file")
+                return False
+        else:
+            print(f"Config file not found: {config_file_path}")
+            return False
+    except Exception as e:
+        print(f"Error saving needle options: {str(e)}")
+        messagebox.showerror("Save Error", f"Could not save needle options: {str(e)}")
+        return False
 
 if __name__ == "__main__":
     root = CTk()  # Create a CTk instance
