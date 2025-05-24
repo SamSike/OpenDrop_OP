@@ -1,7 +1,7 @@
 from modules.core.classes import ExperimentalSetup
 from views.helper.style import set_light_only_color
 
-from tkinter import filedialog, messagebox
+from tkinter import filedialog
 import customtkinter as ctk
 import os
 

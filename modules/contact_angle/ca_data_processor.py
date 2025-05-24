@@ -106,17 +106,7 @@ class CaDataProcessor:
             if callback:
                 callback(i+1, raw_experiment)
 
-    def save_result(self, user_input_data, filename):
-
-        if not user_input_data.output_directory:
-            user_input_data.output_directory = './outputs/'
-
-        # Prepare output path
-        if not os.path.exists(user_input_data.output_directory):
-            os.makedirs(user_input_data.output_directory)
-
-        output_file = os.path.join(user_input_data.output_directory, filename)
-
+    def save_result(self, user_input_data: ExperimentalSetup, output_file_path: str):
         for index, contact_angles in enumerate(self.results):
             out = []
             filepath = user_input_data.import_files[index]
@@ -139,7 +129,7 @@ class CaDataProcessor:
             array = np.array(out)
             array = array.reshape(1, array.shape[0])
 
-            with open(output_file, 'a') as f:
+            with open(output_file_path, 'a') as f:
                 if index == 0:
                     f.write(string+'\n')
                 #for val in array[0]:

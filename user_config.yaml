@@ -20,7 +20,7 @@ image_source: Local images          # Source of images (only have Local images o
 
 # --- Image acquisition ---
 import_files: null                  # Optional import file list
-frame_interval: 1                   # Time between frames (seconds)
+frame_interval: 1                   # Time between frames/images (float number)
 
 # --- Analysis methods ---
 analysis_methods_ca:                # Contact angle fitting methods
