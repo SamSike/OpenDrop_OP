@@ -268,13 +268,14 @@ class FunctionWindow(CTkToplevel):
                 "Success", "File saved successfully!", parent=self)
             self.on_closing()
         else:
-            # filename = user_input_data.filename[:-4] + '_' + user_input_data.time_string + ".csv"
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             if user_input_data.filename:
-                filename = user_input_data.filename + '_' + user_input_data.time_string + ".csv"
+                filename = f"{user_input_data.filename}_{timestamp}.csv"
             else:
-                filename = "Extracted_data" + '_' + user_input_data.time_string + ".csv"
-            # export_filename = os.path.join(user_input_data.directory_string, filename)
-            self.ca_processor.save_result(user_input_data, filename)
+                filename = f"Extracted_data_{timestamp}.csv"
+            self.ca_processor.save_result(
+                user_input_data.import_files, user_input_data.output_directory, filename)
 
             messagebox.showinfo(
                 "Success", "File saved successfully!", parent=self)
