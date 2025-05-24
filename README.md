@@ -24,19 +24,28 @@ Current ML implementation is optimized for high angle systems. For lower angle o
   - [2. Set Up Virtual Environment (Intel \& Apple Silicon)](#2-set-up-virtual-environment-intel--apple-silicon)
     - [Install Conda or Pyenv](#install-conda-or-pyenv)
     - [Create Python Environment](#create-python-environment)
-  - [3. Build Library](#3-build-library)
-    - [Boost](#boost)
-    - [SUNDIALS](#sundials)
-    - [✅ You can skip this step if:](#-you-can-skip-this-step-if)
-    - [⚠️ You must build manually with CMake if:](#️-you-must-build-manually-with-cmake-if)
-  - [4. Build Cython Extensions](#4-build-cython-extensions)
-  - [5. Run the Application](#5-run-the-application)
+    - [Install Python Dependencies](#install-python-dependencies)
+  - [3. Build Cython Extensions](#3-build-cython-extensions)
+  - [4. Run the Application](#4-run-the-application)
   - [Troubleshooting:](#troubleshooting)
     - [1. SUNDIALS:Architecture Mismatch (macOS)](#1-sundialsarchitecture-mismatch-macos)
     - [✅ Fix Steps](#-fix-steps)
     - [2. Boost: File not found](#2-boost-file-not-found)
     - [✅ Fix Steps](#-fix-steps-1)
-- [User Guide](#user-guide)
+    - [3. Check Build Library](#3-check-build-library)
+    - [Boost](#boost)
+    - [About SUNDIALS](#about-sundials)
+    - [✅ You can skip this step if:](#-you-can-skip-this-step-if)
+    - [⚠️ You must build manually with CMake if:](#️-you-must-build-manually-with-cmake-if)
+- [User Configuration Guide](#user-configuration-guide)
+  - [📁 File Structure Example](#-file-structure-example)
+  - [✅ Allowed Values](#-allowed-values)
+    - [Drop/Needle Region Methods](#dropneedle-region-methods)
+    - [Threshold/Baseline Method](#thresholdbaseline-method)
+    - [Edge Detection](#edge-detection)
+    - [Image Source](#image-source)
+  - [Tips](#tips)
+- [Full Workflow](#full-workflow)
 - [Developer \& Contributor Guide](#developer--contributor-guide)
   - [Modular Design](#modular-design)
   - [Backend \& UI Extensions](#backend--ui-extensions)
@@ -157,7 +166,7 @@ You can skip these steps if you prefer to install packages globally (not recomme
 Make sure you're in the root folder of the application, then run:
 
 ```bash
-pip install -r requirements-3810.txt
+pip install -r requirements.txt
 ```
 
 (Do this **after activating** the virtual environment, if you're using one.)
@@ -214,7 +223,7 @@ source opendrop_env/bin/activate # Skip this line if you want to install the req
 
 Make sure you're in the root folder of the application, then run:
 ```bash
-pip install -r requirements-3810.txt
+pip install -r requirements.txt
 ```
 
 > ⚠️ **Note**: If you choose to use the virtual environment, make sure to activate it every time you want to run the application. If it is activate, `(venv)` will show at the beginning of the prompt.
@@ -386,8 +395,98 @@ If you encounter errors, verify:
 * C++ compiler is correctly installed
 
 
+# User Configuration Guide
 
-# User Guide
+[user_config.yaml](./user_config.yaml) is a YAML-based configuration file that lets you **predefine all key parameters** for your experiment, including:
+
+* Image processing methods
+* Physical properties
+* Visualization flags
+* File paths and outputs
+
+You can avoid setting parameters manually in code — just edit the YAML file.
+
+---
+
+## 📁 File Structure Example
+
+```yaml
+# --- Image capture settings ---
+drop_ID_method: Automated
+threshold_method: Automated
+needle_region_method: Automated
+threshold_val: null
+baseline_method: Automated
+edgefinder: OpenCV
+
+# --- Physical properties input by user ---
+drop_density: 1000
+density_outer: 0
+needle_diameter_mm: 0.7176
+pixel_mm: null
+
+# --- Processing control flags ---
+original_boole: 0
+cropped_boole: 0
+threshold_boole: 0
+image_source: Local images
+
+# --- File and region definitions ---
+import_files: null
+frame_interval: 1
+
+# --- Analysis methods ---
+analysis_methods_ca:
+  TANGENT_FIT: true
+  POLYNOMIAL_FIT: true
+  CIRCLE_FIT: false
+  ELLIPSE_FIT: false
+  YL_FIT: false
+  ML_MODEL: false
+
+analysis_methods_pd:
+  INTERFACIAL_TENSION: true
+
+# --- Output ---
+save_images_boole: false
+create_folder_boole: false
+filename: result
+output_directory: ./outputs/
+```
+
+---
+
+## ✅ Allowed Values
+
+### Drop/Needle Region Methods
+
+* `Automated` (default)
+* `User-selected`
+
+### Threshold/Baseline Method
+
+* `Automated` (default)
+* `User-selected`
+
+### Edge Detection
+
+* `OpenCV`
+* `Subpixel`
+* `Both`
+
+### Image Source
+
+* `Local images`
+
+---
+
+## Tips
+
+* `null` in YAML means the value is left unset (equivalent to `None` in Python).
+* Boolean flags must be `true` / `false` (lowercase YAML syntax).
+* Be sure to match key names and nesting exactly as shown above.
+
+# Full Workflow
 
 1. Select function: Contact Angle or Interfacial Tension
 2. Upload image(s)

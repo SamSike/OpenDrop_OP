@@ -1,14 +1,22 @@
+from modules.image.read_image import (
+    get_image,
+    save_image,
+    import_from_source,
+    image_from_Flea3,
+    image_from_harddrive,
+    get_import_filename,
+    image_from_camera,
+    grabanimage
+)
+
+from unittest.mock import patch, MagicMock
 import pytest
 import numpy as np
 import sys
 import os
-from unittest import mock
-
-from unittest.mock import patch,MagicMock
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from modules.image.read_image import get_image,save_image,import_from_source,image_from_Flea3,image_from_harddrive,get_import_filename,image_from_camera,grabanimage
 
 
 # Fixture to create a mock ExperimentalDrop object
@@ -20,6 +28,8 @@ def mock_experimental_drop():
     return ExperimentalDrop()
 
 # Fixture to create a mock ExperimentalSetup object
+
+
 @pytest.fixture
 def mock_experimental_setup():
     class ExperimentalSetup:
@@ -33,6 +43,8 @@ def mock_experimental_setup():
     return ExperimentalSetup()
 
 # Test get_image function
+
+
 @patch("cv2.imwrite")
 @patch("os.makedirs")
 def test_get_image(mock_makedirs, mock_imwrite, mock_experimental_drop, mock_experimental_setup):
@@ -48,6 +60,8 @@ def test_get_image(mock_makedirs, mock_imwrite, mock_experimental_drop, mock_exp
     mock_makedirs.assert_not_called()
 
 # Test save_image function
+
+
 def test_save_image(mock_experimental_drop, mock_experimental_setup):
     mock_experimental_drop.image = np.zeros((100, 100, 3), dtype=np.uint8)
     with patch("cv2.imwrite") as mock_imwrite:
@@ -55,12 +69,16 @@ def test_save_image(mock_experimental_drop, mock_experimental_setup):
         mock_imwrite.assert_called_once()
 
 # Test import_from_source with local images
+
+
 @patch("modules.image.read_image.image_from_harddrive")
 def test_import_from_source_local(mock_image_from_harddrive, mock_experimental_drop, mock_experimental_setup):
     import_from_source(mock_experimental_drop, mock_experimental_setup, 0)
     mock_image_from_harddrive.assert_called_once()
 
 # Test image_from_Flea3 function
+
+
 @patch("subprocess.call")
 @patch("cv2.imread")
 def test_image_from_Flea3(mock_imread, mock_subprocess, mock_experimental_drop):
@@ -70,17 +88,24 @@ def test_image_from_Flea3(mock_imread, mock_subprocess, mock_experimental_drop):
     mock_imread.assert_called_once_with("FCG.pgm", 1)
 
 # Test image_from_harddrive function
+
+
 def test_image_from_harddrive(mock_experimental_drop, mock_experimental_setup):
     with patch("cv2.imread", return_value=np.zeros((100, 100, 3), dtype=np.uint8)) as mock_imread:
-        image_from_harddrive(mock_experimental_drop, mock_experimental_setup, 0)
+        image_from_harddrive(mock_experimental_drop,
+                             mock_experimental_setup, 0)
         mock_imread.assert_called_once_with("test_image.png", 1)
 
 # Test get_import_filename function
+
+
 def test_get_import_filename(mock_experimental_setup):
     filename = get_import_filename(mock_experimental_setup, 0)
     assert filename == "test_image.png"
 
 # Test image_from_camera function
+
+
 @patch("modules.image.read_image.grabanimage")
 def test_image_from_camera(mock_grabanimage, mock_experimental_drop):
     with patch("cv2.imread", return_value=np.zeros((100, 100, 3), dtype=np.uint8)) as mock_imread:
@@ -89,15 +114,20 @@ def test_image_from_camera(mock_grabanimage, mock_experimental_drop):
         mock_imread.assert_called_once_with("USBtemp.png", 1)
 
 # Test grabanimage function
+
+
 @patch("cv2.VideoCapture")
 def test_grabanimage(mock_VideoCapture):
     mock_camera = MagicMock()
     mock_VideoCapture.return_value = mock_camera
-    mock_camera.read.return_value = (True, np.zeros((100, 100, 3), dtype=np.uint8))
+    mock_camera.read.return_value = (
+        True, np.zeros((100, 100, 3), dtype=np.uint8))
     with patch("cv2.imwrite") as mock_imwrite:
         grabanimage()
         mock_camera.read.assert_called()
-        mock_imwrite.assert_called_once_with("USBtemp.png", mock_camera.read.return_value[1])
+        mock_imwrite.assert_called_once_with(
+            "USBtemp.png", mock_camera.read.return_value[1])
+
 
 # Run the tests when this script is executed directly
 if __name__ == "__main__":

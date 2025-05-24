@@ -1,10 +1,10 @@
+from PIL import Image, ImageTk
+from tkinter import messagebox
 import signal
 import sys
-
 import tkinter as tk
-from tkinter import messagebox
 import customtkinter as ctk
-from PIL import Image, ImageTk
+
 
 class MainWindow(ctk.CTk):
     def __init__(self, continue_processing, open_ift_window, open_ca_window):
@@ -39,8 +39,10 @@ class MainWindow(ctk.CTk):
         button_frame.pack()
 
         # Bind the buttons to the same functions as in the old code
-        self.create_button(button_frame, "Interfacial Tension", open_ift_window,"assets/opendrop-ift.png",0)
-        self.create_button(button_frame, "Contact Angle", open_ca_window,"assets/opendrop-conan.png", 1)
+        self.create_button(button_frame, "Interfacial Tension",
+                           open_ift_window, "assets/opendrop-ift.png", 0)
+        self.create_button(button_frame, "Contact Angle",
+                           open_ca_window, "assets/opendrop-conan.png", 1)
 
         # Add information button at bottom-right corner
         info_button = ctk.CTkButton(self, text="❗", command=self.show_info_popup, font=(
@@ -62,11 +64,11 @@ class MainWindow(ctk.CTk):
 
         # Create a CTkButton with image and text
         button = ctk.CTkButton(
-            frame, 
-            text=text, 
-            font=("Helvetica", 24), 
-            width=240, 
-            height=60, 
+            frame,
+            text=text,
+            font=("Helvetica", 24),
+            width=240,
+            height=60,
             command=lambda: self.run_function(command),
             image=button_photo,
             compound="left"  # Place text on the right of the image
@@ -74,23 +76,17 @@ class MainWindow(ctk.CTk):
         button.image = button_photo  # Keep a reference to avoid garbage collection
         button.grid(row=0, column=column, padx=20)
 
-        
-        
-
     def show_info_popup(self):
         messagebox.showinfo(
-            "Information", "Interfacial Tension: Measures the force at the surface of liquids.\n\nContact Angle: Measures the angle between the liquid surface and the solid surface.",parent=self)
-        
-    
-
+            "Information", "Interfacial Tension: Measures the force at the surface of liquids.\n\nContact Angle: Measures the angle between the liquid surface and the solid surface.")
 
     def run_function(self, func):
-        self.withdraw() 
+        self.withdraw()
         func(self)
         # self.after(100, lambda: self.open_function_window(func))
 
     # def open_function_window(self, func):
-    #     func()  
+    #     func()
     #     self.after(500, self.check_reopen)
 
     # def check_reopen(self):
@@ -103,7 +99,7 @@ class MainWindow(ctk.CTk):
 
     def show_info_popup(self):
         messagebox.showinfo(
-            "Information", 
+            "Information",
             "Interfacial Tension: Measures the force at the surface of liquids.\n\n"
             "Contact Angle: Measures the angle between the liquid surface and the solid surface.",
             parent=self
@@ -112,11 +108,10 @@ class MainWindow(ctk.CTk):
     def close_window(self):
         self.continue_processing["status"] = False
         try:
-            self.quit()  
-            self.destroy()  
+            self.quit()
+            self.destroy()
         except Exception as e:
             print("Error during destroy:", e)
         finally:
             import sys
-            sys.exit(0) 
-
+            sys.exit(0)
