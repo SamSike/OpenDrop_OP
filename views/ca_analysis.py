@@ -1,5 +1,6 @@
 from modules.core.classes import ExperimentalSetup, ExperimentalDrop
 from utils.image_handler import ImageHandler
+from views.component.imageGallery import ImageGallery
 from utils.config import LEFT_ANGLE, RIGHT_ANGLE, BASELINE_INTERCEPTS, CONTACT_POINTS, TANGENT_LINES, FIT_SHAPE, BASELINE, FIT_SHAPE
 from utils.enums import FittingMethod
 from views.helper.theme import get_system_text_color
