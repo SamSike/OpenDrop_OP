@@ -18,7 +18,7 @@ from utils.enums import FunctionType, Stage, Move
 from customtkinter import CTkFrame, CTkButton, CTkToplevel, get_appearance_mode
 from tkinter import messagebox
 from typing import List, Callable
-
+import os
 
 def call_user_input(function_type: FunctionType, fitted_drop_data: DropData, main_window: MainWindow):
     FunctionWindow(function_type, fitted_drop_data, main_window)
@@ -71,6 +71,7 @@ class FunctionWindow(CTkToplevel):
         self.ift_processor = IftDataProcessor()
 
         user_input_data: ExperimentalSetup = ExperimentalSetup()
+        user_input_data.from_yaml("user_config.yaml")
         experimental_drop: ExperimentalDrop = ExperimentalDrop()
 
         user_input_data.screen_resolution = [
@@ -207,12 +208,9 @@ class FunctionWindow(CTkToplevel):
                         self.ift_analysis_frame = IftAnalysis(
                             self, user_input_data, self.ift_processor, fg_color=self.FG_COLOR)
                         self.ift_analysis_frame.pack(fill="both", expand=True)
-                        print("FunctionType.PENDANT_DROP")
                         self.withdraw()
-                        self.ift_processor.process_data(
-                            user_input_data, callback=self.ift_analysis_frame.receive_output)
+                        self.ift_processor.process_data(user_input_data)
                         self.deiconify()
-
                     else:
                         self.ca_preparation_frame.pack_forget()
                         self.ca_analysis_frame = CaAnalysis(
@@ -252,37 +250,34 @@ class FunctionWindow(CTkToplevel):
             return
 
     def save_output(self, function_type: FunctionType, user_input_data: ExperimentalSetup):
-        if user_input_data.output_directory is None:
-            messagebox.showerror(
-                "Invalid Path", "Output directory is missing. File not saved.", parent=self)
-            return
-        if function_type == FunctionType.INTERFACIAL_TENSION:
-            from datetime import datetime
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            if user_input_data.filename:
-                filename = f"{user_input_data.filename}_{timestamp}.csv"
-            else:
-                filename = f"Extracted_data_{timestamp}.csv"
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-            self.ift_processor.save_result(
-                user_input_data.import_files, user_input_data.output_directory, filename, user_input_data)
-
-            messagebox.showinfo(
-                "Success", "File saved successfully!", parent=self)
-            self.on_closing()
+        if user_input_data.filename:
+            filename = f"{user_input_data.filename}_{timestamp}.csv"
         else:
-            from datetime import datetime
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            if user_input_data.filename:
-                filename = f"{user_input_data.filename}_{timestamp}.csv"
-            else:
-                filename = f"Extracted_data_{timestamp}.csv"
-            self.ca_processor.save_result(
-                user_input_data.import_files, user_input_data.output_directory, filename)
+            filename = "Extracted_data_"+timestamp+".csv"
 
-            messagebox.showinfo(
-                "Success", "File saved successfully!", parent=self)
-            self.on_closing()
+        if not user_input_data.output_directory:
+            user_input_data.output_directory = './outputs/'
+
+        # Prepare output path
+        if not os.path.exists(user_input_data.output_directory):
+            os.makedirs(user_input_data.output_directory)
+
+        output_file = os.path.join(user_input_data.output_directory, filename)
+    
+        if function_type == FunctionType.INTERFACIAL_TENSION:
+            self.ift_processor.save_result(user_input_data, output_file)
+        else:
+            self.ca_processor.save_result(user_input_data, output_file)
+
+        messagebox.showinfo(
+            "Save Successful",
+            f"Results have been saved to:\n{output_file}",
+            parent=self
+        )
+        self.on_closing()
 
     def update_stage(self, direction: int):
         self.current_stage = self.stages[(self.stages.index(

@@ -40,13 +40,15 @@ lib/
 lib64/
 parts/
 sdist/
-outputs/
 var/
 wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
+
+# Output file
+outputs/
 
 # Platform specific
 ## macOS

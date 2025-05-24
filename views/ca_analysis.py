@@ -1,5 +1,4 @@
 from modules.core.classes import ExperimentalSetup, ExperimentalDrop
-from modules.preprocessing.ExtractData import ExtractedData
 from utils.image_handler import ImageHandler
 from utils.config import LEFT_ANGLE, RIGHT_ANGLE, BASELINE_INTERCEPTS, CONTACT_POINTS, TANGENT_LINES, FIT_SHAPE, BASELINE, FIT_SHAPE
 from utils.enums import FittingMethod
@@ -30,7 +29,7 @@ class CaAnalysis(CTkFrame):
 
         self.image_handler = ImageHandler()
 
-        self.output = []
+        self.num_of_processed = 0
         self.cropped_images = {}              # Cropped pictures
         self.cropped_angle_images = {}        # Crop diagram after superimposing angles
         self.left_angles = []
@@ -87,25 +86,28 @@ class CaAnalysis(CTkFrame):
                 row_data.append(cell_label)
             self.table_data.append(row_data)
 
-        self.table_data[len(self.output)][1].configure(text="PROCESSING...")
+        self.table_data[self.num_of_processed][1].configure(text="PROCESSING...")
 
         if isinstance(table_frame, CTkXYFrame):
             table_frame.update_idletasks()
             table_frame.onFrameConfigure(table_frame.xy_canvas)
 
-    def receive_output(self, extracted_data: ExtractedData, experimental_drop: ExperimentalDrop = None):
+    def receive_output(self, num_of_processed: int, experimental_drop: ExperimentalDrop = None):
         """Process results and display contact angles"""
-        self.output.append(extracted_data)
-        index = len(self.output) - 1
+        self.num_of_processed = num_of_processed
+        index = num_of_processed - 1
+
+        if hasattr(experimental_drop, 'contact_angles'):
+            contact_angles = experimental_drop.contact_angles
 
         # Update table data
-        for method in extracted_data.contact_angles.keys():
+        for method in contact_angles.keys():
             preformed_method_list = list(self.preformed_methods.keys())
 
             if method in preformed_method_list:
                 column_index = preformed_method_list.index(method)+1
-                result = extracted_data.contact_angles[method]
-
+                result = contact_angles[method]
+                
                 if LEFT_ANGLE in result and RIGHT_ANGLE in result:
                     self.table_data[index][column_index].configure(
                         text=f"({result[LEFT_ANGLE]:.2f}, {result[RIGHT_ANGLE]:.2f})")
@@ -140,7 +142,7 @@ class CaAnalysis(CTkFrame):
                         f"Successfully saved cropped image, size: {cropped_pil.size}")
 
             # Check for contact angle data
-            if hasattr(extracted_data, 'contact_angles'):
+            if hasattr(experimental_drop, 'contact_angles'):
                 available_methods = []
 
                 # Initialize cropped_angle_images dictionary for this index
@@ -148,7 +150,7 @@ class CaAnalysis(CTkFrame):
                     self.cropped_angle_images[index] = {}
 
                 # Process each method and create corresponding annotations
-                for method in extracted_data.contact_angles.keys():
+                for method in contact_angles.keys():
                     # Check if method is in preformed_methods
                     # Handle both string and enum cases
                     method_in_preformed = False
@@ -161,8 +163,8 @@ class CaAnalysis(CTkFrame):
 
                     if not method_in_preformed:
                         continue
-
-                    angles_data = extracted_data.contact_angles[method]
+                        
+                    angles_data = contact_angles[method]
                     # print(f"Processing method '{method}' data")
 
                     # Process annotation for specific method
@@ -192,19 +194,18 @@ class CaAnalysis(CTkFrame):
             traceback.print_exc()
 
         # Update processing status display
-        if len(self.output) < self.user_input_data.number_of_frames:
-            self.table_data[len(self.output)][1].configure(
-                text="PROCESSING...")
-
+        if self.num_of_processed < self.user_input_data.number_of_frames:
+            self.table_data[self.num_of_processed][1].configure(text="PROCESSING...")
+        
         # Save first method's angles (for compatibility)
         try:
-            for method, res in extracted_data.contact_angles.items():
+            for method, res in contact_angles.items():
                 if LEFT_ANGLE in res and RIGHT_ANGLE in res:
                     self.left_angles.append(res[LEFT_ANGLE])
                     self.right_angles.append(res[RIGHT_ANGLE])
                     break
         except Exception as e:
-            print("[WARN] save failed：", e)
+            print("[WARN] save failed:", e)
 
     def process_method_annotation(self, method, angles_data, index: int):
         """Process annotation for a specific method"""

@@ -5,11 +5,11 @@ import customtkinter as ctk
 
 
 class FloatEntry():
-    def __init__(self, parent, frame, text_left, callback, default_value, rw=0, padx=(5, 5), pady=(5, 5),
+    def __init__(self, parent, frame, text_left, callback, default_value, rw=0, cl=0, padx=(5, 5), pady=(5, 5),
                  width_specify=150, label_width=150, state_specify='normal'):
         self.label = ctk.CTkLabel(
             frame, text=text_left, width=label_width, anchor="w")
-        self.label.grid(row=rw, column=0, sticky="w", padx=padx, pady=pady)
+        self.label.grid(row=rw, column=cl, sticky="w", padx=padx, pady=pady)
 
         self.text_variable = ctk.StringVar()
         if default_value is not None:

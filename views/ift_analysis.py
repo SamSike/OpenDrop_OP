@@ -190,15 +190,7 @@ class IftAnalysis(CTkFrame):
         toolbar.update()
         canvas.get_tk_widget().pack(fill="both", expand=True)
         canvas.draw()
-
-    def receive_output(self, user_input_data: ExperimentalSetup):
-        print("Received output in IftAnalysis {user_input_data}")
-        # self.user_input_data = user_input_data
-        # self.pd_processor.process_data(self.user_input_data)
-        # self.create_table(self.table_frame)
-        # self.create_image_frame(self.visualisation_frame)
-        # self.create_residuals_frame(self.visualisation_frame)
-
+ 
     def destroy(self):
         plt.close('all')
         return super().destroy()

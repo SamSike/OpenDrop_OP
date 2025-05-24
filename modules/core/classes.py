@@ -2,15 +2,17 @@
 # coding=utf-8
 from modules.fitting.de_YoungLaplace import ylderiv
 from utils.enums import RegionSelect, ThresholdSelect
+from scipy.integrate import odeint
+
+import yaml
+import numpy as np
+
 from utils.config import INTERFACIAL_TENSION
-from utils.enums import FittingMethod
+from utils.enums import FittingMethod, RegionSelect, ThresholdSelect
 
 from typing import Dict, List, Optional, Tuple
 from scipy.integrate import odeint
 import numpy as np
-
-# from .interpolation_function import cubic_interpolation_function
-
 
 class Tolerances(object):
     def __init__(self, delta_tol, gradient_tol, maximum_fitting_steps, objective_tol, arclength_tol, maximum_arclength_steps, needle_tol, needle_steps):
@@ -31,40 +33,25 @@ class ExperimentalSetup(object):
         self.threshold_method: ThresholdSelect = ThresholdSelect.AUTOMATED
         self.needle_region_method: RegionSelect = RegionSelect.AUTOMATED
         self.baseline_method: ThresholdSelect = ThresholdSelect.AUTOMATED
-
         self.threshold_val = None
         self.edgefinder = None
 
-        # user input vvvvv
+        self.original_boole: int = 0
+        self.cropped_boole: int = 0
+        self.threshold_boole: int = 0
+
         self.density_outer = None  # continuous density
         self.needle_diameter_mm: Optional[float] = None
         self.drop_density: Optional[float] = None
         self.pixel_mm = None
-        self.image = None
-        self.fit_result = None
-        self.drop_contour_images = None
         self.processed_images = None
-        self.ift_results = None
-        # user input ^^^^^
-
-        self.original_boole = 0
-        self.cropped_boole = 0
-        self.threshold_boole = 0
         self.image_source = "Local images"
-        self.show_popup = 0
         self.number_of_frames: int = 0
-        self.wait_time = None
-        self.save_images_boole = False
-        self.create_folder_boole = False
-        self.directory_string: Optional[str] = None
-        self.filename: Optional[str] = None
-        self.time_string = None
-        self.local_files = None
+
         self.drop_region: Optional[List[Tuple[int, int]]] = None
         self.needle_region = None
         self.import_files: Optional[List[str]] = None
-        self.frame_interval = 1
-        self.analysis_method_fields_cm = {}
+        self.frame_interval: float = 1
         self.analysis_methods_ca: Dict[FittingMethod, bool] = {
             FittingMethod.TANGENT_FIT: False,
             FittingMethod.POLYNOMIAL_FIT: False,
@@ -76,25 +63,45 @@ class ExperimentalSetup(object):
         self.analysis_methods_pd: Dict[str, bool] = {
             INTERFACIAL_TENSION: True
         }
-        self.statistical_output = {}
-        self.statistical_output_cm = {}
-        self.ift_drop_region = None
-        self.ift_needle_region = None
-        self.ca_drop_region = None
-        self.ca_baseline_region = None
-        self.cv2_capture_num = None
-        self.genlcam_capture_num = None
-        self.output_directory = None
-        self.drop_points = None
-        self.needle_diameter_px = None
-        self.fit_result = None
-        self.drop_contour_images = None
-        self.drop_images = None
-        self.ift_results = None
-        self.analyzed_ift = None
-        self.drop_contour = None
-        self.analysis_duration = None
 
+        self.save_images_boole: bool = False
+        self.create_folder_boole: bool = False
+        self.output_directory: Optional[str] = None
+        self.filename: Optional[str] = None
+
+        self.cv2_capture_num: int = None
+        self.genlcam_capture_num: int = None
+        
+        self.drop_points: Optional[float] = None
+        self.needle_diameter_px: Optional[float] = None
+        self.ift_results = None
+        self.fit_result = None
+        self.drop_contour_images: Optional[List[str]] = None
+
+    def from_yaml(self, yaml_path):
+        with open(yaml_path, 'r') as file:
+            config = yaml.safe_load(file)
+
+        for key, value in config.items():
+            if hasattr(self, key):
+                current_attr = getattr(self, key)
+
+                # Update nested dicts like analysis_methods_ca
+                if isinstance(current_attr, dict) and isinstance(value, dict):
+                    for subkey, subvalue in value.items():
+                        if key == "analysis_methods_ca":
+                            enum_key = getattr(FittingMethod, subkey, subkey)
+                            current_attr[enum_key] = subvalue
+                        elif key == "analysis_methods_pd":
+                            current_attr[subkey] = subvalue
+                else:
+                    # Enum mapping for specific fields
+                    if key in ["drop_ID_method", "needle_region_method"]:
+                        value = getattr(RegionSelect, value.upper(), value)
+                    elif key in ["threshold_method", "baseline_method"]:
+                        value = getattr(ThresholdSelect, value.upper(), value)
+
+                    setattr(self, key, value)
 
 class ExperimentalDrop(object):
     def __init__(self):
