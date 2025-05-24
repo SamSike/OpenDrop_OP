@@ -3,6 +3,7 @@ from views.helper.style import set_light_only_color
 
 from tkinter import filedialog, messagebox
 import customtkinter as ctk
+import os
 
 
 class OutputPage(ctk.CTkFrame):
@@ -28,8 +29,11 @@ class OutputPage(ctk.CTkFrame):
         location_label = ctk.CTkLabel(
             output_frame, text="Location:", anchor='w')
         location_label.grid(row=1, column=0, sticky='w', padx=10, pady=5)
+
         self.location_entry = ctk.CTkEntry(output_frame, width=300)
         self.location_entry.grid(row=1, column=1, padx=10, pady=5)
+        self.location_entry._entry.insert(0, user_input_data.output_directory)
+
         browse_btn = ctk.CTkButton(
             output_frame, text="Browse", command=self.browse_location)
         browse_btn.grid(row=1, column=2, padx=10, pady=5)
@@ -38,7 +42,7 @@ class OutputPage(ctk.CTkFrame):
             output_frame, text="Filename:", anchor='w')
         filename_label.grid(row=2, column=0, sticky='w', padx=10, pady=(5, 10))
 
-        self.filename_var = ctk.StringVar()
+        self.filename_var = ctk.StringVar(value=user_input_data.filename)
         self.filename_var.trace_add("write", self.on_filename_change)
 
         self.filename_entry = ctk.CTkEntry(
@@ -74,11 +78,12 @@ class OutputPage(ctk.CTkFrame):
         self.plot_summary_label.pack(pady=10)
 
     def browse_location(self):
-        directory = filedialog.askdirectory()
+        default_dir = self.user_input_data.output_directory or os.getcwd()
+        directory = filedialog.askdirectory(initialdir=default_dir)
+
         if directory:
             self.location_entry.insert(0, directory)
             self.user_input_data.output_directory = directory
-            print(directory)
 
     def update_plot_summary(self):
         selected_count = sum(var.get() == "on" for var in self.check_vars)

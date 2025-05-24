@@ -250,10 +250,6 @@ class FunctionWindow(CTkToplevel):
             return
 
     def save_output(self, function_type: FunctionType, user_input_data: ExperimentalSetup):
-        if user_input_data.output_directory is None:
-            messagebox.showerror(
-                "Invalid Path", "Output directory is missing. File not saved.", parent=self)
-            return
         if function_type == FunctionType.INTERFACIAL_TENSION:
             from datetime import datetime
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

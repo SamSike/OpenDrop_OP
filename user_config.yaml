@@ -36,5 +36,5 @@ analysis_methods_pd:                # IFT fitting methods
 # --- Output ---
 save_images_boole: false            # Save image outputs
 create_folder_boole: false          # Create folder for output files
-filename: result                    # Output filename prefix
+filename: Extracted_data            # Output filename prefix
 output_directory: ./outputs/        # Save directory
