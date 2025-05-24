@@ -40,6 +40,7 @@ lib/
 lib64/
 parts/
 sdist/
+outputs/
 var/
 wheels/
 *.egg-info/
@@ -54,8 +55,6 @@ MANIFEST
 ._*
 .Spotlight-V100
 .Trashes
-modules/ift/hough/hough.cpython-38-darwin.so
-modules/ift/younglaplace/shape.cpython-38-darwin.so
 
 ## Windows
 ehthumbs.db
@@ -74,3 +73,7 @@ test-output/
 # SUNDIALS dependencies
 dependencies/macos_x86_64/
 dependencies/macos_arm64/
+
+# Shared libraries and binaries
+modules/ift/hough/*.so
+modules/ift/younglaplace/*.so
