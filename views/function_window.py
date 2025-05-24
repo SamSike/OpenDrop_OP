@@ -271,7 +271,7 @@ class FunctionWindow(CTkToplevel):
         else:
             function_type_formatted = function_type.value.replace(
                 " ", "_")  # Interfacial Tension -> Interfacial_Tension
-            if user_input_data.drop_id_method != RegionSelect.AUTOMATED or user_input_data.needle_region_method != RegionSelect.AUTOMATED:
+            if user_input_data.drop_id_method == RegionSelect.USER_SELECTED or user_input_data.needle_region_method == RegionSelect.USER_SELECTED:
                 filename = f"Manual_{function_type_formatted}_{timestamp}.csv"
             else:
                 filename = f"Automated_{function_type_formatted}_{timestamp}.csv"
