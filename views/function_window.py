@@ -13,7 +13,7 @@ from views.ca_preparation import CaPreparation
 from views.ca_analysis import CaAnalysis
 from views.main_window import MainWindow
 from views.output_page import OutputPage
-from utils.enums import FunctionType, Stage, Move
+from utils.enums import FunctionType, Stage, Move, RegionSelect
 
 from customtkinter import CTkFrame, CTkButton, CTkToplevel, get_appearance_mode
 from tkinter import messagebox
@@ -262,7 +262,10 @@ class FunctionWindow(CTkToplevel):
             if user_input_data.filename:
                 filename = f"{user_input_data.filename}_{timestamp}.csv"
             else:
-                filename = f"Extracted_data_{timestamp}.csv"
+                if user_input_data.drop_id_method != RegionSelect.AUTOMATED or user_input_data.needle_region_method != RegionSelect.AUTOMATED:
+                    filename = f"Manual_data_{timestamp}.csv"
+                else:
+                    filename = f"Automated_data_{timestamp}.csv"
 
             self.ift_processor.save_result(
                 user_input_data.import_files, user_input_data.output_directory, filename, user_input_data)
@@ -271,12 +274,14 @@ class FunctionWindow(CTkToplevel):
                 "Success", "File saved successfully!", parent=self)
             self.on_closing()
         else:
-            from datetime import datetime
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             if user_input_data.filename:
-                filename = f"{user_input_data.filename}_{timestamp}.csv"
+                filename = f"{user_input_data.filename}_{user_input_data.time_string}.csv"
             else:
-                filename = f"Extracted_data_{timestamp}.csv"
+                if user_input_data.drop_id_method != RegionSelect.AUTOMATED or user_input_data.needle_region_method != RegionSelect.AUTOMATED:
+                    filename = f"Manual_data_{user_input_data.time_string}.csv"
+                else:
+                    filename = f"Automated_data_{user_input_data.time_string}.csv"
+            # export_filename = os.path.join(user_input_data.directory_string, filename)
             self.ca_processor.save_result(
                 user_input_data.import_files, user_input_data.output_directory, filename)
 
