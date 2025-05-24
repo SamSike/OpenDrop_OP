@@ -276,16 +276,18 @@ class FunctionWindow(CTkToplevel):
             else:
                 filename = f"Automated_{function_type_formatted}_{timestamp}.csv"
 
+        output_file = os.path.join(
+            user_input_data.output_directory, filename)
         if function_type == FunctionType.INTERFACIAL_TENSION:
             self.ift_processor.save_result(
-                user_input_data.import_files, user_input_data.output_directory, filename, user_input_data)
+                user_input_data, output_file)
         else:
             self.ca_processor.save_result(
-                user_input_data.import_files, user_input_data.output_directory, filename)
+                user_input_data, output_file)
 
         messagebox.showinfo(
             "Save Successful",
-            f"Results have been saved to:\n{filename}",
+            f"Results have been saved to:\n{output_file}",
             parent=self
         )
         self.on_closing()
