@@ -1,3 +1,5 @@
+# Note: For empty value (`None` in Python), set a value to `null` or leaving it empty.
+
 # --- Image capture settings ---
 drop_ID_method: Automated           # Method for drop identification for both CA and IFT (Automated or User-selected)
 threshold_method: Automated         # Method for image thresholding for CA analysis (Automated or User-selected)
@@ -36,5 +38,5 @@ analysis_methods_pd:                # IFT fitting methods
 # --- Output ---
 save_images_boole: false            # Save image outputs
 create_folder_boole: false          # Create folder for output files
-filename: Extracted_data            # Output filename prefix
+filename: null                      # Output filename prefix
 output_directory: ./outputs/        # Save directory

@@ -252,11 +252,6 @@ class FunctionWindow(CTkToplevel):
             return
 
     def save_output(self, function_type: FunctionType, user_input_data: ExperimentalSetup):
-        if user_input_data.output_directory is None:
-            messagebox.showerror(
-                "Invalid Path", "Output directory is missing. File not saved.", parent=self)
-            return
-
         if not user_input_data.output_directory:
             user_input_data.output_directory = './outputs/'
 
@@ -266,7 +261,7 @@ class FunctionWindow(CTkToplevel):
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename: str = ""
-        if user_input_data.filename is not None:
+        if user_input_data.filename:
             filename = f"{user_input_data.filename}_{timestamp}.csv"
         else:
             function_type_formatted = function_type.value.replace(
