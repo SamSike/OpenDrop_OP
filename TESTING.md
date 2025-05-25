@@ -32,5 +32,3 @@ You can also run a specific test file using:
 ```bash
 pytest tests/test_polynomial_fit.py
 ```
-
-

@@ -29,6 +29,7 @@ __pycache__/
 # Build and distribution
 build/
 dist/
+node_modules/
 *.cpp
 *.so
 .Python
