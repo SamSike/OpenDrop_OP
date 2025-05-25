@@ -6,6 +6,6 @@ LIGHT_MODE = "Light"
 
 def get_system_text_color():
     if get_appearance_mode() == DARK_MODE:
-        return 'white'
+        return "white"
     else:
-        return 'black'
+        return "black"

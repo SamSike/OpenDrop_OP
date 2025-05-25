@@ -4,11 +4,23 @@ import tkinter as tk
 import customtkinter as ctk
 
 
-class FloatEntry():
-    def __init__(self, parent, frame, text_left, callback, default_value, rw=0, cl=0, padx=(5, 5), pady=(5, 5),
-                 width_specify=150, label_width=150, state_specify='normal'):
-        self.label = ctk.CTkLabel(
-            frame, text=text_left, width=label_width, anchor="w")
+class FloatEntry:
+    def __init__(
+        self,
+        parent,
+        frame,
+        text_left,
+        callback,
+        default_value,
+        rw=0,
+        cl=0,
+        padx=(5, 5),
+        pady=(5, 5),
+        width_specify=150,
+        label_width=150,
+        state_specify="normal",
+    ):
+        self.label = ctk.CTkLabel(frame, text=text_left, width=label_width, anchor="w")
         self.label.grid(row=rw, column=cl, sticky="w", padx=padx, pady=pady)
 
         self.text_variable = ctk.StringVar()
@@ -18,10 +30,23 @@ class FloatEntry():
         if callback:
             self.text_variable.trace_add("write", callback)
 
-        vcmd_float = (parent.register(validate_float),
-                      '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-        self.entry = ctk.CTkEntry(frame,
-                                  textvariable=self.text_variable, validate='key', validatecommand=vcmd_float)
+        vcmd_float = (
+            parent.register(validate_float),
+            "%d",
+            "%i",
+            "%P",
+            "%s",
+            "%S",
+            "%v",
+            "%V",
+            "%W",
+        )
+        self.entry = ctk.CTkEntry(
+            frame,
+            textvariable=self.text_variable,
+            validate="key",
+            validatecommand=vcmd_float,
+        )
         self.entry.configure(width=width_specify, state=state_specify)
         self.entry.grid(row=rw, column=1, sticky="we", padx=padx, pady=pady)
 

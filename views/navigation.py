@@ -6,13 +6,13 @@ def create_navigation(parent):
     # Create a frame for the navigation
     navigation_frame = CTkFrame(parent)
     set_light_only_color(navigation_frame, "outerframe")
-    navigation_frame.pack(pady=10, padx=10, fill='x')
+    navigation_frame.pack(pady=10, padx=10, fill="x")
 
     # Define stage labels for navigation
     stages = ["Acquisition", "Preparation", "Analysis", "Output"]
 
     progress_bar = CTkProgressBar(navigation_frame)
-    progress_bar.pack(fill='x', expand=True, padx=130, pady=(20, 10))
+    progress_bar.pack(fill="x", expand=True, padx=130, pady=(20, 10))
 
     progress_bar.set(0)
 
@@ -22,7 +22,7 @@ def create_navigation(parent):
     def update_progress(stage_index):
         nonlocal current_stage
         if 0 <= stage_index < len(stages):
-            progress_bar.set(stage_index / (len(stages)-1))
+            progress_bar.set(stage_index / (len(stages) - 1))
             # Update current stage
             current_stage = stage_index
 
@@ -46,9 +46,8 @@ def create_navigation(parent):
     stage_labels = []
     for i, stage in enumerate(stages):
         # Create a label for each stage
-        label = CTkLabel(navigation_frame, text=stage,
-                         font=("Roboto", 13), anchor='e')
-        label.pack(side='left', expand=True)
+        label = CTkLabel(navigation_frame, text=stage, font=("Roboto", 13), anchor="e")
+        label.pack(side="left", expand=True)
         stage_labels.append(label)
 
     # Return the control functions

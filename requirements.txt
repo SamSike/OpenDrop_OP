@@ -1,5 +1,6 @@
 absl-py==1.4.0
 astunparse==1.6.3
+black # formatter
 cachetools==5.3.2
 certifi==2024.7.4
 Cython==3.0.12

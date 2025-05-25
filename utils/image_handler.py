@@ -3,13 +3,18 @@ import os
 
 
 class ImageHandler:
-    def get_image_paths(self, directory: str, supported_extensions=('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+    def get_image_paths(
+        self,
+        directory: str,
+        supported_extensions=(".png", ".jpg", ".jpeg", ".gif", ".bmp"),
+    ):
         """Load all images from a directory."""
         if not os.path.exists(directory):
             return []
 
-        images = [f for f in os.listdir(
-            directory) if f.lower().endswith(supported_extensions)]
+        images = [
+            f for f in os.listdir(directory) if f.lower().endswith(supported_extensions)
+        ]
         return [os.path.join(directory, img) for img in images]
 
     def resize_image(self, image: Image, size=(400, 300)):
@@ -18,15 +23,20 @@ class ImageHandler:
             return image.resize(size, Image.LANCZOS)
         return None
 
-    def resize_image_with_aspect_ratio(self, image: Image, max_width=400, max_height=300):
+    def resize_image_with_aspect_ratio(
+        self, image: Image, max_width=400, max_height=300
+    ):
         if image:
             width, height = image.size
             new_width, new_height = self.get_fitting_dimensions(
-                width, height, max_width, max_height)
+                width, height, max_width, max_height
+            )
             return image.resize((new_width, new_height), Image.LANCZOS)
         return None
 
-    def get_fitting_dimensions(self, original_width: int, original_height: int, max_width=400, max_height=300):
+    def get_fitting_dimensions(
+        self, original_width: int, original_height: int, max_width=400, max_height=300
+    ):
         # Initialize new dimensions
 
         # Check if the image needs to be resized

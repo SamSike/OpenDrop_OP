@@ -19,14 +19,9 @@ def yl_eqs(y, x, Bo):
     return [2 + Bo * y[2] - np.sin(y[0]) / (y[1] + 1e-14), np.cos(y[0]), np.sin(y[0])]
 
 
-def draw_drop(angle,
-              Bo,
-              scaler,
-              roughness,
-              N_pts_drop,
-              dpi=256,
-              save_dir=None,
-              debug=False):
+def draw_drop(
+    angle, Bo, scaler, roughness, N_pts_drop, dpi=256, save_dir=None, debug=False
+):
     """Creates an image for a set of parameters.
 
     min_angle is the lower bound of the possible contact angles
@@ -58,7 +53,7 @@ def draw_drop(angle,
 
     for i in range(1, len(phi)):
         if phi[i] < phi[i - 1]:
-            phi[i] = phi[i] + 180.
+            phi[i] = phi[i] + 180.0
 
     # X values of the contour are the 1th values of soln, X values exist between 0 and 1
     # Z values of the contour are the 2th values of soln
@@ -74,7 +69,7 @@ def draw_drop(angle,
 
     # This keeps the solution within the desired bounds
     V = np.trapz(Z, X * X)
-    L = scaler * V ** (1. / 3)
+    L = scaler * V ** (1.0 / 3)
     X = X / L
     Z = Z / L
     Vnew = np.trapz(Z, X * X)
@@ -83,17 +78,17 @@ def draw_drop(angle,
     Z = Z / max(Z)  # normalize so that apex is at z=1
 
     if debug:  # plot contour
-        plt.plot(X, Z, '-')
-        plt.title('Theoretical halfdrop contour')
-        plt.gca().set_aspect('equal', adjustable='box')
+        plt.plot(X, Z, "-")
+        plt.title("Theoretical halfdrop contour")
+        plt.gca().set_aspect("equal", adjustable="box")
         plt.show()
         plt.close()
-        print('X: \n', X)
+        print("X: \n", X)
 
     shape_scale = 1.5  # alter the x-axis size so that the baseline fits in the image
-    if 2*max(X) > 1.5 * max(Z):
+    if 2 * max(X) > 1.5 * max(Z):
         # if true, drop will be too wide for frame before it is too tall
-        img_width = 2 * max(X) * 4/3 * scaler
+        img_width = 2 * max(X) * 4 / 3 * scaler
         img_height = img_width / shape_scale
         # baseline is a bit above bottom of frame
         shift = (32 / 1024) * img_height
@@ -102,7 +97,7 @@ def draw_drop(angle,
     else:
         # drop must fit into the frame vertically
         # top of drop with some room and multiply scaler
-        img_height = max(Z) * 4/3 * scaler
+        img_height = max(Z) * 4 / 3 * scaler
         # from scaling difference in HD images
         max_img_width = img_height * shape_scale
         # baseline is a bit above bottom of frame
@@ -115,18 +110,21 @@ def draw_drop(angle,
     if debug:  # check that scaling is correct, should be 1:1.5
 
         img_height = ylim[1] - ylim[0]
-        print('ratio of y to x is ', img_height / img_height,
-              ' : ', img_width / img_height)  # correct
+        print(
+            "ratio of y to x is ",
+            img_height / img_height,
+            " : ",
+            img_width / img_height,
+        )  # correct
         # print('Angle is '+str(angle)+'\nBond number is:'+str(Bo)+'\nScaler is '+str(scaler))
 
     if roughness >= 0:  # draw surface - named here as baseline
         baselinex = np.linspace(xlim[0], xlim[1], 100)
         # have baseline extend one extra point in both directions in case randomisation moves x coord of baseline inwards
-        gap = baselinex[1]-baselinex[0]
-        extra_point_left = baselinex[0]-(gap*2)
-        extra_point_right = baselinex[-1]+(gap*2)
-        baselinex = np.array([extra_point_left] +
-                             list(baselinex) + [extra_point_right])
+        gap = baselinex[1] - baselinex[0]
+        extra_point_left = baselinex[0] - (gap * 2)
+        extra_point_right = baselinex[-1] + (gap * 2)
+        baselinex = np.array([extra_point_left] + list(baselinex) + [extra_point_right])
         baselinez = []
         for n in range(102):
             baselinez.append(shift)
@@ -138,10 +136,8 @@ def draw_drop(angle,
 
         # roughen surface with randomisation
         flag = False
-        surface_max_plus = (roughness * L * 1.5) + \
-            shift  # *2 to give room for error
-        X_near_surface = np.array(
-            [x for x, z in coords if z <= surface_max_plus])
+        surface_max_plus = (roughness * L * 1.5) + shift  # *2 to give room for error
+        X_near_surface = np.array([x for x, z in coords if z <= surface_max_plus])
 
         for i in range(len(baselinex[:])):
             dpX = float(np.random.uniform(-roughness * L, roughness * L))
@@ -158,20 +154,20 @@ def draw_drop(angle,
     else:  # if roughness is negative - surface is reflective
         ref_ratio = -roughness
         # get the bottom section of the existing drop contour
-        div_line = (max(Z) - min(Z))*ref_ratio
+        div_line = (max(Z) - min(Z)) * ref_ratio
         coords = np.column_stack((X, Z))
         reflection = coords[coords[:, 1] < div_line][::-1]
         reflection[:, 1] = -reflection[:, 1]
-        reflection_height = abs(
-            max(reflection[:, 1])) - abs(min(reflection[:, 1]))
-        reflection[:, 1] = reflection[:, 1] + \
-            (shift - min(reflection[:, 1]))  # raise into frame
+        reflection_height = abs(max(reflection[:, 1])) - abs(min(reflection[:, 1]))
+        reflection[:, 1] = reflection[:, 1] + (
+            shift - min(reflection[:, 1])
+        )  # raise into frame
         if debug:
-            jet = plt.get_cmap('jet')
+            jet = plt.get_cmap("jet")
             colors = iter(jet(np.linspace(0, 1, len(reflection))))
             for k in reflection:
-                plt.plot(k[0], k[1], 'o', color=next(colors))
-            plt.title('Reflection in order')
+                plt.plot(k[0], k[1], "o", color=next(colors))
+            plt.title("Reflection in order")
             plt.show()
             plt.close()
 
@@ -183,37 +179,35 @@ def draw_drop(angle,
         # draw rest of surface line
         baselinex = np.linspace(xlim[0], xlim[1], 100)
         # have baseline extend one extra point in both directions in case randomisation moves x coord of baseline inwards
-        gap = baselinex[1]-baselinex[0]
-        extra_point_left = baselinex[0]-(gap*2)
-        extra_point_right = baselinex[-1]+(gap*2)
-        baselinex = np.array([extra_point_left] +
-                             list(baselinex) + [extra_point_right])
+        gap = baselinex[1] - baselinex[0]
+        extra_point_left = baselinex[0] - (gap * 2)
+        extra_point_right = baselinex[-1] + (gap * 2)
+        baselinex = np.array([extra_point_left] + list(baselinex) + [extra_point_right])
         baselinez = []
         for n in range(102):
             baselinez.append(shift)
 
     if debug:  # show outline
-        plt.title('Outline')
+        plt.title("Outline")
         plt.plot(X, Z)
         plt.show()
         plt.close()
 
     # save image to working memory
     plt.ioff()
-    plt.fill_between(baselinex, baselinez, -100,
-                     facecolor='black', linewidth=0)
-    plt.fill_betweenx(Z, -X, X, facecolor='black')
-    plt.fill_between([-X[-1], X[-1]], [Z[-1], Z[-1]], -
-                     100, facecolor='black', linewidth=0)
-    plt.plot([0, 0], [shift, -100], color='black', linewidth=1)
-    plt.axis('equal')
+    plt.fill_between(baselinex, baselinez, -100, facecolor="black", linewidth=0)
+    plt.fill_betweenx(Z, -X, X, facecolor="black")
+    plt.fill_between(
+        [-X[-1], X[-1]], [Z[-1], Z[-1]], -100, facecolor="black", linewidth=0
+    )
+    plt.plot([0, 0], [shift, -100], color="black", linewidth=1)
+    plt.axis("equal")
     plt.xlim(xlim)
     plt.ylim(ylim)
-    plt.axis('off')
+    plt.axis("off")
 
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=dpi,
-                bbox_inches='tight', pad_inches=0)  # 256
+    plt.savefig(buf, format="png", dpi=dpi, bbox_inches="tight", pad_inches=0)  # 256
     buf.seek(0)
     img_arr = np.frombuffer(buf.getvalue(), dtype=np.uint8)
     img = cv2.imdecode(img_arr, 1)
@@ -222,7 +216,7 @@ def draw_drop(angle,
 
     if debug:
         plt.figure(figsize=(10, 10))
-        plt.title('Drawn drop')
+        plt.title("Drawn drop")
         plt.imshow(img)
         plt.show()
         plt.close()
@@ -253,7 +247,8 @@ def _squish_contour_one_way(contour: np.ndarray) -> np.ndarray:
         for j in range(path_splice, len(contour)):
             path_splice_ij = j
             path_ij = np.concatenate(
-                (path[:path_splice_ij], [i], path[path_splice_ij:-1]))
+                (path[:path_splice_ij], [i], path[path_splice_ij:-1])
+            )
             objective_ij = _polyline_l1(contour, path_ij)
 
             if objective_ij < objective_i:
@@ -290,17 +285,16 @@ def _realign_squished_contour(curve: np.ndarray) -> np.ndarray:
 
 
 def extract_edges_cv(img: np.ndarray):
-    '''
+    """
     give the image and return a list of [x.y] coordinates for the detected edges
 
-    '''
+    """
     IGNORE_EDGE_MARGIN = 1
     threshValue = 50
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(gray, threshValue, 255, cv2.THRESH_BINARY)
     # ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    contours, hierarchy = cv2.findContours(
-        thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     # Each contour has shape (n, 1, 2) where 'n' is the number of points. Presumably this is so each
     # point is a size 2 column vector, we don't want this so reshape it to a (n, 2)
     contours = [contour.reshape(contour.shape[0], 2) for contour in contours]
@@ -318,8 +312,12 @@ def extract_edges_cv(img: np.ndarray):
     # Ignore points of the drop profile near the edges of the drop image
     width, height = img.shape[1::-1]
     if not (width < IGNORE_EDGE_MARGIN or height < IGNORE_EDGE_MARGIN):
-        mask = ((IGNORE_EDGE_MARGIN < drop_profile[:, 0]) & (drop_profile[:, 0] < width - IGNORE_EDGE_MARGIN) &
-                (IGNORE_EDGE_MARGIN < drop_profile[:, 1]) & (drop_profile[:, 1] < height - IGNORE_EDGE_MARGIN))
+        mask = (
+            (IGNORE_EDGE_MARGIN < drop_profile[:, 0])
+            & (drop_profile[:, 0] < width - IGNORE_EDGE_MARGIN)
+            & (IGNORE_EDGE_MARGIN < drop_profile[:, 1])
+            & (drop_profile[:, 1] < height - IGNORE_EDGE_MARGIN)
+        )
         drop_profile = drop_profile[mask]
 
     return drop_profile
@@ -327,13 +325,14 @@ def extract_edges_cv(img: np.ndarray):
 
 def prepare_contour(coords, given_input_len=1100, right_only=False):
     """Take the contour of the whole drop, and chop it into left and right sides ready for model input"""
-    coords[:, 1] = - coords[:, 1]  # flip
+    coords[:, 1] = -coords[:, 1]  # flip
     # isolate the top of the contour so excess surface can be deleted
     percent = 0.15
     bottom = []
     top = []  # will need this later
-    div_line_value = min(coords[:, [1]]) + \
-        (max(coords[:, [1]]) - min(coords[:, [1]]))*percent
+    div_line_value = (
+        min(coords[:, [1]]) + (max(coords[:, [1]]) - min(coords[:, [1]])) * percent
+    )
     for n in coords:
         if n[1] < div_line_value:
             bottom.append(n)
@@ -351,7 +350,7 @@ def prepare_contour(coords, given_input_len=1100, right_only=False):
     coords = np.delete(coords, del_indexes, axis=0)
 
     if 0:
-        plt.title('isolated coords, length: '+str(len(coords)))
+        plt.title("isolated coords, length: " + str(len(coords)))
         plt.plot(coords[:, 0], coords[:, 1])
         plt.show()
         plt.close()
@@ -360,7 +359,7 @@ def prepare_contour(coords, given_input_len=1100, right_only=False):
 
     xtop, ytop = top[:, 0], top[:, 1]  # isolate top 90% of drop
 
-    xapex = (max(xtop) + min(xtop))/2
+    xapex = (max(xtop) + min(xtop)) / 2
     # yapex = max(ytop)
     # coords[:,1] = -coords[:,1]
 
@@ -394,10 +393,10 @@ def prepare_contour(coords, given_input_len=1100, right_only=False):
         Z = halfdrop[:, 1]
 
         lowest = min(Z)
-        Z = Z+abs(lowest)
+        Z = Z + abs(lowest)
 
-        X = X/max(Z)
-        Z = Z/max(Z)
+        X = X / max(Z)
+        Z = Z / max(Z)
 
         # zero padd contours
         if given_input_len == None:
@@ -411,8 +410,13 @@ def prepare_contour(coords, given_input_len=1100, right_only=False):
         #    global_max_len = len(X)
 
         if len(X) > input_len:
-            raise Exception("Contour of length "+str(len(X)) +
-                            " is too long for the designated output dimensionality of ("+str(input_len)+",2)")
+            raise Exception(
+                "Contour of length "
+                + str(len(X))
+                + " is too long for the designated output dimensionality of ("
+                + str(input_len)
+                + ",2)"
+            )
 
         for i in range(input_len):
             if i < len(X):
@@ -423,11 +427,11 @@ def prepare_contour(coords, given_input_len=1100, right_only=False):
             else:
                 coordinates.append([0, 0])
         if 0:
-            jet = plt.get_cmap('jet')
+            jet = plt.get_cmap("jet")
             colors = iter(jet(np.linspace(0, 1, len(coordinates))))
             for k in coordinates:
-                plt.plot(k[0], k[1], 'o', color=next(colors))
-            plt.title('Halfdrop')
+                plt.plot(k[0], k[1], "o", color=next(colors))
+            plt.title("Halfdrop")
             plt.show()
             plt.close()
         # key = image.split('/')[-1].split('_')[-1][:-4]
@@ -446,15 +450,12 @@ def prepare_contour(coords, given_input_len=1100, right_only=False):
     return pred_ds
 
 
-def create_contour(angle,
-                   Bo,
-                   scaler,
-                   roughness,
-                   savedir='./',
-                   input_len=1100,
-                   display=False):
-    filename = filename = str(angle) + "_" + str(Bo) + \
-        "_" + str(scaler) + "_" + str(roughness) + "_.npy"
+def create_contour(
+    angle, Bo, scaler, roughness, savedir="./", input_len=1100, display=False
+):
+    filename = filename = (
+        str(angle) + "_" + str(Bo) + "_" + str(scaler) + "_" + str(roughness) + "_.npy"
+    )
 
     drop = draw_drop(angle, Bo, scaler, roughness, 5000, debug=display)
 
@@ -462,20 +463,26 @@ def create_contour(angle,
     right = prepare_contour(contour, given_input_len=None, right_only=True)
 
     if display == True:
-        plt.plot(right[:, 0], right[:, 1], 'o')
+        plt.plot(right[:, 0], right[:, 1], "o")
         plt.show()
         plt.close()
 
     return right
 
 
-def create_contour_dataset(angle,
-                           roughness,
-                           min_Bo, max_Bo, N_Bos,
-                           min_scaler, max_scaler, N_scalers,
-                           input_len=1500,
-                           save_dir=None,
-                           debug=False):
+def create_contour_dataset(
+    angle,
+    roughness,
+    min_Bo,
+    max_Bo,
+    N_Bos,
+    min_scaler,
+    max_scaler,
+    N_scalers,
+    input_len=1500,
+    save_dir=None,
+    debug=False,
+):
     """Creates a dataset of contact angle images based on the given parameters.
 
     min_angle is the lower bound of the possible contact angles
@@ -494,29 +501,56 @@ def create_contour_dataset(angle,
     debug (True or Flase). Set to true to visualise outputs while debugging.
     """
     if debug == False:  # uncomment this big when running on server
-        matplotlib.use('Agg')
+        matplotlib.use("Agg")
 
     start_time = time.time()
     psutil.cpu_percent(interval=0)
     psutil.virtual_memory()
 
     Bos = np.linspace(min_Bo, max_Bo, N_Bos)
-    print('Dataset includes ', N_Bos,
-          ' drops of bond numberss between ', min_Bo, ' and ', max_Bo)
+    print(
+        "Dataset includes ",
+        N_Bos,
+        " drops of bond numberss between ",
+        min_Bo,
+        " and ",
+        max_Bo,
+    )
 
     scalers = np.linspace(min_scaler, max_scaler, N_scalers)
-    print('Dataset includes ', N_scalers, ' drops with scaling values  between ', min_scaler, ' and ',
-          max_scaler)
+    print(
+        "Dataset includes ",
+        N_scalers,
+        " drops with scaling values  between ",
+        min_scaler,
+        " and ",
+        max_scaler,
+    )
 
-    print('Total size of data set is :', N_Bos * N_scalers)
+    print("Total size of data set is :", N_Bos * N_scalers)
     print()
 
-    dst = 'angle'+str(angle)+'_BondNumbers'+str(min_Bo)+'-'+str(max_Bo)+'_'+str(N_Bos)+'_scalers' + \
-        str(min_scaler)+'-'+str(max_scaler)+'_' + \
-        str(N_scalers)+'_roughness'+str(roughness)
+    dst = (
+        "angle"
+        + str(angle)
+        + "_BondNumbers"
+        + str(min_Bo)
+        + "-"
+        + str(max_Bo)
+        + "_"
+        + str(N_Bos)
+        + "_scalers"
+        + str(min_scaler)
+        + "-"
+        + str(max_scaler)
+        + "_"
+        + str(N_scalers)
+        + "_roughness"
+        + str(roughness)
+    )
     if debug == False and save_dir is not None:
         # make sure the directory does not exist, to avoid confusion
-        assert (not os.path.isfile(str(save_dir)+str(dst)+'.pkl'))
+        assert not os.path.isfile(str(save_dir) + str(dst) + ".pkl")
 
     created = 0
 
@@ -524,9 +558,10 @@ def create_contour_dataset(angle,
 
     for i, Bo in enumerate(Bos):
         for j, scaler in enumerate(scalers):
-            key = str(angle)+'_'+str(Bo)+'_'+str(scaler)+'_'+str(roughness)
+            key = str(angle) + "_" + str(Bo) + "_" + str(scaler) + "_" + str(roughness)
             ds[key] = create_contour(
-                angle, Bo, scaler, roughness, input_len=input_len, display=debug)
+                angle, Bo, scaler, roughness, input_len=input_len, display=debug
+            )
 
     # Create a single directory if it doesn't exist
     if not os.path.exists(save_dir):
@@ -534,63 +569,67 @@ def create_contour_dataset(angle,
     else:
         # dst = 'data'+str(a)+'_'+str(b)+'_'+note+model_letter+'_'+str(drops)+'_scaled'+str(N_scaled_drops)
         # np.save(file=dst,arr=contours)
-        with open(save_dir + dst + '.pkl', 'wb') as f:
+        with open(save_dir + dst + ".pkl", "wb") as f:
             pickle.dump(ds, f, pickle.HIGHEST_PROTOCOL)
-        print('Contours saved to: ', save_dir+dst+'.pkl')
+        print("Contours saved to: ", save_dir + dst + ".pkl")
     print("%s seconds since starting " % (time.time() - start_time))
     return ds
 
 
 def positive_float(value):
-    '''
+    """
     Type checking for positive floats passed to the command-line parser
 
     :param value: Input that is to be type-checked (scalar)
     :return: Input cast to a float
     :raises ArgumentTypeError: If the input is less than, or equal to 0 or
                                cannot be cast to a float
-    '''
+    """
     if float(value) <= 0:
-        raise argparse.ArgumentTypeError(f'{value} is an invalid positive '
-                                         'float value')
+        raise argparse.ArgumentTypeError(
+            f"{value} is an invalid positive " "float value"
+        )
     return float(value)
 
 
 def non_negative_float(value):
-    '''
+    """
     Type checking for non-negative floats passed to the command-line parser
 
     :param value: Input that is to be type-checked (scalar)
     :return: Input cast to a float
     :raises ArgumentTypeError: If the input is less than 0 or cannot be cast
                                to a float
-    '''
+    """
     if float(value) < 0:
-        raise argparse.ArgumentTypeError(f'{value} is an invalid positive '
-                                         'float value')
+        raise argparse.ArgumentTypeError(
+            f"{value} is an invalid positive " "float value"
+        )
     return float(value)
 
 
 def contact_angle(value):
-    '''
+    """
     Type checking for contact angles passed to the command-line parser
 
     :param value: Input that is to be type-checked (scalar)
     :return: Input cast to a float
     :raises ArgumentTypeError: If the input is less than 0, greater than 180,
                                 or cannot be cast to a float
-    '''
+    """
     if float(value) <= 0:
-        raise argparse.ArgumentTypeError(f'{value} is an invalid contact '
-                                         'angle value')
+        raise argparse.ArgumentTypeError(
+            f"{value} is an invalid contact " "angle value"
+        )
     if float(value) > 180:
-        raise argparse.ArgumentTypeError(f'{value} is an invalid contact '
-                                         'angle value')
+        raise argparse.ArgumentTypeError(
+            f"{value} is an invalid contact " "angle value"
+        )
     return float(value)
 
 
 def non_negative_integer(value):
-    '''
+    """
     Type checking for number of contact angles per degree passed to the
     command-line parser
 
@@ -598,55 +637,82 @@ def non_negative_integer(value):
     :return: Input cast to a positive integer
     :raises ArgumentTypeError: If the input is less than 0, or cannot be cast to
                                a non-negative interget
-    '''
+    """
     if int(value) < 0:
-        raise argparse.ArgumentTypeError(f'{value} is an invalid integer'
-                                         'angle value')
+        raise argparse.ArgumentTypeError(f"{value} is an invalid integer" "angle value")
 
     return int(value)
 
 
 def parse_cmdline(argv=None):
-    '''
+    """
     Extract command line arguments to change program execution
 
     :param argv: List of strings that were passed at the command line
     :return: Namespace of arguments and their values
-    '''
-    parser = argparse.ArgumentParser(description='Create a dataset of synthetic'
-                                     ' contact angle measurement images for '
-                                     'the given parameters')
-    parser.add_argument('save_dir', help='Relative or absolute path to '
-                        'the desired directory where synthetic'
-                        ' images will be saved. If the directory '
-                        ' does not exist then one will be created.',
-                        default='./')
-    parser.add_argument('-a', '--angle', type=contact_angle,
-                        help='The desired contact angle of the synthetic drop',
-                        action='store', dest='angle')
-    parser.add_argument('-b', '--bond_number', type=non_negative_float,
-                        help='The desired Bond number of the synthetic drop',
-                        default=0, action='store', dest='bond_number')
-    parser.add_argument('-s', '--scale', type=positive_float,
-                        help='The scale of the synthetic drop image. At a value'
-                        ' of 1 the drop occupies a majority of the image. '
-                        'Increasing the scale value makes the drop smaller. '
-                        'The recommended maximum value is 10.',
-                        default=1, action='store', dest='scale')
-    parser.add_argument('-r', '--roughness', type=float,
-                        help='The desired roughess of the surface in the '
-                        'synthetic drop image. A value of 0 will give a smooth '
-                        ' surface. The recommended maximum value is 1e-2.',
-                        default=0, action='store', dest='roughness')
+    """
+    parser = argparse.ArgumentParser(
+        description="Create a dataset of synthetic"
+        " contact angle measurement images for "
+        "the given parameters"
+    )
+    parser.add_argument(
+        "save_dir",
+        help="Relative or absolute path to "
+        "the desired directory where synthetic"
+        " images will be saved. If the directory "
+        " does not exist then one will be created.",
+        default="./",
+    )
+    parser.add_argument(
+        "-a",
+        "--angle",
+        type=contact_angle,
+        help="The desired contact angle of the synthetic drop",
+        action="store",
+        dest="angle",
+    )
+    parser.add_argument(
+        "-b",
+        "--bond_number",
+        type=non_negative_float,
+        help="The desired Bond number of the synthetic drop",
+        default=0,
+        action="store",
+        dest="bond_number",
+    )
+    parser.add_argument(
+        "-s",
+        "--scale",
+        type=positive_float,
+        help="The scale of the synthetic drop image. At a value"
+        " of 1 the drop occupies a majority of the image. "
+        "Increasing the scale value makes the drop smaller. "
+        "The recommended maximum value is 10.",
+        default=1,
+        action="store",
+        dest="scale",
+    )
+    parser.add_argument(
+        "-r",
+        "--roughness",
+        type=float,
+        help="The desired roughess of the surface in the "
+        "synthetic drop image. A value of 0 will give a smooth "
+        " surface. The recommended maximum value is 1e-2.",
+        default=0,
+        action="store",
+        dest="roughness",
+    )
     args = parser.parse_args(argv)
 
     return args
 
 
 def main(argv=None):
-    '''Create a pkl file of a single angle and single roughness value, with 21
+    """Create a pkl file of a single angle and single roughness value, with 21
     scaler and 11 roughness values.
-    '''
+    """
     args = parse_cmdline(argv)
 
     # Set default numerical arguments
@@ -659,13 +725,10 @@ def main(argv=None):
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    create_contour_dataset(angle,
-                           roughness,
-                           0, 2, 21,
-                           1, 6, 11,
-                           debug=False,
-                           save_dir=save_dir)
+    create_contour_dataset(
+        angle, roughness, 0, 2, 21, 1, 6, 11, debug=False, save_dir=save_dir
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

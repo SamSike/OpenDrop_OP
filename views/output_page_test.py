@@ -22,8 +22,7 @@ def output_page():
     page.location_entry = mock.Mock()
     page.filename_var = mock.Mock()
     page.plot_summary_label = mock.Mock()
-    page.check_vars = [mock.Mock(get=mock.Mock(
-        return_value="on")) for _ in range(3)]
+    page.check_vars = [mock.Mock(get=mock.Mock(return_value="on")) for _ in range(3)]
 
     return page, dummy_input
 

@@ -9,7 +9,7 @@ import os
 class ImageGallery(ctk.CTkFrame):
     def __init__(self, parent, import_files, on_index_change=None):
         # Pass fg_color='transparent' if the parent wrapper already has the desired background
-        super().__init__(parent, fg_color='transparent')
+        super().__init__(parent, fg_color="transparent")
         self.filename_label = ctk.CTkLabel(
             self,
             text="",
@@ -17,12 +17,10 @@ class ImageGallery(ctk.CTkFrame):
             text_color="white",
             fg_color="transparent",
             corner_radius=4,
-            height=30
+            height=30,
         )
         self.filename_label.grid(
-            row=0, column=0, columnspan=2,
-            pady=(10, 5), padx=10,
-            sticky="ew"
+            row=0, column=0, columnspan=2, pady=(10, 5), padx=10, sticky="ew"
         )
 
         self.image_handler = ImageHandler()
@@ -60,29 +58,33 @@ class ImageGallery(ctk.CTkFrame):
 
         # < button
         self.prev_button = ctk.CTkButton(
-            self.button_frame, text="<", width=30, command=lambda: self.change_image(-1))
+            self.button_frame, text="<", width=30, command=lambda: self.change_image(-1)
+        )
         self.prev_button.grid(row=0, column=0, padx=(10, 5))
 
         # input fame
         self.index_entry = ctk.CTkEntry(self.button_frame, width=50)
         self.index_entry.grid(row=0, column=1)
         self.index_entry.insert(0, str(self.current_index + 1))
-        self.index_entry.bind(
-            "<Return>", lambda e: self.update_index_from_entry())
+        self.index_entry.bind("<Return>", lambda e: self.update_index_from_entry())
 
         # of N label
         self.total_label = ctk.CTkLabel(
-            self.button_frame, text=f"of {len(self.image_paths)}", font=("Arial", 12))
+            self.button_frame, text=f"of {len(self.image_paths)}", font=("Arial", 12)
+        )
         self.total_label.grid(row=0, column=2, padx=5)
 
         # > button
         self.next_button = ctk.CTkButton(
-            self.button_frame, text=">", width=30, command=lambda: self.change_image(1))
+            self.button_frame, text=">", width=30, command=lambda: self.change_image(1)
+        )
         self.next_button.grid(row=0, column=3, padx=(5, 10))
 
         if self.image_paths:
             self.load_image(
-                self.image_paths[self.current_index], path_hint=self.image_paths[self.current_index])
+                self.image_paths[self.current_index],
+                path_hint=self.image_paths[self.current_index],
+            )
         else:
             # Handle case with no images
             self.image_label.configure(text="No images found")
@@ -116,8 +118,7 @@ class ImageGallery(ctk.CTkFrame):
         except Exception as e:
             print(f"Error opening image {selected_image}: {e}")
             self.current_image = None
-            self.image_label.configure(
-                image=None, text="Error displaying image")
+            self.image_label.configure(image=None, text="Error displaying image")
 
     # RESTORED display_image logic using fixed max_height
 
@@ -148,23 +149,24 @@ class ImageGallery(ctk.CTkFrame):
             new_height = max(1, new_height)
 
             self.tk_image = ctk.CTkImage(
-                light_image=self.current_image,
-                size=(new_width, new_height))
+                light_image=self.current_image, size=(new_width, new_height)
+            )
 
-            self.image_label.configure(
-                image=self.tk_image, text="")  # Update label
+            self.image_label.configure(image=self.tk_image, text="")  # Update label
         except Exception as e:
             print(f"Error creating fixed size CTkImage: {e}")
-            self.image_label.configure(
-                image=None, text="Error displaying image")
+            self.image_label.configure(image=None, text="Error displaying image")
 
     def change_image(self, direction):
         """Change the currently displayed image based on the direction."""
         if self.image_paths:
-            self.current_index = (
-                self.current_index + direction) % len(self.image_paths)  # Wrap around
-        self.load_image(self.image_paths[self.current_index],
-                        path_hint=self.image_paths[self.current_index])
+            self.current_index = (self.current_index + direction) % len(
+                self.image_paths
+            )  # Wrap around
+        self.load_image(
+            self.image_paths[self.current_index],
+            path_hint=self.image_paths[self.current_index],
+        )
         self.update_index_entry()
 
     def set_image(self, img):
@@ -173,7 +175,7 @@ class ImageGallery(ctk.CTkFrame):
         self.display_image()
 
     def update_index_entry(self):
-        self.index_entry.delete(0, 'end')
+        self.index_entry.delete(0, "end")
         self.index_entry.insert(0, str(self.current_index + 1))
 
     def update_index_from_entry(self):
@@ -182,7 +184,9 @@ class ImageGallery(ctk.CTkFrame):
             if 0 <= new_index < len(self.image_paths):
                 self.current_index = new_index
                 self.load_image(
-                    self.image_paths[self.current_index], path_hint=self.image_paths[self.current_index])
+                    self.image_paths[self.current_index],
+                    path_hint=self.image_paths[self.current_index],
+                )
         except ValueError:
             print("Invalid input index")
         self.update_index_entry()

@@ -30,7 +30,8 @@ def test_create_user_input_fields():
         instance = MagicMock(spec=CaPreparation)
         instance.user_input_data = MagicMock()
         CaPreparation.create_user_input_fields(
-            instance, parent_frame=mock_create.return_value)
+            instance, parent_frame=mock_create.return_value
+        )
         mock_create.assert_called_once()
 
 
@@ -40,7 +41,8 @@ def test_create_analysis_method_fields():
         instance = MagicMock(spec=CaPreparation)
         instance.user_input_data = MagicMock()
         CaPreparation.create_analysis_method_fields(
-            instance, parent_frame=mock_create.return_value)
+            instance, parent_frame=mock_create.return_value
+        )
         mock_create.assert_called_once()
 
 
@@ -50,5 +52,6 @@ def test_create_fitting_view_fields():
         instance = MagicMock(spec=CaPreparation)
         instance.user_input_data = MagicMock()
         CaPreparation.create_fitting_view_fields(
-            instance, parent_frame=mock_create.return_value)
+            instance, parent_frame=mock_create.return_value
+        )
         mock_create.assert_called_once()

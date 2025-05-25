@@ -2,7 +2,7 @@ from modules.core.classes import (
     Tolerances,
     ExperimentalSetup,
     ExperimentalDrop,
-    DropData
+    DropData,
 )
 from math import pi
 import numpy as np
@@ -10,8 +10,7 @@ import pytest
 import sys
 import os
 
-sys.path.insert(0, os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '../../')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,7 +27,7 @@ def test_tolerances():
         arclength_tol=1e-6,
         maximum_arclength_steps=100,
         needle_tol=1e-6,
-        needle_steps=100
+        needle_steps=100,
     )
 
 
@@ -38,9 +37,9 @@ def test_experimental_setup():
     setup.needle_diameter_mm = 1.0
 
     setup.user_input_fields = {
-        'drop_density': 1000.0,
-        'continuous_density': 0.0,
-        'pixel_mm': 100.0
+        "drop_density": 1000.0,
+        "continuous_density": 0.0,
+        "pixel_mm": 100.0,
     }
     return setup
 
@@ -48,9 +47,9 @@ def test_experimental_setup():
 @pytest.fixture
 def test_experimental_drop():
     drop = ExperimentalDrop()
-    drop.drop_contour = np.array([
-        [0, 0], [1, 1], [2, 2], [3, 3], [4, 2], [5, 1], [6, 0]
-    ])
+    drop.drop_contour = np.array(
+        [[0, 0], [1, 1], [2, 2], [3, 3], [4, 2], [5, 1], [6, 0]]
+    )
     drop.contact_points = [[0, 0], [6, 0]]
     drop.pixels_to_mm = 100.0
     return drop
@@ -85,9 +84,9 @@ def test_experimental_setup_initialization(test_experimental_setup):
     """Test that ExperimentalSetup is initialized with correct values"""
     setup = test_experimental_setup
     assert setup.needle_diameter_mm == 1.0
-    assert setup.user_input_fields['drop_density'] == 1000.0
-    assert setup.user_input_fields['continuous_density'] == 0.0
-    assert setup.user_input_fields['pixel_mm'] == 100.0
+    assert setup.user_input_fields["drop_density"] == 1000.0
+    assert setup.user_input_fields["continuous_density"] == 0.0
+    assert setup.user_input_fields["pixel_mm"] == 100.0
     assert setup.drop_region is None  # Default value
     assert setup.needle_region is None  # Default value
 
@@ -98,9 +97,10 @@ def test_experimental_drop_initialization(test_experimental_drop):
     assert drop.pixels_to_mm == 100.0
     assert drop.image is None  # Default value
     assert drop.contact_angles == {}  # Default empty dict
-    assert np.array_equal(drop.drop_contour, np.array([
-        [0, 0], [1, 1], [2, 2], [3, 3], [4, 2], [5, 1], [6, 0]
-    ]))
+    assert np.array_equal(
+        drop.drop_contour,
+        np.array([[0, 0], [1, 1], [2, 2], [3, 3], [4, 2], [5, 1], [6, 0]]),
+    )
     assert drop.contact_points == [[0, 0], [6, 0]]
 
 

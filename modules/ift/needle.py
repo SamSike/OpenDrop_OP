@@ -11,17 +11,22 @@ import scipy.optimize
 try:
     from modules.ift.hough import hough
 except ImportError:
-    raise RuntimeError("❗ Failed to load native Cython module 'hough'.\n"
-                       "This is likely due to a missing or incompatible build for your architecture.\n"
-                       "Please run: `python setup.py build_ext --inplace`\n"
-                       "Refer to the README section: 'Troubleshooting: Architecture Mismatch (macOS)'")
+    raise RuntimeError(
+        "❗ Failed to load native Cython module 'hough'.\n"
+        "This is likely due to a missing or incompatible build for your architecture.\n"
+        "Please run: `python setup.py build_ext --inplace`\n"
+        "Refer to the README section: 'Troubleshooting: Architecture Mismatch (macOS)'"
+    )
 
 
-__all__ = ('NeedleFitResult', 'needle_fit',)
+__all__ = (
+    "NeedleFitResult",
+    "needle_fit",
+)
 
 DELTA_TOL = None
-GRADIENT_TOL = 1.e-8
-OBJECTIVE_TOL = 1.e-8
+GRADIENT_TOL = 1.0e-8
+OBJECTIVE_TOL = 1.0e-8
 
 ANGLE_STEPS = 200
 DIST_STEPS = 64
@@ -50,7 +55,9 @@ class NeedleFitResult(NamedTuple):
     lmask: np.ndarray
 
 
-def needle_fit(data: Tuple[np.ndarray, np.ndarray], verbose: bool = False) -> Optional[NeedleFitResult]:
+def needle_fit(
+    data: Tuple[np.ndarray, np.ndarray], verbose: bool = False
+) -> Optional[NeedleFitResult]:
     if data.shape[1] == 0:
         return None
 
@@ -72,9 +79,9 @@ def needle_fit(data: Tuple[np.ndarray, np.ndarray], verbose: bool = False) -> Op
             needle_guess(data),
             jac,
             args=(model,),
-            x_scale='jac',
-            method='trf',
-            loss='arctan',
+            x_scale="jac",
+            method="trf",
+            loss="arctan",
             f_scale=2.0,
             ftol=OBJECTIVE_TOL,
             xtol=DELTA_TOL,
@@ -92,10 +99,8 @@ def needle_fit(data: Tuple[np.ndarray, np.ndarray], verbose: bool = False) -> Op
         rotation=model.params[NeedleParam.ROTATION],
         rho=model.params[NeedleParam.RHO],
         radius=math.fabs(model.params[NeedleParam.RADIUS]),
-
-        objective=(model.residuals**2).sum()/model.dof,
+        objective=(model.residuals**2).sum() / model.dof,
         residuals=model.residuals,
-
         lmask=model.lmask,
     )
 
@@ -107,7 +112,7 @@ def needle_guess(data: np.ndarray) -> Sequence[float]:
     data = data.astype(float)
 
     extents = Rect2(data.min(axis=1), data.max(axis=1))
-    diagonal = int(math.ceil((extents.w**2 + extents.h**2)**0.5))
+    diagonal = int(math.ceil((extents.w**2 + extents.h**2) ** 0.5))
     data -= np.reshape(extents.center, (2, 1))
     votes = hough.hough(data, diagonal)
 
@@ -116,27 +121,26 @@ def needle_guess(data: np.ndarray) -> Sequence[float]:
         peaks, props = scipy.signal.find_peaks(votes[i], prominence=0)
         if len(peaks) < 2:
             continue
-        ix = np.argsort(props['prominences'])[::-1]
+        ix = np.argsort(props["prominences"])[::-1]
         peak1_i, peak2_i = peaks[ix[:2]]
-        prom1, prom2 = props['prominences'][ix[:2]]
-        if prom2 < prom1/2:
+        prom1, prom2 = props["prominences"][ix[:2]]
+        if prom2 < prom1 / 2:
             continue
 
-        peak1 = ((peak1_i - 1)/(len(votes[i]) - 3) - 0.5) * diagonal
-        peak2 = ((peak2_i - 1)/(len(votes[i]) - 3) - 0.5) * diagonal
+        peak1 = ((peak1_i - 1) / (len(votes[i]) - 3) - 0.5) * diagonal
+        peak2 = ((peak2_i - 1) / (len(votes[i]) - 3) - 0.5) * diagonal
 
-        needles[i][0] = (peak1 + peak2)/2
-        needles[i][1] = math.fabs(peak1 - peak2)/2
+        needles[i][0] = (peak1 + peak2) / 2
+        needles[i][1] = math.fabs(peak1 - peak2) / 2
         needles[i][2] = prom1 + prom2
 
-    scores = gaussian_filter(
-        needles[:, 2], sigma=10, mode='wrap')
+    scores = gaussian_filter(needles[:, 2], sigma=10, mode="wrap")
     needle_i = scores.argmax()
 
-    theta = -np.pi/2 + (needle_i/len(needles)) * np.pi
+    theta = -np.pi / 2 + (needle_i / len(needles)) * np.pi
     rho, radius = needles[needle_i][:2]
 
-    rho_offset = np.cos(theta)*extents.xc + np.sin(theta)*extents.yc
+    rho_offset = np.cos(theta) * extents.xc + np.sin(theta) * extents.yc
     rho += rho_offset
 
     params[NeedleParam.ROTATION] = theta
@@ -171,8 +175,7 @@ class NeedleModel:
         de_dR = self._jac[:, NeedleParam.RADIUS]
         lmask = self._lmask
 
-        Q = np.array([[np.cos(w), -np.sin(w)],
-                      [np.sin(w),  np.cos(w)]])
+        Q = np.array([[np.cos(w), -np.sin(w)], [np.sin(w), np.cos(w)]])
 
         data_x, data_y = self.data
         data_r, data_z = Q.T @ (data_x, data_y) - [[rho], [0]]

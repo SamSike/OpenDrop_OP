@@ -23,7 +23,7 @@ import cv2
 import time
 
 
-def cluster_optics(sample, out_style='coords', xi=None, eps=None, verbose=0):
+def cluster_optics(sample, out_style="coords", xi=None, eps=None, verbose=0):
     """Takes an array (or list) of the form [[x1,y1],[x2,y2],...,[xn,yn]].
     Clusters are outputted in the form of a dictionary.
 
@@ -43,14 +43,16 @@ def cluster_optics(sample, out_style='coords', xi=None, eps=None, verbose=0):
     https://scikit-learn.org/stable/modules/generated/sklearn.cluster.OPTICS.html
     """
     if eps is not None and xi is None:
-        clustering = OPTICS(min_samples=2, cluster_method='dbscan', eps=eps).fit(
-            sample)  # cluster_method changed to dbscan (so eps can be set)
+        clustering = OPTICS(min_samples=2, cluster_method="dbscan", eps=eps).fit(
+            sample
+        )  # cluster_method changed to dbscan (so eps can be set)
     elif xi is not None and eps is None:
         # original had xi = 0.05, xi as 0.1 in function input
         clustering = OPTICS(min_samples=2, xi=xi).fit(sample)
     else:
         raise ValueError(
-            "only one of eps and xi can be chosen but not neither nor both")
+            "only one of eps and xi can be chosen but not neither nor both"
+        )
     groups = list(set(clustering.labels_))
 
     if verbose == 2:
@@ -73,27 +75,28 @@ def cluster_optics(sample, out_style='coords', xi=None, eps=None, verbose=0):
         y = []
         for i in range(len(dic[k])):
             x.append(dic[k][i][0])
-        dic2[str(k)+'x'] = x
+        dic2[str(k) + "x"] = x
         for i in range(len(dic[k])):
             y.append(dic[k][i][1])
-        dic2[str(k)+'y'] = y
+        dic2[str(k) + "y"] = y
 
-    if out_style == 'coords':
+    if out_style == "coords":
         return dic
-    elif out_style == 'xy':
+    elif out_style == "xy":
         return dic2
 
 
 def distance1(p1, p2):
     """This function computes the distance between 2 points defined by
-    P1 = (x1,y1) and P2 = (x2,y2) """
-    return ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2) ** 0.5
+    P1 = (x1,y1) and P2 = (x2,y2)"""
+    return ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
 
 
 def optimized_path(coords, start=None):
     """This function finds the nearest point to a point
     coords should be a list in this format coords = [ [x1, y1], [x2, y2] , ...]
-    https://stackoverflow.com/questions/45829155/sort-points-in-order-to-have-a-continuous-curve-using-python"""
+    https://stackoverflow.com/questions/45829155/sort-points-in-order-to-have-a-continuous-curve-using-python
+    """
     if isinstance(coords, list) == False:
         coords = coords.tolist()
     if 0:
@@ -118,14 +121,14 @@ def optimized_path(coords, start=None):
     if 1:
         dists = []
         for i, point in enumerate(path):
-            if i < len(path)-1:
-                dists.append(distance1(path[i], path[i+1]))
+            if i < len(path) - 1:
+                dists.append(distance1(path[i], path[i + 1]))
         jump_idx = []
         for i, dist in enumerate(dists):
             if dist > 5:
                 jump_idx.append(i)
         if len(jump_idx) > 0:
-            path = path[:jump_idx[0]]
+            path = path[: jump_idx[0]]
 
     return path
 
@@ -144,16 +147,16 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
     if cluster:  # turn this off bc using synthetic drops without lensing effect
         input_contour = coords
         dic, dic2 = cluster_optics(input_contour, xi=xi), cluster_optics(
-            input_contour, out_style='xy', xi=xi)
+            input_contour, out_style="xy", xi=xi
+        )
 
         # print("number of groups: ",len(list(dic.keys())))
 
-        jet = plt.get_cmap('jet')
+        jet = plt.get_cmap("jet")
         colors = iter(jet(np.linspace(0, 1, len(list(dic.keys())))))
         for k in dic.keys():
-            plt.plot(dic2[str(k)+'x'], dic2[str(k)+'y'],
-                     'o', color=next(colors))
-        plt.title(str(len(dic.keys()))+" groups found by clustering")
+            plt.plot(dic2[str(k) + "x"], dic2[str(k) + "y"], "o", color=next(colors))
+        plt.title(str(len(dic.keys())) + " groups found by clustering")
         plt.show()
         plt.close()
         maxkey = max(dic, key=lambda k: len(dic[k]))
@@ -184,15 +187,15 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
     # .   most importantly noise is reduced at contact points.
 
     # variables in this process are how much and what part of the top of the droplet we use to be representative of
-        # the full contour, and whether we use the max(distance) between points or the average between points, or
-        # a scalar value of either.
+    # the full contour, and whether we use the max(distance) between points or the average between points, or
+    # a scalar value of either.
 
     xtop = []  # isolate top 90% of drop
     ytop = []
     percent = 0.3
     # print('Isolate the top ',100-(percent*100),'% of the contour:')
     for n, y in enumerate(ylongest):
-        if y > min(ylongest) + (max(ylongest) - min(ylongest))*percent:
+        if y > min(ylongest) + (max(ylongest) - min(ylongest)) * percent:
             xtop.append(xlongest[n])
             ytop.append(y)
     xtop = np.array(xtop)
@@ -208,34 +211,34 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
     for n, co in enumerate(top_array):
         if 1 < n:
             a = top_array[n]
-            dist = np.linalg.norm(top_array[n]-top_array[n-1])
+            dist = np.linalg.norm(top_array[n] - top_array[n - 1])
             dists.append(dist)
 
     if display:
         # print(dists)
         print()
-        print('Max dist between points is: ', max(dists))
-        print('Average dist between points is: ', sum(dists)/len(dists))
-        print('20% over the Max dist is: ', max(dists)*1.2)
+        print("Max dist between points is: ", max(dists))
+        print("Average dist between points is: ", sum(dists) / len(dists))
+        print("20% over the Max dist is: ", max(dists) * 1.2)
         print()
-        print('Sort using cluster_optics with an epsilon value of ', max(dists)*1.2)
+        print("Sort using cluster_optics with an epsilon value of ", max(dists) * 1.2)
 
     # how epsilon is chosen here is important
     # eps = (sum(dists)/len(dists))*2 # eps is 2 times the average distance between points
     # eps is 2.5 times the average distance between points
-    eps = (sum(dists)/len(dists))*1.5
+    eps = (sum(dists) / len(dists)) * 1.5
     input_contour = longest
     dic, dic2 = cluster_optics(input_contour, eps=eps), cluster_optics(
-        input_contour, out_style='xy', eps=eps)
+        input_contour, out_style="xy", eps=eps
+    )
 
     # print("number of groups: ",len(list(dic.keys())))
     if display:
-        jet = plt.get_cmap('jet')
+        jet = plt.get_cmap("jet")
         colors = iter(jet(np.linspace(0, 1, len(list(dic.keys())))))
         for k in dic.keys():
-            plt.plot(dic2[str(k)+'x'], dic2[str(k)+'y'],
-                     'o', color=next(colors))
-        plt.title('Groups found by clustering with epsilon value of '+str(eps))
+            plt.plot(dic2[str(k) + "x"], dic2[str(k) + "y"], "o", color=next(colors))
+        plt.title("Groups found by clustering with epsilon value of " + str(eps))
         plt.show()
         plt.close()
     maxkey = max(dic, key=lambda k: len(dic[k]))
@@ -262,10 +265,10 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
     # percent = 0.1 # already defined
     # print('isolate the top ',100-(percent*100),'% of the contour:')
     for n, y in enumerate(ylongest):
-        if y > min(ylongest) + (max(ylongest) - min(ylongest))*percent:
+        if y > min(ylongest) + (max(ylongest) - min(ylongest)) * percent:
             xtop.append(xlongest[n])
             ytop.append(y)
-    xapex = (max(xtop) + min(xtop))/2
+    xapex = (max(xtop) + min(xtop)) / 2
 
     l_drop = []
     r_drop = []
@@ -282,10 +285,10 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
     l_drop[:, 0] = -l_drop[:, 0] + xapex
 
     if display:
-        plt.plot(r_drop[:, [0]], r_drop[:, [1]], 'b,')
+        plt.plot(r_drop[:, [0]], r_drop[:, [1]], "b,")
         # plt.show()
         # plt.close()
-        plt.plot(l_drop[:, [0]], l_drop[:, [1]], 'r,')
+        plt.plot(l_drop[:, [0]], l_drop[:, [1]], "r,")
         # plt.gca().set_aspect('equal', adjustable='box')
         # plt.xlim([470,530])
         # plt.ylim([-188,-190])
@@ -305,8 +308,9 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
     crop_drop = {}
     CPs = {}
     for halfdrop in [l_drop, r_drop]:
-        new_halfdrop = sorted(halfdrop.tolist(), key=lambda x: (
-            x[0], -x[1]))  # top left to bottom right
+        new_halfdrop = sorted(
+            halfdrop.tolist(), key=lambda x: (x[0], -x[1])
+        )  # top left to bottom right
         new_halfdrop = optimized_path(new_halfdrop)  # [::-1]
 
         xnew_halfdrop = new_halfdrop[:, [0]].reshape(len(new_halfdrop[:, [0]]))
@@ -316,8 +320,10 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
         bottom = []
         top = []  # will need this later
         # print('isolate the bottom ',percent*100,'% of the contour:') # percent defined above
-        div_line_value = min(new_halfdrop[:, [
-                             1]]) + (max(new_halfdrop[:, [1]]) - min(new_halfdrop[:, [1]]))*percent
+        div_line_value = (
+            min(new_halfdrop[:, [1]])
+            + (max(new_halfdrop[:, [1]]) - min(new_halfdrop[:, [1]])) * percent
+        )
         for n in new_halfdrop:
             if n[1] < div_line_value:
                 bottom.append(n)
@@ -335,8 +341,8 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
         # print('max x value of halfdrop is: ',max(xhalfdrop))
 
         if 1:  # plot the bottom 10% of the contour
-            plt.plot(xbottom, ybottom, 'b,')
-            plt.title('bottom 10% of the contour')
+            plt.plot(xbottom, ybottom, "b,")
+            plt.title("bottom 10% of the contour")
             # plt.xlim([130,200])
             plt.show()
             plt.close()
@@ -358,14 +364,12 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
             # remove surface line past the contact point
             index = new_halfdrop.tolist().index(CPs[counter])  # ?
 
-            new_halfdrop = new_halfdrop[:index+1]
+            new_halfdrop = new_halfdrop[: index + 1]
 
             if 0:
-                xCP_index = [i for i, j in enumerate(
-                    xnew_halfdrop) if j == xCP]
+                xCP_index = [i for i, j in enumerate(xnew_halfdrop) if j == xCP]
                 # print('xCP_index is: ',xCP_index)
-                yCP_index = [i for i, j in enumerate(
-                    ynew_halfdrop) if j == yCP]
+                yCP_index = [i for i, j in enumerate(ynew_halfdrop) if j == yCP]
                 # print('yCP_index is: ',yCP_index)
 
                 new_halfdrop = np.zeros((len(xnew_halfdrop), 2))
@@ -376,10 +380,13 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
                 # print('length of new_halfdrop is: ',len(new_halfdrop))
 
                 if xCP_index == yCP_index:
-                    if new_halfdrop[xCP_index[0]+1][1] > new_halfdrop[xCP_index[0]-1][1]:
-                        new_halfdrop = new_halfdrop[xCP_index[0]:]
+                    if (
+                        new_halfdrop[xCP_index[0] + 1][1]
+                        > new_halfdrop[xCP_index[0] - 1][1]
+                    ):
+                        new_halfdrop = new_halfdrop[xCP_index[0] :]
                     else:
-                        new_halfdrop = new_halfdrop[:xCP_index[0]+1]
+                        new_halfdrop = new_halfdrop[: xCP_index[0] + 1]
                 else:
                     raise_error = True
                     for x in xCP_index:
@@ -389,15 +396,22 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
                                 xCP_index = [x]
                                 yCP_index = [y]
                                 # print('indexes of the CP are: ',xCP_index[0],', ',yCP_index[0])
-                                if new_halfdrop[xCP_index[0]+1][1] > new_halfdrop[xCP_index[0]-1][1]:
-                                    new_halfdrop = new_halfdrop[xCP_index[0]:]
+                                if (
+                                    new_halfdrop[xCP_index[0] + 1][1]
+                                    > new_halfdrop[xCP_index[0] - 1][1]
+                                ):
+                                    new_halfdrop = new_halfdrop[xCP_index[0] :]
                                 else:
-                                    new_halfdrop = new_halfdrop[:xCP_index[0]+1]
+                                    new_halfdrop = new_halfdrop[: xCP_index[0] + 1]
                     if raise_error == True:
-                        print('The index of the contact point x value is: ',
-                              new_halfdrop[xCP_index])
-                        print('The index of the contact point y value is: ',
-                              new_halfdrop[yCP_index])
+                        print(
+                            "The index of the contact point x value is: ",
+                            new_halfdrop[xCP_index],
+                        )
+                        print(
+                            "The index of the contact point y value is: ",
+                            new_halfdrop[yCP_index],
+                        )
                         raise "indexes of x and y values of the contact point are not the same"
 
         if 0:
@@ -422,20 +436,20 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
             bottom = np.array(list(zip(xbot, ybot)))
 
             # print('shape of another_halfdrop is: '+ str(type(another_halfdrop)))
-            print('first few points of halfdrop are: ', halfdrop[:3])
+            print("first few points of halfdrop are: ", halfdrop[:3])
             if display:
                 colors = iter(jet(np.linspace(0, 1, len(bottom))))
                 for n, coord in enumerate(bottom):
-                    plt.plot(bottom[n, 0], bottom[n, 1],
-                             'o', color=next(colors))
-                plt.title('Cropped bottom of hafldrop')
+                    plt.plot(bottom[n, 0], bottom[n, 1], "o", color=next(colors))
+                plt.title("Cropped bottom of hafldrop")
                 plt.show()
                 plt.close()
 
             # order points using traveling salesman two_opt code
             bottom = bottom[::-1]  # start at the top
             print(
-                'Starting first coordinate of bottom slice of halfdrop is: ', bottom[0])
+                "Starting first coordinate of bottom slice of halfdrop is: ", bottom[0]
+            )
             # increase improvement_threshold from 0.1 to 0.01
             new_bot, _ = two_opt(bottom, 0.01)
             if new_bot[0, 1] < new_bot[-1, 1]:
@@ -445,22 +459,21 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
             if display:  # display
                 colors = iter(jet(np.linspace(0, 1, len(bottom))))
                 for n, coord in enumerate(bottom):
-                    plt.plot(new_bot[n, 0], new_bot[n, 1],
-                             'o', color=next(colors))
-                plt.title(
-                    'Cropped ordered new_bot of halfdrop (starting from blue)')
+                    plt.plot(new_bot[n, 0], new_bot[n, 1], "o", color=next(colors))
+                plt.title("Cropped ordered new_bot of halfdrop (starting from blue)")
                 plt.show()
                 plt.close()
 
                 plt.plot(new_bot[:, 0], new_bot[:, 1])
-                plt.title('Cropped ordered new_bot of halfdrop (line)')
+                plt.title("Cropped ordered new_bot of halfdrop (line)")
                 plt.show()
                 plt.close()
 
             # order the top 90% so that the y value decreases
 
-            print('Sorting top ', 100-(percent*100),
-                  '% of the contour by y value...')
+            print(
+                "Sorting top ", 100 - (percent * 100), "% of the contour by y value..."
+            )
             new_top = sorted(list(top), key=lambda x: x[1], reverse=True)
             new_top = np.array(new_top)
 
@@ -474,11 +487,11 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
                 for yCP_index in yCP_indexs:
                     if xCP_index == yCP_index:
                         try:
-                            if ybot[yCP_index+2] > ybot[yCP_index-1]:
+                            if ybot[yCP_index + 2] > ybot[yCP_index - 1]:
                                 new_bot = np.zeros((len(xbot[yCP_index:]), 2))
                                 for n in range(len(new_bot)):
-                                    new_bot[n, [0]] = xbot[xCP_index+n]
-                                    new_bot[n, [1]] = ybot[yCP_index+n]
+                                    new_bot[n, [0]] = xbot[xCP_index + n]
+                                    new_bot[n, [1]] = ybot[yCP_index + n]
                             else:
                                 new_bot = np.zeros((len(xbot[:yCP_index]), 2))
                                 for n in range(len(new_bot)):
@@ -486,21 +499,19 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
                                     new_bot[n, [1]] = ybot[n]
                         except:
                             try:
-                                if ybot[yCP_index] > ybot[yCP_index-2]:
-                                    new_bot = np.zeros(
-                                        (len(xbot[yCP_index:]), 2))
+                                if ybot[yCP_index] > ybot[yCP_index - 2]:
+                                    new_bot = np.zeros((len(xbot[yCP_index:]), 2))
                                     for n in range(len(new_bot)):
-                                        new_bot[n, [0]] = xbot[xCP_index+n]
-                                        new_bot[n, [1]] = ybot[yCP_index+n]
+                                        new_bot[n, [0]] = xbot[xCP_index + n]
+                                        new_bot[n, [1]] = ybot[yCP_index + n]
                                 else:
-                                    new_bot = np.zeros(
-                                        (len(xbot[:yCP_index]), 2))
+                                    new_bot = np.zeros((len(xbot[:yCP_index]), 2))
                                     for n in range(len(new_bot)):
                                         new_bot[n, [0]] = xbot[n]
                                         new_bot[n, [1]] = ybot[n]
                             except:
-                                print('xCP_indexs are: ', xCP_indexs)
-                                print('yCP_indexs are: ', yCP_indexs)
+                                print("xCP_indexs are: ", xCP_indexs)
+                                print("yCP_indexs are: ", yCP_indexs)
                                 raise "indexes of x and y values of the contact point are not the same"
             new_halfdrop = np.concatenate((new_top, new_bot))
 
@@ -536,8 +547,9 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
                 add_top = True
                 print()
                 print(
-                    'sort_to_line is not utilising the full contour, alternate ordering method being used')
-                print('check bottom 10% of contour...')
+                    "sort_to_line is not utilising the full contour, alternate ordering method being used"
+                )
+                print("check bottom 10% of contour...")
                 # this method is much slower than the above, so use as few points as possible
                 bot_list = []
                 for n in range(len(xbottom)):
@@ -550,8 +562,8 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
                 xbot, ybot = new_order[:, [0]], new_order[:, [1]]
 
                 if display:
-                    plt.plot(xbot, ybot, 'b-')
-                    plt.title('Bottom of half drop, new order')
+                    plt.plot(xbot, ybot, "b-")
+                    plt.title("Bottom of half drop, new order")
                     plt.show()
                     plt.close()
 
@@ -567,13 +579,13 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
                         new_bot[n, [1]] = ybot[n]
                 # xbot[xCP_index[0]:]
                 if xCP_index == yCP_index:
-                    if ybot[yCP_index[0]+1] > ybot[yCP_index[0]-1]:
-                        new_bot = np.zeros((len(xbot[yCP_index[0]:]), 2))
+                    if ybot[yCP_index[0] + 1] > ybot[yCP_index[0] - 1]:
+                        new_bot = np.zeros((len(xbot[yCP_index[0] :]), 2))
                         for n in range(len(new_bot)):
-                            new_bot[n, [0]] = xbot[xCP_index[0]+n]
-                            new_bot[n, [1]] = ybot[yCP_index[0]+n]
+                            new_bot[n, [0]] = xbot[xCP_index[0] + n]
+                            new_bot[n, [1]] = ybot[yCP_index[0] + n]
                     else:
-                        new_bot = np.zeros((len(xbot[:yCP_index[0]]), 2))
+                        new_bot = np.zeros((len(xbot[: yCP_index[0]]), 2))
                         for n in range(len(new_bot)):
                             new_bot[n, [0]] = xbot[n]
                             new_bot[n, [1]] = ybot[n]
@@ -590,14 +602,14 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
                 new_halfdrop = np.concatenate((top, new_bot))
 
                 # re-order to check that the error was at the surface line
-                xx, yy = sort_to_line(
-                    new_halfdrop[:, [0]], new_halfdrop[:, [1]])
-                if len(xx) < len(new_halfdrop):  # then the error was in the top 90% of the drop
-                    print('Checking top 90% of contour...')
+                xx, yy = sort_to_line(new_halfdrop[:, [0]], new_halfdrop[:, [1]])
+                if len(xx) < len(
+                    new_halfdrop
+                ):  # then the error was in the top 90% of the drop
+                    print("Checking top 90% of contour...")
                     new_top, _ = two_opt(top)
                     new_halfdrop = np.concatenate((new_top, new_bot))
-                    xx, yy = sort_to_line(
-                        new_halfdrop[:, [0]], new_halfdrop[:, [1]])
+                    xx, yy = sort_to_line(new_halfdrop[:, [0]], new_halfdrop[:, [1]])
 
             else:  # if sort_to_line worked as expected
                 # find the indexs of the contact point and chop off the ends
@@ -614,10 +626,13 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
                 # print('length of new_halfdrop is: ',len(new_halfdrop))
 
                 if xCP_index == yCP_index:
-                    if new_halfdrop[xCP_index[0]+1][1] > new_halfdrop[xCP_index[0]-1][1]:
-                        new_halfdrop = new_halfdrop[xCP_index[0]:]
+                    if (
+                        new_halfdrop[xCP_index[0] + 1][1]
+                        > new_halfdrop[xCP_index[0] - 1][1]
+                    ):
+                        new_halfdrop = new_halfdrop[xCP_index[0] :]
                     else:
-                        new_halfdrop = new_halfdrop[:xCP_index[0]+1]
+                        new_halfdrop = new_halfdrop[: xCP_index[0] + 1]
                 else:
                     raise_error = True
                     for x in xCP_index:
@@ -627,15 +642,22 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
                                 xCP_index = [x]
                                 yCP_index = [y]
                                 # print('indexes of the CP are: ',xCP_index[0],', ',yCP_index[0])
-                                if new_halfdrop[xCP_index[0]+1][1] > new_halfdrop[xCP_index[0]-1][1]:
-                                    new_halfdrop = new_halfdrop[xCP_index[0]:]
+                                if (
+                                    new_halfdrop[xCP_index[0] + 1][1]
+                                    > new_halfdrop[xCP_index[0] - 1][1]
+                                ):
+                                    new_halfdrop = new_halfdrop[xCP_index[0] :]
                                 else:
-                                    new_halfdrop = new_halfdrop[:xCP_index[0]+1]
+                                    new_halfdrop = new_halfdrop[: xCP_index[0] + 1]
                     if raise_error == True:
-                        print('The index of the contact point x value is: ',
-                              new_halfdrop[xCP_index])
-                        print('The index of the contact point y value is: ',
-                              new_halfdrop[yCP_index])
+                        print(
+                            "The index of the contact point x value is: ",
+                            new_halfdrop[xCP_index],
+                        )
+                        print(
+                            "The index of the contact point y value is: ",
+                            new_halfdrop[yCP_index],
+                        )
                         raise "indexes of x and y values of the contact point are not the same"
 
         if counter == 0:
@@ -644,12 +666,12 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
             drops[counter] = new_halfdrop
 
         if display:  # display
-            jet = plt.get_cmap('jet')
+            jet = plt.get_cmap("jet")
             colors = iter(jet(np.linspace(0, 1, len(new_halfdrop))))
             for k in new_halfdrop:
-                plt.plot(k[0], k[1], 'o', color=next(colors))
-            plt.title('outputted halfdrop')
-            plt.axis('equal')
+                plt.plot(k[0], k[1], "o", color=next(colors))
+            plt.title("outputted halfdrop")
+            plt.axis("equal")
             plt.show()
             plt.close()
 
@@ -657,27 +679,27 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
 
     # reflect the left drop and combine left and right
 
-    profile = np.empty((len(drops[0])+len(drops[1]), 2))
+    profile = np.empty((len(drops[0]) + len(drops[1]), 2))
     for i, n in enumerate(drops[0]):
         flipped = n
         flipped[0] = -flipped[0]
         profile[i] = flipped
     for i, n in enumerate(drops[1]):
-        profile[len(drops[0])+i] = n
+        profile[len(drops[0]) + i] = n
     CPs[0][0] = -CPs[0][0]
 
     if display:
-        jet = plt.get_cmap('jet')
+        jet = plt.get_cmap("jet")
         colors = iter(jet(np.linspace(0, 1, len(profile))))
         for k in profile:
-            plt.plot(k[0], k[1], 'o', color=next(colors))
-        plt.title('final output')
+            plt.plot(k[0], k[1], "o", color=next(colors))
+        plt.title("final output")
         # plt.plot(profile[:,0],profile[:,1],'b')
         plt.show()
         plt.close()
 
-        plt.title('final output')
-        plt.plot(profile[:, 0], profile[:, 1], 'b')
+        plt.title("final output")
+        plt.plot(profile[:, 0], profile[:, 1], "b")
         plt.show()
         plt.close()
 
@@ -699,13 +721,13 @@ def prepare_hydrophobic(coords, xi=0.8, cluster=False, display=False):
 
 def find_contours(image):
     """
-        Calls cv2.findContours() on passed image in a way that is compatible with OpenCV 4.x, 3.x or 2.x
-        versions. Passed image is a numpy.array.
+    Calls cv2.findContours() on passed image in a way that is compatible with OpenCV 4.x, 3.x or 2.x
+    versions. Passed image is a numpy.array.
 
-        Note, cv2.findContours() will treat non-zero pixels as 1 and zero pixels as 0, so the edges detected will only
-        be those on the boundary of pixels with non-zero and zero values.
+    Note, cv2.findContours() will treat non-zero pixels as 1 and zero pixels as 0, so the edges detected will only
+    be those on the boundary of pixels with non-zero and zero values.
 
-        Returns a numpy array of the contours in descending arc length order.
+    Returns a numpy array of the contours in descending arc length order.
     """
     if len(image.shape) > 2:
         raise ValueError(f"image {image} must be a single channel image")
@@ -714,15 +736,18 @@ def find_contours(image):
         # In OpenCV 4.0, cv2.findContours() no longer returns three arguments, it reverts to the same return signature
         # as pre 3.2.0.
         contours, hierarchy = cv2.findContours(
-            image, cv2.RETR_LIST, cv2.CHAIN_APPROX_TC89_KCOS)
+            image, cv2.RETR_LIST, cv2.CHAIN_APPROX_TC89_KCOS
+        )
     elif CV2_VERSION >= (3, 2, 0):
         # In OpenCV 3.2, cv2.findContours() does not modify the passed image and instead returns the
         # modified image as the first, of the three, return values.
         _, contours, hierarchy = cv2.findContours(
-            image, cv2.RETR_LIST, cv2.CHAIN_APPROX_TC89_KCOS)
+            image, cv2.RETR_LIST, cv2.CHAIN_APPROX_TC89_KCOS
+        )
     else:
         contours, hierarchy = cv2.findContours(
-            image, cv2.RETR_LIST, cv2.CHAIN_APPROX_TC89_KCOS)
+            image, cv2.RETR_LIST, cv2.CHAIN_APPROX_TC89_KCOS
+        )
 
     # Each contour has shape (n, 1, 2) where 'n' is the number of points. Presumably this is so each
     # point is a size 2 column vector, we don't want this so reshape it to a (n, 2)
@@ -735,10 +760,10 @@ def find_contours(image):
 
 
 def extract_edges_CV(img):
-    '''
+    """
     give the image and return a list of [x.y] coordinates for the detected edges
 
-    '''
+    """
     IGNORE_EDGE_MARGIN = 1
     img = img.astype("uint8")
     try:
@@ -746,10 +771,8 @@ def extract_edges_CV(img):
     except:
         gray = img
     # ret, thresh = cv2.threshold(gray,threshValue,255,cv2.THRESH_BINARY)
-    ret, thresh = cv2.threshold(
-        gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    contours, hierarchy = cv2.findContours(
-        thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     # Each contour has shape (n, 1, 2) where 'n' is the number of points. Presumably this is so each
     # point is a size 2 column vector, we don't want this so reshape it to a (n, 2)
     contours = [contour.reshape(contour.shape[0], 2) for contour in contours]
@@ -767,8 +790,12 @@ def extract_edges_CV(img):
     # Ignore points of the drop profile near the edges of the drop image
     width, height = img.shape[1::-1]
     if not (width < IGNORE_EDGE_MARGIN or height < IGNORE_EDGE_MARGIN):
-        mask = ((IGNORE_EDGE_MARGIN < drop_profile[:, 0]) & (drop_profile[:, 0] < width - IGNORE_EDGE_MARGIN) &
-                (IGNORE_EDGE_MARGIN < drop_profile[:, 1]) & (drop_profile[:, 1] < height - IGNORE_EDGE_MARGIN))
+        mask = (
+            (IGNORE_EDGE_MARGIN < drop_profile[:, 0])
+            & (drop_profile[:, 0] < width - IGNORE_EDGE_MARGIN)
+            & (IGNORE_EDGE_MARGIN < drop_profile[:, 1])
+            & (drop_profile[:, 1] < height - IGNORE_EDGE_MARGIN)
+        )
         drop_profile = drop_profile[mask]
 
     output = []
@@ -803,22 +830,22 @@ def polynomial_closest_point(xp, yp, poly_points, display=False):
     # m = (ddistdt[idx + 1] - ddistdt[idx]) / (t[idx + 1] - t[idx])  # slope
     if display:
         plt.figure(1)
-        plt.plot(x, y, '-', xp, yp, 'r+', x[idx], y[idx], 'r+')
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.title('Circle, Point, and Zeros')
+        plt.plot(x, y, "-", xp, yp, "r+", x[idx], y[idx], "r+")
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.title("Circle, Point, and Zeros")
 
         plt.figure(2)
         for t, d in enumerate(dist):
-            plt.plot(t, d, 'm.')
-        plt.plot(idx, dist[idx], 'cx')
-        plt.xlabel('index value of list')
-        plt.ylabel('Distance')
-        plt.title('Distance Function')
+            plt.plot(t, d, "m.")
+        plt.plot(idx, dist[idx], "cx")
+        plt.xlabel("index value of list")
+        plt.ylabel("Distance")
+        plt.title("Distance Function")
 
-        print(f'xp: {xp}, x[idx]: {x[idx]}')
-        print(f'yp: {yp}, y[idx]: {y[idx]}')
-        print('Error is: ', dist[idx])
+        print(f"xp: {xp}, x[idx]: {x[idx]}")
+        print(f"yp: {yp}, y[idx]: {y[idx]}")
+        print("Error is: ", dist[idx])
 
         plt.show()
         plt.close()
@@ -841,8 +868,8 @@ def polynomial_fit_errors(pts1, pts2, fit_left, fit_right, display=False):
         dictionary: The MAE, MSE, RMSE, and maximum error of the contour as compared against the
         polynomial fit.
     """
-    highresx_left = np.linspace(pts1[0, 0], pts1[-1, 0], 5*pts1.shape[0])
-    highresx_right = np.linspace(pts2[0, 0], pts2[-1, 0], 5*pts2.shape[0])
+    highresx_left = np.linspace(pts1[0, 0], pts1[-1, 0], 5 * pts1.shape[0])
+    highresx_right = np.linspace(pts2[0, 0], pts2[-1, 0], 5 * pts2.shape[0])
     highres_fit_left = fit_left(highresx_left)
     highres_fit_right = fit_right(highresx_right)
 
@@ -855,48 +882,57 @@ def polynomial_fit_errors(pts1, pts2, fit_left, fit_right, display=False):
     errors_left = []
     for point in pts1:
         dist2edge, edge_point = polynomial_closest_point(
-            point[0], point[1], poly_points_left, display=display)
+            point[0], point[1], poly_points_left, display=display
+        )
         errors_left.append(dist2edge)
 
-    error_measures['MAE left'] = sum(
-        [abs(error) for error in errors_left])/len(errors_left)
-    error_measures['MSE left'] = sum(
-        [error**2 for error in errors_left])/len(errors_left)
-    error_measures['RMSE left'] = np.sqrt(
-        sum([error**2 for error in errors_left])/len(errors_left))
-    error_measures['Maximum error left'] = max(errors_left)
+    error_measures["MAE left"] = sum([abs(error) for error in errors_left]) / len(
+        errors_left
+    )
+    error_measures["MSE left"] = sum([error**2 for error in errors_left]) / len(
+        errors_left
+    )
+    error_measures["RMSE left"] = np.sqrt(
+        sum([error**2 for error in errors_left]) / len(errors_left)
+    )
+    error_measures["Maximum error left"] = max(errors_left)
 
     # for right
     errors_right = []
     for point in pts2:
         dist2edge, edge_point = polynomial_closest_point(
-            point[0], point[1], poly_points_right, display=display)
+            point[0], point[1], poly_points_right, display=display
+        )
         errors_right.append(dist2edge)
 
-    error_measures['MAE right'] = sum(
-        [abs(error) for error in errors_right])/len(errors_right)
-    error_measures['MSE right'] = sum(
-        [error**2 for error in errors_right])/len(errors_right)
-    error_measures['RMSE right'] = np.sqrt(
-        sum([error**2 for error in errors_right])/len(errors_right))
-    error_measures['Maximum error right'] = max(errors_right)
+    error_measures["MAE right"] = sum([abs(error) for error in errors_right]) / len(
+        errors_right
+    )
+    error_measures["MSE right"] = sum([error**2 for error in errors_right]) / len(
+        errors_right
+    )
+    error_measures["RMSE right"] = np.sqrt(
+        sum([error**2 for error in errors_right]) / len(errors_right)
+    )
+    error_measures["Maximum error right"] = max(errors_right)
 
-    error_measures['MAE'] = sum(
-        [error_measures['MAE left'], error_measures['MAE right']])/2
-    error_measures['MSE'] = sum(
-        [error_measures['MSE left'], error_measures['MSE right']])/2
-    error_measures['RMSE'] = sum(
-        [error_measures['RMSE left'], error_measures['RMSE right']])/2
-    error_measures['Maximum error'] = max(
-        [error_measures['Maximum error left'], error_measures['Maximum error right']])
+    error_measures["MAE"] = (
+        sum([error_measures["MAE left"], error_measures["MAE right"]]) / 2
+    )
+    error_measures["MSE"] = (
+        sum([error_measures["MSE left"], error_measures["MSE right"]]) / 2
+    )
+    error_measures["RMSE"] = (
+        sum([error_measures["RMSE left"], error_measures["RMSE right"]]) / 2
+    )
+    error_measures["Maximum error"] = max(
+        [error_measures["Maximum error left"], error_measures["Maximum error right"]]
+    )
 
     return error_measures
 
 
-def polynomial_fit_img(img,
-                       num_points=15,
-                       polynomial_degree=2,
-                       display=False):
+def polynomial_fit_img(img, num_points=15, polynomial_degree=2, display=False):
     """Takes in input contact angle experimental image, and outputs the fitted
     angles and intercept coordinates. For best results, preprocessing should be
     performed before calling this function.
@@ -920,14 +956,16 @@ def polynomial_fit_img(img,
     if display:
         plt.imshow(img)
         plt.plot(edges_pts[:, 0], edges_pts[:, 1])
-        plt.title('drop found by hough transform')
+        plt.title("drop found by hough transform")
         plt.show()
         plt.close()
 
     tangent_drop, CPs = prepare_hydrophobic(edges_pts, display)
 
-    intercepts = [[tangent_drop[0, 0], tangent_drop[0, 1]],
-                  [tangent_drop[-1, 0], tangent_drop[-1, 1]]]
+    intercepts = [
+        [tangent_drop[0, 0], tangent_drop[0, 1]],
+        [tangent_drop[-1, 0], tangent_drop[-1, 1]],
+    ]
 
     # timers
     fit_preprocessing_time = time.time() - start_time
@@ -950,12 +988,12 @@ def polynomial_fit_img(img,
         f_local1 = line_local1(x_local1)
         f_local1_prime = line_local1.deriv(1)
 
-        x_local2 = np.array([min(pts2[:, 0])-10, max(pts2[:, 0])+10])
+        x_local2 = np.array([min(pts2[:, 0]) - 10, max(pts2[:, 0]) + 10])
         f_local2 = line_local2(x_local2)
         f_local2_prime = line_local2.deriv(1)
 
-        tangent1 = f_local1_prime(pts1[0, 0])*(x_local1-pts1[0, 0])+pts1[0, 1]
-        tangent2 = f_local2_prime(pts2[0, 0])*(x_local2-pts2[0, 0])+pts2[0, 1]
+        tangent1 = f_local1_prime(pts1[0, 0]) * (x_local1 - pts1[0, 0]) + pts1[0, 1]
+        tangent2 = f_local2_prime(pts2[0, 0]) * (x_local2 - pts2[0, 0]) + pts2[0, 1]
 
         m1 = f_local1_prime(pts1[0, 0])
         m2 = f_local2_prime(pts2[0, 0])
@@ -964,48 +1002,48 @@ def polynomial_fit_img(img,
         m2 = fit_local2[0]
 
     if display:
-        plt.plot(edges_pts[:, 0], edges_pts[:, 1], 'o', color='pink')
-        plt.plot(pts1[:, 0], pts1[:, 1], 'ro')
-        plt.plot(pts1[:, 0], line_local1(pts1[:, 0]), 'y-')
+        plt.plot(edges_pts[:, 0], edges_pts[:, 1], "o", color="pink")
+        plt.plot(pts1[:, 0], pts1[:, 1], "ro")
+        plt.plot(pts1[:, 0], line_local1(pts1[:, 0]), "y-")
         plt.imshow(img)
-        pts1_width = abs(pts1[:, 0][-1]-pts1[:, 0][0])
-        pts1_height = abs(pts1[:, 1][-1]-pts1[:, 1][0])
-        plt.xlim(min(pts1[:, 0])-pts1_width, max(pts1[:, 0])+pts1_width)
-        plt.ylim(max(pts1[:, 1])+pts1_height, min(pts1[:, 1])-pts1_height)
-        plt.title('fitted points left side')
+        pts1_width = abs(pts1[:, 0][-1] - pts1[:, 0][0])
+        pts1_height = abs(pts1[:, 1][-1] - pts1[:, 1][0])
+        plt.xlim(min(pts1[:, 0]) - pts1_width, max(pts1[:, 0]) + pts1_width)
+        plt.ylim(max(pts1[:, 1]) + pts1_height, min(pts1[:, 1]) - pts1_height)
+        plt.title("fitted points left side")
         plt.show()
         plt.close()
 
-        plt.plot(edges_pts[:, 0], edges_pts[:, 1], 'o', color='pink')
-        plt.plot(pts2[:, 0], pts2[:, 1], 'ro')
-        plt.plot(pts2[:, 0], line_local2(pts2[:, 0]), 'y-')
+        plt.plot(edges_pts[:, 0], edges_pts[:, 1], "o", color="pink")
+        plt.plot(pts2[:, 0], pts2[:, 1], "ro")
+        plt.plot(pts2[:, 0], line_local2(pts2[:, 0]), "y-")
         plt.imshow(img)
-        pts2_width = abs(pts2[:, 0][-1]-pts2[:, 0][0])
-        pts2_height = abs(pts2[:, 1][-1]-pts2[:, 1][0])
-        plt.xlim(min(pts2[:, 0])-pts2_width, max(pts2[:, 0])+pts2_width)
-        plt.ylim(max(pts2[:, 1])+pts2_height, min(pts2[:, 1])-pts2_height)
-        plt.title('fitted points right side')
+        pts2_width = abs(pts2[:, 0][-1] - pts2[:, 0][0])
+        pts2_height = abs(pts2[:, 1][-1] - pts2[:, 1][0])
+        plt.xlim(min(pts2[:, 0]) - pts2_width, max(pts2[:, 0]) + pts2_width)
+        plt.ylim(max(pts2[:, 1]) + pts2_height, min(pts2[:, 1]) - pts2_height)
+        plt.title("fitted points right side")
         plt.show()
         plt.close()
 
-    m_surf = float(CPs[1][1]-CPs[0][1])/float(CPs[1][0]-CPs[0][0])
+    m_surf = float(CPs[1][1] - CPs[0][1]) / float(CPs[1][0] - CPs[0][0])
 
-    if (m1 > 0):
-        contact_angle1 = np.pi-np.arctan((m1-m_surf)/(1+m1*m_surf))
-    elif (m1 < 0):
-        contact_angle1 = -np.arctan((m1-m_surf)/(1+m1*m_surf))
+    if m1 > 0:
+        contact_angle1 = np.pi - np.arctan((m1 - m_surf) / (1 + m1 * m_surf))
+    elif m1 < 0:
+        contact_angle1 = -np.arctan((m1 - m_surf) / (1 + m1 * m_surf))
     else:
-        contact_angle1 = np.pi/2
+        contact_angle1 = np.pi / 2
 
-    if (m2 < 0):
-        contact_angle2 = np.pi+np.arctan((m2-m_surf)/(1+m2*m_surf))
-    elif (m2 > 0):
-        contact_angle2 = np.arctan((m2-m_surf)/(1+m2*m_surf))
+    if m2 < 0:
+        contact_angle2 = np.pi + np.arctan((m2 - m_surf) / (1 + m2 * m_surf))
+    elif m2 > 0:
+        contact_angle2 = np.arctan((m2 - m_surf) / (1 + m2 * m_surf))
     else:
-        contact_angle2 = np.pi/2
+        contact_angle2 = np.pi / 2
 
-    contact_angle1 = contact_angle1*180/np.pi
-    contact_angle2 = contact_angle2*180/np.pi
+    contact_angle1 = contact_angle1 * 180 / np.pi
+    contact_angle2 = contact_angle2 * 180 / np.pi
 
     fit_time = time.time() - fit_start_time
 
@@ -1014,9 +1052,9 @@ def polynomial_fit_img(img,
     analysis_time = time.time() - start_time
 
     timings = {}
-    timings['method specific preprocessing time'] = fit_preprocessing_time
-    timings['fit time'] = fit_time
-    timings['analysis time'] = analysis_time
+    timings["method specific preprocessing time"] = fit_preprocessing_time
+    timings["fit time"] = fit_time
+    timings["analysis time"] = analysis_time
 
     return [contact_angle1, contact_angle2], intercepts, errors, timings
 
@@ -1063,11 +1101,19 @@ def polynomial_fit(profile, num_points=15, polynomial_degree=2, display=False):
         f_local2 = line_local2(x_local2)
         f_local2_prime = line_local2.deriv(1)
 
-        tangent1 = f_local1_prime(pts1[0, 0])*(x_local1-pts1[0, 0])+pts1[0, 1]
-        tangent2 = f_local2_prime(pts2[0, 0])*(x_local2-pts2[0, 0])+pts2[0, 1]
+        tangent1 = f_local1_prime(pts1[0, 0]) * (x_local1 - pts1[0, 0]) + pts1[0, 1]
+        tangent2 = f_local2_prime(pts2[0, 0]) * (x_local2 - pts2[0, 0]) + pts2[0, 1]
 
-        tangent_lines = (((int(x_local1[0]), int(tangent1[0])), (int(x_local1[1]), int(tangent1[1]))), ((
-            int(x_local2[0]), int(tangent2[0])), (int(x_local2[1]), int(tangent2[1]))))
+        tangent_lines = (
+            (
+                (int(x_local1[0]), int(tangent1[0])),
+                (int(x_local1[1]), int(tangent1[1])),
+            ),
+            (
+                (int(x_local2[0]), int(tangent2[0])),
+                (int(x_local2[1]), int(tangent2[1])),
+            ),
+        )
 
         m1 = f_local1_prime(pts1[0, 0])
         m2 = f_local2_prime(pts2[0, 0])
@@ -1075,52 +1121,60 @@ def polynomial_fit(profile, num_points=15, polynomial_degree=2, display=False):
         m1 = fit_local1[0]
         m2 = fit_local2[0]
 
-        tangent_lines = ((tuple(pts1[0]), (int(pts1[-1][0]), int((m1*pts1[-1][0])+fit_local1[1]))),
-                         (tuple(pts2[0]), (int(pts2[-1][0]), int((m2*pts2[-1][0])+fit_local2[1]))))
+        tangent_lines = (
+            (
+                tuple(pts1[0]),
+                (int(pts1[-1][0]), int((m1 * pts1[-1][0]) + fit_local1[1])),
+            ),
+            (
+                tuple(pts2[0]),
+                (int(pts2[-1][0]), int((m2 * pts2[-1][0]) + fit_local2[1])),
+            ),
+        )
 
     if display:
-        plt.plot(profile[:, 0], profile[:, 1], 'o', color='pink')
-        plt.plot(pts1[:, 0], pts1[:, 1], 'ro')
-        plt.plot(pts1[:, 0], line_local1(pts1[:, 0]), 'y-')
+        plt.plot(profile[:, 0], profile[:, 1], "o", color="pink")
+        plt.plot(pts1[:, 0], pts1[:, 1], "ro")
+        plt.plot(pts1[:, 0], line_local1(pts1[:, 0]), "y-")
         # plt.imshow(img)
-        pts1_width = abs(pts1[:, 0][-1]-pts1[:, 0][0])
-        pts1_height = abs(pts1[:, 1][-1]-pts1[:, 1][0])
-        plt.xlim(min(pts1[:, 0])-pts1_width, max(pts1[:, 0])+pts1_width)
-        plt.ylim(max(pts1[:, 1])+pts1_height, min(pts1[:, 1])-pts1_height)
-        plt.title('fitted points left side')
+        pts1_width = abs(pts1[:, 0][-1] - pts1[:, 0][0])
+        pts1_height = abs(pts1[:, 1][-1] - pts1[:, 1][0])
+        plt.xlim(min(pts1[:, 0]) - pts1_width, max(pts1[:, 0]) + pts1_width)
+        plt.ylim(max(pts1[:, 1]) + pts1_height, min(pts1[:, 1]) - pts1_height)
+        plt.title("fitted points left side")
         plt.show()
         plt.close()
 
-        plt.plot(profile[:, 0], profile[:, 1], 'o', color='pink')
-        plt.plot(pts2[:, 0], pts2[:, 1], 'ro')
-        plt.plot(pts2[:, 0], line_local2(pts2[:, 0]), 'y-')
+        plt.plot(profile[:, 0], profile[:, 1], "o", color="pink")
+        plt.plot(pts2[:, 0], pts2[:, 1], "ro")
+        plt.plot(pts2[:, 0], line_local2(pts2[:, 0]), "y-")
         # lt.imshow(img)
-        pts2_width = abs(pts2[:, 0][-1]-pts2[:, 0][0])
-        pts2_height = abs(pts2[:, 1][-1]-pts2[:, 1][0])
-        plt.xlim(min(pts2[:, 0])-pts2_width, max(pts2[:, 0])+pts2_width)
-        plt.ylim(max(pts2[:, 1])+pts2_height, min(pts2[:, 1])-pts2_height)
-        plt.title('fitted points right side')
+        pts2_width = abs(pts2[:, 0][-1] - pts2[:, 0][0])
+        pts2_height = abs(pts2[:, 1][-1] - pts2[:, 1][0])
+        plt.xlim(min(pts2[:, 0]) - pts2_width, max(pts2[:, 0]) + pts2_width)
+        plt.ylim(max(pts2[:, 1]) + pts2_height, min(pts2[:, 1]) - pts2_height)
+        plt.title("fitted points right side")
         plt.show()
         plt.close()
 
-    m_surf = float(CPs[1][1]-CPs[0][1])/float(CPs[1][0]-CPs[0][0])
+    m_surf = float(CPs[1][1] - CPs[0][1]) / float(CPs[1][0] - CPs[0][0])
 
-    if (m1 > 0):
-        contact_angle1 = np.pi-np.arctan((m1-m_surf)/(1+m1*m_surf))
-    elif (m1 < 0):
-        contact_angle1 = -np.arctan((m1-m_surf)/(1+m1*m_surf))
+    if m1 > 0:
+        contact_angle1 = np.pi - np.arctan((m1 - m_surf) / (1 + m1 * m_surf))
+    elif m1 < 0:
+        contact_angle1 = -np.arctan((m1 - m_surf) / (1 + m1 * m_surf))
     else:
-        contact_angle1 = np.pi/2
+        contact_angle1 = np.pi / 2
 
-    if (m2 < 0):
-        contact_angle2 = np.pi+np.arctan((m2-m_surf)/(1+m2*m_surf))
-    elif (m2 > 0):
-        contact_angle2 = np.arctan((m2-m_surf)/(1+m2*m_surf))
+    if m2 < 0:
+        contact_angle2 = np.pi + np.arctan((m2 - m_surf) / (1 + m2 * m_surf))
+    elif m2 > 0:
+        contact_angle2 = np.arctan((m2 - m_surf) / (1 + m2 * m_surf))
     else:
-        contact_angle2 = np.pi/2
+        contact_angle2 = np.pi / 2
 
-    contact_angle1 = contact_angle1*180/np.pi
-    contact_angle2 = contact_angle2*180/np.pi
+    contact_angle1 = contact_angle1 * 180 / np.pi
+    contact_angle2 = contact_angle2 * 180 / np.pi
 
     fit_time = time.time() - start_time
 
@@ -1129,23 +1183,22 @@ def polynomial_fit(profile, num_points=15, polynomial_degree=2, display=False):
     analysis_time = time.time() - start_time
 
     timings = {}
-    timings['fit time'] = fit_time
-    timings['analysis time'] = analysis_time
+    timings["fit time"] = fit_time
+    timings["analysis time"] = analysis_time
 
     return [contact_angle1, contact_angle2], CPs, tangent_lines, errors, timings
 
 
 if 0:
-    IMG_PATH = '../../RICOphobic_cropped.png'
+    IMG_PATH = "../../RICOphobic_cropped.png"
     img = cv2.imread(IMG_PATH)
 
-    angles, intercepts, errors, timings = polynomial_fit_img(
-        img, display=False)
+    angles, intercepts, errors, timings = polynomial_fit_img(img, display=False)
 
     if 1:
-        print('angles: ', angles)
-        print('intercetps: ', intercepts)
-        print('errors: ', errors)
-        print('timings: ', timings)
+        print("angles: ", angles)
+        print("intercetps: ", intercepts)
+        print("errors: ", errors)
+        print("timings: ", timings)
 
-    print('done')
+    print("done")

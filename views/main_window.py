@@ -23,14 +23,14 @@ class MainWindow(ctk.CTk):
             except tk.TclError:
                 print("Application already destroyed.")
             sys.exit(0)
+
         # Attach the signal handler to SIGINT
         signal.signal(signal.SIGINT, signal_handler)
 
         self.protocol("WM_DELETE_WINDOW", self.close_window)
 
         # Display title
-        title_label = ctk.CTkLabel(
-            self, text="OpenDrop-ML", font=("Helvetica", 48))
+        title_label = ctk.CTkLabel(self, text="OpenDrop-ML", font=("Helvetica", 48))
         title_label.pack(pady=90)
         # self.display_image("views/assets/banner.png")
 
@@ -39,22 +39,45 @@ class MainWindow(ctk.CTk):
         button_frame.pack()
 
         # Bind the buttons to the same functions as in the old code
-        self.create_button(button_frame, "Interfacial Tension",
-                           open_ift_window, "assets/opendrop-ift.png", 0)
-        self.create_button(button_frame, "Contact Angle",
-                           open_ca_window, "assets/opendrop-conan.png", 1)
+        self.create_button(
+            button_frame,
+            "Interfacial Tension",
+            open_ift_window,
+            "assets/opendrop-ift.png",
+            0,
+        )
+        self.create_button(
+            button_frame,
+            "Contact Angle",
+            open_ca_window,
+            "assets/opendrop-conan.png",
+            1,
+        )
 
         # Add information button at bottom-right corner
-        info_button = ctk.CTkButton(self, text="❗", command=self.show_info_popup, font=(
-            "Arial", 12, "bold"), fg_color="white", text_color="red", width=5)
+        info_button = ctk.CTkButton(
+            self,
+            text="❗",
+            command=self.show_info_popup,
+            font=("Arial", 12, "bold"),
+            fg_color="white",
+            text_color="red",
+            width=5,
+        )
         # Positioned in the bottom-right corner
-        info_button.place(relx=1.0, rely=1.0, anchor='se', x=-10, y=-10)
+        info_button.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
 
         self.mainloop()
 
     def create_button(self, frame, text, command, column):
-        button = ctk.CTkButton(frame, text=text, font=(
-            "Helvetica", 24), width=240, height=3, command=lambda: self.run_function(command))
+        button = ctk.CTkButton(
+            frame,
+            text=text,
+            font=("Helvetica", 24),
+            width=240,
+            height=3,
+            command=lambda: self.run_function(command),
+        )
         button.grid(row=0, column=column, padx=20)
 
     def create_button(self, frame, text, command, image_path, column):
@@ -71,14 +94,16 @@ class MainWindow(ctk.CTk):
             height=60,
             command=lambda: self.run_function(command),
             image=button_photo,
-            compound="left"  # Place text on the right of the image
+            compound="left",  # Place text on the right of the image
         )
         button.image = button_photo  # Keep a reference to avoid garbage collection
         button.grid(row=0, column=column, padx=20)
 
     def show_info_popup(self):
         messagebox.showinfo(
-            "Information", "Interfacial Tension: Measures the force at the surface of liquids.\n\nContact Angle: Measures the angle between the liquid surface and the solid surface.")
+            "Information",
+            "Interfacial Tension: Measures the force at the surface of liquids.\n\nContact Angle: Measures the angle between the liquid surface and the solid surface.",
+        )
 
     def run_function(self, func):
         self.withdraw()
@@ -102,7 +127,7 @@ class MainWindow(ctk.CTk):
             "Information",
             "Interfacial Tension: Measures the force at the surface of liquids.\n\n"
             "Contact Angle: Measures the angle between the liquid surface and the solid surface.",
-            parent=self
+            parent=self,
         )
 
     def close_window(self):
@@ -114,4 +139,5 @@ class MainWindow(ctk.CTk):
             print("Error during destroy:", e)
         finally:
             import sys
+
             sys.exit(0)

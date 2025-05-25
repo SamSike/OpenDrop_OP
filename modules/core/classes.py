@@ -14,8 +14,19 @@ from typing import Dict, List, Optional, Tuple
 from scipy.integrate import odeint
 import numpy as np
 
+
 class Tolerances(object):
-    def __init__(self, delta_tol, gradient_tol, maximum_fitting_steps, objective_tol, arclength_tol, maximum_arclength_steps, needle_tol, needle_steps):
+    def __init__(
+        self,
+        delta_tol,
+        gradient_tol,
+        maximum_fitting_steps,
+        objective_tol,
+        arclength_tol,
+        maximum_arclength_steps,
+        needle_tol,
+        needle_steps,
+    ):
         self.DELTA_TOL = delta_tol
         self.GRADIENT_TOL = gradient_tol
         self.MAXIMUM_FITTING_STEPS = maximum_fitting_steps
@@ -58,11 +69,9 @@ class ExperimentalSetup(object):
             FittingMethod.CIRCLE_FIT: False,
             FittingMethod.ELLIPSE_FIT: False,
             FittingMethod.YL_FIT: False,
-            FittingMethod.ML_MODEL: False
+            FittingMethod.ML_MODEL: False,
         }
-        self.analysis_methods_pd: Dict[str, bool] = {
-            INTERFACIAL_TENSION: True
-        }
+        self.analysis_methods_pd: Dict[str, bool] = {INTERFACIAL_TENSION: True}
 
         self.save_images_boole: bool = False
         self.create_folder_boole: bool = False
@@ -71,7 +80,7 @@ class ExperimentalSetup(object):
 
         self.cv2_capture_num: int = None
         self.genlcam_capture_num: int = None
-        
+
         self.drop_points: Optional[float] = None
         self.needle_diameter_px: Optional[float] = None
         self.ift_results = None
@@ -79,7 +88,7 @@ class ExperimentalSetup(object):
         self.drop_contour_images: Optional[List[str]] = None
 
     def from_yaml(self, yaml_path):
-        with open(yaml_path, 'r') as file:
+        with open(yaml_path, "r") as file:
             config = yaml.safe_load(file)
 
         for key, value in config.items():
@@ -102,6 +111,7 @@ class ExperimentalSetup(object):
                         value = getattr(ThresholdSelect, value.upper(), value)
 
                     setattr(self, key, value)
+
 
 class ExperimentalDrop(object):
     def __init__(self):
@@ -154,10 +164,11 @@ class DropData(object):
 
     # todo: original function. needs to be updated
     if 0:  # interpolates the theoretical profile data
+
         def profile(self, s):
-            if (s < 0):
+            if s < 0:
                 raise ValueError("s value outside domain")
-            if (s > self.max_s):
+            if s > self.max_s:
                 # if the profile is called outside of the current region, expand
                 self.max_s = 1.2 * s  # expand region to include s_max
             delta_s = self.max_s / self.s_points
@@ -170,21 +181,27 @@ class DropData(object):
             d_vec1 = np.array(ylderiv(vec1, 0, bond_number))
             d_vec2 = np.array(ylderiv(vec2, 0, bond_number))
             value_at_s = cubic_interpolation_function(
-                vec1, vec2, d_vec1, d_vec2, delta_s, t)
+                vec1, vec2, d_vec1, d_vec2, delta_s, t
+            )
             return value_at_s
 
     # generates a new drop profile
     def generate_profile_data(self):
-        if (self._max_s is not None) and (self._s_points is not None) and (self._params is not None):
+        if (
+            (self._max_s is not None)
+            and (self._s_points is not None)
+            and (self._params is not None)
+        ):
             # if [self.max_s, self.s_points, self.params].all():
             # self.fitted = False
             # s_data_points = np.arange(0, self.max_s*(1+2/self.s_points), self.max_s/self.s_points)
             s_data_points = np.linspace(0, self.max_s, self.s_points + 1)
 
-            x_vec_initial = [.000001, 0., 0., 0., 0., 0.]
+            x_vec_initial = [0.000001, 0.0, 0.0, 0.0, 0.0, 0.0]
             bond_number = self.bond()
             self.theoretical_data = odeint(
-                ylderiv, x_vec_initial, s_data_points, args=(bond_number,))
+                ylderiv, x_vec_initial, s_data_points, args=(bond_number,)
+            )
 
     # # generates a new drop profile
     # def generate_profile_volume_area_data(self):

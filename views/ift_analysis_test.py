@@ -10,6 +10,7 @@ matplotlib.use("Agg")
 @pytest.fixture
 def dummy_data():
     from modules.core.classes import ExperimentalSetup
+
     data = ExperimentalSetup()
     data.import_files = ["img1.bmp", "img2.bmp"]
     data.number_of_frames = 2

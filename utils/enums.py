@@ -29,14 +29,14 @@ class Move(Enum):
 
 
 class FittingMethod(str, Enum):
-    TANGENT_FIT = 'tangent fit'
-    ELLIPSE_FIT = 'ellipse fit'
-    POLYNOMIAL_FIT = 'polynomial fit'
-    CIRCLE_FIT = 'circle fit'
-    YL_FIT = 'YL fit'
-    ML_MODEL = 'ML model'
+    TANGENT_FIT = "tangent fit"
+    ELLIPSE_FIT = "ellipse fit"
+    POLYNOMIAL_FIT = "polynomial fit"
+    CIRCLE_FIT = "circle fit"
+    YL_FIT = "YL fit"
+    ML_MODEL = "ML model"
 
 
 class FitType(str, Enum):
-    CIRCULAR = 'circular'
-    BASHFORTH_ADAMS = 'bashforth-adams'
+    CIRCULAR = "circular"
+    BASHFORTH_ADAMS = "bashforth-adams"
