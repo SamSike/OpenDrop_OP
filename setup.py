@@ -3,6 +3,7 @@ from Cython.Build import cythonize
 import os
 import sys
 import platform
+
 # setup for hpp/cpp
 
 # Absolute base directory (project root)
@@ -15,9 +16,9 @@ INCLUDE_DIR = os.path.join(IFT_DIR, "include")
 
 # Dependencies paths
 SUNDIALS_INCLUDE = os.path.join(
-    BASE_DIR, "dependencies", "windows", "sundials", "include")
-SUNDIALS_LIB = os.path.join(
-    BASE_DIR, "dependencies", "windows", "sundials", "lib")
+    BASE_DIR, "dependencies", "windows", "sundials", "include"
+)
+SUNDIALS_LIB = os.path.join(BASE_DIR, "dependencies", "windows", "sundials", "lib")
 BOOST_INCLUDE = os.path.join(BASE_DIR, "dependencies", "windows", "boost")
 
 
@@ -33,9 +34,9 @@ extra_objects = []
 compile_args = []
 if is_windows:
     SUNDIALS_INCLUDE = os.path.join(
-        BASE_DIR, "dependencies", "windows", "sundials", "include")
-    SUNDIALS_LIB = os.path.join(
-        BASE_DIR, "dependencies", "windows", "sundials", "lib")
+        BASE_DIR, "dependencies", "windows", "sundials", "include"
+    )
+    SUNDIALS_LIB = os.path.join(BASE_DIR, "dependencies", "windows", "sundials", "lib")
     BOOST_INCLUDE = os.path.join(BASE_DIR, "dependencies", "windows", "boost")
     extra_objects = [
         os.path.join(SUNDIALS_LIB, "sundials_arkode_static.lib"),
@@ -57,11 +58,12 @@ elif is_macos:
         platform_dir = "macos_x86_64"
         print("macOS Intel detected.")
     SUNDIALS_INCLUDE = os.path.join(
-        BASE_DIR, "dependencies", platform_dir, "sundials", "include")
+        BASE_DIR, "dependencies", platform_dir, "sundials", "include"
+    )
     SUNDIALS_LIB = os.path.join(
-        BASE_DIR, "dependencies", platform_dir, "sundials", "lib")
-    BOOST_INCLUDE = os.path.join(
-        BASE_DIR, "dependencies", platform_dir, "boost")
+        BASE_DIR, "dependencies", platform_dir, "sundials", "lib"
+    )
+    BOOST_INCLUDE = os.path.join(BASE_DIR, "dependencies", platform_dir, "boost")
     extra_objects = [
         os.path.join(SUNDIALS_LIB, "libsundials_arkode.a"),
         os.path.join(SUNDIALS_LIB, "libsundials_nvecserial.a"),
@@ -79,9 +81,9 @@ elif is_macos:
     print(f"compile_args: {compile_args}")
 else:
     SUNDIALS_INCLUDE = os.path.join(
-        BASE_DIR, "dependencies", "linux", "sundials", "include")
-    SUNDIALS_LIB = os.path.join(
-        BASE_DIR, "dependencies", "linux", "sundials", "lib")
+        BASE_DIR, "dependencies", "linux", "sundials", "include"
+    )
+    SUNDIALS_LIB = os.path.join(BASE_DIR, "dependencies", "linux", "sundials", "lib")
     BOOST_INCLUDE = os.path.join(BASE_DIR, "dependencies", "linux", "boost")
 
     extra_objects = [
@@ -103,12 +105,7 @@ ext_modules = [
         name="ift.younglaplace.shape",
         sources=[os.path.join(YOUNGLAPLACE_DIR, "shape.pyx")],
         language="c++",
-        include_dirs=[
-            YOUNGLAPLACE_DIR,
-            INCLUDE_DIR,
-            SUNDIALS_INCLUDE,
-            BOOST_INCLUDE
-        ],
+        include_dirs=[YOUNGLAPLACE_DIR, INCLUDE_DIR, SUNDIALS_INCLUDE, BOOST_INCLUDE],
         extra_objects=extra_objects,
         extra_compile_args=compile_args,
         define_macros=[("SUNDIALS_STATIC", 1)],
@@ -119,7 +116,7 @@ ext_modules = [
         language="c++",
         include_dirs=[os.path.join(IFT_DIR, "hough")],
         extra_compile_args=compile_args,
-    )
+    ),
 ]
 
 setup(
@@ -130,7 +127,7 @@ setup(
     ext_modules=cythonize(
         ext_modules,
         compiler_directives={"language_level": "3"},
-        include_path=[os.path.join(BASE_DIR, "modules")]
+        include_path=[os.path.join(BASE_DIR, "modules")],
     ),
-    zip_safe=False
+    zip_safe=False,
 )

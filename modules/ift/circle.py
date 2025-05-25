@@ -5,11 +5,14 @@ from enum import IntEnum, auto
 import numpy as np
 import scipy.optimize
 
-__all__ = ('CircleFitResult', 'circle_fit',)
+__all__ = (
+    "CircleFitResult",
+    "circle_fit",
+)
 
-DELTA_TOL = 1.e-8
-GRADIENT_TOL = 1.e-8
-OBJECTIVE_TOL = 1.e-8
+DELTA_TOL = 1.0e-8
+GRADIENT_TOL = 1.0e-8
+OBJECTIVE_TOL = 1.0e-8
 
 
 class CircleFitResult(NamedTuple):
@@ -21,16 +24,14 @@ class CircleFitResult(NamedTuple):
 
 
 def circle_fit(
-        data: np.ndarray,
-        *,
-        loss: str = 'linear',
-        f_scale: float = 1.0,
-
-        xc: Optional[float] = None,
-        yc: Optional[float] = None,
-        radius: Optional[float] = None,
-
-        verbose: bool = False,
+    data: np.ndarray,
+    *,
+    loss: str = "linear",
+    f_scale: float = 1.0,
+    xc: Optional[float] = None,
+    yc: Optional[float] = None,
+    radius: Optional[float] = None,
+    verbose: bool = False,
 ) -> Optional[CircleFitResult]:
     if data.shape[1] == 0:
         return None
@@ -66,10 +67,10 @@ def circle_fit(
             fun,
             model.params,
             jac,
-            method='lm' if loss == 'linear' else 'trf',
+            method="lm" if loss == "linear" else "trf",
             loss=loss,
             f_scale=f_scale,
-            x_scale='jac',
+            x_scale="jac",
             ftol=OBJECTIVE_TOL,
             xtol=DELTA_TOL,
             gtol=GRADIENT_TOL,
@@ -83,11 +84,11 @@ def circle_fit(
     model.set_params(optimize_result.x)
 
     result = CircleFitResult(
-        center=Vector2(model.params[CircleParam.CENTER_X],
-                       model.params[CircleParam.CENTER_Y]),
+        center=Vector2(
+            model.params[CircleParam.CENTER_X], model.params[CircleParam.CENTER_Y]
+        ),
         radius=model.params[CircleParam.RADIUS],
-
-        objective=(model.residuals**2).sum()/model.dof,
+        objective=(model.residuals**2).sum() / model.dof,
         residuals=model.residuals,
     )
 
@@ -127,8 +128,8 @@ class CircleModel:
         r = np.sqrt(tx**2 + ty**2)
 
         e[:] = r - R
-        de_dxc[:] = -tx/r
-        de_dyc[:] = -ty/r
+        de_dxc[:] = -tx / r
+        de_dyc[:] = -ty / r
         de_dR[:] = -1
 
         self._params[:] = params

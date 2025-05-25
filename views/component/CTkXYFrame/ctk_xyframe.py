@@ -9,56 +9,92 @@ import customtkinter
 
 
 class CTkXYFrame(customtkinter.CTkFrame):
-    def __init__(self,
-                 master: any,
-                 width: int = 100,
-                 height: int = 100,
-                 scrollbar_width: int = 16,
-                 scrollbar_fg_color=None,
-                 scrollbar_button_color=None,
-                 scrollbar_button_hover_color=None,
-                 **kwargs):
+    def __init__(
+        self,
+        master: any,
+        width: int = 100,
+        height: int = 100,
+        scrollbar_width: int = 16,
+        scrollbar_fg_color=None,
+        scrollbar_button_color=None,
+        scrollbar_button_hover_color=None,
+        **kwargs
+    ):
 
         self.parent_frame = customtkinter.CTkFrame(master=master, **kwargs)
         self.bg_color = self.parent_frame.cget("fg_color")
-        self.xy_canvas = Canvas(self.parent_frame, width=width, height=height,
-                                bg=self.parent_frame._apply_appearance_mode(
-                                    self.bg_color),
-                                borderwidth=0, highlightthickness=0)
+        self.xy_canvas = Canvas(
+            self.parent_frame,
+            width=width,
+            height=height,
+            bg=self.parent_frame._apply_appearance_mode(self.bg_color),
+            borderwidth=0,
+            highlightthickness=0,
+        )
         self.parent_frame.rowconfigure(0, weight=1)
         self.parent_frame.columnconfigure(0, weight=1)
 
-        customtkinter.CTkFrame.__init__(self, master=self.xy_canvas, fg_color=self.parent_frame.cget("fg_color"),
-                                        bg_color=self.parent_frame.cget("fg_color"))
-        self.window_id = self.xy_canvas.create_window(
-            (0, 0), window=self, anchor="nw")
+        customtkinter.CTkFrame.__init__(
+            self,
+            master=self.xy_canvas,
+            fg_color=self.parent_frame.cget("fg_color"),
+            bg_color=self.parent_frame.cget("fg_color"),
+        )
+        self.window_id = self.xy_canvas.create_window((0, 0), window=self, anchor="nw")
 
-        self.vsb = customtkinter.CTkScrollbar(self.parent_frame, orientation="vertical", command=self.xy_canvas.yview,
-                                              fg_color=scrollbar_fg_color, button_color=scrollbar_button_color,
-                                              button_hover_color=scrollbar_button_hover_color, width=scrollbar_width)
-        self.hsb = customtkinter.CTkScrollbar(self.parent_frame, orientation="horizontal", command=self.xy_canvas.xview,
-                                              fg_color=scrollbar_fg_color, button_color=scrollbar_button_color,
-                                              button_hover_color=scrollbar_button_hover_color, height=scrollbar_width)
+        self.vsb = customtkinter.CTkScrollbar(
+            self.parent_frame,
+            orientation="vertical",
+            command=self.xy_canvas.yview,
+            fg_color=scrollbar_fg_color,
+            button_color=scrollbar_button_color,
+            button_hover_color=scrollbar_button_hover_color,
+            width=scrollbar_width,
+        )
+        self.hsb = customtkinter.CTkScrollbar(
+            self.parent_frame,
+            orientation="horizontal",
+            command=self.xy_canvas.xview,
+            fg_color=scrollbar_fg_color,
+            button_color=scrollbar_button_color,
+            button_hover_color=scrollbar_button_hover_color,
+            height=scrollbar_width,
+        )
 
-        self.xy_canvas.configure(yscrollcommand=lambda x, y: self.dynamic_scrollbar_vsb(x, y),
-                                 xscrollcommand=lambda x, y: self.dynamic_scrollbar_hsb(x, y))
-        self.xy_canvas.grid(row=0, column=0, sticky="nsew",
-                            padx=(7, 0), pady=(7, 0))
+        self.xy_canvas.configure(
+            yscrollcommand=lambda x, y: self.dynamic_scrollbar_vsb(x, y),
+            xscrollcommand=lambda x, y: self.dynamic_scrollbar_hsb(x, y),
+        )
+        self.xy_canvas.grid(row=0, column=0, sticky="nsew", padx=(7, 0), pady=(7, 0))
 
-        self.bind("<Configure>", lambda event,
-                  canvas=self.xy_canvas: self.onFrameConfigure(canvas))
+        self.bind(
+            "<Configure>",
+            lambda event, canvas=self.xy_canvas: self.onFrameConfigure(canvas),
+        )
         self.xy_canvas.bind_all(
-            "<MouseWheel>", lambda e: self._on_mousewheel(e.delta, e.widget), add="+")
+            "<MouseWheel>", lambda e: self._on_mousewheel(e.delta, e.widget), add="+"
+        )
         self.xy_canvas.bind_all(
-            "<Shift-MouseWheel>", lambda e: self._on_mousewheel_shift(e.delta, e.widget), add="+")
+            "<Shift-MouseWheel>",
+            lambda e: self._on_mousewheel_shift(e.delta, e.widget),
+            add="+",
+        )
         self.xy_canvas.bind_all(
-            "<Button-4>", lambda e: self._on_mousewheel(120, e.widget), add="+")
+            "<Button-4>", lambda e: self._on_mousewheel(120, e.widget), add="+"
+        )
         self.xy_canvas.bind_all(
-            "<Button-5>", lambda e: self._on_mousewheel(-120, e.widget), add="+")
+            "<Button-5>", lambda e: self._on_mousewheel(-120, e.widget), add="+"
+        )
         self.xy_canvas.bind_all(
-            "<Shift-Button-4>", lambda e: self._on_mousewheel_shift(120, e.widget), add="+")
+            "<Shift-Button-4>",
+            lambda e: self._on_mousewheel_shift(120, e.widget),
+            add="+",
+        )
         self.xy_canvas.bind_all(
-            "<Shift-Button-5>", lambda e: self._on_mousewheel_shift(-120, e.widget), add="+")
+            "<Shift-Button-5>",
+            lambda e: self._on_mousewheel_shift(-120, e.widget),
+            add="+",
+        )
 
         if type(master) is customtkinter.CTkScrollableFrame:
             master.check_if_master_is_canvas = self.disable_contentscroll
@@ -70,7 +106,8 @@ class CTkXYFrame(customtkinter.CTkFrame):
     def _set_appearance_mode(self, mode_string):
         super()._set_appearance_mode(mode_string)
         self.xy_canvas.config(
-            bg=self.parent_frame._apply_appearance_mode(self.bg_color))
+            bg=self.parent_frame._apply_appearance_mode(self.bg_color)
+        )
 
     def check_if_master_is_canvas(self, widget):
         if widget == self.xy_canvas:
@@ -105,11 +142,11 @@ class CTkXYFrame(customtkinter.CTkFrame):
 
     def _on_mousewheel(self, event, widget):
         if self.check_if_master_is_canvas(widget):
-            self.xy_canvas.yview_scroll(int(-1*(event/120)), "units")
+            self.xy_canvas.yview_scroll(int(-1 * (event / 120)), "units")
 
     def _on_mousewheel_shift(self, event, widget):
         if self.check_if_master_is_canvas(widget):
-            self.xy_canvas.xview_scroll(int(-1*(event/120)), "units")
+            self.xy_canvas.xview_scroll(int(-1 * (event / 120)), "units")
 
     def pack(self, **kwargs):
         self.parent_frame.pack(**kwargs)

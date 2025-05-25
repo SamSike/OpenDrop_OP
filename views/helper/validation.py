@@ -12,6 +12,7 @@ def validate_frame_interval(user_input_data: ExperimentalSetup):
             return False
     return True
 
+
 # def validate_wait_time(user_input_data):
 #     if len(user_input_data.import_files) > 1:
 #             # Check if wait_time is None or empty
@@ -35,8 +36,8 @@ def validate_user_input_data_ift(user_input_data: ExperimentalSetup):
     # Check user_input_fields for None values
 
     required_fields = {
-        'drop_density': "Drop Density",
-        'needle_diameter_mm': "Needle Diameter"
+        "drop_density": "Drop Density",
+        "needle_diameter_mm": "Needle Diameter",
         # ,'density_outer': "Continuous Density",
         # 'pixel_mm': "Pixel to mm"
     }
@@ -53,18 +54,26 @@ def validate_user_input_data_ift(user_input_data: ExperimentalSetup):
         messages.append("At least one analysis method must be selected.")
 
     # Allow user to select regions manually if chosen
-    if user_input_data.drop_id_method != RegionSelect.AUTOMATED or user_input_data.needle_region_method != RegionSelect.AUTOMATED:
+    if (
+        user_input_data.drop_id_method != RegionSelect.AUTOMATED
+        or user_input_data.needle_region_method != RegionSelect.AUTOMATED
+    ):
         IftDataProcessor().process_preparation(user_input_data)
 
     return messages
 
 
-def validate_user_input_data_cm(user_input_data: ExperimentalSetup, experimental_drop: ExperimentalDrop):
+def validate_user_input_data_cm(
+    user_input_data: ExperimentalSetup, experimental_drop: ExperimentalDrop
+):
     """Validate the user input data and return messages for missing fields."""
     messages = []
 
     # Check user_input_fields for None values
-    if user_input_data.threshold_method != ThresholdSelect.AUTOMATED and not user_input_data.threshold_val:
+    if (
+        user_input_data.threshold_method != ThresholdSelect.AUTOMATED
+        and not user_input_data.threshold_val
+    ):
         messages.append("Please enter threshold value")
 
     if not any(user_input_data.analysis_methods_ca.values()):

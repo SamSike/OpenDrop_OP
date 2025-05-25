@@ -56,13 +56,13 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 
 # Features
 
-* Contact Angle & Pendant Drop Analysis
-* Multiple Fitting Algorithms: Polynomial, circular, elliptical, Young-Laplace
-* Integrated ML Prediction (Conan-ML) for contact angles
-* High-throughput Batch Processing of images & videos
-* Cross-platform Support: Windows, macOS, Linux
-* User-friendly GUI built with CustomTkinter
-* Modular Backend for easy customization and extension
+- Contact Angle & Pendant Drop Analysis
+- Multiple Fitting Algorithms: Polynomial, circular, elliptical, Young-Laplace
+- Integrated ML Prediction (Conan-ML) for contact angles
+- High-throughput Batch Processing of images & videos
+- Cross-platform Support: Windows, macOS, Linux
+- User-friendly GUI built with CustomTkinter
+- Modular Backend for easy customization and extension
 
 # Code Structure Overview
 
@@ -90,6 +90,7 @@ This guide helps you install the necessary dependencies and run OpenDrop-ML on y
 ## 1. Install Python
 
 ### Check if Python is Already Installed
+
 Open a terminal (Command Prompt or PowerShell) and run:
 
 ```bash
@@ -101,29 +102,31 @@ or:
 ```bash
 py --version
 ```
+
 If Python is installed, it will show the version.
 
 ### Install Python (if not already installed)
+
 Download and install [Python 3.8.10](https://www.python.org/downloads/release/python-3810/), which is the recommended version for this application. Choose the installer for your operating system.
 
-> **Windows Users:** During installation, **check the box** that says: *“Add Python to PATH”* 
-> 
->  If you forget, you may need to manually add it to your **environment variables** under "System Properties > Environment Variables > Path".
+> **Windows Users:** During installation, **check the box** that says: _“Add Python to PATH”_
+>
+> If you forget, you may need to manually add it to your **environment variables** under "System Properties > Environment Variables > Path".
 
 > **Linux Users:** Python 3 is usually preinstalled, but you can install it via a package manager if needed:
-> 
-> Ubuntu/Debian: ```sudo apt install python3.8 python3.8-venv```
-> 
-> Fedora: ```sudo dnf install python3.8```
+>
+> Ubuntu/Debian: `sudo apt install python3.8 python3.8-venv`
+>
+> Fedora: `sudo dnf install python3.8`
 
 ## 2. Install C/C++ Build Tools
 
-* **Windows**:
+- **Windows**:
   - Download and install [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
   - During installation, select:
     - "C++ build tools"
     - Include the "Windows 10 SDK" or "Windows 11 SDK"
-* **Linux**:
+- **Linux**:
 
 ```bash
 sudo apt install build-essential   # Debian/Ubuntu
@@ -160,7 +163,6 @@ deactivate
 
 You can skip these steps if you prefer to install packages globally (not recommended for development environments since there might be conflicts with existing Python setups or system packages).
 
-
 ## 4. Install Python Dependencies
 
 Make sure you're in the root folder of the application, then run:
@@ -171,13 +173,11 @@ pip install -r requirements.txt
 
 (Do this **after activating** the virtual environment, if you're using one.)
 
-
 ## 5. Build Cython Extensions
 
 ```bash
 python setup.py build_ext --inplace
 ```
-
 
 ## 6. Run the Application
 
@@ -201,8 +201,8 @@ If not, install [Python 3.8.10](https://www.python.org/downloads/release/python-
 
 ### Install Conda or Pyenv
 
-* **Apple Silicon**: Install [Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install)
-* **Intel Mac**: Conda optional — can use system Python or [pyenv](https://github.com/pyenv/pyenv)
+- **Apple Silicon**: Install [Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install)
+- **Intel Mac**: Conda optional — can use system Python or [pyenv](https://github.com/pyenv/pyenv)
 
 ### Create Python Environment
 
@@ -219,9 +219,11 @@ conda activate opendrop_env
 python3 -m venv opendrop_env # Skip this line if you want to install the required packages globally
 source opendrop_env/bin/activate # Skip this line if you want to install the required packages globally
 ```
+
 ### Install Python Dependencies
 
 Make sure you're in the root folder of the application, then run:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -246,10 +248,9 @@ python setup.py build_ext --inplace
 python main.py
 ```
 
-## Troubleshooting: 
+## Troubleshooting:
 
-### 1. SUNDIALS:Architecture Mismatch (macOS)   
-
+### 1. SUNDIALS:Architecture Mismatch (macOS)
 
 If you see:
 
@@ -295,18 +296,21 @@ Make sure your build system or environment points to those directories.
 You can resolve this issue by locating all .hpp files present in your Boost directory and ensuring that the path to Boost headers is correctly specified.
 
 2. Locate Boost Header Files (If using system-installed Boost)
+
 - Use the following command to find all .hpp files within the Boost directory:
+
 ```bash
 find /opt/homebrew -name  "*.hpp" | grep boost # Apple Silicon
 find /usr/local -name "*.hpp" | grep boost #Apple Intel
 ```
+
 - Set the BOOST_INCLUDE_DIR Environment Variable
 
-- Once you have identified the correct path to the Boost headers, set the BOOST_INCLUDE_DIR environment variable to this path. 
+- Once you have identified the correct path to the Boost headers, set the BOOST_INCLUDE_DIR environment variable to this path.
 
 ```bash
 export BOOST_INCLUDE_DIR=/opt/homebrew/Cellar/boost/1.88.0/include/ # Apple Silicon
-#or 
+#or
 export CPLUS_INCLUDE_PATH=/opt/homebrew/include:$CPLUS_INCLUDE_PATH
 
 
@@ -320,14 +324,19 @@ python main.py
 ```
 
 ### 3. Check Build Library
+
 ### Boost
+
 To check if Boost is installed on your system and available for your build, here’s how you can do it per platform:
 
 Apple Silicon
+
 ```bash
 find /usr /opt /homebrew/local -name version.hpp | grep boost
 ```
-Apple Intel 
+
+Apple Intel
+
 ```bash
 find /usr /opt /usr/local -name version.hpp | grep boost
 ```
@@ -335,16 +344,17 @@ find /usr /opt /usr/local -name version.hpp | grep boost
 If it returns a path like /opt/homebrew/include/boost/version.hpp or /usr/local/include/boost/version.hpp, then Boost is installed.
 
 otherwise
+
 ```bash
 brew install boost
 ```
 
+### About SUNDIALS
 
-###  About SUNDIALS
 If you are on macOS, SUNDIALS static libraries must be available in:
 
-dependencies/macos_x86_64/sundials/lib/   # for Intel Mac  
-dependencies/macos_arm64/sundials/lib/   # for Apple Silicon (M1/M2/M3)
+dependencies/macos_x86_64/sundials/lib/ # for Intel Mac  
+dependencies/macos_arm64/sundials/lib/ # for Apple Silicon (M1/M2/M3)
 
 They're on a different architecture (e.g., you're Intel, they're Apple Silicon),
 Or if .a files are missing or broken,
@@ -385,24 +395,23 @@ make install
 
 Ensure `.a` files are built in:
 
-* `macos_x86_64/sundials/lib/`
-* or `macos_arm64/sundials/lib/`
+- `macos_x86_64/sundials/lib/`
+- or `macos_arm64/sundials/lib/`
 
 If you encounter errors, verify:
 
-* Python version
-* Cython is installed: `pip install cython`
-* C++ compiler is correctly installed
-
+- Python version
+- Cython is installed: `pip install cython`
+- C++ compiler is correctly installed
 
 # User Configuration Guide
 
 [user_config.yaml](./user_config.yaml) is a YAML-based configuration file that lets you **predefine all key parameters** for your experiment, including:
 
-* Image processing methods
-* Physical properties
-* Visualization flags
-* File paths and outputs
+- Image processing methods
+- Physical properties
+- Visualization flags
+- File paths and outputs
 
 You can avoid setting parameters manually in code — just edit the YAML file.
 
@@ -460,31 +469,31 @@ output_directory: ./outputs/
 
 ### Drop/Needle Region Methods
 
-* `Automated` (default)
-* `User-selected`
+- `Automated` (default)
+- `User-selected`
 
 ### Threshold/Baseline Method
 
-* `Automated` (default)
-* `User-selected`
+- `Automated` (default)
+- `User-selected`
 
 ### Edge Detection
 
-* `OpenCV`
-* `Subpixel`
-* `Both`
+- `OpenCV`
+- `Subpixel`
+- `Both`
 
 ### Image Source
 
-* `Local images`
+- `Local images`
 
 ---
 
 ## Tips
 
-* `null` in YAML means the value is left unset (equivalent to `None` in Python).
-* Boolean flags must be `true` / `false` (lowercase YAML syntax).
-* Be sure to match key names and nesting exactly as shown above.
+- `null` in YAML means the value is left unset (equivalent to `None` in Python).
+- Boolean flags must be `true` / `false` (lowercase YAML syntax).
+- Be sure to match key names and nesting exactly as shown above.
 
 # Full Workflow
 
@@ -495,29 +504,46 @@ output_directory: ./outputs/
 5. Save results to CSV (optional)
 
 After starting the application:
+
 1. Select one of the functions: Contact Angle or Interfacial Tension
 
- ![Main Menu](./assets/main_menu.png)
+![Main Menu](./assets/main_menu.png)
 
 2. Upload Image(s)
 
- ![Aquisition_1](./assets/ca_aquisition_1.png)
- ![Aquisition_2](./assets/ca_aquisition_2.png)
+![Aquisition_1](./assets/ca_aquisition_1.png)
+![Aquisition_2](./assets/ca_aquisition_2.png)
 
 3. Fill in user input. Note that the sample image is for contact angle, but the process is similar for interfacial tension.
-   
- ![Preparation](./assets/ca_preparation.png)
+
+![Preparation](./assets/ca_preparation.png)
 
 4. Click 'next' to view the result!
-   
- ![Analysis](./assets/ca_analysis.png)
+
+![Analysis](./assets/ca_analysis.png)
 
 5. Optionally save the result to a CSV file.
-   
- ![Output](./assets/output.png)
+
+![Output](./assets/output.png)
 
 # Developer & Contributor Guide
+
+## Linting
+
+Install pre commit linter to automatically lint (beautify) your files before every commit:
+
+```
+pre-commit install
+```
+
+The first time running may take a few minutes. Run manually:
+
+```
+pre-commit run --all-files
+```
+
 ## Modular Design
+
 OpenDrop-ML emphasizes extensibility:
 
 Add a new fitting method: See modules/fits.py
@@ -527,17 +553,19 @@ Add a UI component: See views/component/
 Add a page: Update views/function_window.py
 
 ## Backend & UI Extensions
+
 Refer to:
 
 “Add Backend Module Steps – Guide to adding new models”
 
 “Add Frontend Module Steps – UI integration tutorial”
 
-
 # High-Level Architecture Diagram
+
 ![High-Level Project Plan](./assets/high-level-project-diagram.png)
 
 # Unit tests
+
 See [TESTING.md](./TESTING.md) for more details on how to run the built-in unit tests.
 
 # Appropriate use of ML model in Contact Angle Analysis
@@ -570,9 +598,10 @@ outputted by any fitting or angle prediction approach.
 Current OpenDrop-ML implementation performs best for contact angles above 110°. For low-angle or high-curvature drops, verification is advised. See: [https://doi.org/10.1021/acs.langmuir.4c01050](https://doi.org/10.1021/acs.langmuir.4c01050)
 
 Users should validate predictions manually in cases:
-* With extreme Bond numbers (>2)
-* With strong surface roughness/reflections
-* Outside of the model's trained contact angle range
+
+- With extreme Bond numbers (>2)
+- With strong surface roughness/reflections
+- Outside of the model's trained contact angle range
 
 # Contact & Contribution
 
@@ -580,4 +609,3 @@ OpenDrop-ML is an open-source project. Contributions are welcome!
 
 - GitHub: https://github.com/SamSike/OpenDrop_OP
 - For issues, use GitHub issue tracker
-

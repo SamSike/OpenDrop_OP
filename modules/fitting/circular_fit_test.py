@@ -2,7 +2,7 @@ from modules.fitting.circular_fit import (
     circular_fit,
     circular_fit_img,
     extract_edges_cv,
-    circle_fit_errors
+    circle_fit_errors,
 )
 import cv2
 import numpy as np
@@ -41,10 +41,8 @@ def test_circular_fit(sample_circle):
     """Test whether circular_fit correctly fits the circular data"""
     CA, center, R, intercepts, errors, timings = circular_fit(sample_circle)
 
-    assert np.isclose(
-        center[0], 50, atol=2), f"Expected center x≈50, got {center[0]}"
-    assert np.isclose(
-        center[1], 50, atol=2), f"Expected center y≈50, got {center[1]}"
+    assert np.isclose(center[0], 50, atol=2), f"Expected center x≈50, got {center[0]}"
+    assert np.isclose(center[1], 50, atol=2), f"Expected center y≈50, got {center[1]}"
     assert np.isclose(R, 20, atol=2), f"Expected radius ≈20, got {R}"
 
 
@@ -52,10 +50,8 @@ def test_circular_fit_img(sample_image):
     """Test whether circular_fit_img can correctly extract edges and fit a circle"""
     CA, center, R, intercepts, errors, timings = circular_fit_img(sample_image)
 
-    assert np.isclose(
-        center[0], 50, atol=2), f"Expected center x≈50, got {center[0]}"
-    assert np.isclose(
-        center[1], 50, atol=2), f"Expected center y≈50, got {center[1]}"
+    assert np.isclose(center[0], 50, atol=2), f"Expected center x≈50, got {center[0]}"
+    assert np.isclose(center[1], 50, atol=2), f"Expected center y≈50, got {center[1]}"
     assert np.isclose(R, 20, atol=2), f"Expected radius ≈20, got {R}"
 
 
@@ -63,16 +59,17 @@ def test_circle_fit_errors(sample_circle):
     """Test whether circle_fit_errors correctly calculates the fitting errors"""
     errors = circle_fit_errors(sample_circle, h=50, k=50, r=20)
 
-    assert np.isclose(errors['MAE'], 0, atol=0.5)
-    assert np.isclose(errors['MSE'], 0, atol=0.5)
-    assert np.isclose(errors['RMSE'], 0, atol=0.5)
-    assert np.isclose(errors['Maximum error'], 0, atol=1)
+    assert np.isclose(errors["MAE"], 0, atol=0.5)
+    assert np.isclose(errors["MSE"], 0, atol=0.5)
+    assert np.isclose(errors["RMSE"], 0, atol=0.5)
+    assert np.isclose(errors["Maximum error"], 0, atol=1)
 
 
 def test_extract_edges_CV(sample_image):
     """Test whether extract_edges_CV correctly extracts edge points"""
     edges = extract_edges_cv(sample_image)
     assert len(edges) > 20, "Edge detection failed, not enough points detected"
+
 
 # def test_empty_input():
 #     """Test whether an empty input is handled correctly"""

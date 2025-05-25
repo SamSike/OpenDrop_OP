@@ -11,7 +11,7 @@ from modules.fitting.BA_fit import (
     fit_circle,
     generate_circle_vectors,
     find_intersection,
-    yl_fit
+    yl_fit,
 )
 import pytest
 import numpy as np
@@ -19,6 +19,7 @@ import warnings
 from unittest.mock import patch, MagicMock
 import sys
 import os
+
 # import cv2
 
 
@@ -37,6 +38,7 @@ def sample_data():
 @pytest.fixture
 def sample_profile():
     return np.array([[0, 0], [1, 1], [2, 2], [3, 1], [4, 0]])
+
 
 # ===== Tests =====
 
@@ -61,10 +63,10 @@ def test_optimized_path(sample_data):
     path = optimized_path(sample_data)
     assert len(path) <= len(sample_data)
     for i in range(1, len(path)):
-        assert distance1(path[i-1], path[i]) < 5
+        assert distance1(path[i - 1], path[i]) < 5
 
 
-@patch('modules.fitting.BA_fit.plt.show')
+@patch("modules.fitting.BA_fit.plt.show")
 def test_prepare_hydrophobic(mock_show, sample_profile):
     profile, CPs = prepare_hydrophobic(sample_profile, display=True)
     assert isinstance(profile, np.ndarray)
@@ -77,17 +79,18 @@ def test_bashforth_adams():
     assert len(result) == 2
 
 
-@patch('modules.fitting.BA_fit.solve_ivp')
+@patch("modules.fitting.BA_fit.solve_ivp")
 def test_sim_bashforth_adams(mock_solve_ivp):
     mock_solve_ivp.return_value = MagicMock(
-        t=np.array([0, 1]), y=np.array([[1, 1], [2, 2]]))
+        t=np.array([0, 1]), y=np.array([[1, 1], [2, 2]])
+    )
     angles, pred, Bo = sim_bashforth_adams(1, 1, 1)
     assert isinstance(angles, np.ndarray)
     assert isinstance(pred, np.ndarray)
     assert isinstance(Bo, float)
 
 
-@patch('modules.fitting.BA_fit.opt.minimize')
+@patch("modules.fitting.BA_fit.opt.minimize")
 def test_fit_bashforth_adams(mock_minimize, sample_profile):
     mock_minimize.return_value = MagicMock(x=[1, 1])
     result = fit_bashforth_adams(sample_profile)
@@ -99,9 +102,9 @@ def test_calculate_angle():
     assert angle == pytest.approx(90.0)
 
 
-@patch('modules.fitting.BA_fit.opt.minimize')
+@patch("modules.fitting.BA_fit.opt.minimize")
 def test_fit_circle(mock_minimize, sample_profile):
-    mock_minimize.return_value = {'x': [0, 0, 1], 'fun': 0.1}
+    mock_minimize.return_value = {"x": [0, 0, 1], "fun": 0.1}
     result = fit_circle(sample_profile)
     assert isinstance(result, dict)
 
@@ -119,6 +122,7 @@ def test_find_intersection():
     assert x_t == pytest.approx(1.0)
     assert y_t == pytest.approx(0.0)
 
+
 # @patch('modules.fitting.BA_fit.cv2.findContours')
 # def test_find_contours(mock_findContours):
 #     mock_findContours.return_value = ([np.array([[[0, 0]], [[1, 1]]])], None)
@@ -129,14 +133,26 @@ def test_find_intersection():
 #     assert np.array_equal(contours[0], np.array([[0, 0], [1, 1]]))
 
 
-@patch('modules.fitting.BA_fit.plt.show')
-@patch('modules.fitting.BA_fit.fit_circle', return_value={'x': [0, 0, 1], 'fun': 0.1})
-@patch('modules.fitting.BA_fit.find_intersection', return_value=(0.5, 0.5))
-@patch('modules.fitting.BA_fit.generate_circle_vectors', return_value=([1, 0], [0, 1]))
-@patch('modules.fitting.BA_fit.calculate_angle', return_value=90)
-@patch('modules.fitting.BA_fit.fit_bashforth_adams', return_value=MagicMock(x=[1, 1]))
-@patch('modules.fitting.BA_fit.sim_bashforth_adams', return_value=(np.array([0, 90]), np.array([[0, 0], [1, 1]]), 1.0))
-def test_yl_fit(mock_sim, mock_fit, mock_calc, mock_gen, mock_find, mock_circle, mock_show, sample_profile):
+@patch("modules.fitting.BA_fit.plt.show")
+@patch("modules.fitting.BA_fit.fit_circle", return_value={"x": [0, 0, 1], "fun": 0.1})
+@patch("modules.fitting.BA_fit.find_intersection", return_value=(0.5, 0.5))
+@patch("modules.fitting.BA_fit.generate_circle_vectors", return_value=([1, 0], [0, 1]))
+@patch("modules.fitting.BA_fit.calculate_angle", return_value=90)
+@patch("modules.fitting.BA_fit.fit_bashforth_adams", return_value=MagicMock(x=[1, 1]))
+@patch(
+    "modules.fitting.BA_fit.sim_bashforth_adams",
+    return_value=(np.array([0, 90]), np.array([[0, 0], [1, 1]]), 1.0),
+)
+def test_yl_fit(
+    mock_sim,
+    mock_fit,
+    mock_calc,
+    mock_gen,
+    mock_find,
+    mock_circle,
+    mock_show,
+    sample_profile,
+):
     result = yl_fit(sample_profile, display=True)
     assert isinstance(result, tuple)
     assert len(result) == 9
@@ -145,4 +161,5 @@ def test_yl_fit(mock_sim, mock_fit, mock_calc, mock_gen, mock_find, mock_circle,
 # Optional: run directly
 if __name__ == "__main__":
     import sys
+
     sys.exit(pytest.main(["-v", __file__]))

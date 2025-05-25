@@ -10,7 +10,13 @@ import matplotlib.pyplot as plt
 
 
 class IftAnalysis(CTkFrame):
-    def __init__(self, parent, user_input_data: ExperimentalSetup, ift_processor: IftDataProcessor, **kwargs):
+    def __init__(
+        self,
+        parent,
+        user_input_data: ExperimentalSetup,
+        ift_processor: IftDataProcessor,
+        **kwargs,
+    ):
         super().__init__(parent, **kwargs)
 
         self.user_input_data = user_input_data
@@ -34,13 +40,13 @@ class IftAnalysis(CTkFrame):
         # Configure the grid to allow expansion for both columns
         parent.grid_rowconfigure(0, weight=1)
         parent.grid_columnconfigure(0, weight=1)  # Left column for table
-        parent.grid_columnconfigure(
-            1, weight=1)  # Right column for visuals
+        parent.grid_columnconfigure(1, weight=1)  # Right column for visuals
 
         # Table can be large, so scrollable
         self.table_frame = CTkScrollableFrame(parent)
-        self.table_frame.grid(row=0, column=0, sticky="nsew", padx=15, pady=(
-            10, 0))  # Left side for table
+        self.table_frame.grid(
+            row=0, column=0, sticky="nsew", padx=15, pady=(10, 0)
+        )  # Left side for table
 
         self.visualisation_frame = CTkFrame(parent)
         self.visualisation_frame.grid(row=0, column=1, padx=10, sticky="nsew")
@@ -70,8 +76,14 @@ class IftAnalysis(CTkFrame):
 
         for i, result in enumerate(results, start=1):
             row_widgets = []
-            values = [f"{result[5]}", f"{result[0]:.1f}", f"{result[1]:.2f}",
-                    f"{result[2]:.2f}", f"{result[3]:.4f}", f"{result[4]:.4f}"]
+            values = [
+                f"{result[5]}",
+                f"{result[0]:.1f}",
+                f"{result[1]:.2f}",
+                f"{result[2]:.2f}",
+                f"{result[3]:.4f}",
+                f"{result[4]:.4f}",
+            ]
 
             for j, val in enumerate(values):
                 label = CTkLabel(self.table_frame, text=val, anchor="center")
@@ -86,11 +98,13 @@ class IftAnalysis(CTkFrame):
         for i in range(len(results) + 1):  # +1 for the header row
             parent_frame.grid_rowconfigure(i, weight=1)
 
-
     def create_image_frame(self, parent):
         """Create an Image Gallery that allows back and forth between base images into the parent frame"""
         self.image_frame = ImageGallery(
-            parent, self.user_input_data.drop_contour_images, on_index_change=self.highlight_row)
+            parent,
+            self.user_input_data.drop_contour_images,
+            on_index_change=self.highlight_row,
+        )
         self.image_frame.grid(row=0, column=0, sticky="nsew")
 
     def create_residuals_frame(self, parent):
@@ -108,22 +122,23 @@ class IftAnalysis(CTkFrame):
         def show(index):
             ax.clear()
             # Example data for the residuals
-            ax.scatter(results[index].arclengths,
-                       results[index].residuals, color='black')
+            ax.scatter(
+                results[index].arclengths, results[index].residuals, color="black"
+            )
             ax.set_title(f"Residuals for Drop {index + 1}")
             ax.set_xlabel("Arclengths")
             ax.set_ylabel("Residuals")
             fig.canvas.draw_idle()
 
         def on_key(event):
-            if event.key == 'right':
+            if event.key == "right":
                 idx[0] = (idx[0] + 1) % len(results)
                 show(idx[0])
-            elif event.key == 'left':
+            elif event.key == "left":
                 idx[0] = (idx[0] - 1) % len(results)
                 show(idx[0])
 
-        fig.canvas.mpl_connect('key_press_event', on_key)
+        fig.canvas.mpl_connect("key_press_event", on_key)
         show(idx[0])
         # Create a canvas for the figure
         canvas = FigureCanvasTkAgg(fig, self.residuals_frame)
@@ -148,22 +163,23 @@ class IftAnalysis(CTkFrame):
         def show(index):
             ax.clear()
             # Example data for the residuals
-            ax.scatter(results[index].arclengths,
-                       results[index].residuals, color='black')
+            ax.scatter(
+                results[index].arclengths, results[index].residuals, color="black"
+            )
             ax.set_title(f"Residuals for Drop {index + 1}")
             ax.set_xlabel("Arclengths")
             ax.set_ylabel("Residuals")
             fig.canvas.draw_idle()
 
         def on_key(event):
-            if event.key == 'right':
+            if event.key == "right":
                 idx[0] = (idx[0] + 1) % len(results)
                 show(idx[0])
-            elif event.key == 'left':
+            elif event.key == "left":
                 idx[0] = (idx[0] - 1) % len(results)
                 show(idx[0])
 
-        fig.canvas.mpl_connect('key_press_event', on_key)
+        fig.canvas.mpl_connect("key_press_event", on_key)
         show(idx[0])
 
         canvas = FigureCanvasTkAgg(fig, parent)
@@ -181,7 +197,7 @@ class IftAnalysis(CTkFrame):
         if 0 <= row_index < len(self.table_data):
             for cell in self.table_data[row_index]:
                 cell.configure(text_color="red")
- 
+
     def destroy(self):
-        plt.close('all')
+        plt.close("all")
         return super().destroy()

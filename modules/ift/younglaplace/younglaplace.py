@@ -35,11 +35,14 @@ import numpy as np
 import scipy.optimize
 
 
-__all__ = ('YoungLaplaceFitResult', 'young_laplace_fit',)
+__all__ = (
+    "YoungLaplaceFitResult",
+    "young_laplace_fit",
+)
 
-DELTA_TOL = 1.e-8
-GRADIENT_TOL = 1.e-8
-OBJECTIVE_TOL = 1.e-8
+DELTA_TOL = 1.0e-8
+GRADIENT_TOL = 1.0e-8
+OBJECTIVE_TOL = 1.0e-8
 MAX_STEPS = 50
 # Math constants.
 PI = math.pi
@@ -84,8 +87,8 @@ def young_laplace_fit(data: Tuple[np.ndarray, np.ndarray], verbose: bool = False
         model.params,
         jac,
         args=(model,),
-        x_scale='jac',
-        method='lm',
+        x_scale="jac",
+        method="lm",
         ftol=OBJECTIVE_TOL,
         xtol=DELTA_TOL,
         gtol=GRADIENT_TOL,
@@ -102,12 +105,10 @@ def young_laplace_fit(data: Tuple[np.ndarray, np.ndarray], verbose: bool = False
         apex_x=model.params[YoungLaplaceParam.APEX_X],
         apex_y=model.params[YoungLaplaceParam.APEX_Y],
         rotation=model.params[YoungLaplaceParam.ROTATION],
-
-        objective=(model.residuals**2).sum()/model.dof,
+        objective=(model.residuals**2).sum() / model.dof,
         residuals=model.residuals,
         closest=model.closest,
         arclengths=model.arclengths,
-
         volume=model.volume,
         surface_area=model.surface_area,
     )
@@ -117,6 +118,7 @@ def young_laplace_fit(data: Tuple[np.ndarray, np.ndarray], verbose: bool = False
 
 def young_laplace_guess(data: Tuple[np.ndarray, np.ndarray]) -> Optional[tuple]:
     from modules.ift.pendant import find_pendant_apex
+
     params = np.empty(len(YoungLaplaceParam))
 
     ans = find_pendant_apex(data)
@@ -140,11 +142,10 @@ def young_laplace_guess(data: Tuple[np.ndarray, np.ndarray]) -> Optional[tuple]:
 def _bond_selected_plane(r: np.ndarray, z: np.ndarray, radius: float) -> float:
     """Estimate Bond number by method of selected plane."""
     z_ix = np.argsort(z)
-    if np.searchsorted(z, 2.0*radius, sorter=z_ix) < len(z):
-        lower, upper = np.searchsorted(
-            z, [1.95*radius, 2.05*radius], sorter=z_ix)
-        radii = np.abs(r[z_ix][lower:upper+1])
-        x = radii.mean()/radius
+    if np.searchsorted(z, 2.0 * radius, sorter=z_ix) < len(z):
+        lower, upper = np.searchsorted(z, [1.95 * radius, 2.05 * radius], sorter=z_ix)
+        radii = np.abs(r[z_ix][lower : upper + 1])
+        x = radii.mean() / radius
         bond = max(0.10, 0.1756 * x**2 + 0.5234 * x**3 - 0.2563 * x**4)
     else:
         bond = 0.15
@@ -190,7 +191,7 @@ class YoungLaplaceModel:
         data_x, data_y = self.data
         data_r, data_z = Q.T @ (data_x - X0, data_y - Y0)
 
-        s[:] = shape.closest(data_r/radius, data_z/radius)
+        s[:] = shape.closest(data_r / radius, data_z / radius)
         r, z = radius * shape(s)
         dr_dBo, dz_dBo = radius * shape.DBo(s)
         e_r = data_r - r
@@ -201,13 +202,12 @@ class YoungLaplaceModel:
         e[np.signbit(e_r) != np.signbit(r)] *= -1
 
         residuals[:] = e
-        de_dBo[:] = -(e_r*dr_dBo + e_z*dz_dBo) / \
-            e   # derivative w.r.t. Bond number
-        de_dR[:] = -(e_r*r + e_z*z) / (radius * e)   # derivative w.r.t. radius
+        de_dBo[:] = -(e_r * dr_dBo + e_z * dz_dBo) / e  # derivative w.r.t. Bond number
+        de_dR[:] = -(e_r * r + e_z * z) / (radius * e)  # derivative w.r.t. radius
         # derivative w.r.t. apex (x, y)-coordinates
         de_dX0[:], de_dY0[:] = -Q @ (e_r, e_z) / e
         # derivative w.r.t. rotation
-        de_dw[:] = (e_r*z - e_z*r) / e
+        de_dw[:] = (e_r * z - e_z * r) / e
 
         self._params[:] = params
 

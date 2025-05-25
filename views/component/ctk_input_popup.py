@@ -1,9 +1,23 @@
-from customtkinter import CTkToplevel, CTkFrame, CTkLabel, CTkButton, CTkEntry, StringVar
+from customtkinter import (
+    CTkToplevel,
+    CTkFrame,
+    CTkLabel,
+    CTkButton,
+    CTkEntry,
+    StringVar,
+)
 from tkinter import messagebox
 
 
 class CTkInputPopup(CTkToplevel):
-    def __init__(self, parent, title="Input Required", prompt="Enter value:", on_confirm=None, **kwargs):
+    def __init__(
+        self,
+        parent,
+        title="Input Required",
+        prompt="Enter value:",
+        on_confirm=None,
+        **kwargs,
+    ):
         super().__init__(parent, **kwargs)
         self.title(title)
         self.geometry("300x200")
@@ -24,13 +38,15 @@ class CTkInputPopup(CTkToplevel):
 
         # Create entry widget for input
         self.input_entry = CTkEntry(
-            self.popup_frame, textvariable=self.input_var, width=200)
+            self.popup_frame, textvariable=self.input_var, width=200
+        )
         self.input_entry.pack(pady=(5, 10))
         self.input_entry.focus()  # Focus the entry box
 
         # Create button for confirm action
         self.confirm_button = CTkButton(
-            self.popup_frame, text="Confirm", command=self.on_confirm_wrapper)
+            self.popup_frame, text="Confirm", command=self.on_confirm_wrapper
+        )
         self.confirm_button.pack(pady=(10, 5))
 
     def on_confirm_wrapper(self):
@@ -41,10 +57,10 @@ class CTkInputPopup(CTkToplevel):
             self.destroy()
         else:
             messagebox.showwarning(
-                "Input Required", "Please enter a value.", parent=self)
+                "Input Required", "Please enter a value.", parent=self
+            )
 
     def default_confirm(self, value):
         """Default confirmation function if none is provided."""
         print(f"Input value: {value}")
-        messagebox.showinfo(
-            "Input Received", f"Entered Value: {value}", parent=self)
+        messagebox.showinfo("Input Received", f"Entered Value: {value}", parent=self)
