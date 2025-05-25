@@ -536,7 +536,11 @@ Install pre commit linter to automatically lint (beautify) your files before eve
 pre-commit install
 ```
 
-The first time may take a few minutes)
+The first time running may take a few minutes. Run manually:
+
+```
+pre-commit run --all-files
+```
 
 ## Modular Design
 
