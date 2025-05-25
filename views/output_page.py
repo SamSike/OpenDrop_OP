@@ -33,7 +33,7 @@ class OutputPage(ctk.CTkFrame):
             text="Output Location",
             font=ctk.CTkFont(size=14, weight="bold"),
             anchor="w"
-        ).grid(row=0, column=0, columnspan=4, padx=10, pady=(10,5), sticky="w")
+        ).grid(row=0, column=0, columnspan=4, padx=10, pady=(10, 5), sticky="w")
 
         # Location row
         ctk.CTkLabel(output_frame, text="Location:", anchor="w") \
@@ -49,13 +49,14 @@ class OutputPage(ctk.CTkFrame):
 
         # Filename row
         ctk.CTkLabel(output_frame, text="Filename:", anchor="w") \
-           .grid(row=2, column=0, sticky="w", padx=10, pady=(5,10))
+           .grid(row=2, column=0, sticky="w", padx=10, pady=(5, 10))
         self.filename_var = ctk.StringVar(value=user_input_data.filename)
         self.filename_var.trace_add("write", self.on_filename_change)
         self.filename_entry = ctk.CTkEntry(
             output_frame, width=300, textvariable=self.filename_var
         )
-        self.filename_entry.grid(row=2, column=1, padx=10, pady=(5,10), sticky="ew")
+        self.filename_entry.grid(
+            row=2, column=1, padx=10, pady=(5, 10), sticky="ew")
 
         # "❓" help icon next to filename
         help_label = ctk.CTkLabel(
@@ -64,29 +65,34 @@ class OutputPage(ctk.CTkFrame):
             font=ctk.CTkFont(size=16, weight="bold"),
             cursor="question_arrow"
         )
-        help_label.grid(row=2, column=2, padx=5, pady=(5,10), sticky="w")
+        help_label.grid(row=2, column=2, padx=5, pady=(5, 10), sticky="w")
 
         # Combined tooltip: naming convention + default folder notice
         tooltip_text = (
-            "Output files are named as:\n"
-            "  Extracted_data_YYYYMMDD_HHMMSS\n\n"
-            "Example:\n"
-            "Extracted_data_20250524_192455\n\n"
-            "Extracted_data: is if there is no specify filename\n"
-            "then it will be like this Extracted_data;\n"
-            "if there is fill in filename then it will be filename_YYYYMMDD_HHMMSS\n\n"
-            "• YYYYMMDD   — extraction date (year-month-day)\n"
-            "• HHMMSS     — save time (hour, minute, second)\n\n"
-            "Ensures unique filenames for each run.\n\n"
-            "If no location is specified, files will be\n"
-            "saved to './output' folder by default."
+            "Output files are named according to the following convention:\n"
+            "  <filename>_YYYYMMDD_HHMMSS.csv\n\n"
+            "Where:\n"
+            "  • <filename> is your specified filename, if provided.\n"
+            "  • Otherwise, <filename> is constructed as <prefix>_<function_type>.\n"
+            "    - <prefix> is 'Manual' if any region selection is user-selected,\n"
+            "      or 'Automated' if all regions are automated.\n"
+            "    - <function_type> is the analysis type (e.g., Interfacial_Tension),\n"
+            "      with spaces replaced by underscores.\n"
+            "  • YYYYMMDD represents the extraction date (year, month, day).\n"
+            "  • HHMMSS represents the extraction time (hour, minute, second).\n\n"
+            "Examples:\n"
+            "  MyFile_20250524_192455.csv\n"
+            "  Manual_Interfacial_Tension_20250524_192455.csv\n"
+            "  Automated_Contact_Angle_20250524_192455.csv\n\n"
+            "This naming convention ensures unique filenames for each run.\n"
+            "If no output location is specified, files will be saved to the './outputs/' folder by default."
         )
         create_tooltip(help_label, tooltip_text)
 
         # -----------------------
         # Figure Section (hidden)
         # -----------------------
-    
+
     def browse_location(self):
         default_dir = self.user_input_data.output_directory or os.getcwd()
         directory = filedialog.askdirectory(initialdir=default_dir)
