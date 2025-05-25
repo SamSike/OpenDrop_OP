@@ -303,8 +303,9 @@ def objective(trial):
         ax.axvline(mu+(n*3*sigma), ymax=0.01*0.9, color='r')
     ax.set_xlabel('Error')
     ax.set_ylabel('Frequency')
-    ax.set_title(r'Histogram of test set error: $\mu$=' +
-                 str.format('{0:.2e}', mu)+', $\sigma$='+str.format('{0:.2e}', sigma))
+    ax.set_title(
+        rf'Histogram of test set error: $\mu$={mu:.2e}, $\sigma$={sigma:.2e}'
+    )
 
     fig.tight_layout()  # Tweak spacing to prevent clipping of ylabel
     plt.savefig(str(score_dir)+'/test_set_spread.png')  # save
