@@ -13,12 +13,14 @@ from views.ca_preparation import CaPreparation
 from views.ca_analysis import CaAnalysis
 from views.main_window import MainWindow
 from views.output_page import OutputPage
-from utils.enums import FunctionType, Stage, Move
+from utils.enums import FunctionType, Stage, Move, RegionSelect
 
 from customtkinter import CTkFrame, CTkButton, CTkToplevel, get_appearance_mode
 from tkinter import messagebox
 from typing import List, Callable
+from datetime import datetime
 import os
+
 
 def call_user_input(function_type: FunctionType, fitted_drop_data: DropData, main_window: MainWindow):
     FunctionWindow(function_type, fitted_drop_data, main_window)
@@ -250,13 +252,10 @@ class FunctionWindow(CTkToplevel):
             return
 
     def save_output(self, function_type: FunctionType, user_input_data: ExperimentalSetup):
-        from datetime import datetime
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        if user_input_data.filename:
-            filename = f"{user_input_data.filename}_{timestamp}.csv"
-        else:
-            filename = "Extracted_data_"+timestamp+".csv"
+        if user_input_data.output_directory is None:
+            messagebox.showerror(
+                "Invalid Path", "Output directory is missing. File not saved.", parent=self)
+            return
 
         if not user_input_data.output_directory:
             user_input_data.output_directory = './outputs/'
@@ -265,12 +264,26 @@ class FunctionWindow(CTkToplevel):
         if not os.path.exists(user_input_data.output_directory):
             os.makedirs(user_input_data.output_directory)
 
-        output_file = os.path.join(user_input_data.output_directory, filename)
-    
-        if function_type == FunctionType.INTERFACIAL_TENSION:
-            self.ift_processor.save_result(user_input_data, output_file)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename: str = ""
+        if user_input_data.filename is not None:
+            filename = f"{user_input_data.filename}_{timestamp}.csv"
         else:
-            self.ca_processor.save_result(user_input_data, output_file)
+            function_type_formatted = function_type.value.replace(
+                " ", "_")  # Interfacial Tension -> Interfacial_Tension
+            if user_input_data.drop_id_method == RegionSelect.USER_SELECTED or user_input_data.needle_region_method == RegionSelect.USER_SELECTED:
+                filename = f"Manual_{function_type_formatted}_{timestamp}.csv"
+            else:
+                filename = f"Automated_{function_type_formatted}_{timestamp}.csv"
+
+        output_file = os.path.join(
+            user_input_data.output_directory, filename)
+        if function_type == FunctionType.INTERFACIAL_TENSION:
+            self.ift_processor.save_result(
+                user_input_data, output_file)
+        else:
+            self.ca_processor.save_result(
+                user_input_data, output_file)
 
         messagebox.showinfo(
             "Save Successful",
