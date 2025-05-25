@@ -1,6 +1,6 @@
 # Testing Guide
 
-This project uses `unittest` as the main testing framework. All test cases are located in the `tests/` directory. A unified entry point `test_all.py` is provided to run all core module tests.
+This project uses `pytest` as the main testing framework. All test cases are located in the same level of directory as the corresponding test object. A unified entry point `test_all.py` is provided to run all core module tests.
 
 ## 1. Environment Setup
 
