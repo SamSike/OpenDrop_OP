@@ -40,7 +40,6 @@ def create_tooltip(widget, text: str, position="above-align-left"):
             tooltip_w = tooltip.winfo_width()
             tooltip_h = tooltip.winfo_height()
 
-            # ✅ 明确所有位置分支都要定义 rel_x 和 rel_y
             if position == "above-align-left":
                 rel_x = widget_x
                 rel_y = widget_y - tooltip_h - margin
