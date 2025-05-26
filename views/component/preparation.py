@@ -238,7 +238,7 @@ def create_user_input_fields_ift(self, parent, user_input_data: ExperimentalSetu
     )
 
     create_tooltip(
-        self.drop_region_method.label, "The method to detect the droplet region."
+        self.drop_region_method.label, "The method to detect the droplet region.","below-align-left"
     )
     create_tooltip(
         self.needle_region_method.label, "The method to detect the needle region."
@@ -250,6 +250,7 @@ def create_user_input_fields_ift(self, parent, user_input_data: ExperimentalSetu
     create_tooltip(
         self.continuous_density.label,
         "The density of the surrounding fluid (e.g., air or oil) in kg/m³.",
+        position="left-align-right-top"
     )
     create_tooltip(
         self.pixel_mm.label,
@@ -272,7 +273,7 @@ def add_help_icon(parent, row, column, tooltip_text: str):
         text_color="red",
     )
     icon.grid(row=row, column=column, padx=(2, 5), pady=5, sticky="w")
-    create_tooltip(icon, tooltip_text)
+    create_tooltip(icon, tooltip_text,"below-align-right")
 
 
 # ift [Analysis Methods]
