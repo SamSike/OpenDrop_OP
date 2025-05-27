@@ -20,8 +20,9 @@ else:  # Linux default (OpenCV codes)
 KEY_ENTER = [13, 10]
 KEY_SPACE = [32]
 KEY_ESC = [27]
-KEY_O = [ord('o'), ord('O')]
-KEY_P = [ord('p'), ord('P')]
+KEY_O = [ord("o"), ord("O")]
+KEY_P = [ord("p"), ord("P")]
+
 
 def key_in(k, key_group):
     return k in key_group

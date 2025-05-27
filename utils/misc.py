@@ -1,37 +1,41 @@
+from pathlib import Path
+from types import ModuleType
+from typing import Union, Type, Iterable, TypeVar, List
 import importlib
 import inspect
 import pkgutil
 import shutil
-from pathlib import Path
-from types import ModuleType
-from typing import Union, Type, List, Iterable, TypeVar
 import numpy as np
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 def rotation_mat2d(theta: float) -> np.ndarray:
     c = np.cos(theta)
     s = np.sin(theta)
 
-    return np.array(
-        [[c, -s],
-         [s,  c]]
-    )
+    return np.array([[c, -s], [s, c]])
+
 
 def recursive_load(pkg: Union[ModuleType, str]) -> List[ModuleType]:
-    pkg = importlib.import_module(pkg) if isinstance(pkg, str) else pkg  # type: ModuleType
+    pkg = (
+        importlib.import_module(pkg) if isinstance(pkg, str) else pkg
+    )  # type: ModuleType
 
     loaded_modules = [pkg]  # type: List[ModuleType]
 
-    if hasattr(pkg, '__path__'):
+    if hasattr(pkg, "__path__"):
         for loader, name, is_pkg in pkgutil.iter_modules(pkg.__path__):
-            full_name = pkg.__name__ + '.' + name
+            full_name = pkg.__name__ + "." + name
             child = importlib.import_module(full_name)
             loaded_modules += recursive_load(child)
 
     return loaded_modules
 
-def get_classes_in_modules(m: Union[Iterable[ModuleType], ModuleType], cls: T) -> List[T]:
+
+def get_classes_in_modules(
+    m: Union[Iterable[ModuleType], ModuleType], cls: T
+) -> List[T]:
     clses = []  # type: List[Type]
 
     if isinstance(m, Iterable):
@@ -43,17 +47,23 @@ def get_classes_in_modules(m: Union[Iterable[ModuleType], ModuleType], cls: T) -
     for name in dir(m):
         attr = getattr(m, name)
 
-        if inspect.isclass(attr) and issubclass(attr, cls) and attr.__module__ == m.__name__:
+        if (
+            inspect.isclass(attr)
+            and issubclass(attr, cls)
+            and attr.__module__ == m.__name__
+        ):
             clses.append(attr)
 
     return clses
 
+
 def clamp(x: float, lower: float, upper: float) -> float:
     """Return `lower` if `x < lower`,
-              `upper` if `x > upper` and
-              `x`     if `lower < x < upper`
+    `upper` if `x > upper` and
+    `x`     if `lower < x < upper`
     """
     return max(min(x, upper), lower)
+
 
 def clear_directory_contents(path: Path) -> None:
     if not path.is_dir():

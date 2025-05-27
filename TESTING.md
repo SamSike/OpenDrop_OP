@@ -1,18 +1,10 @@
 # Testing Guide
 
-This project uses `unittest` as the main testing framework. All test cases are located in the `tests/` directory. A unified entry point `test_all.py` is provided to run all core module tests.
+This project uses `pytest` as the main testing framework. All test cases are located in the same level of directory as the corresponding test object. A unified entry point `test_all.py` is provided to run all core module tests.
 
 ## 1. Environment Setup
 
-Make sure all dependencies are installed:
-
-```bash
-pip install -r requirements.txt
-pip install scikit-learn
-pip install numba
-pip install matplotlib
-
-```
+Follow the setup guide in [README.md](./README.md) to complete the environment setup.
 
 ## 2. Run All Tests
 
@@ -40,5 +32,3 @@ You can also run a specific test file using:
 ```bash
 pytest tests/test_polynomial_fit.py
 ```
-
-

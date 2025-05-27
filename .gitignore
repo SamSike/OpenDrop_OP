@@ -1,17 +1,83 @@
-# Intellij IDEA
+# IDE and Editor files
 .idea/
+.vscode/
+.project
+.pydevproject
+.settings/
+*.swp
+*.swo
+*~
 
 # Virtual environments
 venv*/
 env*/
 py38_env/
+opendrop_env/
+.env
+.venv
+.python-version
+ENV/
+env.bak/
+venv.bak/
 
-# Python compiled files
-*.pyc
+# Python compiled files and cache
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
 
-# Build files
+# Build and distribution
 build/
+dist/
+node_modules/
 *.cpp
+*.so
+.Python
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+outputs/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Output file
+outputs/
+
+# Platform specific
+## macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+## Windows
+ehthumbs.db
+Thumbs.db
+
+# Testing and coverage
+.coverage
+htmlcov/
+test-output/
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# SUNDIALS dependencies
+dependencies/macos_x86_64/
+dependencies/macos_arm64/
+
+# Shared libraries and binaries
+modules/ift/hough/*.so
+modules/ift/younglaplace/*.so

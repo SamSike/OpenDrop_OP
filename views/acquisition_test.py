@@ -1,7 +1,8 @@
-import pytest
+from views.acquisition import Acquisition
+
 from unittest.mock import patch, MagicMock
 from unittest import mock
-from views.acquisition import Acquisition
+import pytest
 
 
 @pytest.fixture(autouse=True)
@@ -18,6 +19,7 @@ def mock_user_input():
         frame_interval = 0
         edgefinder = ""
         number_of_frames = 0
+
     return MockUserInput()
 
 
@@ -42,10 +44,10 @@ def component(mock_user_input):
 
 
 def test_component_initialization(component):
-    assert hasattr(component, 'image_source')
-    assert hasattr(component, 'frame_interval')
-    assert hasattr(component, 'edgefinder')
-    assert hasattr(component, 'choose_files_button')
+    assert hasattr(component, "image_source")
+    assert hasattr(component, "frame_interval")
+    assert hasattr(component, "edgefinder")
+    assert hasattr(component, "choose_files_button")
 
 
 def test_update_frame_interval(component, mock_user_input):

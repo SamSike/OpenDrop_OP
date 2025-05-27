@@ -1,14 +1,19 @@
+from utils.geometry import Vector2
+
 from typing import Sequence, NamedTuple, Optional
 from enum import IntEnum, auto
 import numpy as np
 import scipy.optimize
-from utils.geometry import Vector2
 
-__all__ = ('CircleFitResult', 'circle_fit',)
+__all__ = (
+    "CircleFitResult",
+    "circle_fit",
+)
 
-DELTA_TOL     = 1.e-8
-GRADIENT_TOL  = 1.e-8
-OBJECTIVE_TOL = 1.e-8
+DELTA_TOL = 1.0e-8
+GRADIENT_TOL = 1.0e-8
+OBJECTIVE_TOL = 1.0e-8
+
 
 class CircleFitResult(NamedTuple):
     center: Vector2[float]
@@ -17,21 +22,20 @@ class CircleFitResult(NamedTuple):
     objective: float
     residuals: np.ndarray
 
+
 def circle_fit(
-        data: np.ndarray,
-        *,
-        loss: str = 'linear',
-        f_scale: float = 1.0,
-
-        xc: Optional[float] = None,
-        yc: Optional[float] = None,
-        radius: Optional[float] = None,
-
-        verbose: bool = False,
+    data: np.ndarray,
+    *,
+    loss: str = "linear",
+    f_scale: float = 1.0,
+    xc: Optional[float] = None,
+    yc: Optional[float] = None,
+    radius: Optional[float] = None,
+    verbose: bool = False,
 ) -> Optional[CircleFitResult]:
     if data.shape[1] == 0:
         return None
-    
+
     model = CircleModel(data)
 
     def fun(params: Sequence[float]) -> np.ndarray:
@@ -63,10 +67,10 @@ def circle_fit(
             fun,
             model.params,
             jac,
-            method='lm' if loss == 'linear' else 'trf',
+            method="lm" if loss == "linear" else "trf",
             loss=loss,
             f_scale=f_scale,
-            x_scale='jac',
+            x_scale="jac",
             ftol=OBJECTIVE_TOL,
             xtol=DELTA_TOL,
             gtol=GRADIENT_TOL,
@@ -80,15 +84,16 @@ def circle_fit(
     model.set_params(optimize_result.x)
 
     result = CircleFitResult(
-        center=Vector2(model.params[CircleParam.CENTER_X],
-                       model.params[CircleParam.CENTER_Y]),
+        center=Vector2(
+            model.params[CircleParam.CENTER_X], model.params[CircleParam.CENTER_Y]
+        ),
         radius=model.params[CircleParam.RADIUS],
-
-        objective=(model.residuals**2).sum()/model.dof,
+        objective=(model.residuals**2).sum() / model.dof,
         residuals=model.residuals,
     )
 
     return result
+
 
 class CircleModel:
     def __init__(self, data: np.ndarray) -> None:
@@ -110,12 +115,12 @@ class CircleModel:
 
         xc = params[CircleParam.CENTER_X]
         yc = params[CircleParam.CENTER_Y]
-        R  = params[CircleParam.RADIUS]
+        R = params[CircleParam.RADIUS]
 
-        e      = self._residuals
+        e = self._residuals
         de_dxc = self._jac[:, CircleParam.CENTER_X]
         de_dyc = self._jac[:, CircleParam.CENTER_Y]
-        de_dR  = self._jac[:, CircleParam.RADIUS]
+        de_dR = self._jac[:, CircleParam.RADIUS]
 
         x, y = self.data
         tx = x - xc
@@ -123,8 +128,8 @@ class CircleModel:
         r = np.sqrt(tx**2 + ty**2)
 
         e[:] = r - R
-        de_dxc[:] = -tx/r
-        de_dyc[:] = -ty/r
+        de_dxc[:] = -tx / r
+        de_dyc[:] = -ty / r
         de_dR[:] = -1
 
         self._params[:] = params
@@ -133,7 +138,8 @@ class CircleModel:
     def params(self) -> Sequence[int]:
         params = self._params[:]
         params.flags.writeable = False
-        return params 
+        return params
+
     @property
     def dof(self) -> int:
         return self.data.shape[1] - len(self.params) + 1
@@ -150,7 +156,8 @@ class CircleModel:
         residuals.flags.writeable = False
         return residuals
 
+
 class CircleParam(IntEnum):
     CENTER_X = 0
     CENTER_Y = auto()
-    RADIUS   = auto()
+    RADIUS = auto()
