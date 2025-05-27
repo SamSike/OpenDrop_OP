@@ -99,12 +99,6 @@ class MainWindow(ctk.CTk):
         button.image = button_photo  # Keep a reference to avoid garbage collection
         button.grid(row=0, column=column, padx=20)
 
-    def show_info_popup(self):
-        messagebox.showinfo(
-            "Information",
-            "Interfacial Tension: Measures the force at the surface of liquids.\n\nContact Angle: Measures the angle between the liquid surface and the solid surface.",
-        )
-
     def run_function(self, func):
         self.withdraw()
         func(self)
@@ -125,9 +119,15 @@ class MainWindow(ctk.CTk):
     def show_info_popup(self):
         messagebox.showinfo(
             "Information",
-            "Interfacial Tension: Measures the force at the surface of liquids.\n\n"
-            "Contact Angle: Measures the angle between the liquid surface and the solid surface.",
-            parent=self,
+            (
+                "OpenDrop-ML is an open-source, cross-platform tool for analyzing liquid droplets in surface science. "
+                "It supports both classical geometric fitting and machine learning models (via Conan-ML), providing "
+                "automated, high-throughput image analysis for researchers, technicians, and developers.\n\n"
+                "Similar to the original OpenDrop tool, OpenDrop-ML offers two main functions:\n"
+                "• Interfacial Tension: Measures the force acting at the surface of liquids.\n"
+                "• Contact Angle: Measures the angle formed between a liquid and a solid surface."
+            ),
+            parent=self
         )
 
     def close_window(self):

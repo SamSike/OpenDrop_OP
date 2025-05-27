@@ -680,7 +680,7 @@ def user_roi(
     while 1:
         # Add message to the image before showing
         img_display = img.copy()
-        msg = "Press Enter to Confirm Region"
+        msg = "Drag to select a region. Press Enter to confirm."
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 0.6
         color = (255, 255, 255)
