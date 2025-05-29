@@ -27,9 +27,15 @@
 2. Create msi installer
 
     ```bash
-    pyinstaller --onefile main.py
-    candle windows-installer.wxs
-    light windows-installer.wixobj -o OpenDrop.msi
+     pyinstaller --onefile main.py
+
+     heat dir modules -cg ModulesFiles -dr INSTALLDIR -gg -ag -g1 -sfrag -srd -var var.ProjectDir -out dist/modules-files.wxs -xi __pycache__ -xi *.pyc -xi .DS_Store
+     heat dir utils -cg UtilsFiles -dr INSTALLDIR -gg -ag -g1 -sfrag -srd -var var.ProjectDir -out dist/utils-files.wxs -xi __pycache__ -xi *.pyc -xi .DS_Store
+     heat dir views -cg ViewsFiles -dr INSTALLDIR -gg -ag -g1 -sfrag -srd -var var.ProjectDir -out dist/views-files.wxs -xi __pycache__ -xi *.pyc -xi .DS_Store
+
+     candle -dProjectDir=. -o dist/ windows-installer.wxs dist/*.wxs
+
+     light dist/*.wixobj -o dist/OpenDrop.msi
     ```
 
 3. Ensure build files are not pushed to git
