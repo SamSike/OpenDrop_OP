@@ -1,6 +1,7 @@
 from modules.contact_angle.ca_data_processor import CaDataProcessor
 from modules.ift.ift_data_processor import IftDataProcessor
 from modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData
+from utils.misc import resource_path
 from views.helper.validation import (
     validate_user_input_data_ift,
     validate_user_input_data_cm,
@@ -79,7 +80,7 @@ class FunctionWindow(CTkToplevel):
         self.ift_processor = IftDataProcessor()
 
         user_input_data: ExperimentalSetup = ExperimentalSetup()
-        user_input_data.from_yaml("user_config.yaml")
+        user_input_data.from_yaml(resource_path("user_config.yaml"))
         experimental_drop: ExperimentalDrop = ExperimentalDrop()
 
         user_input_data.screen_resolution = [
@@ -219,7 +220,8 @@ class FunctionWindow(CTkToplevel):
             elif self.current_stage == Stage.ANALYSIS:
                 # Validate user input data
                 if function_type == FunctionType.INTERFACIAL_TENSION:
-                    validation_messages = validate_user_input_data_ift(user_input_data)
+                    validation_messages = validate_user_input_data_ift(
+                        user_input_data)
 
                 elif function_type == FunctionType.CONTACT_ANGLE:
                     validation_messages = validate_user_input_data_cm(
@@ -230,7 +232,8 @@ class FunctionWindow(CTkToplevel):
                     self.update_stage(Move.Back.value)
                     all_messages = "\n".join(validation_messages)
                     # Show a single pop-up message with all validation messages
-                    messagebox.showinfo("Missing: \n", all_messages, parent=self)
+                    messagebox.showinfo(
+                        "Missing: \n", all_messages, parent=self)
                 else:
                     if function_type == FunctionType.INTERFACIAL_TENSION:
                         self.ift_preparation_frame.pack_forget()

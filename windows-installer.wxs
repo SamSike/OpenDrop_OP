@@ -9,16 +9,11 @@
     <Media Id="1" Cabinet="OpenDrop.cab" EmbedCab="yes" />
 
     <!-- USES ICON FILE -->
-    <Icon Id="OpenDropIcon" SourceFile="opendrop_logo_wide.ico" />
+    <Icon Id="OpenDropIcon" SourceFile="assets/opendrop.ico" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLFOLDER" Name="OpenDrop">
-              
-          <!-- GUID UNIQUE TO VERSION NUMBER -->
-          <Component Id="MainExecutable" Guid="6428ab79-9e35-453e-8c89-e533019a86c2">
-            <File Source="dist\main.exe" KeyPath="yes" />
-          </Component>
+        <Directory Id="INSTALLFOLDER" Name="OpenDrop">   
         </Directory>
       </Directory>
 
@@ -43,11 +38,8 @@
     </Directory>
 
     <Feature Id="DefaultFeature" Level="1">
-      <ComponentRef Id="MainExecutable" />
       <ComponentRef Id="StartMenuShortcut" />
-      <ComponentGroupRef Id="ModulesFiles" />
-      <ComponentGroupRef Id="UtilsFiles" />
-      <ComponentGroupRef Id="ViewsFiles" />
+      <ComponentGroupRef Id="MainFiles" />
     </Feature>
   </Product>
 </Wix>

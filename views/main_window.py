@@ -1,7 +1,8 @@
+from utils.misc import resource_path
 from PIL import Image, ImageTk
 from tkinter import messagebox
-import signal
 import sys
+import signal
 import tkinter as tk
 import customtkinter as ctk
 
@@ -12,6 +13,9 @@ class MainWindow(ctk.CTk):
         self.title("OpenDrop-ML")
         self.geometry("800x400")
         self.minsize(width=800, height=400)
+
+        # For .ico files (recommended for Windows)
+        self.iconbitmap(resource_path("assets/opendrop.ico"))
 
         self.continue_processing = continue_processing
 
@@ -30,7 +34,8 @@ class MainWindow(ctk.CTk):
         self.protocol("WM_DELETE_WINDOW", self.close_window)
 
         # Display title
-        title_label = ctk.CTkLabel(self, text="OpenDrop-ML", font=("Helvetica", 48))
+        title_label = ctk.CTkLabel(
+            self, text="OpenDrop-ML", font=("Helvetica", 48))
         title_label.pack(pady=90)
         # self.display_image("views/assets/banner.png")
 
@@ -43,14 +48,14 @@ class MainWindow(ctk.CTk):
             button_frame,
             "Interfacial Tension",
             open_ift_window,
-            "assets/opendrop-ift.png",
+            resource_path("assets/opendrop-ift.png"),
             0,
         )
         self.create_button(
             button_frame,
             "Contact Angle",
             open_ca_window,
-            "assets/opendrop-conan.png",
+            resource_path("assets/opendrop-conan.png"),
             1,
         )
 
