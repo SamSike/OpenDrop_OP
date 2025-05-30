@@ -295,7 +295,12 @@ class FunctionWindow(CTkToplevel):
         self, function_type: FunctionType, user_input_data: ExperimentalSetup
     ):
         if not user_input_data.output_directory:
-            user_input_data.output_directory = "./outputs/"
+            user_input_data.output_directory = os.path.join(
+                os.path.join(os.path.expanduser("~")),
+                "OpenDrop",
+                "outputs"
+            )
+            os.makedirs(user_input_data.output_directory, exist_ok=True)
 
         # Prepare output path
         if not os.path.exists(user_input_data.output_directory):

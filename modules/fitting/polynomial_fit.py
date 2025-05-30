@@ -1190,7 +1190,8 @@ def polynomial_fit(profile, num_points=15, polynomial_degree=2, display=False):
 
 
 if 0:
-    IMG_PATH = "../../RICOphobic_cropped.png"
+    from utils.misc import resource_path
+    IMG_PATH = resource_path("../../RICOphobic_cropped.png")
     img = cv2.imread(IMG_PATH)
 
     angles, intercepts, errors, timings = polynomial_fit_img(img, display=False)

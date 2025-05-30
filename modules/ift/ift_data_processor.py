@@ -70,7 +70,8 @@ class IftDataProcessor:
         n_frames = user_input_data.number_of_frames
         # Initialize drop_images if not already
         print(
-            "####################################: ", len(user_input_data.import_files)
+            "####################################: ", len(
+                user_input_data.import_files)
         )
         user_input_data.drop_images = ["None"] * n_frames
         # num_of_images = len(user_input_data.import_files)
@@ -111,7 +112,8 @@ class IftDataProcessor:
                 [(min_x, min_y), (max_x, max_y)], _ = user_select_region(
                     image, f"Select drop region for Image {i}", scale, screen_position
                 )
-                drop_region = Rect2(int(min_x), int(min_y), int(max_x), int(max_y))
+                drop_region = Rect2(int(min_x), int(min_y),
+                                    int(max_x), int(max_y))
                 print("Drop region: ", drop_region)
 
             if user_input_data.needle_region_method == RegionSelect.USER_SELECTED:
@@ -119,7 +121,8 @@ class IftDataProcessor:
                 [(min_x, min_y), (max_x, max_y)], _ = user_select_region(
                     image, f"Select needle region for Image {i}", scale, screen_position
                 )
-                needle_region = Rect2(int(min_x), int(min_y), int(max_x), int(max_y))
+                needle_region = Rect2(int(min_x), int(
+                    min_y), int(max_x), int(max_y))
                 print("Needle region: ", needle_region)
 
             (
@@ -131,7 +134,8 @@ class IftDataProcessor:
                 drop_image,
                 needle_fit_result,
             ) = extract_pendant_features(image, drop_region, needle_region)
-            user_input_data.fit_result[i] = young_laplace_fit(drop_points, verbose=True)
+            user_input_data.fit_result[i] = young_laplace_fit(
+                drop_points, verbose=True)
             user_input_data.drop_points[i] = drop_points
             user_input_data.needle_diameter_px[i] = needle_diameter_px
             user_input_data.drop_region[i] = drop_region
@@ -162,7 +166,8 @@ class IftDataProcessor:
                 (0, 0, 255),
                 2,
             )
-        image_pil = Image.fromarray(cv2.cvtColor(regions_image, cv2.COLOR_BGR2RGB))
+        image_pil = Image.fromarray(
+            cv2.cvtColor(regions_image, cv2.COLOR_BGR2RGB))
         user_input_data.processed_images[i] = image_pil
 
     def draw_fitted_shape(
@@ -215,7 +220,13 @@ class IftDataProcessor:
                 point_thickness,
             )
 
-        save_dir = os.path.join("outputs", "contour_images")
+        # (cross-platform)
+        save_dir = os.path.join(
+            os.path.join(os.path.expanduser("~")),
+            "OpenDrop",
+            "outputs",
+            "contour_images"
+        )
         os.makedirs(save_dir, exist_ok=True)
 
         original_path = user_input_data.import_files[drop_index]

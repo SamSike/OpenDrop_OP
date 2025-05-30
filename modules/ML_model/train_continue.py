@@ -1,5 +1,5 @@
 # repeat the above but on a fraction of the contour models data
-
+from utils.misc import resource_path
 
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
@@ -34,8 +34,10 @@ def load_obj(name: str):
 
 
 def load_dataset():
-    data1 = load_obj("/scratch/oe97/ds1693/model_v03/contour_dataset_4par_110-180.pkl")
-    data2 = load_obj("/scratch/oe97/ds1693/model_v03/contour_dataset_4par_ref_1223.pkl")
+    data1 = load_obj(
+        "/scratch/oe97/ds1693/model_v03/contour_dataset_4par_110-180.pkl")
+    data2 = load_obj(
+        "/scratch/oe97/ds1693/model_v03/contour_dataset_4par_ref_1223.pkl")
     # data2 = load_obj('/data/gpfs/projects/punim1991/dgshaw/model_v03/test11/test11.2/contour_dataset_4par_ref3_-0.2to-0.08.pkl')
     # data2 = load_obj('/data/gpfs/projects/punim1991/dgshaw/model_v03/contour_dataset_4par_ref3_1223.pkl')
     data = {**data1, **data2}
@@ -105,8 +107,10 @@ def create_model(trial):
     model = Sequential(
         [
             layers.Conv1D(model_width, 3, padding="same", activation="relu"),
-            layers.Conv1D(model_width / 2, 3, padding="same", activation="relu"),
-            layers.Conv1D(model_width / 4, 3, padding="same", activation="relu"),
+            layers.Conv1D(model_width / 2, 3,
+                          padding="same", activation="relu"),
+            layers.Conv1D(model_width / 4, 3,
+                          padding="same", activation="relu"),
             layers.Flatten(),
             layers.Dense(128, activation=ca_activation),
             layers.Dense(1),
@@ -134,7 +138,7 @@ def load_model(trial):
 
     model = tf.keras.models.load_model(model_path)
 
-    model.load_weights("./weights.best.hdf5")
+    model.load_weights(resource_path("weights.best.hdf5"))
 
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
@@ -150,7 +154,8 @@ def objective(trial):
     # Clear clutter from previous TensorFlow graphs.
     tf.keras.backend.clear_session()
     print(
-        "Num GPUs Available: ", len(tf.config.experimental.list_physical_devices("GPU"))
+        "Num GPUs Available: ", len(
+            tf.config.experimental.list_physical_devices("GPU"))
     )
 
     # prep for info collection
@@ -169,7 +174,7 @@ def objective(trial):
 
     # Load the model and pass the custom_objects dictionary
     model = tf.keras.models.load_model(
-        "./weights.best.hdf5", custom_objects=custom_objects
+        resource_path("weights.best.hdf5"), custom_objects=custom_objects
     )
     es_patience = 1024
 
@@ -179,7 +184,7 @@ def objective(trial):
 
     baseline = 0.02
     max_epochs = 100 * es_patience
-    checkpointpath = "./weights.best.hdf5"
+    checkpointpath = resource_path("weights.best.hdf5")
     checkpoint = ModelCheckpoint(
         checkpointpath, monitor=monitor, verbose=0, save_best_only=True, mode="min"
     )
@@ -190,7 +195,8 @@ def objective(trial):
         mode="min",
         restore_best_weights=True,
     )
-    floor = EarlyStoppingWhenErrorLow(monitor=monitor, value=baseline, verbose=0)
+    floor = EarlyStoppingWhenErrorLow(
+        monitor=monitor, value=baseline, verbose=0)
 
     history = model.fit(
         train_ds,
@@ -322,7 +328,8 @@ def objective(trial):
         + " and standard deviation is "
         + str.format("{0:.2e}", sigma)
     )
-    write.append("99.7% of errors are between " + str(lower) + " and " + (str(upper)))
+    write.append("99.7% of errors are between " +
+                 str(lower) + " and " + (str(upper)))
     # add a 'best fit' line
     y = (1 / (np.sqrt(2 * np.pi) * sigma)) * np.exp(
         -0.5 * (1 / sigma * (bins - mu)) ** 2
@@ -338,7 +345,8 @@ def objective(trial):
         ax.axvline(mu + (n * 3 * sigma), ymax=0.01 * 0.9, color="r")
     ax.set_xlabel("Error")
     ax.set_ylabel("Frequency")
-    ax.set_title(rf"Histogram of test set error: $\mu$={mu:.2e}, $\sigma$={sigma:.2e}")
+    ax.set_title(
+        rf"Histogram of test set error: $\mu$={mu:.2e}, $\sigma$={sigma:.2e}")
 
     fig.tight_layout()  # Tweak spacing to prevent clipping of ylabel
     plt.savefig(str(score_dir) + "/test_set_spread.png")  # save
@@ -357,8 +365,10 @@ def objective(trial):
 
 def show_result(study):
 
-    pruned_trials = study.get_trials(deepcopy=False, states=[TrialState.PRUNED])
-    complete_trials = study.get_trials(deepcopy=False, states=[TrialState.COMPLETE])
+    pruned_trials = study.get_trials(
+        deepcopy=False, states=[TrialState.PRUNED])
+    complete_trials = study.get_trials(
+        deepcopy=False, states=[TrialState.COMPLETE])
 
     print("Study statistics: ")
     print("  Number of finished trials: ", len(study.trials))

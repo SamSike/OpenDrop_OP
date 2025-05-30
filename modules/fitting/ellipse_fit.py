@@ -1379,7 +1379,8 @@ def ellipse_fit(drop, display=False):
 
 
 if 0:
-    IMG_PATH = "../RICOphobic_cropped.png"
+    from utils.misc import resource_path
+    IMG_PATH = resource_path("../RICOphobic_cropped.png")
     img = cv2.imread(IMG_PATH)
 
     angles, intercepts, center, (a, b), theta, errors, timings = ellipse_fit_img(

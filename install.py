@@ -69,6 +69,7 @@ if __name__ == "__main__":
         # collect all non-python files
         '--add-data', 'assets;assets',
         '--add-data', 'user_config.yaml;.',
+        '--add-data', 'modules/ML_model;modules/ML_model',
 
         # if fails due to missing files, can add them manually
         # '--add-binary', 'modules/ift/younglaplace/shape*.pyd;modules/ift/younglaplace',

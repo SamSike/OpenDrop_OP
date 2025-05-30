@@ -1,5 +1,6 @@
-from matplotlib import pyplot as plt
+from utils.misc import resource_path
 
+from matplotlib import pyplot as plt
 import datetime
 import os
 import pickle
@@ -10,7 +11,7 @@ import csv
 matplotlib.use("Agg")
 
 # set the initial variables
-directory_path = "./contour_dataset_4par/"
+directory_path = resource_path("contour_dataset_4par/")
 save_path = "contour_dataset_4par.pkl"
 
 # create empty dictionary

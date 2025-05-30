@@ -1,9 +1,10 @@
+from utils.misc import resource_path
 # import libraries
 import pickle5 as pickle
 import matplotlib.pyplot as plt
 
 # define paths and flags
-src = "./output_post_loadedweights.txt"
+src = resource_path("output_post_loadedweights.txt")
 file1 = open(src, "rb")
 
 parse_to_pkl = False
@@ -13,7 +14,8 @@ check_history_save = True
 generate_plots = True
 show_restart_points = True
 display = False
-save_path = "./training_history_all.png"  # set to None if not saving
+# set to None if not saving
+save_path = resource_path("training_history_all.png")
 
 if parse_to_pkl:  # save history to pkl file
     history = {}

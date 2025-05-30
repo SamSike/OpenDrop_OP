@@ -1624,7 +1624,8 @@ def yl_fit(profile, lim=10, fit_type=FitType.BASHFORTH_ADAMS, display=False):
 
 
 if 0:
-    IMG_PATH = "../RICOphobic_cropped.png"
+    from utils.misc import resource_path
+    IMG_PATH = resource_path("../RICOphobic_cropped.png")
     img = cv2.imread(IMG_PATH)
     angles, Bo, baseline_width, volume, fit, baseline, errors, sym_errors, timings = (
         analyze_frame(img, 15, FitType.BASHFORTH_ADAMS, display=False)

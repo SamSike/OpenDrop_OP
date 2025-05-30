@@ -11,6 +11,7 @@ from modules.contact_angle.extract_profile import extract_drop_profile
 from modules.fitting.fits import perform_fits
 from utils.enums import FittingMethod, ThresholdSelect
 from utils.config import LEFT_ANGLE, RIGHT_ANGLE
+from utils.misc import resource_path
 
 from typing import Callable, Dict, List
 import numpy as np
@@ -102,7 +103,7 @@ class CaDataProcessor:
                     tf.compat.v1.logging.set_verbosity(
                         tf.compat.v1.logging.ERROR
                     )  # to minimise tf warnings
-                    model_path = "./modules/ML_model/"
+                    model_path = resource_path("modules/ML_model/")
                     model = tf.keras.models.load_model(model_path)
 
                     pred_ds = prepare4model_v03(raw_experiment.drop_contour)

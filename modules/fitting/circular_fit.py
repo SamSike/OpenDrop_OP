@@ -1223,7 +1223,8 @@ def circular_fit(drop, display=False):
 
 
 if 0:
-    IMG_PATH = "../RICOphobic_cropped.png"
+    from utils.misc import resource_path
+    IMG_PATH = resource_path("../RICOphobic_cropped.png")
     img = cv2.imread(IMG_PATH)
     angles, centre, R_2, intercepts, errors, timings = circular_fit_img(
         img, display=False

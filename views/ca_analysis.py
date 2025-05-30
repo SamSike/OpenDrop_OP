@@ -1,13 +1,4 @@
-from customtkinter import *
-from PIL import Image, ImageDraw, ImageFont
-import numpy as np
-import io
-import os
-import math
-import cv2
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg
-
+from utils.misc import resource_path
 from utils.image_handler import ImageHandler
 from utils.config import (
     LEFT_ANGLE,
@@ -15,17 +6,33 @@ from utils.config import (
     BASELINE_INTERCEPTS,
     CONTACT_POINTS,
     TANGENT_LINES,
-    FIT_SHAPE,
     BASELINE,
     FIT_SHAPE,
 )
 from utils.enums import FittingMethod
-from utils.config import *
-from utils.validators import *
 from views.helper.theme import get_system_text_color
-
-from views.component.CTkXYFrame import *
 from views.helper.style import set_light_only_color
+from views.component.CTkXYFrame.ctk_xyframe import CTkXYFrame
+
+from customtkinter import (
+    CTkFrame,
+    CTkLabel,
+    CTkButton,
+    CTkRadioButton,
+    CTkComboBox,
+    CTkImage,
+    CTkEntry,
+    IntVar,
+    StringVar
+)
+from PIL import Image, ImageDraw, ImageFont
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+import numpy as np
+import io
+import os
+import math
+import cv2
+import matplotlib.pyplot as plt
 
 
 class CaAnalysis(CTkFrame):
@@ -34,7 +41,8 @@ class CaAnalysis(CTkFrame):
         self.user_input_data = user_input_data
 
         self.grid_columnconfigure(0, weight=1)  # Let table expand
-        self.grid_columnconfigure(1, weight=0)  # Prevent images_frame from expanding
+        # Prevent images_frame from expanding
+        self.grid_columnconfigure(1, weight=0)
         self.grid_rowconfigure(0, weight=1)
 
         self.image_handler = ImageHandler()
@@ -98,8 +106,10 @@ class CaAnalysis(CTkFrame):
                 text = ""
                 if col == 0:
                     text = row
-                cell_label = CTkLabel(table_frame, text=text, font=("Roboto", 12))
-                cell_label.grid(row=row, column=col, padx=10, pady=5, sticky="w")
+                cell_label = CTkLabel(
+                    table_frame, text=text, font=("Roboto", 12))
+                cell_label.grid(row=row, column=col,
+                                padx=10, pady=5, sticky="w")
                 row_data.append(cell_label)
             self.table_data.append(row_data)
 
@@ -143,9 +153,11 @@ class CaAnalysis(CTkFrame):
                     )
 
                     # Add storage for method perspective data
-                    method_name = method if isinstance(method, str) else method.value
+                    method_name = method if isinstance(
+                        method, str) else method.value
                     if method_name not in self.method_angles:
-                        self.method_angles[method_name] = {"left": [], "right": []}
+                        self.method_angles[method_name] = {
+                            "left": [], "right": []}
 
                     # Ensure that the data list is of consistent length (populate None up to the current index)
                     while len(self.method_angles[method_name]["left"]) < index:
@@ -153,10 +165,13 @@ class CaAnalysis(CTkFrame):
                         self.method_angles[method_name]["right"].append(None)
 
                     # Add new angle data
-                    self.method_angles[method_name]["left"].append(result[LEFT_ANGLE])
-                    self.method_angles[method_name]["right"].append(result[RIGHT_ANGLE])
+                    self.method_angles[method_name]["left"].append(
+                        result[LEFT_ANGLE])
+                    self.method_angles[method_name]["right"].append(
+                        result[RIGHT_ANGLE])
                 else:
-                    print(f"Missing angle data, available keys: {result.keys()}")
+                    print(
+                        f"Missing angle data, available keys: {result.keys()}")
 
         # Get cropped image and process contact angles
         try:
@@ -175,14 +190,16 @@ class CaAnalysis(CTkFrame):
                 if isinstance(cropped_cv, np.ndarray):
                     # OpenCV format(BGR) to PIL format(RGB)
                     if cropped_cv.ndim == 3 and cropped_cv.shape[2] == 3:
-                        cropped_rgb = cv2.cvtColor(cropped_cv, cv2.COLOR_BGR2RGB)
+                        cropped_rgb = cv2.cvtColor(
+                            cropped_cv, cv2.COLOR_BGR2RGB)
                         cropped_pil = Image.fromarray(cropped_rgb)
                     else:
                         cropped_pil = Image.fromarray(cropped_cv)
 
                     # Save cropped image
                     self.cropped_images[index] = cropped_pil
-                    print(f"Successfully saved cropped image, size: {cropped_pil.size}")
+                    print(
+                        f"Successfully saved cropped image, size: {cropped_pil.size}")
 
             # Check for contact angle data
             if hasattr(experimental_drop, "contact_angles"):
@@ -226,7 +243,8 @@ class CaAnalysis(CTkFrame):
                     available_chart_methods.append(display_name)
 
                     # Process annotation for visual display methods
-                    success = self.process_method_annotation(method, angles_data, index)
+                    success = self.process_method_annotation(
+                        method, angles_data, index)
                     if success:
                         # Only add to available methods for visualization if annotation succeeded
                         available_methods.append(display_name)
@@ -254,7 +272,8 @@ class CaAnalysis(CTkFrame):
 
         # Update processing status display
         if len(self.output) < self.user_input_data.number_of_frames:
-            self.table_data[len(self.output)][1].configure(text="PROCESSING...")
+            self.table_data[len(self.output)][1].configure(
+                text="PROCESSING...")
 
         # Save first method's angles (for compatibility)
         try:
@@ -307,7 +326,8 @@ class CaAnalysis(CTkFrame):
             elif method_enum == FittingMethod.YL_FIT:
                 # Special handling for YL fit
                 if FIT_SHAPE in angles_data and BASELINE in angles_data:
-                    self.create_yl_annotations(angles_data, left_angle, right_angle)
+                    self.create_yl_annotations(
+                        angles_data, left_angle, right_angle)
 
             # Get contact points and tangent lines
             contact_points = self.get_contact_points(angles_data)
@@ -321,7 +341,8 @@ class CaAnalysis(CTkFrame):
                 )
 
                 # Save to method-specific dictionary using display name
-                display_name = method if isinstance(method, str) else method.value
+                display_name = method if isinstance(
+                    method, str) else method.value
                 self.cropped_angle_images[index][display_name] = annotated_img
                 return True
 
@@ -339,8 +360,10 @@ class CaAnalysis(CTkFrame):
 
         if contact_points is not None:
             # Use original calculated coordinates, no offset needed
-            left_point = (float(contact_points[0][0]), float(contact_points[0][1]))
-            right_point = (float(contact_points[1][0]), float(contact_points[1][1]))
+            left_point = (float(contact_points[0][0]), float(
+                contact_points[0][1]))
+            right_point = (float(contact_points[1][0]), float(
+                contact_points[1][1]))
             left_tangent_start = (
                 float(tangent_lines[0][0][0]),
                 float(tangent_lines[0][0][1]),
@@ -429,7 +452,8 @@ class CaAnalysis(CTkFrame):
             else:
                 # Zero length baseline case
                 draw.line(
-                    (left_point[0], left_point[1], right_point[0], right_point[1]),
+                    (left_point[0], left_point[1],
+                     right_point[0], right_point[1]),
                     fill=baseline_color,
                     width=baseline_width,
                 )
@@ -479,7 +503,8 @@ class CaAnalysis(CTkFrame):
 
             # Add angle label text
             try:
-                font = ImageFont.truetype("assets/DejaVuSans.ttf", 16)
+                font = ImageFont.truetype(
+                    resource_path("assets/DejaVuSans.ttf"), 16)
             except Exception as e:
                 print(f"Error loading font: {e}")
                 try:
@@ -531,7 +556,8 @@ class CaAnalysis(CTkFrame):
         frame.grid_rowconfigure(2, weight=0)  # Toggle frame row
         frame.grid_rowconfigure(3, weight=0)  # Method dropdown row
         frame.grid_rowconfigure(4, weight=0)  # Navigation frame row
-        frame.grid_columnconfigure(0, weight=1)  # Single column expands horizontally
+        # Single column expands horizontally
+        frame.grid_columnconfigure(0, weight=1)
 
         # --- Create widgets directly in 'frame' ---
 
@@ -539,7 +565,8 @@ class CaAnalysis(CTkFrame):
         self.image_label = CTkLabel(
             frame, text="", fg_color="lightgrey", width=400, height=300
         )
-        self.image_label.grid(row=1, column=0, padx=10, pady=(10, 5), sticky="nsew")
+        self.image_label.grid(row=1, column=0, padx=10,
+                              pady=(10, 5), sticky="nsew")
 
         # Filename Label
         file_name = "No image loaded"
@@ -637,7 +664,8 @@ class CaAnalysis(CTkFrame):
         self.prev_button.grid(row=0, column=0, padx=5, pady=5)
         self.index_entry = CTkEntry(self.image_navigation_frame, width=50)
         self.index_entry.grid(row=0, column=1, padx=5, pady=5)
-        self.index_entry.bind("<Return>", lambda e: self.update_index_from_entry())
+        self.index_entry.bind(
+            "<Return>", lambda e: self.update_index_from_entry())
         num_frames = 0
         if hasattr(self.user_input_data, "number_of_frames"):
             num_frames = self.user_input_data.number_of_frames
@@ -660,7 +688,8 @@ class CaAnalysis(CTkFrame):
             hasattr(self.user_input_data, "import_files")
             and self.user_input_data.import_files
         ):
-            self.load_image(self.user_input_data.import_files[self.current_index])
+            self.load_image(
+                self.user_input_data.import_files[self.current_index])
         else:
             if hasattr(self, "image_label") and self.image_label:
                 self.image_label.configure(text="No images selected")
@@ -714,12 +743,14 @@ class CaAnalysis(CTkFrame):
                 ):
                     self.contact_method_dropdown.set(methods[0])
                 else:
-                    self.contact_method_dropdown.set(self.selected_contact_method.get())
+                    self.contact_method_dropdown.set(
+                        self.selected_contact_method.get())
             else:
                 self.contact_method_dropdown.configure(
                     values=["No visualization methods available"]
                 )
-                self.contact_method_dropdown.set("No visualization methods available")
+                self.contact_method_dropdown.set(
+                    "No visualization methods available")
         else:
             self.contact_method_dropdown.configure(values=["Processing..."])
             self.contact_method_dropdown.set("Processing...")
@@ -741,9 +772,11 @@ class CaAnalysis(CTkFrame):
                 ):
                     self.chart_method_dropdown.set(all_methods[0])
                 else:
-                    self.chart_method_dropdown.set(self.selected_chart_method.get())
+                    self.chart_method_dropdown.set(
+                        self.selected_chart_method.get())
             else:
-                self.chart_method_dropdown.configure(values=["No methods available"])
+                self.chart_method_dropdown.configure(
+                    values=["No methods available"])
                 self.chart_method_dropdown.set("No methods available")
             return
 
@@ -759,7 +792,8 @@ class CaAnalysis(CTkFrame):
                 ):
                     self.chart_method_dropdown.set(methods[0])
                 else:
-                    self.chart_method_dropdown.set(self.selected_chart_method.get())
+                    self.chart_method_dropdown.set(
+                        self.selected_chart_method.get())
                 return
 
         if self.method_angles:
@@ -772,7 +806,8 @@ class CaAnalysis(CTkFrame):
                 ):
                     self.chart_method_dropdown.set(methods[0])
                 else:
-                    self.chart_method_dropdown.set(self.selected_chart_method.get())
+                    self.chart_method_dropdown.set(
+                        self.selected_chart_method.get())
                 return
 
         if self.table_data and len(self.table_data) > 0:
@@ -785,7 +820,8 @@ class CaAnalysis(CTkFrame):
                 ):
                     self.chart_method_dropdown.set(methods[0])
                 else:
-                    self.chart_method_dropdown.set(self.selected_chart_method.get())
+                    self.chart_method_dropdown.set(
+                        self.selected_chart_method.get())
                 return
 
         self.chart_method_dropdown.configure(values=["Processing..."])
@@ -818,7 +854,8 @@ class CaAnalysis(CTkFrame):
             new_width, new_height = self.image_handler.get_fitting_dimensions(
                 width, height
             )
-            self.tk_image = CTkImage(self.current_image, size=(new_width, new_height))
+            self.tk_image = CTkImage(
+                self.current_image, size=(new_width, new_height))
             self.image_label.configure(image=self.tk_image)
             self.image_label.image = self.tk_image
         else:
@@ -863,7 +900,8 @@ class CaAnalysis(CTkFrame):
             self.image_label.configure(image=self.tk_image)
             self.image_label.image = self.tk_image
         else:
-            self.image_label.configure(image=None, text="No cropped image available")
+            self.image_label.configure(
+                image=None, text="No cropped image available")
 
     def display_line_chart(self):
         """Show line graphs of touch angles, support different methods of selection"""
@@ -897,7 +935,8 @@ class CaAnalysis(CTkFrame):
                 return
         else:
             if not self.left_angles:
-                self.image_label.configure(text="No available angle data", image="")
+                self.image_label.configure(
+                    text="No available angle data", image="")
                 return
             left_angles = self.left_angles
             right_angles = self.right_angles
@@ -923,7 +962,8 @@ class CaAnalysis(CTkFrame):
         canvas.draw()
         w, h = canvas.get_width_height()
         buf = canvas.buffer_rgba()
-        img = Image.frombuffer("RGBA", (w, h), buf, "raw", "RGBA", 0, 1).convert("RGB")
+        img = Image.frombuffer("RGBA", (w, h), buf, "raw",
+                               "RGBA", 0, 1).convert("RGB")
 
         self.tk_image = CTkImage(img, size=(400, 300))
         self.image_label.configure(image=self.tk_image, text="")
@@ -936,7 +976,8 @@ class CaAnalysis(CTkFrame):
             self.current_index = (
                 self.current_index + step
             ) % self.user_input_data.number_of_frames
-            self.load_image(self.user_input_data.import_files[self.current_index])
+            self.load_image(
+                self.user_input_data.import_files[self.current_index])
             self.update_index_entry()
             file_name = os.path.basename(
                 self.user_input_data.import_files[self.current_index]
@@ -966,7 +1007,8 @@ class CaAnalysis(CTkFrame):
             new_index = int(self.index_entry.get()) - 1
             if 0 <= new_index < self.user_input_data.number_of_frames:
                 self.current_index = new_index
-                self.load_image(self.user_input_data.import_files[self.current_index])
+                self.load_image(
+                    self.user_input_data.import_files[self.current_index])
 
                 file_name = os.path.basename(
                     self.user_input_data.import_files[self.current_index]
@@ -1018,11 +1060,13 @@ class CaAnalysis(CTkFrame):
         angles_data[TANGENT_LINES] = (
             (
                 (float(left_point[0]), float(left_point[1])),
-                (float(left_point[0] + left_dx), float(left_point[1] - left_dy)),
+                (float(left_point[0] + left_dx),
+                 float(left_point[1] - left_dy)),
             ),
             (
                 (float(right_point[0]), float(right_point[1])),
-                (float(right_point[0] + right_dx), float(right_point[1] - right_dy)),
+                (float(right_point[0] + right_dx),
+                 float(right_point[1] - right_dy)),
             ),
         )
 
@@ -1050,11 +1094,13 @@ class CaAnalysis(CTkFrame):
         angles_data[TANGENT_LINES] = (
             (
                 (float(left_point[0]), float(left_point[1])),
-                (float(left_point[0] + left_dx), float(left_point[1] - left_dy)),
+                (float(left_point[0] + left_dx),
+                 float(left_point[1] - left_dy)),
             ),
             (
                 (float(right_point[0]), float(right_point[1])),
-                (float(right_point[0] + right_dx), float(right_point[1] - right_dy)),
+                (float(right_point[0] + right_dx),
+                 float(right_point[1] - right_dy)),
             ),
         )
 
@@ -1085,11 +1131,13 @@ class CaAnalysis(CTkFrame):
         angles_data[TANGENT_LINES] = (
             (
                 (float(left_point[0]), float(left_point[1])),
-                (float(left_point[0] + left_dx), float(left_point[1] - left_dy)),
+                (float(left_point[0] + left_dx),
+                 float(left_point[1] - left_dy)),
             ),
             (
                 (float(right_point[0]), float(right_point[1])),
-                (float(right_point[0] + right_dx), float(right_point[1] - right_dy)),
+                (float(right_point[0] + right_dx),
+                 float(right_point[1] - right_dy)),
             ),
         )
 
