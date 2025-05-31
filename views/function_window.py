@@ -300,11 +300,14 @@ class FunctionWindow(CTkToplevel):
                 "OpenDrop",
                 "outputs"
             )
-            os.makedirs(user_input_data.output_directory, exist_ok=True)
+
+        if user_input_data.output_directory.startswith("~"):
+            user_input_data.output_directory = os.path.expanduser(
+                user_input_data.output_directory
+            )
 
         # Prepare output path
-        if not os.path.exists(user_input_data.output_directory):
-            os.makedirs(user_input_data.output_directory)
+        os.makedirs(user_input_data.output_directory, exist_ok=True)
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename: str = ""

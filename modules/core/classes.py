@@ -105,10 +105,14 @@ class ExperimentalSetup(object):
                             current_attr[subkey] = subvalue
                 else:
                     # Enum mapping for specific fields
-                    if key in ["drop_ID_method", "needle_region_method"]:
+                    if key in ["drop_id_method", "needle_region_method"]:
                         value = getattr(RegionSelect, value.upper(), value)
                     elif key in ["threshold_method", "baseline_method"]:
                         value = getattr(ThresholdSelect, value.upper(), value)
+                    elif key == "output_directory" and value.startswith("~"):
+                        import os
+                        value = os.path.expanduser(value)
+                        value = os.path.normpath(value)
 
                     setattr(self, key, value)
 

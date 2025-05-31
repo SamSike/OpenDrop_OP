@@ -87,7 +87,7 @@ class OutputPage(ctk.CTkFrame):
             "  Manual_Interfacial_Tension_20250524_192455.csv\n"
             "  Automated_Contact_Angle_20250524_192455.csv\n\n"
             "This naming convention ensures unique filenames for each run.\n"
-            "If no output location is specified, files will be saved to the './outputs/' folder by default."
+            f"If no output location is specified, files will be saved to the '{user_input_data.output_directory}' folder by default."
         )
         create_tooltip(help_label, tooltip_text)
 

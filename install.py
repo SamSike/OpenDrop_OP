@@ -81,8 +81,11 @@ if __name__ == "__main__":
         '--onedir',
         '--icon', 'assets/opendrop.ico',
 
+        # no console window
+        '--windowed',
+
         # do not require answering 'yes/no' to create msi
-        '-y'
+        '--noconfirm',
     ])
 
     if "--test" in sys.argv:

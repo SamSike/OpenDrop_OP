@@ -55,7 +55,8 @@ def get_ift_regions(
     # Applying 7x7 Gaussian Blur
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     # 1) rough mask via inverted Otsu + largest CC
-    threshold = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    threshold = cv2.threshold(
+        gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
     analysis = cv2.connectedComponentsWithStats(threshold, 8)
     (totalLabels, label_ids, stats, centroids) = analysis
     if totalLabels <= 1:
@@ -93,8 +94,8 @@ def get_ift_regions(
 
     x, y, bw, bh, _ = stats[blob]
     # print(f"Blob ID: {blob}, Area: {stats[blob, cv2.CC_STAT_AREA]}, Bounding box: (x= {x}, y= {y}) - (w= {bw}, h= {bh})")
-    roi = gray[y : y + bh, x : x + bw]
-    roi_mask = (label_ids[y : y + bh, x : x + bw] == blob).astype(np.uint8) * 255
+    roi = gray[y: y + bh, x: x + bw]
+    roi_mask = (label_ids[y: y + bh, x: x + bw] == blob).astype(np.uint8) * 255
 
     # 2) Scharr→adaptiveThresh→Canny inside ROI
     blur = cv2.GaussianBlur(roi, (scharr_block, scharr_block), 0)
@@ -157,7 +158,8 @@ def get_ift_regions(
     for current_row in range(search_start_row, bh):
         # Add small absolute diff
         if (
-            blob_widths_at_each_row[current_row] > expansion_factor * avg_needle_width
+            blob_widths_at_each_row[current_row] > expansion_factor *
+                avg_needle_width
             and blob_widths_at_each_row[current_row] > avg_needle_width + 2
         ):
             calculated_row_thresh = current_row
@@ -222,7 +224,7 @@ def get_ift_regions(
             )
             # Crop the original image using the final absolute bounding box coordinates
             crop = original[
-                needle_y1_roi:needle_y2_roi, x + needle_x1_roi : x + needle_x2_roi
+                needle_y1_roi:needle_y2_roi, x + needle_x1_roi: x + needle_x2_roi
             ]
             needle_rect = Rect2(
                 (x + needle_x1_roi, y + needle_y1_roi),
@@ -270,7 +272,8 @@ def get_ift_regions(
                 (x + drop_x1_roi, y + drop_y1_roi), (x + drop_x2_roi, y + drop_y2_roi)
             )
 
-        crop = original[drop_y1_roi:drop_y2_roi, x + drop_x1_roi : x + drop_x2_roi]
+        crop = original[drop_y1_roi:drop_y2_roi,
+                        x + drop_x1_roi: x + drop_x2_roi]
         return drop_rect, needle_rect
 
 
@@ -414,7 +417,8 @@ def set_needle_region(
 
                     # Height similarity
                     height_diff = abs(
-                        (l1["y_max"] - l1["y_min"]) - (l2["y_max"] - l2["y_min"])
+                        (l1["y_max"] - l1["y_min"]) -
+                        (l2["y_max"] - l2["y_min"])
                     )
                     if height_diff > 20:
                         continue
@@ -482,7 +486,7 @@ def crop_needle(img: np.ndarray) -> np.ndarray:
     h, w = img.shape[:2]
     top = int(h * vertical_pct)
     side_margin = int((w * (1 - horizontal_pct)) / 2)
-    img = img[:top, side_margin : w - side_margin]
+    img = img[:top, side_margin: w - side_margin]
 
     # a veriable used to eliminate the vertical lines that exist in the bottom half of the image
     bottom_verticals_threshold = 0.7
@@ -516,7 +520,8 @@ def crop_needle(img: np.ndarray) -> np.ndarray:
     # A line (x1,y1,x2,y2) is in the top half if both y1 and y2 are less than y_midpoint
 
     y_midpoint = abs(h * bottom_verticals_threshold)
-    top_half_mask = (vertical[:, 0, 1] < y_midpoint) & (vertical[:, 0, 3] < y_midpoint)
+    top_half_mask = (vertical[:, 0, 1] < y_midpoint) & (
+        vertical[:, 0, 3] < y_midpoint)
     vertical = vertical[top_half_mask]
 
     if vertical.shape[0] < 2:
@@ -540,7 +545,7 @@ def crop_needle(img: np.ndarray) -> np.ndarray:
     # find the longest pair whose centers are >= min_dist apart
     for i, l1 in enumerate(sorted_lines):
         x1 = (l1[0] + l1[2]) // 2
-        for l2 in sorted_lines[i + 1 :]:
+        for l2 in sorted_lines[i + 1:]:
             x2 = (l2[0] + l2[2]) // 2
             if abs(x2 - x1) >= min_dist:
                 # we found a valid pair
@@ -576,7 +581,7 @@ def crop_needle(img: np.ndarray) -> np.ndarray:
 def image_crop(image: np.ndarray, points):
     # return image[min(y):max(y), min(x),max(x)]
     return image[
-        int(points[0][1]) : int(points[1][1]), int(points[0][0]) : int(points[1][0])
+        int(points[0][1]): int(points[1][1]), int(points[0][0]): int(points[1][0])
     ]
 
 
@@ -765,8 +770,8 @@ def user_line(
     if TEMP:
         image_TEMP = cv2.resize(
             raw_image[
-                int(region[0, 1]) : int(region[1, 1]),
-                int(region[0, 0]) : int(region[1, 0]),
+                int(region[0, 1]): int(region[1, 1]),
+                int(region[0, 0]): int(region[1, 0]),
             ],
             (0, 0),
             fx=scale,
@@ -779,8 +784,8 @@ def user_line(
     # set surface line starting estimate
     N = np.shape(drop_data)[0]
     A = 1  # 50 # maybe lower this?
-    xx = np.concatenate((drop_data[0:A, 0], drop_data[N - A : N + 1, 0]))
-    yy = np.concatenate((drop_data[0:A, 1], drop_data[N - A : N + 1, 1]))
+    xx = np.concatenate((drop_data[0:A, 0], drop_data[N - A: N + 1, 0]))
+    yy = np.concatenate((drop_data[0:A, 1], drop_data[N - A: N + 1, 1]))
     coefficients = np.polyfit(xx, yy, 1)
     line = np.poly1d(coefficients)
 
@@ -916,8 +921,10 @@ def user_line(
                 tangent_lines = tuple(
                     experimental_drop.contact_angles["polynomial fit"]["tangent lines"]
                 )
-                cv2.line(img, tangent_lines[0][0], tangent_lines[0][1], (0, 0, 255), 2)
-                cv2.line(img, tangent_lines[1][0], tangent_lines[1][1], (0, 0, 255), 2)
+                cv2.line(img, tangent_lines[0][0],
+                         tangent_lines[0][1], (0, 0, 255), 2)
+                cv2.line(img, tangent_lines[1][0],
+                         tangent_lines[1][1], (0, 0, 255), 2)
             if methods_boole[FittingMethod.CIRCLE_FIT]:
                 xc, yc = experimental_drop.contact_angles["circle fit"]["circle center"]
                 r = experimental_drop.contact_angles["circle fit"]["circle radius"]
@@ -982,7 +989,8 @@ def user_line(
             theta = -theta  # counter-clockwise
 
             rotation = np.array(
-                [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
+                [[np.cos(theta), -np.sin(theta)],
+                 [np.sin(theta), np.cos(theta)]]
             )
             x0r = rotation @ (x0 - xc).T + xc
             x1r = rotation @ (x1 - xc).T + xc
@@ -999,7 +1007,8 @@ def user_line(
             # No negation for clockwise rotation
 
             rotation = np.array(
-                [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
+                [[np.cos(theta), -np.sin(theta)],
+                 [np.sin(theta), np.cos(theta)]]
             )
             x0r = rotation @ (x0 - xc).T + xc
             x1r = rotation @ (x1 - xc).T + xc
@@ -1016,8 +1025,8 @@ def user_line(
         if TEMP:
             image_TEMP = cv2.resize(
                 raw_image[
-                    int(region[0, 1]) : int(region[1, 1]),
-                    int(region[0, 0]) : int(region[1, 0]),
+                    int(region[0, 1]): int(region[1, 1]),
+                    int(region[0, 0]): int(region[1, 0]),
                 ],
                 (0, 0),
                 fx=scale,
@@ -1188,7 +1197,8 @@ def ML_prepare_hydrophobic(coords_in):
     bottom = []
     top = []  # will need this later
     div_line_value = (
-        min(coords[:, [1]]) + (max(coords[:, [1]]) - min(coords[:, [1]])) * percent
+        min(coords[:, [1]]) + (max(coords[:, [1]]) -
+                               min(coords[:, [1]])) * percent
     )
     for n in coords:
         if n[1] < div_line_value:

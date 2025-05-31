@@ -1,7 +1,7 @@
 # Note: For empty value (`None` in Python), set a value to `null` or leaving it empty.
 
 # --- Image capture settings ---
-drop_ID_method: Automated # Method for drop identification for both CA and IFT (Automated or User-selected)
+drop_id_method: Automated # Method for drop identification for both CA and IFT (Automated or User-selected)
 threshold_method: Automated # Method for image thresholding for CA analysis (Automated or User-selected)
 needle_region_method: Automated # Method for locating the needle region for IFT analysis (Automated or User-selected)
 threshold_val: null # Custom threshold number value (if not automated)
@@ -26,17 +26,17 @@ frame_interval: 1 # Time between frames/images (float number)
 
 # --- Analysis methods ---
 analysis_methods_ca: # Contact angle fitting methods
-  TANGENT_FIT: true
-  POLYNOMIAL_FIT: true
-  CIRCLE_FIT: false
-  ELLIPSE_FIT: false
-  YL_FIT: false
-  ML_MODEL: false
+    TANGENT_FIT: true
+    POLYNOMIAL_FIT: true
+    CIRCLE_FIT: false
+    ELLIPSE_FIT: false
+    YL_FIT: false
+    ML_MODEL: false
 analysis_methods_pd: # IFT fitting methods
-  INTERFACIAL_TENSION: true
+    INTERFACIAL_TENSION: true
 
 # --- Output ---
 save_images_boole: false # Save image outputs
 create_folder_boole: false # Create folder for output files
 filename: null # Output filename prefix
-output_directory: ./outputs/ # Save directory
+output_directory: "~/OpenDrop/outputs" # Save directory

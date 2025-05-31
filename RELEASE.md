@@ -29,7 +29,7 @@
 2. Create msi installer
 
     ```bash
-    python3 install.py
+    python install.py
     ```
 
 3. Ensure build files are not pushed to git
