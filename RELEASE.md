@@ -32,4 +32,8 @@
     python install.py
     ```
 
-3. Ensure build files are not pushed to git
+3. Add release to GitHub
+
+    1. On the right side of the GitHub page, click "Create a new release"
+    2. Label release with opendrop version
+    3. Add msi to binaries
