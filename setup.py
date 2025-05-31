@@ -120,8 +120,8 @@ ext_modules = [
 ]
 
 setup(
-    name="OpenDrop_IFTExtensions",
-    version="0.1.0",
+    name="OpenDrop2",
+    version="4.0.0",
     packages=find_packages(where="modules"),
     package_dir={"": "modules"},
     ext_modules=cythonize(
