@@ -59,7 +59,7 @@ def extract_drop_profile(
                     raw_experiment.contour[:, 0], raw_experiment.contour[:, 1], "r,"
                 )
                 plt.title(
-                    "Extracted drop profile\nThreshold value of : ", raw_experiment.ret
+                    f"Extracted drop profile\nThreshold value: {raw_experiment.ret:.2f}"
                 )
                 plt.axis("equal")
                 plt.show()
