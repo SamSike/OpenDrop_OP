@@ -97,7 +97,7 @@ class Acquisition(CTkFrame):
                 image_acquisition_frame,
                 "Edge finder:",
                 EDGEFINDER_OPTIONS,
-                self.update_edgefinder,  # ✅ 注意这里用了 self.
+                self.update_edgefinder,
                 rw=2,
             )
             self.edgefinder.optionmenu.grid_configure(sticky="ew")
@@ -188,12 +188,6 @@ class Acquisition(CTkFrame):
 
     def update_edgefinder(self, value):
         self.user_input_data.edgefinder = value
-
-
-
-
-
-
 
 
     def setup_choose_files_frame(self, frame):

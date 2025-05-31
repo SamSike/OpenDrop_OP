@@ -156,7 +156,7 @@ def perform_fits(
             ellipse_timings,
         ) = ellipse_fit(experimental_drop.drop_contour)
 
-        # 增加防御性检查
+
         if ellipse_angles and len(ellipse_angles) == 2:
             experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT] = {}
             experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][LEFT_ANGLE] = (
@@ -184,7 +184,7 @@ def perform_fits(
                 "timings"
             ] = ellipse_timings
         else:
-            print("⚠️ Warning: ellipse_fit failed or returned incomplete results. Skipping ELLIPSE_FIT.")
+            print("Warning: ellipse_fit failed or returned incomplete results. Skipping ELLIPSE_FIT.")
 
 
 
