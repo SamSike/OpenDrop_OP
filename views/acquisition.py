@@ -74,19 +74,41 @@ class Acquisition(CTkFrame):
 
         self.setup_choose_files_frame(image_acquisition_frame)
 
+
+
+
+
+        # if function_type == FunctionType.CONTACT_ANGLE:
+        #
+        #     def update_edgefinder(self, *args):
+        #         self.user_input_data.edgefinder = self.edgefinder.get_value()
+        #
+        #     self.edgefinder = OptionMenu(
+        #         self,
+        #         image_acquisition_frame,
+        #         "Edge finder:",
+        #         EDGEFINDER_OPTIONS,
+        #         update_edgefinder,
+        #         rw=2,
+        #     )
         if function_type == FunctionType.CONTACT_ANGLE:
-
-            def update_edgefinder(self, *args):
-                self.user_input_data.edgefinder = self.edgefinder.get_value()
-
             self.edgefinder = OptionMenu(
                 self,
                 image_acquisition_frame,
                 "Edge finder:",
                 EDGEFINDER_OPTIONS,
-                update_edgefinder,
+                self.update_edgefinder,  # ✅ 注意这里用了 self.
                 rw=2,
             )
+            self.edgefinder.optionmenu.grid_configure(sticky="ew")
+            image_acquisition_frame.grid_rowconfigure(2, weight=0)
+
+
+
+
+
+
+
             self.edgefinder.optionmenu.grid_configure(sticky="ew")
             # Height of this row doesn't need to stretch
             image_acquisition_frame.grid_rowconfigure(2, weight=0)
@@ -158,8 +180,21 @@ class Acquisition(CTkFrame):
     def update_frame_interval(self, *args):
         self.user_input_data.frame_interval = self.frame_interval.get_value()
 
-    def update_edgefinder(self, *args):
-        self.user_input_data.edgefinder = self.edgefinder.get_value()
+
+
+
+    # def update_edgefinder(self, *args):
+    #     self.user_input_data.edgefinder = self.edgefinder.get_value()
+
+    def update_edgefinder(self, value):
+        self.user_input_data.edgefinder = value
+
+
+
+
+
+
+
 
     def setup_choose_files_frame(self, frame):
         self.choose_files_label = CTkLabel(

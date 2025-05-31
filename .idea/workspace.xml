@@ -4,23 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="fix error: AttributeError: 'CTkXYFrame' object has no attribute '_updating_scrollbar'">
-      <change afterPath="$PROJECT_DIR$/modules/ift/hough/__init__.py" afterDir="false" />
+    <list default="true" id="01fef392-32cb-47da-aec4-2ca63b7da10e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/opendrop.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/opendrop.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/classes.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/classes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/fitting/needle_fit.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/ift/pd_data_processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/ift/pd_data_processor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/image/select_regions.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/image/select_regions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/preprocessing/ExtractData.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/preprocessing/ExtractData.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/component/imageProcessing.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/component/imageProcessing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/function_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/function_window.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/helper/validation.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/helper/validation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/ift_acquisition.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ift_acquisition.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/ift_preparation.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ift_preparation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/acquisition.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/acquisition.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,30 +60,30 @@
     <option name="showLibraryContents" value="true" />
     <option name="showMembers" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python 测试.pytest (ExtractData_test.py 内).executor": "Run",
-    "Python 测试.pytest (classes_test.py 内).executor": "Run",
-    "Python 测试.pytest (extract_profile_test.py 内).executor": "Run",
-    "Python 测试.pytest (test_all.py 内).executor": "Run",
-    "Python 测试.pytest in test_all.py.executor": "Run",
-    "Python.ift_preparation.executor": "Run",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "full.screen.before.presentation.mode": "false",
-    "git-widget-placeholder": "backend/needle-detect-and-fit",
-    "last_opened_file_path": "F:/opendrop/py38",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python 测试.pytest (ExtractData_test.py 内).executor&quot;: &quot;Run&quot;,
+    &quot;Python 测试.pytest (classes_test.py 内).executor&quot;: &quot;Run&quot;,
+    &quot;Python 测试.pytest (extract_profile_test.py 内).executor&quot;: &quot;Run&quot;,
+    &quot;Python 测试.pytest (test_all.py 内).executor&quot;: &quot;Run&quot;,
+    &quot;Python 测试.pytest in test_all.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ift_preparation.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;full.screen.before.presentation.mode&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;last_opened_file_path&quot;: &quot;F:/opendrop/py38&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\PyProject\OpenDrop_OP\modules\core" />
@@ -115,8 +103,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-PY-251.25410.122" />
-        <option value="bundled-python-sdk-880ecab49056-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.25410.122" />
+        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-PY-241.15989.155" />
+        <option value="bundled-python-sdk-babbdf50b680-7c6932dee5e4-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.15989.155" />
       </set>
     </attachedChunks>
   </component>
@@ -145,6 +133,9 @@
       <workItem from="1746259835930" duration="180000" />
       <workItem from="1746913533550" duration="499000" />
       <workItem from="1746914066694" duration="2437000" />
+      <workItem from="1748365431815" duration="159000" />
+      <workItem from="1748683085095" duration="830000" />
+      <workItem from="1748684160803" duration="1365000" />
     </task>
     <servers />
   </component>
