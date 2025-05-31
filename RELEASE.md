@@ -29,7 +29,7 @@
 5. Create msi installer
 
     ```bash
-    python install.py
+    python install.py --no-pip
     ```
 
 6. Add release to GitHub
@@ -51,7 +51,7 @@
 3. Create distributions
 
     ```bash
-    python install.py
+    python install.py --no-msi
     ```
 
 4. Test
@@ -59,5 +59,5 @@
 5. Upload
 
     ```bash
-    python install.py --upload
+    python install.py --no-msi --upload
     ```

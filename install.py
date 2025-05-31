@@ -9,11 +9,12 @@ import PyInstaller.__main__
 Usage:
 
     Install:        python install.py
-    Upload to PyPI: python install.py --upload
-    Test .exe:      python install.py --test
 
-    Skip MSI:       python install.py --no-msi
-    Skip pip:       python install.py --no-pip
+    --no-msi:       Skip building the Windows installer (MSI)
+    --test:         Test the built .exe file
+
+    --no-pip:       Skip building the pip package
+    --upload:       Upload to PyPI (if --no-pip is not set)
 """
 
 

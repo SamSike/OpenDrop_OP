@@ -86,3 +86,4 @@ modules/ift/younglaplace/*.so
 *windows-installer.wixobj
 *OpenDrop.wixpdb
 *main.spec
+*.bat
