@@ -1,4 +1,3 @@
-from utils.os import is_windows
 import sys
 import os
 import shutil
@@ -57,16 +56,17 @@ def run(cmd, shell=True):
         raise RuntimeError(f"Command failed: {cmd}")
 
 
-"""
-    Get the version from the METADATA file.
-    Can not be imported from setup.py
-"""
-with open(os.path.join(os.path.dirname(__file__), "METADATA"), "r") as metadata_file:
-    metadata = metadata_file.read().strip().split("\n")
-    PACKAGE_NAME = metadata[0].split(": ")[1].strip()
-    VERSION = metadata[1].split(": ")[1].strip()
+def is_windows():
+    """
+    Check if the current operating system is Windows.
+    Returns True if Windows, False otherwise.
+    """
+    return sys.platform.startswith("win32") or sys.platform.startswith("cygwin")
+
 
 sep = ";" if is_windows() else ":"
+PACKAGE_NAME = "opendrop2"
+VERSION = "4.0.0"
 pip_package_name = f"{PACKAGE_NAME}-{VERSION}.tar.gz"
 
 
@@ -147,14 +147,16 @@ if __name__ == "__main__":
     if "--no-pip" not in sys.argv:
 
         # Remove previous builds
-        remove_files(os.path.join("**", "*.cpp"))
-        remove_files(os.path.join("modules", "**", "*.so"))
-        for path in glob.glob("**/*.egg-info", recursive=True):
-            remove_dir(path)
+        # remove_files(os.path.join("**", "*.cpp"))
+        # remove_files(os.path.join("modules", "**", "*.so"))
+        # for path in glob.glob("**/*.egg-info", recursive=True):
+        #     remove_dir(path)
+
+        run("python -m build")
 
         # Build Cython extensions
-        run("python setup.py build_ext --inplace")
-        run("python setup.py sdist bdist_wheel")
+        # run("python setup.py build_ext --inplace")
+        # run("python setup.py sdist bdist_wheel")
 
     if "--test" in sys.argv:
         tested = 0
@@ -195,6 +197,7 @@ if __name__ == "__main__":
             print(f"Found packages: {package_path}")
             run(f"pip install {package_path[0]}", shell=True)
             print(f"Installed package {pip_package_name} successfully.")
+            run("opendrop", shell=True)
             # Optionally, you can run a test script to verify the installation
             # run("python -c 'import opendrop2'", shell=True)
             tested += 1
