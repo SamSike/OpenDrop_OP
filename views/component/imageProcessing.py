@@ -1,6 +1,7 @@
-from modules.image.read_image import get_image
+# from modules.image.read_image import get_image
 from modules.core.classes import ExperimentalDrop, ExperimentalSetup
-from views.component.check_button import CheckButton
+
+# from views.component.check_button import CheckButton
 from views.helper.style import set_light_only_color
 from utils.image_handler import ImageHandler
 

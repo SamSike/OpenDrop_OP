@@ -57,8 +57,7 @@ class OutputPage(ctk.CTkFrame):
         self.filename_entry = ctk.CTkEntry(
             output_frame, width=300, textvariable=self.filename_var
         )
-        self.filename_entry.grid(
-            row=2, column=1, padx=10, pady=(5, 10), sticky="ew")
+        self.filename_entry.grid(row=2, column=1, padx=10, pady=(5, 10), sticky="ew")
 
         # "❓" help icon next to filename
         help_label = ctk.CTkLabel(

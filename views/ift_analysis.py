@@ -3,8 +3,9 @@ from modules.ift.ift_data_processor import IftDataProcessor
 from views.component.imageGallery import ImageGallery
 from views.helper.theme import get_system_text_color
 
-from customtkinter import CTkImage, CTkFrame, CTkScrollableFrame, CTkTabview, CTkLabel
-from PIL import Image
+from customtkinter import CTkFrame, CTkScrollableFrame, CTkTabview, CTkLabel
+
+# from PIL import Image
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import matplotlib.pyplot as plt
 

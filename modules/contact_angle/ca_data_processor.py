@@ -1,4 +1,3 @@
-from modules.core.classes import ExperimentalDrop
 from modules.core.classes import ExperimentalDrop, ExperimentalSetup, DropData
 from modules.image.read_image import get_image
 from modules.image.select_regions import (
@@ -11,13 +10,14 @@ from modules.contact_angle.extract_profile import extract_drop_profile
 from modules.fitting.fits import perform_fits
 from utils.enums import FittingMethod, ThresholdSelect
 from utils.config import LEFT_ANGLE, RIGHT_ANGLE
-from utils.misc import resource_path
+from utils.os import resource_path
 
-from typing import Callable, Dict, List
+from typing import Callable, Dict
 import numpy as np
 import timeit
 import copy
-import os
+
+# import os
 
 
 class CaDataProcessor:

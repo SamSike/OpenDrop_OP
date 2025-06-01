@@ -16,10 +16,12 @@ from utils.enums import FitType
 from sklearn.cluster import OPTICS  # for clustering algorithm
 from scipy.spatial import distance
 from scipy.integrate import solve_ivp
-from scipy.spatial.distance import cdist
+
+# from scipy.spatial.distance import cdist
 from sklearn.metrics import r2_score
 import scipy.optimize as opt
-import numba
+
+# import numba
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
@@ -1624,7 +1626,8 @@ def yl_fit(profile, lim=10, fit_type=FitType.BASHFORTH_ADAMS, display=False):
 
 
 if 0:
-    from utils.misc import resource_path
+    from utils.os import resource_path
+
     IMG_PATH = resource_path("../RICOphobic_cropped.png")
     img = cv2.imread(IMG_PATH)
     angles, Bo, baseline_width, volume, fit, baseline, errors, sym_errors, timings = (

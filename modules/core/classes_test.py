@@ -4,7 +4,8 @@ from modules.core.classes import (
     ExperimentalDrop,
     DropData,
 )
-from math import pi
+
+# from math import pi
 import numpy as np
 import pytest
 import sys

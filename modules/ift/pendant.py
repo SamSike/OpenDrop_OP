@@ -5,7 +5,7 @@ from modules.image.select_regions import get_ift_regions
 from utils.geometry import Rect2, Vector2
 from utils.misc import rotation_mat2d
 
-from typing import NamedTuple, Optional, Tuple, List
+from typing import NamedTuple, Optional, Tuple
 import math
 import cv2
 import numpy as np

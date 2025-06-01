@@ -1271,7 +1271,8 @@ def ellipse_fit(drop, display=False):
 
 
 if 0:
-    from utils.misc import resource_path
+    from utils.os import resource_path
+
     IMG_PATH = resource_path("../RICOphobic_cropped.png")
     img = cv2.imread(IMG_PATH)
 

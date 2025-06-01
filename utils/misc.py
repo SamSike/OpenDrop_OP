@@ -1,8 +1,6 @@
 from pathlib import Path
 from types import ModuleType
-from typing import Union, Type, Iterable, TypeVar, List
-import sys
-import os
+from typing import Union, Iterable, TypeVar, List
 import importlib
 import inspect
 import pkgutil
@@ -10,17 +8,6 @@ import shutil
 import numpy as np
 
 T = TypeVar("T")
-
-
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    if hasattr(sys, '_MEIPASS'):
-        base_path = sys._MEIPASS
-    else:
-        # Go up one directory from utils/
-        base_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), ".."))
-    return os.path.normpath(os.path.join(base_path, relative_path))
 
 
 def rotation_mat2d(theta: float) -> np.ndarray:

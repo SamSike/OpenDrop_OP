@@ -11,13 +11,16 @@ conan-ML_cv1.1/modules/select_regions.py"""
 from utils.config import CV2_VERSION
 
 from sklearn.cluster import OPTICS  # for clustering algorithm
-from scipy.spatial import distance
-from scipy.integrate import solve_ivp
+
+# from scipy.spatial import distance
+# from scipy.integrate import solve_ivp
 import scipy.optimize as opt
-import numba
+
+# import numba
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib
+
+# import matplotlib
 import cv2
 import math
 import time
@@ -1223,7 +1226,8 @@ def circular_fit(drop, display=False):
 
 
 if 0:
-    from utils.misc import resource_path
+    from utils.os import resource_path
+
     IMG_PATH = resource_path("../RICOphobic_cropped.png")
     img = cv2.imread(IMG_PATH)
     angles, centre, R_2, intercepts, errors, timings = circular_fit_img(

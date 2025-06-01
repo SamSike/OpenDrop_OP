@@ -1,7 +1,8 @@
 from modules.core.classes import ExperimentalSetup
 from views.component.option_menu import OptionMenu
 from views.component.float_entry import FloatEntry
-from views.component.float_combobox import FloatCombobox
+
+# from views.component.float_combobox import FloatCombobox
 from views.component.check_button import CheckButton
 from views.helper.style import set_light_only_color
 from utils.config import (
@@ -33,8 +34,7 @@ def create_user_input_fields_ift(self, parent, user_input_data: ExperimentalSetu
     )
 
     # Configure the grid for the user_input_frame to be resizable
-    user_input_frame.grid_rowconfigure(
-        0, weight=0)  # No resizing for the label row
+    user_input_frame.grid_rowconfigure(0, weight=0)  # No resizing for the label row
     # Allow resizing for the input fields row
     user_input_frame.grid_rowconfigure(1, weight=1)
     # Allow resizing for the first column
@@ -43,8 +43,7 @@ def create_user_input_fields_ift(self, parent, user_input_data: ExperimentalSetu
     user_input_frame.grid_columnconfigure(1, weight=1)
 
     # Create a label for the dynamic content
-    label = CTkLabel(user_input_frame, text="User Inputs",
-                     font=("Roboto", 16, "bold"))
+    label = CTkLabel(user_input_frame, text="User Inputs", font=("Roboto", 16, "bold"))
     label.grid(row=0, column=0, padx=10, pady=5, sticky="w")  # Grid for label
 
     # Create a frame to hold all input fields
@@ -59,8 +58,7 @@ def create_user_input_fields_ift(self, parent, user_input_data: ExperimentalSetu
         input_fields_frame.grid_rowconfigure(i, weight=1)
     # Label column fixed width (anchor='w' handles alignment)
     input_fields_frame.grid_columnconfigure(0, weight=0)
-    input_fields_frame.grid_columnconfigure(
-        1, weight=1)  # Widget column expands
+    input_fields_frame.grid_columnconfigure(1, weight=1)  # Widget column expands
 
     # Update the input value functions
     def update_drop_region_method(*args):
@@ -169,8 +167,7 @@ def create_user_input_fields_ift(self, parent, user_input_data: ExperimentalSetu
                     save_needle_options_to_config()
             except ValueError:
                 # Show error message
-                messagebox.showerror(
-                    "Invalid Input", "Please enter a valid number.")
+                messagebox.showerror("Invalid Input", "Please enter a valid number.")
 
     def remove_needle_diameter():
         current_value = needle_var.get()
@@ -244,7 +241,9 @@ def create_user_input_fields_ift(self, parent, user_input_data: ExperimentalSetu
     )
 
     create_tooltip(
-        self.drop_region_method.label, "The method to detect the droplet region.", "below-align-left"
+        self.drop_region_method.label,
+        "The method to detect the droplet region.",
+        "below-align-left",
     )
     create_tooltip(
         self.needle_region_method.label, "The method to detect the needle region."
@@ -256,7 +255,7 @@ def create_user_input_fields_ift(self, parent, user_input_data: ExperimentalSetu
     create_tooltip(
         self.continuous_density.label,
         "The density of the surrounding fluid (e.g., air or oil) in kg/m³.",
-        position="left-align-right-top"
+        position="left-align-right-top",
     )
     create_tooltip(
         self.pixel_mm.label,
@@ -305,8 +304,7 @@ def create_analysis_checklist_ift(self, parent, user_input_data: ExperimentalSet
     label = CTkLabel(
         analysis_clist_frame, text="Analysis methods*", font=("Roboto", 16, "bold")
     )
-    label.grid(row=0, column=0, padx=10, pady=5,
-               sticky="w")  # Removed columnspan
+    label.grid(row=0, column=0, padx=10, pady=5, sticky="w")  # Removed columnspan
 
     # Create a frame to hold all input fields
     input_fields_frame = CTkFrame(analysis_clist_frame)
@@ -353,27 +351,22 @@ def create_user_inputs_cm(self, parent, user_input_data):
     user_input_frame.grid_rowconfigure(0, weight=0)  # Label row fixed
     # input_fields_frame row expands
     user_input_frame.grid_rowconfigure(1, weight=1)
-    user_input_frame.grid_columnconfigure(
-        0, weight=1)  # Allow column to expand
+    user_input_frame.grid_columnconfigure(0, weight=1)  # Allow column to expand
 
     # Create a label for the dynamic content
-    label = CTkLabel(user_input_frame, text="User Inputs",
-                     font=("Roboto", 16, "bold"))
+    label = CTkLabel(user_input_frame, text="User Inputs", font=("Roboto", 16, "bold"))
     label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
     # Create a frame to hold all input fields
     input_fields_frame = CTkFrame(user_input_frame)
     set_light_only_color(input_fields_frame, "entry")
-    input_fields_frame.grid(row=1, column=0, padx=10,
-                            pady=(0, 10), sticky="nsew")
+    input_fields_frame.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
 
     # Configure the grid of input_fields_frame to be resizable
     for i in range(4):
         input_fields_frame.grid_rowconfigure(i, weight=1)
-    input_fields_frame.grid_columnconfigure(
-        0, weight=0)  # Label column fixed width
-    input_fields_frame.grid_columnconfigure(
-        1, weight=1)  # Widget column expands
+    input_fields_frame.grid_columnconfigure(0, weight=0)  # Label column fixed width
+    input_fields_frame.grid_columnconfigure(1, weight=1)  # Widget column expands
 
     # Define update functions for each input
     def update_drop_id_method(*args):
@@ -481,8 +474,7 @@ def create_plotting_checklist(self, parent, user_input_data):
         text="Visible during fitting (method = automated)",
         font=("Roboto", 16, "bold"),
     )
-    label.grid(row=0, column=0, padx=(10, 0),
-               pady=5, sticky="w")  # Grid for label
+    label.grid(row=0, column=0, padx=(10, 0), pady=5, sticky="w")  # Grid for label
 
     add_help_icon(
         plotting_clist_frame,
@@ -502,8 +494,7 @@ def create_plotting_checklist(self, parent, user_input_data):
     # Checkboxes are in rows 0, 1, 2 and column 0
     for i in range(3):  # Rows 0, 1, 2
         input_fields_frame.grid_rowconfigure(i, weight=1)
-    input_fields_frame.grid_columnconfigure(
-        0, weight=1)  # Single column expands
+    input_fields_frame.grid_columnconfigure(0, weight=1)  # Single column expands
 
     # Define update functions for each checkbox
     def update_original_boole(*args):
@@ -558,8 +549,7 @@ def create_analysis_checklist_cm(self, parent, user_input_data):
     # Ensure the frame itself expands, adjust columnspan if needed based on parent layout
     # Assuming row=3 is correct from previous code. Columnspan 4 seems large, maybe 2 is enough if parent has 2 cols? Let's try 2.
     # Changed sticky, adjusted columnspan
-    analysis_clist_frame.grid(
-        row=3, columnspan=2, sticky="nsew", padx=15, pady=15)
+    analysis_clist_frame.grid(row=3, columnspan=2, sticky="nsew", padx=15, pady=15)
 
     # --- Configure analysis_clist_frame's internal grid ---
     analysis_clist_frame.grid_rowconfigure(0, weight=0)  # Label row fixed
@@ -572,8 +562,7 @@ def create_analysis_checklist_cm(self, parent, user_input_data):
     label = CTkLabel(
         analysis_clist_frame, text="Analysis methods*", font=("Roboto", 16, "bold")
     )
-    label.grid(row=0, column=0, padx=10, pady=5,
-               sticky="w")  # Removed columnspan
+    label.grid(row=0, column=0, padx=10, pady=5, sticky="w")  # Removed columnspan
 
     # Create a frame to hold all checkbox fields
     input_fields_frame = CTkFrame(analysis_clist_frame)
@@ -683,8 +672,7 @@ def save_needle_options_to_config():
     """Save NEEDLE_OPTIONS to config.py file to ensure persistence"""
     try:
         # Get the absolute path to the utils directory
-        current_dir = os.path.dirname(
-            os.path.abspath(__file__))  # component directory
+        current_dir = os.path.dirname(os.path.abspath(__file__))  # component directory
         parent_dir = os.path.dirname(current_dir)  # views directory
         root_dir = os.path.dirname(parent_dir)  # project root directory
         config_file_path = os.path.join(root_dir, "utils", "config.py")
@@ -711,8 +699,7 @@ def save_needle_options_to_config():
                 # Write back to the file to ensure persistence
                 with open(config_file_path, "w", encoding="utf-8") as file:
                     file.write(new_content)
-                print(
-                    f"Successfully saved needle options to {config_file_path}")
+                print(f"Successfully saved needle options to {config_file_path}")
                 return True
             else:
                 print("Could not find NEEDLE_OPTIONS in config file")
@@ -722,8 +709,7 @@ def save_needle_options_to_config():
             return False
     except Exception as e:
         print(f"Error saving needle options: {str(e)}")
-        messagebox.showerror(
-            "Save Error", f"Could not save needle options: {str(e)}")
+        messagebox.showerror("Save Error", f"Could not save needle options: {str(e)}")
         return False
 
 

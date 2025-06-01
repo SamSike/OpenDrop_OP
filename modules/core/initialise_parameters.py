@@ -3,7 +3,8 @@
 from modules.core.classes import ExperimentalDrop, DropData
 
 import math
-import sys
+
+# import sys
 import numpy as np
 
 

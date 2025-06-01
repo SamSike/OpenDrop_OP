@@ -1,6 +1,6 @@
 from utils.image_handler import ImageHandler
 
-from PIL import ImageTk
+# from PIL import ImageTk
 from PIL.Image import Image, open
 import customtkinter as ctk
 import os

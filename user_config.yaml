@@ -26,14 +26,14 @@ frame_interval: 1 # Time between frames/images (float number)
 
 # --- Analysis methods ---
 analysis_methods_ca: # Contact angle fitting methods
-    TANGENT_FIT: true
-    POLYNOMIAL_FIT: true
-    CIRCLE_FIT: false
-    ELLIPSE_FIT: false
-    YL_FIT: false
-    ML_MODEL: false
+  TANGENT_FIT: true
+  POLYNOMIAL_FIT: true
+  CIRCLE_FIT: false
+  ELLIPSE_FIT: false
+  YL_FIT: false
+  ML_MODEL: false
 analysis_methods_pd: # IFT fitting methods
-    INTERFACIAL_TENSION: true
+  INTERFACIAL_TENSION: true
 
 # --- Output ---
 save_images_boole: false # Save image outputs

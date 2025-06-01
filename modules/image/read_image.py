@@ -5,11 +5,13 @@ from modules.core.classes import ExperimentalDrop, ExperimentalSetup
 
 import subprocess
 import cv2
-import time
+
+# import time
 import datetime
 import timeit
 import os
-import numpy as np
+
+# import numpy as np
 
 # from __future__ import print_function
 
@@ -80,8 +82,7 @@ def import_from_source(
         image_from_camera(experimental_drop)
     # from specified file
     elif image_source == "Local images":
-        image_from_harddrive(
-            experimental_drop, experimental_setup, frame_number)
+        image_from_harddrive(experimental_drop, experimental_setup, frame_number)
     # else the value of img_src is incorrect
     else:
         raise ValueError("Incorrect value for image_source")

@@ -1,5 +1,5 @@
-from utils.misc import resource_path
-from PIL import Image, ImageTk
+from utils.os import resource_path, is_windows
+from PIL import Image
 from tkinter import messagebox
 import sys
 import signal
@@ -15,7 +15,14 @@ class MainWindow(ctk.CTk):
         self.minsize(width=800, height=400)
 
         # For .ico files (recommended for Windows)
-        self.iconbitmap(resource_path("assets/opendrop.ico"))
+
+        if is_windows():
+            self.iconbitmap(resource_path("assets/opendrop.ico"))
+        else:
+            # For .png files (recommended for macOS and Linux)
+            icon_path = resource_path("assets/opendrop.png")
+            icon_img = tk.PhotoImage(file=icon_path)
+            self.iconphoto(True, icon_img)
 
         self.continue_processing = continue_processing
 
@@ -34,8 +41,7 @@ class MainWindow(ctk.CTk):
         self.protocol("WM_DELETE_WINDOW", self.close_window)
 
         # Display title
-        title_label = ctk.CTkLabel(
-            self, text="OpenDrop-ML", font=("Helvetica", 48))
+        title_label = ctk.CTkLabel(self, text="OpenDrop-ML", font=("Helvetica", 48))
         title_label.pack(pady=90)
         # self.display_image("views/assets/banner.png")
 
@@ -73,17 +79,6 @@ class MainWindow(ctk.CTk):
         info_button.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
 
         self.mainloop()
-
-    def create_button(self, frame, text, command, column):
-        button = ctk.CTkButton(
-            frame,
-            text=text,
-            font=("Helvetica", 24),
-            width=240,
-            height=3,
-            command=lambda: self.run_function(command),
-        )
-        button.grid(row=0, column=column, padx=20)
 
     def create_button(self, frame, text, command, image_path, column):
         # Load the image for the button
@@ -132,7 +127,7 @@ class MainWindow(ctk.CTk):
                 "• Interfacial Tension: Measures the force acting at the surface of liquids.\n"
                 "• Contact Angle: Measures the angle formed between a liquid and a solid surface."
             ),
-            parent=self
+            parent=self,
         )
 
     def close_window(self):

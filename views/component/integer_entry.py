@@ -1,6 +1,6 @@
 from utils.validators import validate_int
 
-import tkinter as tk
+# import tkinter as tk
 import customtkinter as ctk
 
 

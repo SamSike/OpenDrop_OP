@@ -1,4 +1,4 @@
-from utils.misc import resource_path
+from utils.os import resource_path
 
 from matplotlib import pyplot as plt
 import datetime

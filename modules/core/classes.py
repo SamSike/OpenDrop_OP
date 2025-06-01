@@ -1,17 +1,12 @@
 #!/usr/bin/env python
 # coding=utf-8
 from modules.fitting.de_YoungLaplace import ylderiv
-from utils.enums import RegionSelect, ThresholdSelect
-from scipy.integrate import odeint
-
-import yaml
-import numpy as np
-
 from utils.config import INTERFACIAL_TENSION
-from utils.enums import FittingMethod, RegionSelect, ThresholdSelect
+from utils.enums import RegionSelect, ThresholdSelect, FittingMethod
 
-from typing import Dict, List, Optional, Tuple
 from scipy.integrate import odeint
+from typing import Dict, List, Optional, Tuple
+import yaml
 import numpy as np
 
 
@@ -111,6 +106,7 @@ class ExperimentalSetup(object):
                         value = getattr(ThresholdSelect, value.upper(), value)
                     elif key == "output_directory" and value.startswith("~"):
                         import os
+
                         value = os.path.expanduser(value)
                         value = os.path.normpath(value)
 

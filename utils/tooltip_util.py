@@ -1,6 +1,7 @@
 import tkinter as tk
 import platform
 
+
 def create_tooltip(widget, text: str, position="above-align-left"):
     import tkinter as tk
     import platform
@@ -94,7 +95,7 @@ def create_tooltip(widget, text: str, position="above-align-left"):
             tooltip.deiconify()
 
         def leave(event):
-                tooltip.withdraw()
+            tooltip.withdraw()
 
         widget.bind("<Enter>", enter)
         widget.bind("<Leave>", leave)

@@ -6,11 +6,12 @@ from modules.contact_angle.extract_profile import (
 from unittest.mock import patch
 from utils.enums import ThresholdSelect
 
-from unittest.mock import patch
+# from unittest.mock import patch
 import matplotlib.pyplot as plt
 import pytest
 import numpy as np
-import cv2
+
+# import cv2
 import os
 import sys
 import matplotlib

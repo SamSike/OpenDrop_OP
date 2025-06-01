@@ -1,5 +1,6 @@
 import customtkinter as ctk
-import tkinter as tk
+
+# import tkinter as tk
 
 
 class CTkTablePopup(ctk.CTkToplevel):

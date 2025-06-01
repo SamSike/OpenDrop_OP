@@ -1,4 +1,5 @@
-from utils.misc import resource_path
+from utils.os import resource_path
+
 # import libraries
 import pickle5 as pickle
 import matplotlib.pyplot as plt

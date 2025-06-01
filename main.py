@@ -6,6 +6,7 @@ from modules.core.classes import ExperimentalSetup, DropData
 from views.main_window import MainWindow
 from views.function_window import call_user_input
 from utils.enums import FunctionType
+from utils.os import is_windows
 
 import os
 import numpy as np
@@ -78,7 +79,7 @@ def main():
 
 
 def clear_screen():
-    os.system("cls" if os.name == "nt" else "clear")
+    os.system("cls" if is_windows() else "clear")
 
 
 def pause_wait_time(elapsed_time, requested_time):

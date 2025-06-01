@@ -1,7 +1,6 @@
 from typing import Sequence
 import numpy as np
 
-
 class YoungLaplaceShape:
     def __init__(self, bond: float) -> None: ...
     def __call__(self, s: float) -> np.ndarray: ...
