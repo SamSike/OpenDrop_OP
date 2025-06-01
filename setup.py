@@ -20,7 +20,8 @@ YOUNGLAPLACE_DIR = os.path.join(IFT_DIR, "younglaplace")
 INCLUDE_DIR = os.path.join(IFT_DIR, "include")
 
 # Dependencies paths
-SUNDIALS_INCLUDE = os.path.join("dependencies", "windows", "sundials", "include")
+SUNDIALS_INCLUDE = os.path.join(
+    "dependencies", "windows", "sundials", "include")
 SUNDIALS_LIB = os.path.join("dependencies", "windows", "sundials", "lib")
 BOOST_INCLUDE = os.path.join("dependencies", "windows", "boost")
 
@@ -37,7 +38,8 @@ extra_objects = []
 compile_args = []
 
 if is_windows:
-    SUNDIALS_INCLUDE = os.path.join("dependencies", "windows", "sundials", "include")
+    SUNDIALS_INCLUDE = os.path.join(
+        "dependencies", "windows", "sundials", "include")
     SUNDIALS_LIB = os.path.join("dependencies", "windows", "sundials", "lib")
     BOOST_INCLUDE = os.path.join("dependencies", "windows", "boost")
     extra_objects = [
@@ -59,8 +61,10 @@ elif is_macos:
     else:
         platform_dir = "macos_x86_64"
         print("macOS Intel detected.")
-    SUNDIALS_INCLUDE = os.path.join("dependencies", platform_dir, "sundials", "include")
-    SUNDIALS_LIB = os.path.join("dependencies", platform_dir, "sundials", "lib")
+    SUNDIALS_INCLUDE = os.path.join(
+        "dependencies", platform_dir, "sundials", "include")
+    SUNDIALS_LIB = os.path.join(
+        "dependencies", platform_dir, "sundials", "lib")
     BOOST_INCLUDE = os.path.join("dependencies", platform_dir, "boost")
     extra_objects = [
         os.path.join(SUNDIALS_LIB, "libsundials_arkode.a"),
@@ -78,13 +82,15 @@ elif is_macos:
     print(f"extra_objects: {extra_objects}")
     print(f"compile_args: {compile_args}")
 else:
-    SUNDIALS_INCLUDE = os.path.join("dependencies", "linux", "sundials", "include")
+    SUNDIALS_INCLUDE = os.path.join(
+        "dependencies", "linux", "sundials", "include")
     SUNDIALS_LIB = os.path.join("dependencies", "linux", "sundials", "lib")
     BOOST_INCLUDE = os.path.join("dependencies", "linux", "boost")
 
     extra_objects = [
         os.path.abspath(os.path.join(SUNDIALS_LIB, "libsundials_arkode.a")),
-        os.path.abspath(os.path.join(SUNDIALS_LIB, "libsundials_nvecserial.a")),
+        os.path.abspath(os.path.join(
+            SUNDIALS_LIB, "libsundials_nvecserial.a")),
         os.path.abspath(os.path.join(SUNDIALS_LIB, "libsundials_core.a")),
     ]
     compile_args.append("-std=c++17")
@@ -110,7 +116,8 @@ ext_modules = [
         name="opendrop2.modules.ift.younglaplace.shape",
         sources=[os.path.join(YOUNGLAPLACE_DIR, "shape.pyx")],
         language="c++",
-        include_dirs=[YOUNGLAPLACE_DIR, INCLUDE_DIR, SUNDIALS_INCLUDE, BOOST_INCLUDE],
+        include_dirs=[YOUNGLAPLACE_DIR, INCLUDE_DIR,
+                      SUNDIALS_INCLUDE, BOOST_INCLUDE],
         extra_objects=extra_objects,
         extra_compile_args=compile_args,
         define_macros=[("SUNDIALS_STATIC", 1)],
