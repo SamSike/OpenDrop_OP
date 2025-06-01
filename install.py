@@ -156,11 +156,6 @@ if __name__ == "__main__":
         run("python setup.py build_ext --inplace")
         run("python setup.py sdist bdist_wheel")
 
-        if "--upload" in sys.argv:
-            binaries = glob.glob(os.path.join("dist", "OpenDrop*.tar.gz"))
-            print("Uploading to PyPI...")
-            run(f"twine upload {binaries}", shell=True)
-
     if "--test" in sys.argv:
         tested = 0
 
@@ -210,3 +205,7 @@ if __name__ == "__main__":
         else:
             print(f"Total tests run: {tested}. All tests passed successfully.")
             sys.exit(0)
+
+    if "--upload" in sys.argv:
+        print("Uploading to PyPI...")
+        run(f"twine upload {' '.join(package_path)}", shell=True)

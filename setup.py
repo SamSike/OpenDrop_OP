@@ -81,9 +81,9 @@ else:
     BOOST_INCLUDE = os.path.join("dependencies", "linux", "boost")
 
     extra_objects = [
-        os.path.join(SUNDIALS_LIB, "libsundials_arkode.a"),
-        os.path.join(SUNDIALS_LIB, "libsundials_nvecserial.a"),
-        os.path.join(SUNDIALS_LIB, "libsundials_core.a"),
+        os.path.abspath(os.path.join(SUNDIALS_LIB, "libsundials_arkode.a")),
+        os.path.abspath(os.path.join(SUNDIALS_LIB, "libsundials_nvecserial.a")),
+        os.path.abspath(os.path.join(SUNDIALS_LIB, "libsundials_core.a")),
     ]
     compile_args.append("-std=c++17")
     print("Linux detected, using Linux-specific settings.")

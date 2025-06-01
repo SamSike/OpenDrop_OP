@@ -13,6 +13,7 @@ import tensorflow as tf
 import math  # for tilt_correction
 import time  # for recording timings
 import io  # for saving to memory
+import os
 
 
 def auto_crop(
@@ -2326,7 +2327,7 @@ def experimental_prediction(
 
     start_time = time.time()
 
-    model_path = "./"
+    model_path = os.path.dirname(__file__)
     model = tf.keras.models.load_model(model_path)
 
     if side == "left":

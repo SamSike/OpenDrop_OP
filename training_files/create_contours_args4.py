@@ -451,7 +451,13 @@ def prepare_contour(coords, given_input_len=1100, right_only=False):
 
 
 def create_contour(
-    angle, Bo, scaler, roughness, savedir="./", input_len=1100, display=False
+    angle,
+    Bo,
+    scaler,
+    roughness,
+    savedir=os.path.dirname(__file__),
+    input_len=1100,
+    display=False,
 ):
     filename = filename = (
         str(angle) + "_" + str(Bo) + "_" + str(scaler) + "_" + str(roughness) + "_.npy"
@@ -662,7 +668,7 @@ def parse_cmdline(argv=None):
         "the desired directory where synthetic"
         " images will be saved. If the directory "
         " does not exist then one will be created.",
-        default="./",
+        default=os.path.dirname(__file__),
     )
     parser.add_argument(
         "-a",
