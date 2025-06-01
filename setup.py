@@ -6,7 +6,7 @@ import sys
 import platform
 
 """
-Usage: 
+Usage:
         python setup.py build_ext --inplace
         OPENDROP_SUPPRESS_WARNINGS=1 python setup.py build_ext --inplace
 """

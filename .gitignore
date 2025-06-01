@@ -48,6 +48,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+opendrop2-*
 
 # Output file
 outputs/

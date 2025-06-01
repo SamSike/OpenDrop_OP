@@ -1,3 +1,5 @@
+from platform import machine
+import toml
 import sys
 import os
 import shutil
@@ -23,6 +25,20 @@ Usage:
     Building the Windows installer (heat, candle, light steps)
     requires WiX Toolset installed (only on Windows)
 """
+
+dependencies_folder_names = [
+    name
+    for name in os.listdir("dependencies")
+    if os.path.isdir(os.path.join("dependencies", name))
+]
+
+
+def get_project_metadata():
+    pyproject = toml.load("pyproject.toml")
+    project = pyproject.get("project", {})
+    name = project.get("name", "opendrop2")
+    version = project.get("version", "0.0.0")
+    return name, version
 
 
 def remove_dir(path):
@@ -64,10 +80,53 @@ def is_windows():
     return sys.platform.startswith("win32") or sys.platform.startswith("cygwin")
 
 
+def get_current_platform():
+    """
+    Get the current platform name based on the operating system.
+    Derive from dependencies/ folder names.
+    """
+    if sys.platform.startswith("linux"):
+        return "linux"
+    elif sys.platform.startswith("darwin"):
+        # You may want to detect arm64 vs x86_64 more precisely if needed
+        macos = machine().lower()
+        if macos == "arm64" or macos == "aarch64":
+            return "macos_arm64"
+        else:
+            return "macos_x86_64"
+    elif sys.platform.startswith("win"):
+        return "windows"
+    else:
+        raise RuntimeError(f"Unsupported platform: {sys.platform}")
+
+
+def create_manifest_dynamically():
+    """
+    Create a MANIFEST.in file dynamically based on the dependencies folder names.
+    This is used to include platform-specific dependencies in the pip package.
+    """
+    MANIFEST_IN = "MANIFEST.in"
+    for platform in dependencies_folder_names:
+        # Copy the template to MANIFEST.in
+        shutil.copyfile(f"{MANIFEST_IN}.template", MANIFEST_IN)
+
+        # Append the platform-specific dependency line
+        with open("MANIFEST.in", "a") as f:
+            f.write(f"recursive-include dependencies/{platform} *\n")
+            print(f"Created MANIFEST.in for {platform}")
+            run("python -m build")
+
+            dist_files = glob.glob(f"dist/{PACKAGE_NAME}-*.tar.gz")
+            if dist_files:
+                new_name = dist_files[-1].replace(".tar.gz", f"-{platform}.tar.gz")
+                os.rename(dist_files[-1], new_name)
+                print(f"Renamed {dist_files[-1]} to {new_name}")
+
+    remove_files(MANIFEST_IN)
+
+
 sep = ";" if is_windows() else ":"
-PACKAGE_NAME = "opendrop2"
-VERSION = "4.0.0"
-pip_package_name = f"{PACKAGE_NAME}-{VERSION}.tar.gz"
+PACKAGE_NAME, VERSION = get_project_metadata()
 
 
 if __name__ == "__main__":
@@ -88,28 +147,25 @@ if __name__ == "__main__":
         # Build PyInstaller bundle
         PyInstaller.__main__.run(
             [
-                "main.py",
+                os.path.join(PACKAGE_NAME, "main.py"),
                 # add all root dir folders
                 # (to exclude unrelated files such as dependencies/)
                 "--collect-submodules",
-                "modules",
+                f"{PACKAGE_NAME}.modules",
                 "--collect-submodules",
-                "views",
+                f"{PACKAGE_NAME}.views",
                 "--collect-submodules",
-                "utils",
+                f"{PACKAGE_NAME}.utils",
                 # collect all non-python files
                 "--add-data",
-                f"assets{sep}assets",
+                f"{os.path.join(PACKAGE_NAME, 'assets')}{sep}assets",
                 "--add-data",
-                f"user_config.yaml{sep}.",
+                f"{os.path.join(PACKAGE_NAME, 'user_config.yaml')}{sep}.",
                 "--add-data",
-                f"{os.path.join('modules', 'ML_model')}{sep}{os.path.join('modules', 'ML_model')}",
+                f"{os.path.join(PACKAGE_NAME, 'modules', 'ML_model')}{sep}modules/ML_model",
                 "--add-data",
-                f"experimental_data_set{sep}experimental_data_set",
+                f"{os.path.join(PACKAGE_NAME, 'experimental_data_set')}{sep}experimental_data_set",
                 "--add-data",
-                f"training_files{sep}training_files",
-                "--add-data",
-                f"sensitivity_data_set{sep}sensitivity_data_set",
                 # if fails due to missing files, can add them manually
                 # '--add-binary', 'modules/ift/younglaplace/shape*.pyd;modules/ift/younglaplace',
                 # add hidden imports that are not being collected automatically
@@ -122,9 +178,11 @@ if __name__ == "__main__":
                 "--onedir",
                 "--icon",
                 os.path.join(
-                    "assets", "opendrop.ico" if is_windows() else "opendrop.png"
+                    PACKAGE_NAME,
+                    "assets",
+                    "opendrop.ico" if is_windows() else "opendrop.png",
                 ),
-                # no console window
+                # no console window in the background
                 "--windowed",
                 # do not require answering 'yes/no' to create msi
                 "--noconfirm",
@@ -146,17 +204,16 @@ if __name__ == "__main__":
 
     if "--no-pip" not in sys.argv:
 
-        # Remove previous builds
-        # remove_files(os.path.join("**", "*.cpp"))
-        # remove_files(os.path.join("modules", "**", "*.so"))
-        # for path in glob.glob("**/*.egg-info", recursive=True):
-        #     remove_dir(path)
+        pip_package_name = [
+            f"{PACKAGE_NAME}-{VERSION}-{platform}.tar.gz"
+            for platform in dependencies_folder_names
+        ]
+        current_pip_package_name = (
+            f"{PACKAGE_NAME}-{VERSION}-{get_current_platform()}.tar.gz"
+        )
 
-        run("python -m build")
-
-        # Build Cython extensions
-        # run("python setup.py build_ext --inplace")
-        # run("python setup.py sdist bdist_wheel")
+        # Generate MANIFEST.in files for each platform and build .tar.gz
+        create_manifest_dynamically()
 
     if "--test" in sys.argv:
         tested = 0
@@ -189,17 +246,15 @@ if __name__ == "__main__":
 
         # test the built pip package
         print("Testing built pip package...")
-        package_path = glob.glob(os.path.join("dist", pip_package_name))
+        package_path = glob.glob(os.path.join("dist", current_pip_package_name))
 
         if not package_path:
-            print(f"Package {pip_package_name} does not exist. Skipping test.")
+            print(f"Package {current_pip_package_name} does not exist. Skipping test.")
         else:
             print(f"Found packages: {package_path}")
-            run(f"pip install {package_path[0]}", shell=True)
-            print(f"Installed package {pip_package_name} successfully.")
+            run(f"pip install {package_path[-1]}", shell=True)
+            print(f"Installed package {current_pip_package_name} successfully.")
             run("opendrop", shell=True)
-            # Optionally, you can run a test script to verify the installation
-            # run("python -c 'import opendrop2'", shell=True)
             tested += 1
 
         if tested == 0:
@@ -211,4 +266,5 @@ if __name__ == "__main__":
 
     if "--upload" in sys.argv:
         print("Uploading to PyPI...")
-        run(f"twine upload {' '.join(package_path)}", shell=True)
+        update_paths = glob.glob(os.path.join("dist", "*.tar.gz"))
+        run(f"twine upload {' '.join(update_paths)}", shell=True)

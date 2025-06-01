@@ -2,6 +2,8 @@ recursive-include opendrop2/modules/ift/younglaplace *.pyx
 recursive-include opendrop2/modules/ift/hough *.pyx
 recursive-include opendrop2/modules/ift/include *.hpp
 recursive-include opendrop2/modules/ML_model *
+recursive-include opendrop2/assets *
+recursive-include opendrop2/experimental_data_set *
 recursive-include dependencies *
 include README.md
 include LICENSE
