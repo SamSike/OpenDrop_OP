@@ -67,20 +67,23 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 # Code Structure Overview
 
 ```
-/ (project root)
-├── main.py                  # Application entry point
-├── modules/                 # Core backend logic (fitting, processing, ML)
-│   ├── fits.py              # Dispatcher for fitting methods
-│   ├── BA_fit.py, ellipse_fit.py, etc.
-│   └── ML_model/            # TensorFlow model, input-output conversion
-├── views/                   # Frontend UI (CustomTkinter)
-│   ├── ca_*.py, ift_*.py    # CA/IFT workflows
-│   ├── component/           # Reusable UI widgets
-│   └── function_window.py   # Navigation controller
-├── utils/                   # Helper code (config, validation, image IO)
-├── tests/                   # Unit and integration tests
-├── test_all.py              # Run all tests
-└── training files/          # ML training scripts and data
+OpenDrop_OP/
+├── modules/                    # Core backend logic
+│   ├── contact_angle/          # CA specific processing
+│   ├── core/                   # Core classes (ExperimentalSetup, DropData)
+│   ├── fitting/                # Fitting algorithms (BA_fit, ellipse_fit, etc.)
+│   ├── ift/                    # IFT specific processing, including Cython extensions
+│   │   ├── younglaplace/       # Young-Laplace fitting
+│   │   └── hough/              # Hough transform utilities
+│   ├── image/                  # Image processing utilities
+│   ├── ML_model/               # TensorFlow model, input-output conversion (Conan-ML)
+│   └── preprocessing/          # Image preprocessing steps
+├── views/                      # Frontend UI (CustomTkinter)
+│   └── component/              # Reusable UI widgets
+├── utils/                      # Helper code (config, validation, image IO, enums)
+├── assets/                     # Static assets like images and fonts
+├── dependencies/               # External library dependencies for C++ modules
+└── training files/             # ML training scripts and data
 ```
 
 # Quick Start Guide for Windows and Linux
