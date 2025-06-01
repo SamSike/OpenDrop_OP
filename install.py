@@ -1,4 +1,5 @@
 from platform import machine
+import tarfile
 import toml
 import sys
 import os
@@ -16,6 +17,7 @@ Usage:
     --test:         Test the built .exe file
 
     --no-pip:       Skip building the pip package
+    --specific:     Create platform-specific tar.gz files
     --upload:       Upload to PyPI (if --no-pip is not set)
 
 
@@ -100,29 +102,54 @@ def get_current_platform():
         raise RuntimeError(f"Unsupported platform: {sys.platform}")
 
 
-def create_manifest_dynamically():
+def create_platform_specific_tar_gz():
     """
-    Create a MANIFEST.in file dynamically based on the dependencies folder names.
-    This is used to include platform-specific dependencies in the pip package.
-    """
-    MANIFEST_IN = "MANIFEST.in"
+    Create platform-specific tar.gz files from the generated package.
+    Each tar.gz will contain only the dependencies for that platform."""
+
     for platform in dependencies_folder_names:
-        # Copy the template to MANIFEST.in
-        shutil.copyfile(f"{MANIFEST_IN}.template", MANIFEST_IN)
+        src_tar = os.path.join("dist", f"{PACKAGE_NAME}-{VERSION}.tar.gz")
+        dst_tar = os.path.join(
+            "dist", f"{PACKAGE_NAME}-{VERSION}-{platform}.tar.gz")
+        tmp_dir = os.path.join("dist", f"tmp_{platform}_extract")
 
-        # Append the platform-specific dependency line
-        with open("MANIFEST.in", "a") as f:
-            f.write(f"recursive-include dependencies/{platform} *\n")
-            print(f"Created MANIFEST.in for {platform}")
-            run("python -m build")
+        # Duplicate the .tar.gz file
+        shutil.copyfile(src_tar, dst_tar)
 
-            dist_files = glob.glob(f"dist/{PACKAGE_NAME}-*.tar.gz")
-            if dist_files:
-                new_name = dist_files[-1].replace(".tar.gz", f"-{platform}.tar.gz")
-                os.rename(dist_files[-1], new_name)
-                print(f"Renamed {dist_files[-1]} to {new_name}")
+        # Extract the copied tar.gz
+        if os.path.exists(tmp_dir):
+            shutil.rmtree(tmp_dir)
+        os.makedirs(tmp_dir, exist_ok=True)
+        with tarfile.open(dst_tar, "r:gz") as tar:
+            tar.extractall(tmp_dir)
 
-    remove_files(MANIFEST_IN)
+        # Find the top-level extracted folder (usually PACKAGE_NAME-VERSION)
+        top_level = None
+        for name in os.listdir(tmp_dir):
+            full_path = os.path.join(tmp_dir, name)
+            if os.path.isdir(full_path):
+                top_level = full_path
+                break
+        if not top_level:
+            print(f"Could not find top-level directory in {dst_tar}")
+            continue
+
+        # Remove all dependencies/<other_platform> folders
+        dep_dir = os.path.join(top_level, "dependencies")
+        if os.path.isdir(dep_dir):
+            for dep in os.listdir(dep_dir):
+                dep_path = os.path.join(dep_dir, dep)
+                if dep != platform and os.path.isdir(dep_path):
+                    shutil.rmtree(dep_path)
+                    print(f"Removed {dep_path} from {dst_tar}")
+
+        # Repack the cleaned directory into the tar.gz
+        with tarfile.open(dst_tar, "w:gz") as tar:
+            tar.add(top_level, arcname=os.path.basename(top_level))
+
+        # Clean up
+        shutil.rmtree(tmp_dir)
+        print(f"Created platform-specific archive: {dst_tar}")
 
 
 sep = ";" if is_windows() else ":"
@@ -148,42 +175,39 @@ if __name__ == "__main__":
         PyInstaller.__main__.run(
             [
                 os.path.join(PACKAGE_NAME, "main.py"),
+
                 # add all root dir folders
                 # (to exclude unrelated files such as dependencies/)
-                "--collect-submodules",
-                f"{PACKAGE_NAME}.modules",
-                "--collect-submodules",
-                f"{PACKAGE_NAME}.views",
-                "--collect-submodules",
-                f"{PACKAGE_NAME}.utils",
+                "--collect-submodules", f"{PACKAGE_NAME}.modules",
+                "--collect-submodules", f"{PACKAGE_NAME}.views",
+                "--collect-submodules", f"{PACKAGE_NAME}.utils",
+
                 # collect all non-python files
-                "--add-data",
-                f"{os.path.join(PACKAGE_NAME, 'assets')}{sep}assets",
-                "--add-data",
-                f"{os.path.join(PACKAGE_NAME, 'user_config.yaml')}{sep}.",
-                "--add-data",
-                f"{os.path.join(PACKAGE_NAME, 'modules', 'ML_model')}{sep}modules/ML_model",
-                "--add-data",
-                f"{os.path.join(PACKAGE_NAME, 'experimental_data_set')}{sep}{os.path.join(PACKAGE_NAME, 'experimental_data_set')}",
-                # "--add-data",
-                # if fails due to missing files, can add them manually
-                # '--add-binary', 'modules/ift/younglaplace/shape*.pyd;modules/ift/younglaplace',
+                "--add-data", f"{os.path.join(PACKAGE_NAME, 'assets')}{sep}assets",
+                "--add-data", f"{os.path.join(PACKAGE_NAME, 'user_config.yaml')}{sep}.",
+                "--add-data", f"{os.path.join(PACKAGE_NAME, 'modules', 'ML_model')}{sep}modules/ML_model",
+                "--add-data", f"{os.path.join(PACKAGE_NAME, 'experimental_data_set')}{sep}{os.path.join(PACKAGE_NAME, 'experimental_data_set')}",
+
+                # if fails due to missing files, can add them manually.
                 # add hidden imports that are not
                 # being collected automatically
-                "--hidden-import",
-                "PIL._tkinter_finder",
+                "--hidden-import", "PIL._tkinter_finder",
+
                 # clean up previous builds
                 "--clean",
+
                 # output in one directory instead of one huge exe file
                 "--onedir",
-                "--icon",
-                os.path.join(
+
+                "--icon", os.path.join(
                     PACKAGE_NAME,
                     "assets",
                     "opendrop.ico" if is_windows() else "opendrop.png",
                 ),
+
                 # no console window in the background
                 "--windowed",
+
                 # do not require answering 'yes/no' to create msi
                 "--noconfirm",
             ]
@@ -204,21 +228,16 @@ if __name__ == "__main__":
 
     if "--no-pip" not in sys.argv:
 
-        pip_package_name = [
-            f"{PACKAGE_NAME}-{VERSION}-{platform}.tar.gz"
-            for platform in dependencies_folder_names
-        ]
-        current_pip_package_name = (
-            f"{PACKAGE_NAME}-{VERSION}-{get_current_platform()}.tar.gz"
-        )
+        pip_package_name = os.path.join(
+            "dist", f"{PACKAGE_NAME}-{VERSION}.tar.gz")
 
-        # Generate MANIFEST.in files for each platform and build .tar.gz
-        create_manifest_dynamically()
+        # Generate one pip package containing dependencies of each platform
+        run("python -m build")
 
     if "--test" in sys.argv:
         tested = 0
 
-        # test the built executable
+        # test the built executable (.exe)
         print("Testing dist/main/main.exe, output will be saved to outputs/output.log")
         exe_path = os.path.join("dist", "main", "main.exe")
         log_path = os.path.join("outputs", "output.log")
@@ -230,7 +249,8 @@ if __name__ == "__main__":
         if not os.path.exists(exe_path):
             print(f"Executable {exe_path} does not exist. Skipping test.")
         else:
-            result = subprocess.run(f"{exe_path} > {log_path} 2>&1", shell=True)
+            result = subprocess.run(
+                f"{exe_path} > {log_path} 2>&1", shell=True)
             if result.returncode != 0:
                 print(
                     "main.exe exited with errors. Outputting last 20 lines of output.log:"
@@ -244,16 +264,19 @@ if __name__ == "__main__":
                 print("main.exe ran successfully. See output.log for details.")
                 tested += 1
 
-        # test the built pip package
+        # test the built package (.tar.gz)
         print("Testing built pip package...")
-        package_path = glob.glob(os.path.join("dist", current_pip_package_name))
+        package_path = glob.glob(os.path.join(
+            "dist", pip_package_name))
 
         if not package_path:
-            print(f"Package {current_pip_package_name} does not exist. Skipping test.")
+            print(
+                f"Package {pip_package_name} does not exist. Skipping test.")
         else:
             print(f"Found packages: {package_path}")
             run(f"pip install {package_path[-1]}", shell=True)
-            print(f"Installed package {current_pip_package_name} successfully.")
+            print(
+                f"Installed package {pip_package_name} successfully.")
             run("opendrop", shell=True)
             tested += 1
 
@@ -264,7 +287,14 @@ if __name__ == "__main__":
             print(f"Total tests run: {tested}. All tests passed successfully.")
             sys.exit(0)
 
+    if "--specific" in sys.argv:
+        # Create platform-specific tar.gz files
+        print("Creating platform-specific tar.gz files...")
+        create_platform_specific_tar_gz()
+
     if "--upload" in sys.argv:
+        # Only one pip package is allowed per release
         print("Uploading to PyPI...")
-        update_paths = glob.glob(os.path.join("dist", "*.tar.gz"))
-        run(f"twine upload {' '.join(update_paths)}", shell=True)
+        combined_package_name = os.path.join(
+            "dist", f"{PACKAGE_NAME}-{VERSION}.tar.gz")
+        run(f"twine upload {combined_package_name}", shell=True)

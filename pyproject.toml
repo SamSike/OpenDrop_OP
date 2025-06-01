@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "opendrop2"
 version = "4.0.0"
-description = "OpenDrop-ML is an open-source, cross-platform tool for analyzing liquid droplets in surface science using contact angle and pendant drop methods. It integrates classical geometric fitting with machine learning models (via Conan-ML), providing flexible, automated, and high-throughput image processing for researchers, technicians, and developers. Current ML implementation is optimized for high angle systems. For lower angle or extreme curvature drops, verification of results is strongly advised. See: https://doi.org/10.1021/acs.langmuir.4c01050"
+description = "OpenDrop-ML is an open-source, cross-platform tool for analyzing liquid droplets in surface science using contact angle and pendant drop methods, integrating classical geometric fitting with machine learning for flexible, automated, high-throughput image processing."
 authors = [
     { name = "Sameer Sikka", email = "ssikka@student.unimelb.edu.au" },
     { name = "Ahmed AlMutairi", email = "ahmed.almutairi@student.unimelb.edu.au" },
