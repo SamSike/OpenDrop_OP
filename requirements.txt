@@ -39,7 +39,6 @@ opt-einsum==3.3.0
 packaging==23.2
 Pillow==9.5.0
 pluggy==1.5.0
-pre-commit==3.5.0
 protobuf==3.20.3
 pyasn1==0.5.1
 pyasn1-modules==0.3.0
@@ -58,7 +57,7 @@ tensorboard-data-server==0.7.1
 tensorboard-plugin-wit==1.8.1
 tensorflow==2.13.0
 tensorflow-estimator==2.13.0
-tensorflow-io-gcs-filesystem>=0.31.0, <=0.34.0
+tensorflow-io-gcs-filesystem>=0.31.0,<=0.34.0
 termcolor==2.3.0
 threadpoolctl==3.1.0
 tomli==2.2.1

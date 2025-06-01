@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <!-- UPGRADECODE UNIQUE TO OPENDROP --> <!-- UPDATE VERSION NUMBER FOR NEW RELEASE -->
+  <Product Id="*" Name="OpenDrop" Language="1033" Version="4.0.0.0" Manufacturer="jdber1" UpgradeCode="b97a66f0-acc8-4f83-939a-8872612d6d2c">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <!-- CREATES BUILD FILE -->
+    <Media Id="1" Cabinet="OpenDrop.cab" EmbedCab="yes" />
+
+    <!-- USES ICON FILE -->
+    <Icon Id="OpenDropIcon" SourceFile="opendrop2/assets/opendrop.ico" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="OpenDrop">   
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="OpenDropProgramMenu" Name="OpenDrop">
+          <!-- FOR START MENU -->
+          <Component Id="StartMenuShortcut" Guid="13cb7860-b20d-45a6-b28c-535a9e747242">
+            <Shortcut Id="startmenuShortcut"
+                      Directory="OpenDropProgramMenu"
+                      Name="OpenDrop"
+                      WorkingDirectory="INSTALLFOLDER"
+                      Icon="OpenDropIcon"
+                      Target="[INSTALLFOLDER]main.exe"
+                      Description="Launch OpenDrop" />
+
+            <!-- FOR PROPER UNINSTALL -->
+            <RegistryValue Root="HKCU" Key="Software\OpenDrop" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            <RemoveFolder Id="RemoveShortcutFolder" On="uninstall" Directory="OpenDropProgramMenu"/>
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="DefaultFeature" Level="1">
+      <ComponentRef Id="StartMenuShortcut" />
+      <ComponentGroupRef Id="MainFiles" />
+    </Feature>
+  </Product>
+</Wix>
