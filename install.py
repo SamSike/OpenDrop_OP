@@ -165,11 +165,11 @@ if __name__ == "__main__":
                 f"{os.path.join(PACKAGE_NAME, 'modules', 'ML_model')}{sep}modules/ML_model",
                 "--add-data",
                 f"{os.path.join(PACKAGE_NAME, 'experimental_data_set')}{sep}experimental_data_set",
-                "--add-data",
+                # "--add-data",
                 # if fails due to missing files, can add them manually
                 # '--add-binary', 'modules/ift/younglaplace/shape*.pyd;modules/ift/younglaplace',
-                # add hidden imports that are not being collected automatically
-                # and throw errors
+                # add hidden imports that are not
+                # being collected automatically
                 "--hidden-import",
                 "PIL._tkinter_finder",
                 # clean up previous builds
