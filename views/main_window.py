@@ -15,7 +15,6 @@ class MainWindow(ctk.CTk):
         self.minsize(width=800, height=400)
 
         # For .ico files (recommended for Windows)
-
         if is_windows():
             self.iconbitmap(resource_path("assets/opendrop.ico"))
         else:
