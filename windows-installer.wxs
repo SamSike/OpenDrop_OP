@@ -9,7 +9,7 @@
     <Media Id="1" Cabinet="OpenDrop.cab" EmbedCab="yes" />
 
     <!-- USES ICON FILE -->
-    <Icon Id="OpenDropIcon" SourceFile="assets/opendrop.ico" />
+    <Icon Id="OpenDropIcon" SourceFile="opendrop2/assets/opendrop.ico" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">

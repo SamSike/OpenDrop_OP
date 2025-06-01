@@ -1,63 +1,56 @@
 # Guide to Create New Release
 
+Install dependencies for install.py
+
+```bash
+pip install -r requirements.txt
+pip install pyinstaller toml twine build
+```
+
 ## Windows Release (msi)
 
 ### Pre Requisites
 
 1. Install WiX Toolset [https://wixtoolset.org/releases/]
 
-   (Optional: Install WiX Visual Studio Extension)
+    (Optional: Install WiX Visual Studio Extension)
 
 2. Ensure PATH (system environmental variables) contains WiX
 
-3. Ensure pyinstaller is installed
+3. Update `windows-installer.wxs`:
 
-   ```bash
-   pip install pyinstaller
-   ```
+    1. Create new GUID (using powershell)
 
-4. Update `windows-installer.wxs`:
+        ```powershell
+        [guid]::NewGuid()
+        ```
 
-   1. Create new GUID (using powershell)
+    2. Update version number in Product tag
 
-      ```powershell
-      [guid]::NewGuid()
-      ```
+4. Create msi installer
 
-   2. Update version number in Product tag
+    ```bash
+    python install.py --no-pip
+    ```
 
-5. Create msi installer
+5. Add release to GitHub (after testing)
 
-   ```bash
-   python install.py --no-pip
-   ```
-
-6. Add release to GitHub
-
-   1. On the right side of the GitHub page, click "Create a new release"
-   2. Label release with opendrop version
-   3. Add msi to binaries
+    1. On the right side of the GitHub page, click "Create a new release"
+    2. Label release with opendrop version
+    3. Add msi to binaries
 
 ## Python Release (pip)
 
-1. Ensure PyPI account
+1. Ensure PyPI account and get API token [https://pypi.org/manage/account/token/]
 
-2. Install twine
+2. Create distributions
 
-   ```bash
-   pip install twine
-   ```
+    ```bash
+    python install.py --no-msi
+    ```
 
-3. Create distributions
+3. Upload (after testing)
 
-   ```bash
-   python install.py --no-msi
-   ```
-
-4. Test
-
-5. Upload
-
-   ```bash
-   python install.py --no-msi --upload
-   ```
+    ```bash
+    python install.py --no-msi --no-pip --upload
+    ```
