@@ -22,6 +22,7 @@ Welcome to the **OpenDrop-ML Developer Guide**!
 ### What You'll Learn
 
 This guide provides all the necessary information for developers to:
+
 - Set up their development environment
 - Understand the project architecture
 - Contribute effectively to the codebase
@@ -35,20 +36,22 @@ Setting up the development environment for OpenDrop-ML involves installing Pytho
 
 > **Important:** Ensure you have the exact versions listed below for compatibility.
 
-| Requirement | Version | Notes |
-|-------------|---------|-------|
-| **Python** | 3.8.10 | As specified in `.python-version` and `README.md` |
-| **Git** | Latest | For version control |
+| Requirement | Version | Notes                                             |
+| ----------- | ------- | ------------------------------------------------- |
+| **Python**  | 3.8.10  | As specified in `.python-version` and `README.md` |
+| **Git**     | Latest  | For version control                               |
 
 ### 2.2. Installation Steps
 
 #### Step 1: Clone the Repository
+
 ```bash
 git clone <repository-url>
 cd OpenDrop_OP
 ```
 
 #### Step 2: Create Virtual Environment (Recommended)
+
 ```bash
 # Create virtual environment
 python -m venv venv
@@ -63,11 +66,13 @@ source venv/bin/activate
 ```
 
 #### Step 3: Install Python Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
 #### Step 4: Build Cython Extensions
+
 > **Required for IFT Analysis:** The project uses C++ modules for performance-critical calculations.
 
 ```bash
@@ -77,8 +82,9 @@ python setup.py build_ext --inplace
 **Note:** Refer to `setup.py` for details on C++ dependencies like SUNDIALS and Boost.
 
 #### Step 5: Verify Installation
+
 ```bash
-python main.py
+python opendrop2/main.py
 ```
 
 ### 2.3. Additional Resources
@@ -92,46 +98,54 @@ OpenDrop-ML follows a **modular architecture** to separate concerns and facilita
 
 ### 3.1. High-Level Overview
 
-![High-Level Architecture](./assets/high-level-project-diagram.png)
+![High-Level Architecture](opendrop2/assets/high-level-project-diagram.png)
 
 The project is primarily divided into:
+
 - **Backend Logic** (`modules/`)
 - **Frontend UI** (`views/`)
 - **Utility Functions** (`utils/`)
-- **Testing Modules** (co-located `*_test.py` files)
+
+The test modules follow the same folder structure. The `tests/` folder is located in the project root folder.
 
 ### 3.2. Directory Structure
 
 ```
 OpenDrop_OP/
-├── modules/                    # Core backend logic
-│   ├── contact_angle/          # CA specific processing
-│   ├── core/                   # Core classes (ExperimentalSetup, DropData)
-│   ├── fitting/                # Fitting algorithms (BA_fit, ellipse_fit, etc.)
-│   ├── ift/                    # IFT specific processing, including Cython extensions
-│   │   ├── younglaplace/       # Young-Laplace fitting
-│   │   └── hough/              # Hough transform utilities
-│   ├── image/                  # Image processing utilities
-│   ├── ML_model/               # TensorFlow model, input-output conversion (Conan-ML)
-│   └── preprocessing/          # Image preprocessing steps
-├── views/                      # Frontend UI (CustomTkinter)
-│   └── component/              # Reusable UI widgets
-├── utils/                      # Helper code (config, validation, image IO, enums)
-├── assets/                     # Static assets like images and fonts
-├── dependencies/               # External library dependencies for C++ modules
-└── training files/             # ML training scripts and data
+├── opendrop2/                  # Main Python package
+│   ├── modules/                # Core backend logic
+│   │   ├── contact_angle/      # CA specific processing
+│   │   ├── core/               # Core classes (ExperimentalSetup, DropData)
+│   │   ├── fitting/            # Fitting algorithms (BA_fit, ellipse_fit, etc.)
+│   │   ├── ift/                # IFT specific processing, including Cython extensions
+│   │   │   ├── younglaplace/   # Young-Laplace fitting
+│   │   │   └── hough/          # Hough transform utilities
+│   │   ├── image/              # Image processing utilities
+│   │   ├── ML_model/           # TensorFlow model, input-output conversion (Conan-ML)
+│   │   └── preprocessing/      # Image preprocessing steps
+│   ├── views/                  # Frontend UI (CustomTkinter)
+│   │   └── component/          # Reusable UI widgets
+│   ├── utils/                  # Helper code (config, validation, image IO, enums)
+│   ├── assets/                 # Static assets like images and fonts
+│   ├── dependencies/           # External library dependencies for C++ modules
+│   └── training_files/         # ML training scripts and data
+├── pyproject.toml
+├── setup.py
+├── requirements.txt
+├── DEV_GUIDE.md
+└── README.md
 ```
 
 ### 3.3. Backend Architecture (`modules/`)
 
 #### Core Components
 
-| Component | File | Description |
-|-----------|------|-------------|
-| **Entry Point** | `main.py` | Initializes and runs the application |
-| **Data Structures** | `modules/core/classes.py` | Defines `ExperimentalSetup` and `DropData` |
-| **Fitting Dispatcher** | `modules/fitting/fits.py` | Routes to various fitting methods (Polynomial, Circle, Ellipse, Young-Laplace, ML) |
-| **Algorithms** | `modules/fitting/BA_fit.py` | Individual fitting algorithm implementations |
+| Component              | File                        | Description                                                                        |
+| ---------------------- | --------------------------- | ---------------------------------------------------------------------------------- |
+| **Entry Point**        | `main.py`                   | Initializes and runs the application                                               |
+| **Data Structures**    | `modules/core/classes.py`   | Defines `ExperimentalSetup` and `DropData`                                         |
+| **Fitting Dispatcher** | `modules/fitting/fits.py`   | Routes to various fitting methods (Polynomial, Circle, Ellipse, Young-Laplace, ML) |
+| **Algorithms**         | `modules/fitting/BA_fit.py` | Individual fitting algorithm implementations                                       |
 
 #### Analysis Pipelines
 
@@ -140,6 +154,7 @@ OpenDrop_OP/
 - **Machine Learning**: `modules/ML_model/` contains TensorFlow models for Conan-ML
 
 #### Data Flow
+
 ```
 Image Acquisition → Preprocessing → Contour Extraction → Fitting → Results
 ```
@@ -160,14 +175,15 @@ Image Acquisition → Preprocessing → Contour Extraction → Fitting → Resul
 
 #### Workflow Pages
 
-| Stage | Contact Angle | Interfacial Tension |
-|-------|---------------|-------------------|
-| **Acquisition** | `acquisition.py` | `acquisition.py` |
+| Stage           | Contact Angle       | Interfacial Tension  |
+| --------------- | ------------------- | -------------------- |
+| **Acquisition** | `acquisition.py`    | `acquisition.py`     |
 | **Preparation** | `ca_preparation.py` | `ift_preparation.py` |
-| **Analysis** | `ca_analysis.py` | `ift_analysis.py` |
-| **Output** | `output_page.py` | `output_page.py` |
+| **Analysis**    | `ca_analysis.py`    | `ift_analysis.py`    |
+| **Output**      | `output_page.py`    | `output_page.py`     |
 
 #### Reusable Components
+
 - **Location**: `views/component/`
 - **Examples**: Custom entry fields, validation widgets, common UI patterns
 
@@ -179,18 +195,18 @@ We use a **develop-centric branching model** for development and collaboration.
 
 #### Main Branches
 
-| Branch | Purpose | Access |
-|--------|---------|--------|
+| Branch        | Purpose                                                                 | Access                    |
+| ------------- | ----------------------------------------------------------------------- | ------------------------- |
 | **`develop`** | Main integration branch for all development features and default branch | Direct commits ❌, PRs ✅ |
-| **`main`** | Stable, release-ready code | Release Manager only |
+| **`main`**    | Stable, release-ready code                                              | Release Manager only      |
 
 #### Development Branches
 
-| Branch Type | Naming Convention | Created From | Merged To |
-|-------------|------------------|--------------|-----------|
-| **Feature** | `feature/short-descriptive-name` | `develop` | `develop` |
-| **Release** | `release/version-number` | `develop` | `main` + `develop` |
-| **Hotfix** | `hotfix/issue-fix` | `main` | `main` + `develop` |
+| Branch Type | Naming Convention                | Created From | Merged To          |
+| ----------- | -------------------------------- | ------------ | ------------------ |
+| **Feature** | `feature/short-descriptive-name` | `develop`    | `develop`          |
+| **Release** | `release/version-number`         | `develop`    | `main` + `develop` |
+| **Hotfix**  | `hotfix/issue-fix`               | `main`       | `main` + `develop` |
 
 #### Feature Branch Workflow
 
@@ -214,7 +230,7 @@ We use a **develop-centric branching model** for development and collaboration.
 #### Review Focus Areas
 
 - **Correctness**: Logic and functionality
-- **Standards**: Adherence to coding guidelines  
+- **Standards**: Adherence to coding guidelines
 - **Performance**: Efficiency considerations
 - **Maintainability**: Code clarity and documentation
 
@@ -233,11 +249,11 @@ Adherence to coding standards is crucial for maintaining **code quality** and **
 
 #### Core Standards
 
-| Standard | Tool | Command |
-|----------|------|---------|
-| **PEP 8** | Manual | Follow [PEP 8](https://pep8.org/) style guide |
-| **Formatting** | `black` | `black .` |
-| **Linting** | `flake8` | `flake8 .` |
+| Standard       | Tool     | Command                                       |
+| -------------- | -------- | --------------------------------------------- |
+| **PEP 8**      | Manual   | Follow [PEP 8](https://pep8.org/) style guide |
+| **Formatting** | `black`  | `black .`                                     |
+| **Linting**    | `flake8` | `flake8 .`                                    |
 
 #### Documentation Requirements
 
@@ -246,16 +262,17 @@ Adherence to coding standards is crucial for maintaining **code quality** and **
 - **Comments**: Explain complex or non-obvious code sections
 
 #### Example Docstring
+
 ```python
 def calculate_contact_angle(contour: np.ndarray) -> tuple[float, float]:
     """Calculate left and right contact angles from droplet contour.
-    
+
     Args:
         contour: Droplet contour points as (N, 2) array of (x, y) coordinates.
-        
+
     Returns:
         Tuple of (left_angle, right_angle) in degrees.
-        
+
     Raises:
         ValueError: If contour has insufficient points for calculation.
     """
@@ -264,6 +281,7 @@ def calculate_contact_angle(contour: np.ndarray) -> tuple[float, float]:
 ### 5.2. Commit Message Convention
 
 #### Angular Convention Format
+
 ```
 <type>(<scope>): <subject>
 
@@ -274,17 +292,18 @@ def calculate_contact_angle(contour: np.ndarray) -> tuple[float, float]:
 
 #### Commit Types
 
-| Type | Purpose | Example |
-|------|---------|---------|
-| `feat` | New feature | `feat(fitting): add polynomial fit option for CA` |
-| `fix` | Bug fix | `fix(ui): resolve image scaling bug in analysis page` |
-| `docs` | Documentation | `docs(readme): update installation instructions` |
-| `style` | Formatting | `style(views): apply black formatting` |
-| `refactor` | Code restructuring | `refactor(core): simplify data structures` |
-| `test` | Testing | `test(fitting): add unit tests for BA_fit` |
-| `chore` | Maintenance | `chore(deps): update requirements.txt` |
+| Type       | Purpose            | Example                                               |
+| ---------- | ------------------ | ----------------------------------------------------- |
+| `feat`     | New feature        | `feat(fitting): add polynomial fit option for CA`     |
+| `fix`      | Bug fix            | `fix(ui): resolve image scaling bug in analysis page` |
+| `docs`     | Documentation      | `docs(readme): update installation instructions`      |
+| `style`    | Formatting         | `style(views): apply black formatting`                |
+| `refactor` | Code restructuring | `refactor(core): simplify data structures`            |
+| `test`     | Testing            | `test(fitting): add unit tests for BA_fit`            |
+| `chore`    | Maintenance        | `chore(deps): update requirements.txt`                |
 
 #### Examples
+
 ```bash
 feat(fitting): add polynomial fit option for CA
 Closes #42
@@ -303,15 +322,16 @@ Addresses #55, #57
 - **Responsiveness**: Design for different screen sizes
 
 #### Component Structure
+
 ```python
 class MyCustomWidget(ctk.CTkFrame):
     """Custom widget with clear documentation."""
-    
+
     def __init__(self, parent, user_input_data, **kwargs):
         super().__init__(parent, **kwargs)
         self.user_input_data = user_input_data
         self._setup_ui()
-    
+
     def _setup_ui(self):
         """Initialize UI components."""
         # UI setup code here
@@ -327,60 +347,61 @@ Comprehensive testing ensures the **reliability** and **stability** of OpenDrop-
 
 #### Framework & Structure
 
-| Aspect | Details |
-|--------|---------|
-| **Framework** | `pytest` |
+| Aspect            | Details                               |
+| ----------------- | ------------------------------------- |
+| **Framework**     | `pytest`                              |
 | **Test Location** | Co-located with modules (`*_test.py`) |
-| **Entry Point** | `test_all.py` for running all tests |
-| **Coverage** | `modules/` and `views/` directories |
+| **Entry Point**   | `test_all.py` for running all tests   |
+| **Coverage**      | `modules/` and `views/` directories   |
 
 #### Test File Examples
-```
-modules/fitting/
-├── fits.py
-├── fits_test.py
-├── BA_fit.py
-└── BA_fit_test.py
 
-views/
-├── acquisition.py
-└── acquisition_test.py
+```
+tests/
+├── modules/
+│   └── fitting/
+│       ├── fits_test.py
+│       └── BA_fit_test.py
+└── views/
+    └── acquisition_test.py
 ```
 
-> **Note**: There is **no separate `tests/` directory** - all tests are co-located with their source files.
+To avoid including test files in the final package, the `tests/` folder is placed at the project root (not inside `opendrop2/`). It mirrors the internal structure of `opendrop2/` for consistency and ease of testing.
 
 ### 6.2. Writing Tests
 
 #### Test Types
 
-| Type | Purpose | Guidelines |
-|------|---------|------------|
-| **Unit Tests** | Test individual functions/methods | Use `pytest` fixtures, mock dependencies |
-| **Integration Tests** | Test component interactions | Focus on data flow between modules |
+| Type                  | Purpose                           | Guidelines                               |
+| --------------------- | --------------------------------- | ---------------------------------------- |
+| **Unit Tests**        | Test individual functions/methods | Use `pytest` fixtures, mock dependencies |
+| **Integration Tests** | Test component interactions       | Focus on data flow between modules       |
 
 #### Naming Conventions
+
 - **Files**: `test_*.py` or `*_test.py`
 - **Functions**: Prefix with `test_`
 
 #### Example Test Structure
+
 ```python
 import pytest
 from modules.fitting.BA_fit import calculate_baseline_angle
 
 class TestBaselineAngle:
     """Test cases for baseline angle calculation."""
-    
+
     @pytest.fixture
     def sample_contour(self):
         """Provide sample contour data for testing."""
         return np.array([[10, 20], [15, 25], [20, 30]])
-    
+
     def test_calculate_baseline_angle_valid_input(self, sample_contour):
         """Test baseline angle calculation with valid input."""
         result = calculate_baseline_angle(sample_contour)
         assert isinstance(result, tuple)
         assert len(result) == 2
-    
+
     def test_calculate_baseline_angle_empty_contour(self):
         """Test baseline angle calculation with empty contour."""
         with pytest.raises(ValueError):
@@ -391,13 +412,14 @@ class TestBaselineAngle:
 
 #### Basic Commands
 
-| Command | Purpose |
-|---------|---------|
-| `python test_all.py` | Run all tests using unified script |
-| `pytest` | Run all tests using pytest directly |
-| `pytest -v` | Run tests with verbose output |
+| Command              | Purpose                             |
+| -------------------- | ----------------------------------- |
+| `python test_all.py` | Run all tests using unified script  |
+| `pytest`             | Run all tests using pytest directly |
+| `pytest -v`          | Run tests with verbose output       |
 
 #### Specific Test Execution
+
 ```bash
 # Run specific test file
 pytest modules/fitting/fits_test.py
@@ -413,6 +435,7 @@ pytest -k "test_baseline"
 ```
 
 #### Test Coverage
+
 ```bash
 # Generate coverage report
 pytest --cov=modules --cov=views
@@ -435,6 +458,7 @@ pytest --cov=modules --cov=views --cov-report=term-missing
 - **Mock External Dependencies**: Isolate units under test
 
 #### Coverage Goals
+
 - **Target**: Aim for high test coverage (>80%)
 - **Priority**: Focus on critical paths and complex algorithms
 - **Documentation**: Include coverage reports in PRs
@@ -451,18 +475,20 @@ This section outlines the steps for **building**, **packaging**, and **deploying
 
 The project includes **performance-critical C++ modules** compiled with Cython, essential for IFT analysis.
 
-| Dependency | Purpose | Platforms |
-|------------|---------|-----------|
-| **SUNDIALS** | Numerical solving | Windows, macOS, Linux |
-| **Boost C++** | C++ libraries | Windows, macOS, Linux |
-| **Cython** | Python-C++ binding | All platforms |
+| Dependency    | Purpose            | Platforms             |
+| ------------- | ------------------ | --------------------- |
+| **SUNDIALS**  | Numerical solving  | Windows, macOS, Linux |
+| **Boost C++** | C++ libraries      | Windows, macOS, Linux |
+| **Cython**    | Python-C++ binding | All platforms         |
 
 #### Build Command
+
 ```bash
 python setup.py build_ext --inplace
 ```
 
 #### What This Does
+
 - Compiles `.pyx` files → C/C++ → Python extensions
 - Output: `.pyd` (Windows) or `.so` (Linux/macOS) files
 - Location: Placed in `modules/ift/younglaplace/` directory
@@ -475,24 +501,25 @@ python setup.py build_ext --inplace
 
 The `setup.py` script handles critical packaging tasks:
 
-| Task | Description |
-|------|-------------|
-| **Cython Compilation** | Converts `.pyx` files to Python extensions |
+| Task                      | Description                                                           |
+| ------------------------- | --------------------------------------------------------------------- |
+| **Cython Compilation**    | Converts `.pyx` files to Python extensions                            |
 | **Platform Dependencies** | Links OS-specific libraries (Windows `.lib`, Linux `.so`, macOS `.a`) |
-| **Extension Definition** | Configures source files, include dirs, compiler flags |
-| **Integration** | Places compiled modules in project structure |
+| **Extension Definition**  | Configures source files, include dirs, compiler flags                 |
+| **Integration**           | Places compiled modules in project structure                          |
 
 #### Platform-Specific Libraries
 
 ```
 dependencies/
 ├── windows/      # .lib files
-├── macos_arm64/  # ARM64 .a/.so files  
+├── macos_arm64/  # ARM64 .a/.so files
 ├── macos_x86_64/ # Intel .a/.so files
 └── linux/        # .a/.so files
 ```
 
 #### Compiler Configuration
+
 - **C++ Standard**: `-std=c++17`
 - **Include Paths**: Cython source, SUNDIALS, Boost headers
 - **Library Linking**: OS-specific static/dynamic libraries
@@ -501,34 +528,37 @@ dependencies/
 
 #### Cross-Platform Builds
 
-| Platform | Requirements | Notes |
-|----------|-------------|-------|
-| **Windows** | Visual Studio Build Tools | Use native Windows build |
-| **macOS** | Xcode Command Line Tools | Support both Intel & ARM64 |
-| **Linux** | GCC/Clang | Various distributions |
+| Platform    | Requirements              | Notes                      |
+| ----------- | ------------------------- | -------------------------- |
+| **Windows** | Visual Studio Build Tools | Use native Windows build   |
+| **macOS**   | Xcode Command Line Tools  | Support both Intel & ARM64 |
+| **Linux**   | GCC/Clang                 | Various distributions      |
 
 > **Best Practice**: Build on each target OS for maximum compatibility.
 
 #### Packaging Checklist
 
 - [ ] **Python Dependencies**: Bundle all `requirements.txt` packages
-- [ ] **C++ Extensions**: Include compiled `.pyd`/`.so` files from build step
+- [ ] **C++ Extensions**: Include compiled `.pyx, .hpp, .pyd`/`.so` files from build step
 - [ ] **ML Models**: Include TensorFlow SavedModel from `modules/ML_model/`
 - [ ] **Assets**: Include fonts, images from `assets/` directory
 - [ ] **Configuration**: Include `user_config.yaml` defaults
 
 #### Common Packaging Tools
 
-| Tool | Purpose | Use Case |
-|------|---------|----------|
-| **PyInstaller** | Standalone executables | End-user distribution |
-| **cx_Freeze** | Cross-platform freezing | Alternative to PyInstaller |
-| **Nuitka** | Python compiler | Performance-optimized builds |
+| Tool            | Purpose                 | Use Case                     |
+| --------------- | ----------------------- | ---------------------------- |
+| **PyInstaller** | Standalone executables  | End-user distribution        |
+| **cx_Freeze**   | Cross-platform freezing | Alternative to PyInstaller   |
+| **Nuitka**      | Python compiler         | Performance-optimized builds |
 
 #### Example PyInstaller Command
+
 ```bash
 pyinstaller --onefile --windowed --add-data "assets;assets" --add-data "modules/ML_model;modules/ML_model" main.py
 ```
+
+Eensure the `/` is the correct one for your platform. A platform independant pyinstaller command is used in `install.py` as part of the main.exe creation process in Windows.
 
 ### 7.4. Testing Packaged Applications
 
@@ -542,37 +572,40 @@ pyinstaller --onefile --windowed --add-data "assets;assets" --add-data "modules/
 
 #### Platform Testing Matrix
 
-| Platform | Python | Architecture | Status |
-|----------|--------|--------------|--------|
-| Windows 10/11 | 3.8.10 | x64 | Required |
-| macOS | 3.8.10 | Intel x64 | Required |
-| macOS | 3.8.10 | ARM64 | Required |
-| Ubuntu LTS | 3.8.10 | x64 | Required |
+| Platform      | Python | Architecture | Status   |
+| ------------- | ------ | ------------ | -------- |
+| Windows 10/11 | 3.8.10 | x64          | Required |
+| macOS         | 3.8.10 | Intel x64    | Required |
+| macOS         | 3.8.10 | ARM64        | Required |
+| Ubuntu LTS    | 3.8.10 | x64          | Required |
 
 ## 8. Further Information
 
 ### 8.1. Configuration & Customization
 
-| File | Purpose | Documentation |
-|------|---------|---------------|
+| File                   | Purpose                      | Documentation                    |
+| ---------------------- | ---------------------------- | -------------------------------- |
 | **`user_config.yaml`** | Default application settings | Modify for custom configurations |
-| **`requirements.txt`** | Python dependencies | Update when adding new packages |
-| **`.python-version`** | Python version specification | Maintain version consistency |
+| **`requirements.txt`** | Python dependencies          | Update when adding new packages  |
+| **`.python-version`**  | Python version specification | Maintain version consistency     |
 
 ### 8.2. Resources & Support
 
 #### Documentation
+
 - **Main Guide**: This Developer Guide (comprehensive reference)
 - **User Guide**: `README.md` (end-user instructions)
 - **Testing**: `TESTING.md` (testing procedures)
 
 #### Troubleshooting
+
 1. **Check Logs**: Review application output for error messages
 2. **GitHub Issues**: Search existing issues or create new ones
 3. **Team Consultation**: Reach out to other team members
 4. **Dependencies**: Verify all requirements are properly installed
 
 #### Quick Navigation
+
 - [Setup Instructions](#2-setup-instructions) - Get started quickly
 - [Project Structure](#3-project-structure) - Understand the codebase
 - [Testing Procedures](#6-testing-procedures) - Run and write tests
