@@ -51,7 +51,11 @@ class FloatEntry:
         self.entry.grid(row=rw, column=1, sticky="we", padx=padx, pady=pady)
 
     def get_value(self):
-        return float("0" + self.text_variable.get())
+        value = self.text_variable.get()
+        try:
+            return float(value) if value else None
+        except ValueError:
+            return None
 
     def set_value(self, value):
         self.text_variable.set(str(float(value)))

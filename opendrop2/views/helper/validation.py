@@ -34,11 +34,11 @@ def validate_user_input_data_ift(user_input_data: ExperimentalSetup):
     #     messages.append("Please select needle region")
 
     # Check user_input_fields for None values
-
+    print("user input data : ",user_input_data)
     required_fields = {
         "drop_density": "Drop Density",
         "needle_diameter_mm": "Needle Diameter",
-        # ,'density_outer': "Continuous Density",
+        'density_outer': "Continuous Density",
         # 'pixel_mm': "Pixel to mm"
     }
 
@@ -46,7 +46,7 @@ def validate_user_input_data_ift(user_input_data: ExperimentalSetup):
         # Get the attribute or None if missing
         value = getattr(user_input_data, field, None)
         print(field, " is ", value)
-        if value is None:  # Check for both None and empty string
+        if value is None or "":  # Check for both None and empty string
             messages.append(f"{label} is required")
 
     # Check if analysis_method_fields has at least one method selected
