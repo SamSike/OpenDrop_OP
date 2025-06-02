@@ -174,120 +174,328 @@ class FunctionWindow(CTkToplevel):
             self.next_button.pack(side="right", padx=10, pady=10)
             self.save_button.pack_forget()
 
+    # def next(self, function_type, user_input_data, experimental_drop, fitted_drop_data):
+    #     try:
+    #         self.update_stage(Move.Next.value)
+    #         # Handle the "Next" button functionality
+    #         if self.current_stage == Stage.PREPARATION:
+
+    #             # First check if the user has imported files
+    #             if not self.check_import(user_input_data):
+    #                 self.update_stage(Move.Back.value)
+    #                 messagebox.showinfo(
+    #                     "No Selection", "Please select at least one file.", parent=self
+    #                 )
+    #                 return
+
+    #             # Then check if the frame interval is valid
+    #             # if function_type == FunctionType.INTERFACIAL_TENSION:
+    #             if not validate_frame_interval(user_input_data):
+    #                 self.update_stage(Move.Back.value)
+    #                 messagebox.showinfo(
+    #                     "Missing", "Frame Interval is required.", parent=self
+    #                 )
+    #                 return
+                
+    #             self.back_button.pack(side="left", padx=10, pady=10)
+    #             # self.ift_processor.processPreparation(user_input_data)
+    #             # user have selected at least one file
+    #             self.acquisition_frame.pack_forget()
+    #             # Initialise Preparation frame
+    #             if function_type == FunctionType.INTERFACIAL_TENSION:
+    #                 self.ift_preparation_frame = IftPreparation(
+    #                     self,
+    #                     user_input_data,
+    #                     experimental_drop,
+    #                     self.ift_processor,
+    #                     fg_color=self.FG_COLOR,
+    #                 )
+    #                 self.ift_preparation_frame.pack(fill="both", expand=True)
+
+    #             else:
+    #                 self.ca_preparation_frame = CaPreparation(
+    #                     self, user_input_data, experimental_drop, fg_color=self.FG_COLOR
+    #                 )
+    #                 self.ca_preparation_frame.pack(fill="both", expand=True)
+
+    #         elif self.current_stage == Stage.ANALYSIS:
+    #             # Validate user input data
+    #             if function_type == FunctionType.INTERFACIAL_TENSION:
+    #                 validation_messages = validate_user_input_data_ift(user_input_data)
+
+    #             elif function_type == FunctionType.CONTACT_ANGLE:
+    #                 validation_messages = validate_user_input_data_cm(
+    #                     user_input_data, experimental_drop
+    #                 )
+
+    #             if validation_messages:
+    #                 self.update_stage(Move.Back.value)
+    #                 all_messages = "\n".join(validation_messages)
+    #                 # Show a single pop-up message with all validation messages
+    #                 messagebox.showinfo("Missing: \n", all_messages, parent=self)
+    #             else:
+    #                 if function_type == FunctionType.INTERFACIAL_TENSION:
+    #                     self.ift_preparation_frame.pack_forget()
+    #                     self.ift_analysis_frame = IftAnalysis(
+    #                         self,
+    #                         user_input_data,
+    #                         self.ift_processor,
+    #                         fg_color=self.FG_COLOR,
+    #                     )
+    #                     self.ift_analysis_frame.pack(fill="both", expand=True)
+    #                     self.withdraw()
+    #                     self.ift_processor.process_data(user_input_data)
+    #                     self.deiconify()
+    #                 else:
+    #                     self.ca_preparation_frame.pack_forget()
+    #                     self.ca_analysis_frame = CaAnalysis(
+    #                         self, user_input_data, fg_color=self.FG_COLOR
+    #                     )
+    #                     self.ca_analysis_frame.pack(fill="both", expand=True)
+
+    #                     # analysis the given input data and send the output to the ca_analysis_frame for display
+    #                     try:
+    #                         self.withdraw()
+    #                         self.ca_processor.process_data(
+    #                             fitted_drop_data,
+    #                             user_input_data,
+    #                             callback=self.ca_analysis_frame.receive_output,
+    #                         )
+    #                     except Exception as e:
+    #                         print(f"[Error] Unexpected exception: {e}")
+    #                         error_msg = str(e)
+
+    #                         if "array must not contain infs or NaNs" in error_msg or "too many indices for array: array is 1-dimensional, but 2 were indexed" in error_msg:
+    #                             messagebox.showerror(
+    #                             "Invalid Image",
+    #                             f"This image is not for {function_type.value} analysis.\nPlease go back and select another image or application.",
+    #                             parent=self,
+    #                         )
+    #                             self.on_closing()
+    #                             return
+    #                         elif "list index out of range" in error_msg or "'NoneType' object is not iterable" in error_msg: 
+    #                             messagebox.showerror(
+    #                             "Invalid Region",
+    #                             f"The selected region is invalid — no usable droplet was detected or the boundary is incomplete.",
+    #                             parent=self,
+    #                             )
+    #                             self.update_stage(Move.Back.value)
+    #                             self.ca_analysis_frame.pack_forget()
+    #                             self.ca_preparation_frame.pack(fill="both", expand=True)
+    #                             return
+    #                         else:
+    #                             messagebox.showerror(
+    #                                 "Error",
+    #                                 f"Error: \n{e}\n\n"
+    #                                 "Please try again.",
+    #                                 parent=self
+    #                             )
+    #                             self.on_closing()
+    #                             return
+                            
+    #                     finally:
+    #                         self.deiconify()
+
+    #         elif self.current_stage == Stage.OUTPUT:
+    #             if function_type == FunctionType.INTERFACIAL_TENSION:
+    #                 self.ift_analysis_frame.pack_forget()
+    #             else:
+    #                 self.ca_analysis_frame.pack_forget()
+
+    #             # Initialise Output frame
+    #             self.output_frame = OutputPage(
+    #                 self, user_input_data, fg_color=self.FG_COLOR
+    #             )
+
+    #             # Show the OutputPage
+    #             self.output_frame.pack(fill="both", expand=True)
+
+    #             # Hide the next button and show the save button
+    #             self.next_button.pack_forget()
+    #             self.save_button.pack(side="right", padx=10, pady=10)
+    #     except Exception as e:
+    #         print(f"[Error] Unexpected exception: {e}")
+    #         error_msg = str(e)
+
+    #         if "cannot unpack non-iterable NoneType" in error_msg or "array must not contain infs or NaNs" in error_msg or "too many indices for array: array is 1-dimensional, but 2 were indexed" in error_msg:
+    #             messagebox.showerror(
+    #             "Invalid Image",
+    #             f"This image is not for {function_type.value} analysis.\nPlease go back and select another image or application.",
+    #             parent=self,
+    #         )
+    #             self.on_closing()
+    #             return
+    #         elif "Parameter estimatation failed for this data set" in error_msg or "ERKStepEvolve()" in error_msg:
+    #             self.update_stage(Move.Back.value)  
+    #             messagebox.showerror(
+    #             "Invalid Region",
+    #             f"The selected region is invalid — no usable droplet was detected or the boundary is incomplete.",
+    #             parent=self,
+    #             )
+    #             return
+    #         else:
+    #             messagebox.showerror(
+    #                 "Error",
+    #                 f"Error: \n{e}\n\n"
+    #                 "Please try again.",
+    #                 parent=self
+    #             )
+    #             self.on_closing()
+    #             return
     def next(self, function_type, user_input_data, experimental_drop, fitted_drop_data):
         try:
             self.update_stage(Move.Next.value)
-            # Handle the "Next" button functionality
+
             if self.current_stage == Stage.PREPARATION:
-
-                # First check if the user has imported files
-                if not self.check_import(user_input_data):
-                    self.update_stage(Move.Back.value)
-                    messagebox.showinfo(
-                        "No Selection", "Please select at least one file.", parent=self
-                    )
-                    return
-
-                # Then check if the frame interval is valid
-                # if function_type == FunctionType.INTERFACIAL_TENSION:
-                if not validate_frame_interval(user_input_data):
-                    self.update_stage(Move.Back.value)
-                    messagebox.showinfo(
-                        "Missing", "Frame Interval is required.", parent=self
-                    )
-                    return
-                self.back_button.pack(side="left", padx=10, pady=10)
-                # self.ift_processor.processPreparation(user_input_data)
-                # user have selected at least one file
-                self.acquisition_frame.pack_forget()
-                # Initialise Preparation frame
-                if function_type == FunctionType.INTERFACIAL_TENSION:
-                    self.ift_preparation_frame = IftPreparation(
-                        self,
-                        user_input_data,
-                        experimental_drop,
-                        self.ift_processor,
-                        fg_color=self.FG_COLOR,
-                    )
-                    self.ift_preparation_frame.pack(fill="both", expand=True)
-
-                else:
-                    self.ca_preparation_frame = CaPreparation(
-                        self, user_input_data, experimental_drop, fg_color=self.FG_COLOR
-                    )
-                    self.ca_preparation_frame.pack(fill="both", expand=True)
+                self._handle_preparation_stage(function_type, user_input_data, experimental_drop)
 
             elif self.current_stage == Stage.ANALYSIS:
-                # Validate user input data
-                if function_type == FunctionType.INTERFACIAL_TENSION:
-                    validation_messages = validate_user_input_data_ift(user_input_data)
 
-                elif function_type == FunctionType.CONTACT_ANGLE:
-                    validation_messages = validate_user_input_data_cm(
-                        user_input_data, experimental_drop
-                    )
-
-                if validation_messages:
-                    self.update_stage(Move.Back.value)
-                    all_messages = "\n".join(validation_messages)
-                    # Show a single pop-up message with all validation messages
-                    messagebox.showinfo("Missing: \n", all_messages, parent=self)
-                else:
-                    if function_type == FunctionType.INTERFACIAL_TENSION:
-                        self.ift_preparation_frame.pack_forget()
-                        self.ift_analysis_frame = IftAnalysis(
-                            self,
-                            user_input_data,
-                            self.ift_processor,
-                            fg_color=self.FG_COLOR,
-                        )
-                        self.ift_analysis_frame.pack(fill="both", expand=True)
-                        self.withdraw()
-                        self.ift_processor.process_data(user_input_data)
-                        self.deiconify()
-                    else:
-                        self.ca_preparation_frame.pack_forget()
-                        self.ca_analysis_frame = CaAnalysis(
-                            self, user_input_data, fg_color=self.FG_COLOR
-                        )
-                        self.ca_analysis_frame.pack(fill="both", expand=True)
-
-                        # analysis the given input data and send the output to the ca_analysis_frame for display
-                        self.withdraw()
-                        self.ca_processor.process_data(
-                            fitted_drop_data,
-                            user_input_data,
-                            callback=self.ca_analysis_frame.receive_output,
-                        )
-                        self.deiconify()
+                self._handle_analysis_stage(function_type, user_input_data, experimental_drop, fitted_drop_data)
 
             elif self.current_stage == Stage.OUTPUT:
-                if function_type == FunctionType.INTERFACIAL_TENSION:
-                    self.ift_analysis_frame.pack_forget()
-                else:
-                    self.ca_analysis_frame.pack_forget()
+                self._handle_output_stage(function_type, user_input_data)
 
-                # Initialise Output frame
-                self.output_frame = OutputPage(
-                    self, user_input_data, fg_color=self.FG_COLOR
-                )
-
-                # Show the OutputPage
-                self.output_frame.pack(fill="both", expand=True)
-
-                # Hide the next button and show the save button
-                self.next_button.pack_forget()
-                self.save_button.pack(side="right", padx=10, pady=10)
         except Exception as e:
-            # Catch any unexpected exception and show it
-            print(f"[Error] Unexpected exception: {e}")
+            error_msg = str(e)
+            print(error_msg)
+            if  "cannot unpack non-iterable NoneType object" in error_msg:
+                messagebox.showerror(
+                    "Invalid Image",
+                    "This image is not suitable for Interfacial Tension analysis.\nPlease go back and select another image.",
+                    parent=self
+                )
+                self.on_closing()
             messagebox.showerror(
-                "Invalid Image",
-                f"This image is not suitable for {function_type.value} analysis.\nPlease go back and select another image or application.",
-                parent=self,
+                "Error",
+                f"Unexpected Error:\n{e}",
+                parent=self
             )
             self.on_closing()
+
+    def _handle_preparation_stage(self, function_type, user_input_data, experimental_drop):
+        if not self.check_import(user_input_data):
+            self.update_stage(Move.Back.value)
+            messagebox.showinfo("No Selection", "Please select at least one file.", parent=self)
             return
+
+        if not validate_frame_interval(user_input_data):
+            self.update_stage(Move.Back.value)
+            messagebox.showinfo("Missing", "Frame Interval is required.", parent=self)
+            return
+
+        self.back_button.pack(side="left", padx=10, pady=10)
+        self.acquisition_frame.pack_forget()
+
+        if function_type == FunctionType.INTERFACIAL_TENSION:
+            self.ift_preparation_frame = IftPreparation(
+                self, user_input_data, experimental_drop, self.ift_processor, fg_color=self.FG_COLOR
+            )
+            self.ift_preparation_frame.pack(fill="both", expand=True)
+        else:
+            self.ca_preparation_frame = CaPreparation(
+                self, user_input_data, experimental_drop, fg_color=self.FG_COLOR
+            )
+            self.ca_preparation_frame.pack(fill="both", expand=True)
+
+    def _handle_analysis_stage(self, function_type, user_input_data, experimental_drop, fitted_drop_data):
+        if function_type == FunctionType.INTERFACIAL_TENSION:
+            messages = validate_user_input_data_ift(user_input_data)
+        else:
+            messages = validate_user_input_data_cm(user_input_data, experimental_drop)
+
+        if messages:
+            self.update_stage(Move.Back.value)
+            messagebox.showinfo("Missing", "\n".join(messages), parent=self)
+            return
+
+        if function_type == FunctionType.INTERFACIAL_TENSION:
+            self._run_ift_analysis(user_input_data)
+        else:
+            self._run_ca_analysis(user_input_data, fitted_drop_data)
+
+    def _run_ift_analysis(self, user_input_data):
+        self.ift_preparation_frame.pack_forget()
+        self.ift_analysis_frame = IftAnalysis(
+            self, user_input_data, self.ift_processor, fg_color=self.FG_COLOR
+        )
+        self.ift_analysis_frame.pack(fill="both", expand=True)
+
+        try:
+            self.withdraw()
+            self.ift_processor.process_data(user_input_data)
+        except Exception as e:
+            error_msg = str(e)
+            print(f"[Error] IFT processing failed: {error_msg}")
+
+            if "Parameter estimation failed" in error_msg or "ERKStepEvolve()" in error_msg:
+                self.update_stage(Move.Back.value)
+                self.ift_analysis_frame.pack_forget()
+                self.ift_preparation_frame.pack(fill="both", expand=True)
+                messagebox.showerror(
+                    "Invalid Region",
+                    "No usable droplet was detected or the boundary is incomplete.",
+                    parent=self
+                )
+            else:
+                messagebox.showerror("Error", f"Error: \n{e}\n\nPlease try again.", parent=self)
+                self.on_closing()
+        finally:
+            self.deiconify()
+
+
+    def _run_ca_analysis(self, user_input_data, fitted_drop_data):
+        self.ca_preparation_frame.pack_forget()
+        self.ca_analysis_frame = CaAnalysis(self, user_input_data, fg_color=self.FG_COLOR)
+        self.ca_analysis_frame.pack(fill="both", expand=True)
+
+        try:
+            self.withdraw()
+            self.ca_processor.process_data(
+                fitted_drop_data,
+                user_input_data,
+                callback=self.ca_analysis_frame.receive_output,
+            )
+        except Exception as e:
+            error_msg = str(e)
+            print(error_msg)
+            if any(keyword in error_msg for keyword in [
+               "array must not contain infs or NaNs" ,
+                "float division by zero",
+            ]):
+                messagebox.showerror("Invalid Image", f"This image is not for Cotanct Angle analysis.\nPlease go back and select another image or application.", parent=self)
+                self.on_closing()
+            elif any(keyword in error_msg for keyword in [
+                "list index out of range",
+                "'NoneType' object is not iterable",
+                "float division by zero",
+                "too many indices",
+            ]):
+                messagebox.showerror("Invalid Region", "No usable droplet detected or the boundary is incomplete.", parent=self)
+                self.update_stage(Move.Back.value)
+                self.ca_analysis_frame.pack_forget()
+                self.ca_preparation_frame.pack(fill="both", expand=True)
+            else:
+                messagebox.showerror("Error", f"Error: \n{e}\n\nPlease try again.", parent=self)
+                self.on_closing()
+        finally:
+            self.deiconify()
+
+    def _handle_output_stage(self, function_type, user_input_data):
+        if function_type == FunctionType.INTERFACIAL_TENSION:
+            self.ift_analysis_frame.pack_forget()
+        else:
+            self.ca_analysis_frame.pack_forget()
+
+        self.output_frame = OutputPage(self, user_input_data, fg_color=self.FG_COLOR)
+        self.output_frame.pack(fill="both", expand=True)
+
+        self.next_button.pack_forget()
+        self.save_button.pack(side="right", padx=10, pady=10)
+
+    
+    
+
 
     def save_output(
         self, function_type: FunctionType, user_input_data: ExperimentalSetup
@@ -357,32 +565,43 @@ class FunctionWindow(CTkToplevel):
         self.after_ids.append(after_id)
         return after_id
 
+
     def on_closing(self):
         try:
-            # print("Cleaning up after tasks:", self.after_ids)
-            # cancel after callback
-            for after_id in self.after_ids:
-                try:
-                    self.after_cancel(after_id)
-                except Exception as e:
-                    print("after_cancel error:", e)
+            # Step 1: cancel all  after() 
+            if hasattr(self, 'after_ids'):
+                for after_id in self.after_ids:
+                    try:
+                        self.after_cancel(after_id)
+                    except Exception as e:
+                        print("[Warning] after_cancel failed:", e)
 
-            # destroy all widgets
+            # Step 2: safely destory all widget
             for widget in self.winfo_children():
                 try:
                     widget.destroy()
                 except Exception as e:
-                    print("widget destroy error:", e)
+                    print("[Warning] widget destroy failed:", e)
 
-            self.quit()
-            self.destroy()
+            # Step 3: hide current window
+            self.withdraw()
 
-            # show main window
-            if self.main_window.winfo_exists():
+            # Step 4: exit the loop and destory the window 
+            try:
+                self.quit()     # Stop mainloop if running
+            except Exception as e:
+                print("[Warning] quit() failed:", e)
+
+            try:
+                self.destroy()  # Fully destroy this window
+            except Exception as e:
+                print("[Warning] destroy() failed:", e)
+
+            # Step 5: main window if existed
+            if hasattr(self, 'main_window') and self.main_window.winfo_exists():
                 self.main_window.deiconify()
 
         except Exception as e:
-            print("on_closing error:", e)
+            print("[Fatal] on_closing encountered an error:", e)
             import sys
-
             sys.exit(1)
