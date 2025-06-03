@@ -71,7 +71,6 @@ def main():
         def open_ca(main_window):
             call_user_input(FunctionType.CONTACT_ANGLE, fitted_drop_data, main_window)
 
-        # 创建 MainWindow 实例并传递引用
         main_window = MainWindow(continue_processing, open_ift, open_ca)
 
 

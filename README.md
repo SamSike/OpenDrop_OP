@@ -38,8 +38,8 @@ Current ML implementation is optimized for high angle systems. For lower angle o
     - [✅ You can skip this step if:](#-you-can-skip-this-step-if)
     - [⚠️ You must build manually with CMake if:](#️-you-must-build-manually-with-cmake-if)
 - [User Configuration Guide](#user-configuration-guide)
-  - [📁 File Structure Example](#-file-structure-example)
-  - [✅ Allowed Values](#-allowed-values)
+  - [File Structure Example](#file-structure-example)
+  - [Allowed Values](#allowed-values)
     - [Drop/Needle Region Methods](#dropneedle-region-methods)
     - [Threshold/Baseline Method](#thresholdbaseline-method)
     - [Edge Detection](#edge-detection)
@@ -47,6 +47,7 @@ Current ML implementation is optimized for high angle systems. For lower angle o
   - [Tips](#tips)
 - [Full Workflow](#full-workflow)
 - [Developer \& Contributor Guide](#developer--contributor-guide)
+  - [Linting](#linting)
   - [Modular Design](#modular-design)
   - [Backend \& UI Extensions](#backend--ui-extensions)
 - [High-Level Architecture Diagram](#high-level-architecture-diagram)
@@ -420,7 +421,7 @@ You can avoid setting parameters manually in code — just edit the YAML file.
 
 ---
 
-## 📁 File Structure Example
+## File Structure Example
 
 ```yaml
 # --- Image capture settings ---
@@ -468,7 +469,7 @@ output_directory: ./outputs/
 
 ---
 
-## ✅ Allowed Values
+## Allowed Values
 
 ### Drop/Needle Region Methods
 
