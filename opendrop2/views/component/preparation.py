@@ -613,7 +613,7 @@ def create_analysis_checklist_cm(self, parent, user_input_data):
     self.tangent_boole = CheckButton(
         self,
         input_fields_frame,
-        "First-degree polynomial fit",
+        "First-degree polynomial fit(tangent fit)",
         update_tangent_boole,
         rw=0,
         cl=0,
