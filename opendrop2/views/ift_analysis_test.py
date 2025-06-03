@@ -19,7 +19,7 @@ def dummy_data():
 
 @pytest.fixture
 def instance(dummy_data):
-    with patch("views.ift_analysis.IftAnalysis.__init__", return_value=None):
+    with patch("opendrop2.views.ift_analysis.IftAnalysis.__init__", return_value=None):
         obj = IftAnalysis()
         obj.user_input_data = dummy_data
         obj.output = []

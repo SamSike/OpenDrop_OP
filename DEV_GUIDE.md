@@ -1,15 +1,84 @@
 # Developer Guide: OpenDrop-ML
 
 ## Table of Contents
-
-1. [Introduction](#1-introduction)
-2. [Setup Instructions](#2-setup-instructions)
-3. [Project Structure](#3-project-structure)
-4. [Contribution Workflow](#4-contribution-workflow)
-5. [Coding Standards](#5-coding-standards)
-6. [Testing Procedures](#6-testing-procedures)
-7. [Deployment Guidelines](#7-deployment-guidelines)
-8. [Further Information](#8-further-information)
+- [Developer Guide: OpenDrop-ML](#developer-guide-opendrop-ml)
+  - [Table of Contents](#table-of-contents)
+  - [1. Introduction](#1-introduction)
+    - [What You'll Learn](#what-youll-learn)
+  - [2. Setup Instructions](#2-setup-instructions)
+  - [3. Project Structure](#3-project-structure)
+    - [3.1. High-Level Overview](#31-high-level-overview)
+    - [3.2. Directory Structure](#32-directory-structure)
+    - [3.3. Backend Architecture (`modules/`)](#33-backend-architecture-modules)
+      - [Core Components](#core-components)
+      - [Analysis Pipelines](#analysis-pipelines)
+      - [Data Flow](#data-flow)
+    - [3.4. Frontend Architecture (`views/`)](#34-frontend-architecture-views)
+      - [Framework \& Navigation](#framework--navigation)
+      - [Shared State Management](#shared-state-management)
+      - [Workflow Pages](#workflow-pages)
+      - [Reusable Components](#reusable-components)
+  - [4. Contribution Workflow](#4-contribution-workflow)
+    - [4.1. Branching Strategy](#41-branching-strategy)
+      - [Main Branches](#main-branches)
+      - [Development Branches](#development-branches)
+      - [Feature Branch Workflow](#feature-branch-workflow)
+    - [4.2. Pull Request (PR) Process](#42-pull-request-pr-process)
+      - [PR Requirements](#pr-requirements)
+    - [4.3. Code Review Guidelines](#43-code-review-guidelines)
+      - [Review Focus Areas](#review-focus-areas)
+      - [Best Practices](#best-practices)
+  - [5. Coding Standards](#5-coding-standards)
+    - [5.1. Python Style Guide](#51-python-style-guide)
+      - [Core Standards](#core-standards)
+      - [Documentation Requirements](#documentation-requirements)
+      - [Example Docstring](#example-docstring)
+      - [Linting Guide](#linting-guide)
+    - [5.2. Commit Message Convention](#52-commit-message-convention)
+      - [Angular Convention Format](#angular-convention-format)
+      - [Commit Types](#commit-types)
+      - [Examples](#examples)
+    - [5.3. Frontend Standards (CustomTkinter)](#53-frontend-standards-customtkinter)
+      - [UI Guidelines](#ui-guidelines)
+      - [Component Structure](#component-structure)
+  - [6. Testing Procedures](#6-testing-procedures)
+    - [6.1. Testing Overview](#61-testing-overview)
+      - [Framework \& Structure](#framework--structure)
+      - [Test File Examples](#test-file-examples)
+    - [6.2. Writing Tests](#62-writing-tests)
+      - [Test Types](#test-types)
+      - [Naming Conventions](#naming-conventions)
+      - [Example Test Structure](#example-test-structure)
+    - [6.3. Running Tests](#63-running-tests)
+      - [Basic Commands](#basic-commands)
+      - [Specific Test Execution](#specific-test-execution)
+      - [Test Coverage](#test-coverage)
+    - [6.4. Test Development Guidelines](#64-test-development-guidelines)
+      - [Best Practices](#best-practices-1)
+      - [Coverage Goals](#coverage-goals)
+  - [7. Deployment Guidelines](#7-deployment-guidelines)
+    - [7.1. Building Cython Extensions](#71-building-cython-extensions)
+      - [Prerequisites for C++ Modules](#prerequisites-for-c-modules)
+      - [Build Command](#build-command)
+      - [What This Does](#what-this-does)
+    - [7.2. Core Packaging with `setup.py`](#72-core-packaging-with-setuppy)
+      - [Setup.py Responsibilities](#setuppy-responsibilities)
+      - [Platform-Specific Libraries](#platform-specific-libraries)
+      - [Compiler Configuration](#compiler-configuration)
+    - [7.3. Deployment Considerations](#73-deployment-considerations)
+      - [Cross-Platform Builds](#cross-platform-builds)
+      - [Packaging Checklist](#packaging-checklist)
+      - [Common Packaging Tools](#common-packaging-tools)
+      - [Example PyInstaller Command](#example-pyinstaller-command)
+    - [7.4. Testing Packaged Applications](#74-testing-packaged-applications)
+      - [Validation Steps](#validation-steps)
+      - [Platform Testing Matrix](#platform-testing-matrix)
+  - [8. Further Information](#8-further-information)
+    - [8.1. Configuration \& Customization](#81-configuration--customization)
+    - [8.2. Resources \& Support](#82-resources--support)
+      - [Documentation](#documentation)
+      - [Troubleshooting](#troubleshooting)
+      - [Quick Navigation](#quick-navigation)
 
 ---
 
@@ -30,67 +99,7 @@ This guide provides all the necessary information for developers to:
 
 ## 2. Setup Instructions
 
-Setting up the development environment for OpenDrop-ML involves installing Python, cloning the repository, and installing dependencies.
-
-### 2.1. Prerequisites
-
-> **Important:** Ensure you have the exact versions listed below for compatibility.
-
-| Requirement | Version | Notes                                             |
-| ----------- | ------- | ------------------------------------------------- |
-| **Python**  | 3.8.10  | As specified in `.python-version` and `README.md` |
-| **Git**     | Latest  | For version control                               |
-
-### 2.2. Installation Steps
-
-#### Step 1: Clone the Repository
-
-```bash
-git clone <repository-url>
-cd OpenDrop_OP
-```
-
-#### Step 2: Create Virtual Environment (Recommended)
-
-```bash
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# On Windows (PowerShell)
-.\venv\Scripts\Activate.ps1
-# On Windows (Command Prompt)
-.\venv\Scripts\activate.bat
-# On macOS/Linux
-source venv/bin/activate
-```
-
-#### Step 3: Install Python Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-#### Step 4: Build Cython Extensions
-
-> **Required for IFT Analysis:** The project uses C++ modules for performance-critical calculations.
-
-```bash
-python setup.py build_ext --inplace
-```
-
-**Note:** Refer to `setup.py` for details on C++ dependencies like SUNDIALS and Boost.
-
-#### Step 5: Verify Installation
-
-```bash
-python -m opendrop2.main
-```
-
-### 2.3. Additional Resources
-
-- **Detailed Instructions**: See `README.md` for OS-specific steps
-- **Quick Start**: Jump to the setup section above
+Setting up the development environment for OpenDrop-ML involves installing Python, cloning the repository, and installing dependencies. Please check the installation guide in [README file](./README.md).
 
 ## 3. Project Structure
 
@@ -112,8 +121,8 @@ The test modules follow the same folder structure. The `tests/` folder is locate
 
 ```
 OpenDrop_OP/
-├── opendrop2/                  # Main Python package
-│   ├── modules/                # Core backend logic
+├── opendrop2/                  # Main Python package containing all logic and UI
+│   ├── modules/                # Core backend logic, organized by functionality
 │   │   ├── contact_angle/      # CA specific processing
 │   │   ├── core/               # Core classes (ExperimentalSetup, DropData)
 │   │   ├── fitting/            # Fitting algorithms (BA_fit, ellipse_fit, etc.)
@@ -124,16 +133,24 @@ OpenDrop_OP/
 │   │   ├── ML_model/           # TensorFlow model, input-output conversion (Conan-ML)
 │   │   └── preprocessing/      # Image preprocessing steps
 │   ├── views/                  # Frontend UI (CustomTkinter)
+│   │   ├── helper/             # Helper modules for building UI components and layout logic
 │   │   └── component/          # Reusable UI widgets
 │   ├── utils/                  # Helper code (config, validation, image IO, enums)
 │   ├── assets/                 # Static assets like images and fonts
+│   ├── experimental_data_set/  # Example input images for testing and demonstration
 │   ├── dependencies/           # External library dependencies for C++ modules
-│   └── training_files/         # ML training scripts and data
-├── pyproject.toml
-├── setup.py
-├── requirements.txt
-├── DEV_GUIDE.md
-└── README.md
+│   ├── main.py                 # Main entry point for launching the OpenDrop-ML GUI
+│   └── user_config.yaml        # User-specific configuration and preferences
+├── pyproject.toml              # Build system and metadata (PEP 518); modern alternative to setup.py
+├── setup.py                    # Python package installer script
+├── install.py                  # Custom installation script (e.g., dependency handling, setup)
+├── test_all.py                 # Entry point to run all unit tests in the codebase
+├── requirements.txt            # List of required Python packages
+├── windows-installer.wxs       # WiX Toolset script for creating a Windows installer
+├── TESTING.md                  # Guide for running tests using test_all.py
+├── RELEASE.md                  # Release notes and changelog for each version
+├── DEV_GUIDE.md                # Developer setup and contribution guide
+└── README.md                   # Overview of the project, how to install and use it
 ```
 
 ### 3.3. Backend Architecture (`modules/`)
@@ -278,6 +295,20 @@ def calculate_contact_angle(contour: np.ndarray) -> tuple[float, float]:
     """
 ```
 
+#### Linting Guide
+
+Install pre commit linter to automatically lint (beautify) your files before every commit:
+
+```
+pre-commit install
+```
+
+The first time running may take a few minutes. Run manually:
+
+```
+pre-commit run --all-files
+```
+
 ### 5.2. Commit Message Convention
 
 #### Angular Convention Format
@@ -357,16 +388,18 @@ Comprehensive testing ensures the **reliability** and **stability** of OpenDrop-
 #### Test File Examples
 
 ```
-tests/
-├── modules/
-│   └── fitting/
-│       ├── fits_test.py
-│       └── BA_fit_test.py
-└── views/
-    └── acquisition_test.py
+opendrop2/modules/fitting/
+├── fits.py
+├── fits_test.py
+├── BA_fit.py
+└── BA_fit_test.py
+
+opendrop2/views/
+├── acquisition.py
+└── acquisition_test.py
 ```
 
-To avoid including test files in the final package, the `tests/` folder is placed at the project root (not inside `opendrop2/`). It mirrors the internal structure of `opendrop2/` for consistency and ease of testing.
+> **Note**: There is **no separate `tests/` directory** - all tests are co-located with their source files.
 
 ### 6.2. Writing Tests
 
