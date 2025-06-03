@@ -46,7 +46,7 @@ class ExperimentalSetup(object):
         self.cropped_boole: int = 0
         self.threshold_boole: int = 0
 
-        self.density_outer = None  # continuous density
+        self.density_outer :Optional[float] = None
         self.needle_diameter_mm: Optional[float] = None
         self.drop_density: Optional[float] = None
         self.pixel_mm = None

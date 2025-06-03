@@ -185,7 +185,7 @@ python setup.py build_ext --inplace
 ## 6. Run the Application
 
 ```bash
-python main.py
+python -m opendrop2.main
 ```
 
 # Quick Start Guide for macOS (Intel & Apple Silicon)
@@ -248,7 +248,7 @@ python setup.py build_ext --inplace
 ## 4. Run the Application
 
 ```bash
-python main.py
+python -m opendrop2.main
 ```
 
 ## Troubleshooting:
@@ -275,7 +275,7 @@ This means `.so` files were built under the wrong architecture.
 python setup.py clean --all
 rm -rf build modules/ift/**/**/*.so
 python setup.py build_ext --inplace
-python main.py
+python -m opendrop2.main
 ```
 
 💡 **Tip**: Always recompile if switching between Intel and Apple Silicon.
@@ -323,7 +323,7 @@ export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
 
 ⚙️ Rebuild After Setting Path
 python setup.py build_ext --inplace
-python main.py
+python -m opendrop2.main
 ```
 
 ### 3. Check Build Library

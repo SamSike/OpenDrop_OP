@@ -84,7 +84,7 @@ python setup.py build_ext --inplace
 #### Step 5: Verify Installation
 
 ```bash
-python opendrop2/main.py
+python -m opendrop2.main
 ```
 
 ### 2.3. Additional Resources
