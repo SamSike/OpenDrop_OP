@@ -105,44 +105,6 @@ def perform_fits(
             "timings"
         ] = circle_timings
 
-    # if ellipse == True:
-    #     from modules.fitting.ellipse_fit import ellipse_fit
-    #
-    #     (
-    #         ellipse_angles,
-    #         ellipse_intercepts,
-    #         ellipse_center,
-    #         ellipse_ab,
-    #         ellipse_rotation,
-    #         ellipse_errors,
-    #         ellipse_timings,
-    #     ) = ellipse_fit(experimental_drop.drop_contour)
-    #     experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT] = {}
-    #     experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][LEFT_ANGLE] = (
-    #         ellipse_angles[0]
-    #     )
-    #     experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][RIGHT_ANGLE] = (
-    #         ellipse_angles[1]
-    #     )
-    #     experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-    #         "baseline intercepts"
-    #     ] = ellipse_intercepts
-    #     experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-    #         "ellipse center"
-    #     ] = ellipse_center
-    #     experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-    #         "ellipse a and b"
-    #     ] = ellipse_ab
-    #     experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-    #         "ellipse rotation"
-    #     ] = ellipse_rotation
-    #     experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-    #         "errors"
-    #     ] = ellipse_errors
-    #     experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-    #         "timings"
-    #     ] = ellipse_timings
-
     if ellipse == True:
         from opendrop2.modules.fitting.ellipse_fit import ellipse_fit
 
