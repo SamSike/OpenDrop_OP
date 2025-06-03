@@ -26,8 +26,16 @@
 # with this software.  If not, see <https://www.gnu.org/licenses/>.
 
 from opendrop2.utils.misc import rotation_mat2d
-from opendrop2.modules.ift.younglaplace.shape import YoungLaplaceShape
 
+try:
+    from opendrop2.modules.ift.younglaplace.shape import YoungLaplaceShape
+except ImportError:
+    raise RuntimeError(
+        "❗ Failed to load native Cython module 'hough'.\n"
+        "This is likely due to a missing or incompatible build for your architecture.\n"
+        "Please run: `python setup.py build_ext --inplace`\n"
+        "Refer to the README section: 'Troubleshooting: Architecture Mismatch (macOS)'"
+    )
 from typing import Sequence, Tuple, NamedTuple, Optional
 from enum import IntEnum, auto
 import math
