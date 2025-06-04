@@ -16,19 +16,15 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import ctypes
+import platform
+if platform.system() == "Windows":
+    try:
+        import win32gui
+        import win32con
+    except ImportError:
+        print("pywin32 not available. Close button will not be disabled.")
 
-# import tkinter.messagebox as msgbox
-# import tkinter.simpledialog as simpledialog
-
-# from __future__ import print_function
-
-
-# from subprocess import call
-# import numpy as np
-# import time
-# import datetime
-# from Tkinter import *
-# import tkFileDialog
 
 # from scipy import optimize  # DS 7/6/21 - for least squares fit
 # import tensorflow as tf  # DS 9/6/21 - for loading ML model
@@ -302,7 +298,7 @@ def set_drop_region(
             fig = plt.figure()  # Explicitly create a new figure window
             plt.title(f"Original image {index}")
             plt.imshow(experimental_drop.image)
-            plt.show()  # ✅ Block execution until the window is manually closed by the user
+            plt.show()  # Block execution until the window is manually closed by the user
             plt.close(fig)  # clean up and close the figure after it's shown
 
         if experimental_setup.cropped_boole == 1:
@@ -651,8 +647,13 @@ def set_screen_position(screen_size: List[int]) -> List[int]:
     y_position = int(0.5 * percent_free_space * screen_size[1])
     return [x_position, y_position]
 
+def disable_close_button(window_title: str):
+    if platform.system() == "Windows":
+        hwnd = win32gui.FindWindow(None, window_title)
+        if hwnd:
+            style = win32gui.GetWindowLong(hwnd, win32con.GWL_STYLE)
+            win32gui.SetWindowLong(hwnd, win32con.GWL_STYLE, style & ~win32con.WS_SYSMENU)
 
-# , line_colour=(0, 0, 255), line_thickness=2):
 def user_roi(
     raw_image: np.ndarray, title: str, scale: float, screen_position
 ) -> List[Tuple[float, float]]:
@@ -674,6 +675,7 @@ def user_roi(
 
     cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
     cv2.moveWindow(title, screen_position[0], screen_position[1])
+    disable_close_button(title)  # Disable the close button on Windows
     cv2.setMouseCallback(title, draw_rectangle)
     # scale =1
     image_TEMP = cv2.resize(raw_image, (0, 0), fx=scale, fy=scale)
