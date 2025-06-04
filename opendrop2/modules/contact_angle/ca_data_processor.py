@@ -55,7 +55,7 @@ class CaDataProcessor:
             # p.start()
             # p.join()
 
-            # # Retrieve result
+            # Retrieve result
             # raw_experiment.contact_angles = result_queue.get()
             # these methods don't need tilt correction
             if user_input_data.baseline_method == ThresholdSelect.AUTOMATED:

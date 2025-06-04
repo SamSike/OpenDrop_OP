@@ -39,6 +39,8 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 - [User Configuration Guide](#user-configuration-guide)
   - [File Structure Example](#file-structure-example)
   - [Allowed Values](#allowed-values)
+  - [File Structure Example](#file-structure-example)
+  - [Allowed Values](#allowed-values)
     - [Drop/Needle Region Methods](#dropneedle-region-methods)
     - [Threshold/Baseline Method](#thresholdbaseline-method)
     - [Edge Detection](#edge-detection)

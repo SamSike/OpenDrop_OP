@@ -51,7 +51,7 @@ MANIFEST
 opendrop2-*
 
 # Output file
-outputs/
+opendrop2/outputs/
 
 # Platform specific
 ## macOS
@@ -80,8 +80,8 @@ dependencies/macos_x86_64/
 dependencies/macos_arm64/
 
 # Shared libraries and binaries
-modules/ift/hough/*.so
-modules/ift/younglaplace/*.so
+opendrop2/modules/ift/hough/*.so
+opendrop2/modules/ift/younglaplace/*.so
 
 # msi installer files
 *windows-installer.wixobj
