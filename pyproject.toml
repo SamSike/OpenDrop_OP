@@ -1,4 +1,41 @@
 [build-system]
-requires = ["scons", "cython"]
-backend-path = ["build_backend"]
-build-backend = "buildapi"
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "Cython"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opendrop2"
+version = "4.0.0"
+description = "OpenDrop-ML is an open-source, cross-platform tool for analyzing liquid droplets in surface science using contact angle and pendant drop methods, integrating classical geometric fitting with machine learning for flexible, automated, high-throughput image processing."
+authors = [
+    { name = "Sameer Sikka", email = "ssikka@student.unimelb.edu.au" },
+    { name = "Ahmed AlMutairi", email = "ahmed.almutairi@student.unimelb.edu.au" },
+    { name = "Yukun Cao", email = "yukun.cao1@student.unimelb.edu.au" },
+    { name = "Tori Li", email = "hanying.li@student.unimelb.edu.au" },
+    { name = "Qingying Lyu", email = "qllyu@student.unimelb.edu.au" },
+    { name = "Junzhou Mao", email = "junzhou.mao@student.unimelb.edu.au" },
+    { name = "Yifan Shi", email = "yifan.shi5@student.unimelb.edu.au" },
+    { name = "Haitian WANG", email = "haitian.wang@student.unimelb.edu.au" },
+    { name = "Aoxiang Xiao", email = "aoxiang.xiao@student.unimelb.edu.au" },
+    { name = "Mingda Zheng", email = "mingda.zheng1@student.unimelb.edu.au" }
+]
+readme = "README.md"
+license = { file = "LICENSE" }
+dependencies = [
+    "numpy>=1.21.0",
+    "scipy>=1.7.0",
+    "scikit-image>=0.18.0",
+    "scikit-learn>=0.24.0",
+    "opencv-python>=4.5.0",
+    "matplotlib>=3.3.0",
+    "pandas>=1.2.0",
+    "tqdm>=4.50.0"
+    "pywin32==310; platform_system == 'Windows'"
+]
+requires-python = ">=3.8.0"
+
+[project.scripts]
+opendrop = "opendrop2.main:main"

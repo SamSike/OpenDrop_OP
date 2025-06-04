@@ -1,57 +1,90 @@
-# Compiled source #
-###################
-*.com
-*.class
-*.dll
-*.exe
-*.o
+# IDE and Editor files
+.idea/
+.vscode/
+.project
+.pydevproject
+.settings/
+*.swp
+*.swo
+*~
+
+# Virtual environments
+venv*/
+env*/
+py38_env/
+opendrop_env/
+.env
+.venv
+.python-version
+ENV/
+env.bak/
+venv.bak/
+
+# Python compiled files and cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Build and distribution
+build/
+dist/
+node_modules/
+*.cpp
 *.so
-*.pyc
-*.gresource
+.Python
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+outputs/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+opendrop2-*
 
-# Packages #
-############
-# it's better to unpack these files and commit the raw source
-# git has its own built in compression methods
-*.7z
-*.dmg
-*.gz
-*.iso
-*.rar
-#*.tar
-*.zip
+# Output file
+opendrop2/outputs/
 
-# Logs and databases #
-######################
+# Platform specific
+## macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+## Windows
+ehthumbs.db
+Thumbs.db
+
+# Testing and coverage
+.coverage
+htmlcov/
+test-output/
+
+# Logs and databases
 *.log
 *.sqlite
+*.db
 
-# OS generated files #
-######################
-.DS_Store
-ehthumbs.db
-Icon
-Thumbs.db
-.tmtags
-.idea
-.vscode
-tags
-vendor.tags
-tmtagsHistory
-*.sublime-project
-*.sublime-workspace
-.bundle
+# SUNDIALS dependencies
+dependencies/macos_x86_64/
+dependencies/macos_arm64/
 
-# Sphinx #
-##########
-docs/_build
+# Shared libraries and binaries
+opendrop2/modules/ift/hough/*.so
+opendrop2/modules/ift/younglaplace/*.so
 
-# Other #
-#########
-.cache
-.coverage
-*.gresource.xml
-.sconsign*
-build/
-*.checkpoints/
-venv*/
+# msi installer files
+*windows-installer.wixobj
+*OpenDrop.wixpdb
+*main.spec
+*.bat
