@@ -4,7 +4,7 @@ Install dependencies for install.py
 
 ```bash
 pip install -r requirements.txt
-pip install pyinstaller toml twine build tarfile
+pip install pyinstaller toml twine build
 ```
 
 ## Windows Release (msi)
