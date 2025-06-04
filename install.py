@@ -226,10 +226,10 @@ if __name__ == "__main__":
                 "Windows Installation complete. The OpenDrop msi is saved at dist/OpenDrop.msi."
             )
 
-    if "--no-pip" not in sys.argv:
+    pip_package_name = os.path.join(
+        "dist", f"{PACKAGE_NAME}-{VERSION}.tar.gz")
 
-        pip_package_name = os.path.join(
-            "dist", f"{PACKAGE_NAME}-{VERSION}.tar.gz")
+    if "--no-pip" not in sys.argv:
 
         # Generate one pip package containing dependencies of each platform
         run("python -m build")
@@ -266,8 +266,7 @@ if __name__ == "__main__":
 
         # test the built package (.tar.gz)
         print("Testing built pip package...")
-        package_path = glob.glob(os.path.join(
-            "dist", pip_package_name))
+        package_path = glob.glob(pip_package_name)
 
         if not package_path:
             print(
