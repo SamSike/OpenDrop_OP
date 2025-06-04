@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-from opendrop-ml.modules.core.classes import ExperimentalDrop, DropData
+from opendrop_ml.modules.core.classes import ExperimentalDrop, DropData
 
 import math
 

@@ -1,4 +1,4 @@
-from opendrop-ml.utils.geometry import Vector2
+from opendrop_ml.utils.geometry import Vector2
 
 from typing import Sequence, NamedTuple, Optional
 from enum import IntEnum, auto

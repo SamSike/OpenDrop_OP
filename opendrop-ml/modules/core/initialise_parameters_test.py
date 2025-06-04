@@ -1,4 +1,4 @@
-from opendrop-ml.modules.core.initialise_parameters import (
+from opendrop_ml.modules.core.initialise_parameters import (
     initialise_parameters,
     fit_circle,
     calculate_Bond_number,

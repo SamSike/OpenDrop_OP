@@ -8,7 +8,7 @@ Circular fit code taken from the most recent version of conan -
 conan-ML_cv1.1/modules/select_regions.py"""
 
 # Circular fit from the most recent version of conan - conan-ML_v1.1/modules/select_regions.py
-from opendrop-ml.utils.config import CV2_VERSION
+from opendrop_ml.utils.config import CV2_VERSION
 
 from sklearn.cluster import OPTICS  # for clustering algorithm
 
@@ -1243,7 +1243,7 @@ def circular_fit(drop, display=False):
 
 
 if 0:
-    from opendrop-ml.utils.os import resource_path
+    from opendrop_ml.utils.os import resource_path
 
     IMG_PATH = resource_path("../RICOphobic_cropped.png")
     img = cv2.imread(IMG_PATH)

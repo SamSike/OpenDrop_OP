@@ -1,4 +1,4 @@
-from opendrop-ml.modules.image.select_regions import (
+from opendrop_ml.modules.image.select_regions import (
     set_drop_region,
     set_surface_line,
     correct_tilt,
@@ -9,10 +9,10 @@ from opendrop-ml.modules.image.select_regions import (
     intersection,
     ML_prepare_hydrophobic,
 )
-from opendrop-ml.modules.core.classes import ExperimentalSetup, ExperimentalDrop
-from opendrop-ml.modules.preprocessing.preprocessing import prepare_hydrophobic
-from opendrop-ml.modules.fitting.fits import perform_fits
-from opendrop-ml.utils.enums import RegionSelect, ThresholdSelect
+from opendrop_ml.modules.core.classes import ExperimentalSetup, ExperimentalDrop
+from opendrop_ml.modules.preprocessing.preprocessing import prepare_hydrophobic
+from opendrop_ml.modules.fitting.fits import perform_fits
+from opendrop_ml.utils.enums import RegionSelect, ThresholdSelect
 
 from itertools import cycle
 from unittest.mock import patch, MagicMock
@@ -28,7 +28,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 class TestSelectRegions(unittest.TestCase):
 
-    @patch("opendrop-ml.modules.preprocessing.preprocessing.auto_crop")
+    @patch("opendrop_ml.modules.preprocessing.preprocessing.auto_crop")
     def test_set_drop_region_auto(self, mock_auto_crop: MagicMock):
         # Create mock return value
         # Simulate a blank image of size 100x100
@@ -56,8 +56,8 @@ class TestSelectRegions(unittest.TestCase):
             experimental_drop.cropped_image, mock_image))
         self.assertEqual(experimental_setup.drop_region, [(10, 20), (90, 80)])
 
-    @patch("opendrop-ml.modules.image.select_regions.user_roi")
-    @patch("opendrop-ml.modules.image.select_regions.image_crop")
+    @patch("opendrop_ml.modules.image.select_regions.user_roi")
+    @patch("opendrop_ml.modules.image.select_regions.image_crop")
     def test_set_drop_region_user_selected(
         self, mock_image_crop: MagicMock, mock_user_roi: MagicMock
     ):
@@ -100,8 +100,8 @@ class TestSelectRegions(unittest.TestCase):
 
 class TestSurfaceLine(unittest.TestCase):
 
-    @patch("opendrop-ml.modules.image.select_regions.prepare_hydrophobic")
-    @patch("opendrop-ml.modules.preprocessing.preprocessing.optimized_path")
+    @patch("opendrop_ml.modules.image.select_regions.prepare_hydrophobic")
+    @patch("opendrop_ml.modules.preprocessing.preprocessing.optimized_path")
     def test_set_surface_line_auto(self, mock_optimized_path, mock_prepare_hydrophobic):
         # Simulate optimized_path return value to ensure enough data points for distance calculation
         mock_optimized_path.return_value = np.array(
@@ -136,7 +136,7 @@ class TestSurfaceLine(unittest.TestCase):
 
 class TestCorrectTilt(unittest.TestCase):
 
-    @patch("opendrop-ml.modules.image.select_regions.tilt_correction")
+    @patch("opendrop_ml.modules.image.select_regions.tilt_correction")
     def test_correct_tilt_auto(self, mock_tilt_correction):
         # Create mock return value
         mock_cropped_image = np.zeros((100, 100, 3))
@@ -165,9 +165,9 @@ class TestCorrectTilt(unittest.TestCase):
 
 class TestDrawRectangle(unittest.TestCase):
 
-    @patch("opendrop-ml.modules.image.select_regions.cv2.rectangle")
+    @patch("opendrop_ml.modules.image.select_regions.cv2.rectangle")
     @patch.dict(
-        "opendrop-ml.modules.image.select_regions.__dict__",
+        "opendrop_ml.modules.image.select_regions.__dict__",
         {"image_TEMP": np.zeros((100, 100, 3)),
          "img": np.zeros((100, 100, 3))},
     )
@@ -208,9 +208,9 @@ class TestDrawRectangle(unittest.TestCase):
 
 class TestDrawLine(unittest.TestCase):
 
-    @patch("opendrop-ml.modules.image.select_regions.cv2.line")
+    @patch("opendrop_ml.modules.image.select_regions.cv2.line")
     @patch.dict(
-        "opendrop-ml.modules.image.select_regions.__dict__",
+        "opendrop_ml.modules.image.select_regions.__dict__",
         {"image_TEMP": np.zeros((100, 100, 3)),
          "img": np.zeros((100, 100, 3))},
     )
@@ -254,7 +254,7 @@ class TestOptimizedPath(unittest.TestCase):
 
         # Use patch to mock the behavior of distance function
         with patch(
-            "opendrop-ml.modules.image.select_regions.distance", side_effect=cycle([1])
+            "opendrop_ml.modules.image.select_regions.distance", side_effect=cycle([1])
         ) as mock_distance:
             result = optimized_path(coords, start)
 

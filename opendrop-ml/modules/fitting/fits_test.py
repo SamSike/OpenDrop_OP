@@ -1,4 +1,4 @@
-from opendrop-ml.modules.fitting.fits import perform_fits
+from opendrop_ml.modules.fitting.fits import perform_fits
 
 from unittest.mock import MagicMock, patch
 import pytest

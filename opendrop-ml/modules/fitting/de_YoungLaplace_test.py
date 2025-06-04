@@ -1,4 +1,4 @@
-from opendrop-ml.modules.fitting.de_YoungLaplace import ylderiv, dataderiv
+from opendrop_ml.modules.fitting.de_YoungLaplace import ylderiv, dataderiv
 
 from math import pi
 import pytest

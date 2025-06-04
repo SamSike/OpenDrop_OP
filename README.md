@@ -1,12 +1,12 @@
-# OpenDrop-ML
+# opendrop_ml
 
-OpenDrop-ML is an open-source, cross-platform tool for analyzing liquid droplets in surface science using contact angle and pendant drop methods. It integrates classical geometric fitting with machine learning models (via Conan-ML), providing flexible, automated, and high-throughput image processing for researchers, technicians, and developers.
+opendrop_ml is an open-source, cross-platform tool for analyzing liquid droplets in surface science using contact angle and pendant drop methods. It integrates classical geometric fitting with machine learning models (via Conan-ML), providing flexible, automated, and high-throughput image processing for researchers, technicians, and developers.
 
 Current ML implementation is optimized for high angle systems. For lower angle or extreme curvature drops, verification of results is strongly advised. See: [https://doi.org/10.1021/acs.langmuir.4c01050](https://doi.org/10.1021/acs.langmuir.4c01050)
 
 # Table of Contents
 
--   [OpenDrop-ML](#opendrop-ml)
+-   [opendrop_ml](#opendrop_ml)
 -   [Table of Contents](#table-of-contents)
 -   [Features](#features)
 -   [Quick Start Guide for Windows and Linux](#quick-start-guide-for-windows-and-linux)
@@ -64,7 +64,7 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 
 # Quick Start Guide for Windows and Linux
 
-This guide helps you install the necessary dependencies and run OpenDrop-ML on your local Windows and Linux machine. MacOS users please refer to [Quick Start Guide for macOS (Conda Only)](#quick-start-guide-for-macos-conda-only).
+This guide helps you install the necessary dependencies and run opendrop_ml on your local Windows and Linux machine. MacOS users please refer to [Quick Start Guide for macOS (Conda Only)](#quick-start-guide-for-macos-conda-only).
 
 ## 1. Install Python
 
@@ -161,7 +161,7 @@ python setup.py build_ext --inplace
 ## 6. Run the Application
 
 ```bash
-python -m opendrop-ml.main
+python -m opendrop_ml.main
 ```
 
 # Quick Start Guide for macOS (Intel & Apple Silicon)
@@ -224,7 +224,7 @@ python setup.py build_ext --inplace
 ## 4. Run the Application
 
 ```bash
-python -m opendrop-ml.main
+python -m opendrop_ml.main
 ```
 
 ## Troubleshooting:
@@ -249,9 +249,9 @@ This means `.so` files were built under the wrong architecture.
 
 ```bash
 python setup.py clean --all
-rm -rf build opendrop-ml/modules/ift/**/**/*.so
+rm -rf build opendrop_ml/modules/ift/**/**/*.so
 python setup.py build_ext --inplace
-python -m opendrop-ml.main
+python -m opendrop_ml.main
 ```
 
 **Tip**: Always recompile if switching between Intel and Apple Silicon.
@@ -299,7 +299,7 @@ export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
 
 ⚙️ Rebuild After Setting Path
 python setup.py build_ext --inplace
-python -m opendrop-ml.main
+python -m opendrop_ml.main
 ```
 
 ### 3. Check Build Library
@@ -385,7 +385,7 @@ If you encounter errors, verify:
 
 # User Configuration Guide
 
-[user_config.yaml](./opendrop-ml/user_config.yaml) is a YAML-based configuration file that lets you **predefine all key parameters** for your experiment, including:
+[user_config.yaml](./opendrop_ml/user_config.yaml) is a YAML-based configuration file that lets you **predefine all key parameters** for your experiment, including:
 
 -   Image processing methods
 -   Physical properties
@@ -486,28 +486,28 @@ After starting the application:
 
 1. Select one of the functions: Contact Angle or Interfacial Tension
 
-![Main Menu](./opendrop-ml/assets/main_menu.png)
+![Main Menu](./opendrop_ml/assets/main_menu.png)
 
 2. Upload Image(s)
 
-![Aquisition_1](./opendrop-ml/assets/ca_aquisition_1.png)
-![Aquisition_2](./opendrop-ml/assets/ca_aquisition_2.png)
+![Aquisition_1](./opendrop_ml/assets/ca_aquisition_1.png)
+![Aquisition_2](./opendrop_ml/assets/ca_aquisition_2.png)
 
 3. Fill in user input. Note that the sample image is for contact angle, but the process is similar for interfacial tension.
 
-![Preparation](./opendrop-ml/assets/ca_preparation.png)
+![Preparation](./opendrop_ml/assets/ca_preparation.png)
 
 4. Click 'next' to view the result!
 
-![Analysis](./opendrop-ml/assets/ca_analysis.png)
+![Analysis](./opendrop_ml/assets/ca_analysis.png)
 
 5. Optionally save the result to a CSV file.
 
-![Output](./opendrop-ml/assets/output.png)
+![Output](./opendrop_ml/assets/output.png)
 
 # High-Level Architecture Diagram
 
-![High-Level Project Plan](./opendrop-ml/assets/high-level-project-diagram.png)
+![High-Level Project Plan](./opendrop_ml/assets/high-level-project-diagram.png)
 
 # Unit tests
 
@@ -540,7 +540,7 @@ but will likely be suitable for high contrast images. Users are recommended
 to check that the detected edge is reasonable prior to accepting the results
 outputted by any fitting or angle prediction approach.
 
-Current OpenDrop-ML implementation performs best for contact angles above 110°. For low-angle or high-curvature drops, verification is advised. See: [https://doi.org/10.1021/acs.langmuir.4c01050](https://doi.org/10.1021/acs.langmuir.4c01050)
+Current opendrop_ml implementation performs best for contact angles above 110°. For low-angle or high-curvature drops, verification is advised. See: [https://doi.org/10.1021/acs.langmuir.4c01050](https://doi.org/10.1021/acs.langmuir.4c01050)
 
 Users should validate predictions manually in cases:
 
@@ -550,7 +550,7 @@ Users should validate predictions manually in cases:
 
 # Contact & Contribution
 
-OpenDrop-ML is an open-source project. Contributions are welcome!
+opendrop_ml is an open-source project. Contributions are welcome!
 
 -   GitHub: https://github.com/SamSike/OpenDrop_OP
 -   For issues, use GitHub issue tracker

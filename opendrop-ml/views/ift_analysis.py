@@ -1,7 +1,7 @@
-from opendrop-ml.modules.core.classes import ExperimentalSetup
-from opendrop-ml.modules.ift.ift_data_processor import IftDataProcessor
-from opendrop-ml.views.component.imageGallery import ImageGallery
-from opendrop-ml.views.helper.theme import get_system_text_color
+from opendrop_ml.modules.core.classes import ExperimentalSetup
+from opendrop_ml.modules.ift.ift_data_processor import IftDataProcessor
+from opendrop_ml.views.component.imageGallery import ImageGallery
+from opendrop_ml.views.helper.theme import get_system_text_color
 
 from customtkinter import CTkFrame, CTkScrollableFrame, CTkTabview, CTkLabel
 

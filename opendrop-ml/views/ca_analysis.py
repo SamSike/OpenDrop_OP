@@ -1,6 +1,6 @@
-from opendrop-ml.utils.os import resource_path
-from opendrop-ml.utils.image_handler import ImageHandler
-from opendrop-ml.utils.config import (
+from opendrop_ml.utils.os import resource_path
+from opendrop_ml.utils.image_handler import ImageHandler
+from opendrop_ml.utils.config import (
     LEFT_ANGLE,
     RIGHT_ANGLE,
     BASELINE_INTERCEPTS,
@@ -9,10 +9,10 @@ from opendrop-ml.utils.config import (
     BASELINE,
     FIT_SHAPE,
 )
-from opendrop-ml.utils.enums import FittingMethod
-from opendrop-ml.views.helper.theme import get_system_text_color
-from opendrop-ml.views.helper.style import set_light_only_color
-from opendrop-ml.views.component.CTkXYFrame.ctk_xyframe import CTkXYFrame
+from opendrop_ml.utils.enums import FittingMethod
+from opendrop_ml.views.helper.theme import get_system_text_color
+from opendrop_ml.views.helper.style import set_light_only_color
+from opendrop_ml.views.component.CTkXYFrame.ctk_xyframe import CTkXYFrame
 
 from customtkinter import (
     CTkFrame,

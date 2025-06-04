@@ -25,10 +25,10 @@
 # should have received a copy of the GNU General Public License along
 # with this software.  If not, see <https://www.gnu.org/licenses/>.
 
-from opendrop-ml.utils.misc import rotation_mat2d
+from opendrop_ml.utils.misc import rotation_mat2d
 
 try:
-    from opendrop-ml.modules.ift.younglaplace.shape import YoungLaplaceShape
+    from opendrop_ml.modules.ift.younglaplace.shape import YoungLaplaceShape
 except ImportError:
     raise RuntimeError(
         "❗ Failed to load native Cython module 'hough'.\n"
@@ -125,7 +125,7 @@ def young_laplace_fit(data: Tuple[np.ndarray, np.ndarray], verbose: bool = False
 
 
 def young_laplace_guess(data: Tuple[np.ndarray, np.ndarray]) -> Optional[tuple]:
-    from opendrop-ml.modules.ift.pendant import find_pendant_apex
+    from opendrop_ml.modules.ift.pendant import find_pendant_apex
 
     params = np.empty(len(YoungLaplaceParam))
 

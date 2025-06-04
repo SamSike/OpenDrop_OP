@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
-from opendrop-ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup
-from opendrop-ml.modules.preprocessing.preprocessing import extract_edges_cv
-from opendrop-ml.utils.enums import ThresholdSelect
+from opendrop_ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup
+from opendrop_ml.modules.preprocessing.preprocessing import extract_edges_cv
+from opendrop_ml.utils.enums import ThresholdSelect
 
 from sklearn.cluster import OPTICS  # DS 7/6/21 - for clustering algorithm
 import matplotlib.pyplot as plt

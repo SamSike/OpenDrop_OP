@@ -10,8 +10,8 @@ conan-ML_v1.1/modules/BA_fit.py
 This was based on the BA fit of DropPy.
 """
 
-from opendrop-ml.utils.config import CV2_VERSION
-from opendrop-ml.utils.enums import FitType
+from opendrop_ml.utils.config import CV2_VERSION
+from opendrop_ml.utils.enums import FitType
 
 from sklearn.cluster import OPTICS  # for clustering algorithm
 from scipy.spatial import distance
@@ -1648,7 +1648,7 @@ def yl_fit(profile, lim=10, fit_type=FitType.BASHFORTH_ADAMS, display=False):
 
 
 if 0:
-    from opendrop-ml.utils.os import resource_path
+    from opendrop_ml.utils.os import resource_path
 
     IMG_PATH = resource_path("../RICOphobic_cropped.png")
     img = cv2.imread(IMG_PATH)

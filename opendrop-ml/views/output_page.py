@@ -1,13 +1,13 @@
 # views/output_page.py
 
-from opendrop-ml.modules.core.classes import ExperimentalSetup
-from opendrop-ml.views.helper.style import set_light_only_color
+from opendrop_ml.modules.core.classes import ExperimentalSetup
+from opendrop_ml.views.helper.style import set_light_only_color
 
 from tkinter import filedialog
 import customtkinter as ctk
 import os
 import tkinter as tk
-from opendrop-ml.utils.tooltip_util import create_tooltip
+from opendrop_ml.utils.tooltip_util import create_tooltip
 
 
 class OutputPage(ctk.CTkFrame):

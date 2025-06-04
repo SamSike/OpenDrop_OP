@@ -1,15 +1,15 @@
-from opendrop-ml.modules.core.classes import ExperimentalSetup
-from opendrop-ml.utils.image_handler import ImageHandler
-from opendrop-ml.utils.enums import FunctionType
-from opendrop-ml.utils.config import (
+from opendrop_ml.modules.core.classes import ExperimentalSetup
+from opendrop_ml.utils.image_handler import ImageHandler
+from opendrop_ml.utils.enums import FunctionType
+from opendrop_ml.utils.config import (
     PATH_TO_SCRIPT,
     IMAGE_TYPE,
     FILE_SOURCE_OPTIONS_CA,
     EDGEFINDER_OPTIONS,
 )
-from opendrop-ml.views.component.option_menu import OptionMenu
-from opendrop-ml.views.component.float_entry import FloatEntry
-from opendrop-ml.views.helper.style import set_light_only_color
+from opendrop_ml.views.component.option_menu import OptionMenu
+from opendrop_ml.views.component.float_entry import FloatEntry
+from opendrop_ml.views.helper.style import set_light_only_color
 
 from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkImage
 from tkinter import filedialog, messagebox

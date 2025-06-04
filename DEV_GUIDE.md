@@ -1,8 +1,8 @@
-# Developer Guide: OpenDrop-ML
+# Developer Guide: opendrop_ml
 
 ## Table of Contents
 
--   [Developer Guide: OpenDrop-ML](#developer-guide-opendrop-ml)
+-   [Developer Guide: opendrop_ml](#developer-guide-opendrop_ml)
     -   [Table of Contents](#table-of-contents)
     -   [1. Introduction](#1-introduction)
         -   [What You'll Learn](#what-youll-learn)
@@ -85,9 +85,9 @@
 
 ## 1. Introduction
 
-Welcome to the **OpenDrop-ML Developer Guide**!
+Welcome to the **opendrop_ml Developer Guide**!
 
-**OpenDrop-ML** is an open-source, cross-platform software for analyzing liquid droplets in surface science using contact angle and pendant drop (interfacial tension) methods. It integrates classical computer vision techniques with machine learning (ML)-based analysis (Conan-ML), offering both flexibility and automation for scientific users.
+**opendrop_ml** is an open-source, cross-platform software for analyzing liquid droplets in surface science using contact angle and pendant drop (interfacial tension) methods. It integrates classical computer vision techniques with machine learning (ML)-based analysis (Conan-ML), offering both flexibility and automation for scientific users.
 
 ### What You'll Learn
 
@@ -100,15 +100,15 @@ This guide provides all the necessary information for developers to:
 
 ## 2. Setup Instructions
 
-Setting up the development environment for OpenDrop-ML involves installing Python, cloning the repository, and installing dependencies. Please check the installation guide in [README file](./README.md).
+Setting up the development environment for opendrop_ml involves installing Python, cloning the repository, and installing dependencies. Please check the installation guide in [README file](./README.md).
 
 ## 3. Project Structure
 
-OpenDrop-ML follows a **modular architecture** to separate concerns and facilitate extensibility.
+opendrop_ml follows a **modular architecture** to separate concerns and facilitate extensibility.
 
 ### 3.1. High-Level Overview
 
-![High-Level Architecture](opendrop-ml/assets/high-level-project-diagram.png)
+![High-Level Architecture](opendrop_ml/assets/high-level-project-diagram.png)
 
 The project is primarily divided into:
 
@@ -122,7 +122,7 @@ The test modules follow the same folder structure. The `tests/` folder is locate
 
 ```
 OpenDrop_OP/
-├── opendrop-ml/                  # Main Python package containing all logic and UI
+├── opendrop_ml/                  # Main Python package containing all logic and UI
 │   ├── modules/                # Core backend logic, organized by functionality
 │   │   ├── contact_angle/      # CA specific processing
 │   │   ├── core/               # Core classes (ExperimentalSetup, DropData)
@@ -140,7 +140,7 @@ OpenDrop_OP/
 │   ├── assets/                 # Static assets like images and fonts
 │   ├── experimental_data_set/  # Example input images for testing and demonstration
 │   ├── dependencies/           # External library dependencies for C++ modules
-│   ├── main.py                 # Main entry point for launching the OpenDrop-ML GUI
+│   ├── main.py                 # Main entry point for launching the opendrop_ml GUI
 │   └── user_config.yaml        # User-specific configuration and preferences
 ├── pyproject.toml              # Build system and metadata (PEP 518); modern alternative to setup.py
 ├── setup.py                    # Python package installer script
@@ -371,7 +371,7 @@ class MyCustomWidget(ctk.CTkFrame):
 
 ## 6. Testing Procedures
 
-Comprehensive testing ensures the **reliability** and **stability** of OpenDrop-ML. We use `pytest` as our testing framework.
+Comprehensive testing ensures the **reliability** and **stability** of opendrop_ml. We use `pytest` as our testing framework.
 
 > **Primary Reference**: See `TESTING.md` for complete testing instructions.
 
@@ -389,13 +389,13 @@ Comprehensive testing ensures the **reliability** and **stability** of OpenDrop-
 #### Test File Examples
 
 ```
-opendrop-ml/modules/fitting/
+opendrop_ml/modules/fitting/
 ├── fits.py
 ├── fits_test.py
 ├── BA_fit.py
 └── BA_fit_test.py
 
-opendrop-ml/views/
+opendrop_ml/views/
 ├── acquisition.py
 └── acquisition_test.py
 ```
@@ -499,7 +499,7 @@ pytest --cov=modules --cov=views --cov-report=term-missing
 
 ## 7. Deployment Guidelines
 
-This section outlines the steps for **building**, **packaging**, and **deploying** the OpenDrop-ML project.
+This section outlines the steps for **building**, **packaging**, and **deploying** the opendrop_ml project.
 
 > **Note**: Information based on `setup.py` and Python best practices. May require expansion for specific deployment targets.
 
@@ -646,6 +646,6 @@ Eensure the `/` is the correct one for your platform. A platform independant pyi
 
 ---
 
-This Developer Guide serves as your **primary reference** for contributing to OpenDrop-ML.
+This Developer Guide serves as your **primary reference** for contributing to opendrop_ml.
 
 ---

@@ -1,23 +1,23 @@
-from opendrop-ml.modules.contact_angle.ca_data_processor import CaDataProcessor
-from opendrop-ml.modules.ift.ift_data_processor import IftDataProcessor
-from opendrop-ml.modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData
-from opendrop-ml.utils.os import resource_path, is_windows
-from opendrop-ml.views.helper.validation import (
+from opendrop_ml.modules.contact_angle.ca_data_processor import CaDataProcessor
+from opendrop_ml.modules.ift.ift_data_processor import IftDataProcessor
+from opendrop_ml.modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData
+from opendrop_ml.utils.os import resource_path, is_windows
+from opendrop_ml.views.helper.validation import (
     validate_user_input_data_ift,
     validate_user_input_data_cm,
     validate_frame_interval,
 )
-from opendrop-ml.views.helper.style import get_color, set_light_only_color
-from opendrop-ml.views.helper.theme import LIGHT_MODE
-from opendrop-ml.views.navigation import create_navigation
-from opendrop-ml.views.acquisition import Acquisition
-from opendrop-ml.views.ift_preparation import IftPreparation
-from opendrop-ml.views.ift_analysis import IftAnalysis
-from opendrop-ml.views.ca_preparation import CaPreparation
-from opendrop-ml.views.ca_analysis import CaAnalysis
-from opendrop-ml.views.main_window import MainWindow
-from opendrop-ml.views.output_page import OutputPage
-from opendrop-ml.utils.enums import FunctionType, Stage, Move, RegionSelect
+from opendrop_ml.views.helper.style import get_color, set_light_only_color
+from opendrop_ml.views.helper.theme import LIGHT_MODE
+from opendrop_ml.views.navigation import create_navigation
+from opendrop_ml.views.acquisition import Acquisition
+from opendrop_ml.views.ift_preparation import IftPreparation
+from opendrop_ml.views.ift_analysis import IftAnalysis
+from opendrop_ml.views.ca_preparation import CaPreparation
+from opendrop_ml.views.ca_analysis import CaAnalysis
+from opendrop_ml.views.main_window import MainWindow
+from opendrop_ml.views.output_page import OutputPage
+from opendrop_ml.utils.enums import FunctionType, Stage, Move, RegionSelect
 
 from customtkinter import CTkFrame, CTkButton, CTkToplevel, get_appearance_mode
 from tkinter import messagebox, PhotoImage

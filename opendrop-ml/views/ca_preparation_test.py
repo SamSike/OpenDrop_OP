@@ -1,4 +1,4 @@
-from opendrop-ml.views.ca_preparation import CaPreparation
+from opendrop_ml.views.ca_preparation import CaPreparation
 
 from unittest.mock import patch, MagicMock
 import pytest
@@ -25,7 +25,7 @@ def fake_frame():
 
 
 def test_create_user_input_fields():
-    with patch("opendrop-ml.views.ca_preparation.create_user_inputs_cm") as mock_create:
+    with patch("opendrop_ml.views.ca_preparation.create_user_inputs_cm") as mock_create:
         mock_create.return_value = MagicMock()
         instance = MagicMock(spec=CaPreparation)
         instance.user_input_data = MagicMock()
@@ -36,7 +36,7 @@ def test_create_user_input_fields():
 
 
 def test_create_analysis_method_fields():
-    with patch("opendrop-ml.views.ca_preparation.create_analysis_checklist_cm") as mock_create:
+    with patch("opendrop_ml.views.ca_preparation.create_analysis_checklist_cm") as mock_create:
         mock_create.return_value = MagicMock()
         instance = MagicMock(spec=CaPreparation)
         instance.user_input_data = MagicMock()
@@ -47,7 +47,7 @@ def test_create_analysis_method_fields():
 
 
 def test_create_fitting_view_fields():
-    with patch("opendrop-ml.views.ca_preparation.create_plotting_checklist") as mock_create:
+    with patch("opendrop_ml.views.ca_preparation.create_plotting_checklist") as mock_create:
         mock_create.return_value = MagicMock()
         instance = MagicMock(spec=CaPreparation)
         instance.user_input_data = MagicMock()

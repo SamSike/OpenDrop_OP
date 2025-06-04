@@ -1,10 +1,10 @@
-from opendrop-ml.views.component.preparation import (
+from opendrop_ml.views.component.preparation import (
     create_user_inputs_cm,
     create_plotting_checklist,
     create_analysis_checklist_cm,
 )
-from opendrop-ml.views.component.imageProcessing import ImageApp
-from opendrop-ml.views.helper.style import set_light_only_color
+from opendrop_ml.views.component.imageProcessing import ImageApp
+from opendrop_ml.views.helper.style import set_light_only_color
 
 from customtkinter import CTkFrame
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
-from opendrop-ml.modules.fitting.de_YoungLaplace import ylderiv
-from opendrop-ml.utils.config import INTERFACIAL_TENSION
-from opendrop-ml.utils.enums import RegionSelect, ThresholdSelect, FittingMethod
+from opendrop_ml.modules.fitting.de_YoungLaplace import ylderiv
+from opendrop_ml.utils.config import INTERFACIAL_TENSION
+from opendrop_ml.utils.enums import RegionSelect, ThresholdSelect, FittingMethod
 
 from scipy.integrate import odeint
 from typing import Dict, List, Optional, Tuple

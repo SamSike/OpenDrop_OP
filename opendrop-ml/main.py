@@ -2,11 +2,11 @@
 # coding=utf-8
 
 
-from opendrop-ml.modules.core.classes import DropData
-from opendrop-ml.views.main_window import MainWindow
-from opendrop-ml.views.function_window import call_user_input
-from opendrop-ml.utils.enums import FunctionType
-from opendrop-ml.utils.os import is_windows
+from opendrop_ml.modules.core.classes import DropData
+from opendrop_ml.views.main_window import MainWindow
+from opendrop_ml.views.function_window import call_user_input
+from opendrop_ml.utils.enums import FunctionType
+from opendrop_ml.utils.os import is_windows
 
 import os
 import numpy as np
@@ -14,20 +14,20 @@ import time
 
 # from __future__ import unicode_literals
 # from __future__ import print_function
-# from opendrop-ml.modules.classes import ExperimentalDrop, DropData, Tolerances
-# from opendrop-ml.modules.static_setup_class import ExperimentalSetup
-# # from opendrop-ml.modules.ui import initialise_ui
-# from opendrop-ml.modules.user_interface import call_user_input
-# # from opendrop-ml.modules.load import load_data
-# from opendrop-ml.modules.extract_data import extract_drop_profile
-# from opendrop-ml.modules.initialise_parameters import initialise_parameters
-# # from opendrop-ml.modules.fit_data import fit_raw_experiment
-# # from opendrop-ml.modules.user_set_regions
-# from opendrop-ml.modules.PlotManager import PlotManager
-# from opendrop-ml.modules.analyse_needle import calculate_needle_diameter
-# from opendrop-ml.modules.fit_data import fit_experimental_drop
-# from opendrop-ml.modules.generate_data import generate_full_data
-# from opendrop-ml.modules. import add_data_to_lists
+# from opendrop_ml.modules.classes import ExperimentalDrop, DropData, Tolerances
+# from opendrop_ml.modules.static_setup_class import ExperimentalSetup
+# # from opendrop_ml.modules.ui import initialise_ui
+# from opendrop_ml.modules.user_interface import call_user_input
+# # from opendrop_ml.modules.load import load_data
+# from opendrop_ml.modules.extract_data import extract_drop_profile
+# from opendrop_ml.modules.initialise_parameters import initialise_parameters
+# # from opendrop_ml.modules.fit_data import fit_raw_experiment
+# # from opendrop_ml.modules.user_set_regions
+# from opendrop_ml.modules.PlotManager import PlotManager
+# from opendrop_ml.modules.analyse_needle import calculate_needle_diameter
+# from opendrop_ml.modules.fit_data import fit_experimental_drop
+# from opendrop_ml.modules.generate_data import generate_full_data
+# from opendrop_ml.modules. import add_data_to_lists
 
 
 np.set_printoptions(suppress=True)

@@ -1,4 +1,4 @@
-from opendrop-ml.views.output_page import OutputPage
+from opendrop_ml.views.output_page import OutputPage
 
 from unittest import mock
 import pytest

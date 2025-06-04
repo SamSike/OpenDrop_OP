@@ -1,5 +1,5 @@
 from customtkinter import CTkFrame, CTkLabel, CTkProgressBar, CTk
-from opendrop-ml.views.helper.style import set_light_only_color
+from opendrop_ml.views.helper.style import set_light_only_color
 
 
 def create_navigation(parent):

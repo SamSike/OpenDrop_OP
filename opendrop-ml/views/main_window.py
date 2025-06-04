@@ -1,4 +1,4 @@
-from opendrop-ml.utils.os import resource_path, is_windows
+from opendrop_ml.utils.os import resource_path, is_windows
 from PIL import Image
 from tkinter import messagebox
 import sys
@@ -10,7 +10,7 @@ import customtkinter as ctk
 class MainWindow(ctk.CTk):
     def __init__(self, continue_processing, open_ift_window, open_ca_window):
         super().__init__()
-        self.title("OpenDrop-ML")
+        self.title("opendrop_ml")
         self.geometry("800x400")
         self.minsize(width=800, height=400)
 
@@ -41,7 +41,7 @@ class MainWindow(ctk.CTk):
 
         # Display title
         title_label = ctk.CTkLabel(
-            self, text="OpenDrop-ML", font=("Helvetica", 48))
+            self, text="opendrop_ml", font=("Helvetica", 48))
         title_label.pack(pady=90)
         # self.display_image("views/assets/banner.png")
 
@@ -120,10 +120,10 @@ class MainWindow(ctk.CTk):
         messagebox.showinfo(
             "Information",
             (
-                "OpenDrop-ML is an open-source, cross-platform tool for analyzing liquid droplets in surface science. "
+                "opendrop_ml is an open-source, cross-platform tool for analyzing liquid droplets in surface science. "
                 "It supports both classical geometric fitting and machine learning models (via Conan-ML), providing "
                 "automated, high-throughput image analysis for researchers, technicians, and developers.\n\n"
-                "Similar to the original OpenDrop tool, OpenDrop-ML offers two main functions:\n"
+                "Similar to the original OpenDrop tool, opendrop_ml offers two main functions:\n"
                 "• Interfacial Tension: Measures the force acting at the surface of liquids.\n"
                 "• Contact Angle: Measures the angle formed between a liquid and a solid surface."
             ),

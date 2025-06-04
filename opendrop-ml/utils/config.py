@@ -1,4 +1,4 @@
-from opendrop-ml.utils.enums import RegionSelect, ThresholdSelect
+from opendrop_ml.utils.enums import RegionSelect, ThresholdSelect
 
 import os
 import cv2

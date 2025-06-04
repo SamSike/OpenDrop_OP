@@ -1,11 +1,11 @@
-from opendrop-ml.modules.core.classes import ExperimentalSetup
-from opendrop-ml.views.component.option_menu import OptionMenu
-from opendrop-ml.views.component.float_entry import FloatEntry
+from opendrop_ml.modules.core.classes import ExperimentalSetup
+from opendrop_ml.views.component.option_menu import OptionMenu
+from opendrop_ml.views.component.float_entry import FloatEntry
 
-# from opendrop-ml.views.component.float_combobox import FloatCombobox
-from opendrop-ml.views.component.check_button import CheckButton
-from opendrop-ml.views.helper.style import set_light_only_color
-from opendrop-ml.utils.config import (
+# from opendrop_ml.views.component.float_combobox import FloatCombobox
+from opendrop_ml.views.component.check_button import CheckButton
+from opendrop_ml.views.helper.style import set_light_only_color
+from opendrop_ml.utils.config import (
     AUTO_MANUAL_OPTIONS,
     NEEDLE_OPTIONS,
     DROP_ID_OPTIONS,
@@ -13,8 +13,8 @@ from opendrop-ml.utils.config import (
     BASELINE_OPTIONS,
     INTERFACIAL_TENSION,
 )
-from opendrop-ml.utils.enums import FittingMethod
-from opendrop-ml.utils.tooltip_util import create_tooltip
+from opendrop_ml.utils.enums import FittingMethod
+from opendrop_ml.utils.tooltip_util import create_tooltip
 import re
 import os
 from tkinter import messagebox

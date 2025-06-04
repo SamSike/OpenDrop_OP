@@ -1,4 +1,4 @@
-from opendrop-ml.modules.image.read_image import (
+from opendrop_ml.modules.image.read_image import (
     get_image,
     save_image,
     import_from_source,
@@ -79,7 +79,7 @@ def test_save_image(mock_experimental_drop, mock_experimental_setup):
 # Test import_from_source with local images
 
 
-@patch("opendrop-ml.modules.image.read_image.image_from_harddrive")
+@patch("opendrop_ml.modules.image.read_image.image_from_harddrive")
 def test_import_from_source_local(
     mock_image_from_harddrive, mock_experimental_drop, mock_experimental_setup
 ):
@@ -122,7 +122,7 @@ def test_get_import_filename(mock_experimental_setup):
 # Test image_from_camera function
 
 
-@patch("opendrop-ml.modules.image.read_image.grabanimage")
+@patch("opendrop_ml.modules.image.read_image.grabanimage")
 def test_image_from_camera(mock_grabanimage, mock_experimental_drop):
     with patch(
         "cv2.imread", return_value=np.zeros((100, 100, 3), dtype=np.uint8)

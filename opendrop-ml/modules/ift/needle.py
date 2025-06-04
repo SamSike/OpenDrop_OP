@@ -1,4 +1,4 @@
-from opendrop-ml.utils.geometry import Rect2
+from opendrop_ml.utils.geometry import Rect2
 
 from typing import Sequence, Tuple, NamedTuple, Optional
 from enum import IntEnum, auto
@@ -9,7 +9,7 @@ import scipy.signal
 import scipy.optimize
 
 try:
-    from opendrop-ml.modules.ift.hough import hough
+    from opendrop_ml.modules.ift.hough import hough
 except ImportError:
     raise RuntimeError(
         "❗ Failed to load native Cython module 'hough'.\n"

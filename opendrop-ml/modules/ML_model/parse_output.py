@@ -1,4 +1,4 @@
-from opendrop-ml.utils.os import resource_path
+from opendrop_ml.utils.os import resource_path
 
 # import libraries
 import pickle5 as pickle

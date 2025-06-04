@@ -1,4 +1,4 @@
-from opendrop-ml.views.ift_analysis import IftAnalysis
+from opendrop_ml.views.ift_analysis import IftAnalysis
 
 from unittest.mock import patch, MagicMock
 import pytest
@@ -9,7 +9,7 @@ matplotlib.use("Agg")
 
 @pytest.fixture
 def dummy_data():
-    from opendrop-ml.modules.core.classes import ExperimentalSetup
+    from opendrop_ml.modules.core.classes import ExperimentalSetup
 
     data = ExperimentalSetup()
     data.import_files = ["img1.bmp", "img2.bmp"]
@@ -19,7 +19,7 @@ def dummy_data():
 
 @pytest.fixture
 def instance(dummy_data):
-    with patch("opendrop-ml.views.ift_analysis.IftAnalysis.__init__", return_value=None):
+    with patch("opendrop_ml.views.ift_analysis.IftAnalysis.__init__", return_value=None):
         obj = IftAnalysis()
         obj.user_input_data = dummy_data
         obj.output = []

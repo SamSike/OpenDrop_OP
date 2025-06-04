@@ -1,4 +1,4 @@
-from opendrop-ml.modules.fitting.polynomial_fit import (
+from opendrop_ml.modules.fitting.polynomial_fit import (
     cluster_optics,
     distance1,
     optimized_path,
@@ -64,7 +64,7 @@ def test_optimized_path(sample_data):
         assert distance1(path[i - 1], path[i]) < 5
 
 
-@patch("opendrop-ml.modules.fitting.polynomial_fit.plt.show")
+@patch("opendrop_ml.modules.fitting.polynomial_fit.plt.show")
 def test_prepare_hydrophobic(mock_show, sample_profile):
     profile, CPs = prepare_hydrophobic(sample_profile, display=True)
     assert isinstance(profile, np.ndarray)
@@ -80,9 +80,9 @@ def test_prepare_hydrophobic(mock_show, sample_profile):
 #     assert len(contours) > 0
 
 
-@patch("opendrop-ml.modules.fitting.polynomial_fit.cv2.cvtColor")
-@patch("opendrop-ml.modules.fitting.polynomial_fit.cv2.threshold")
-@patch("opendrop-ml.modules.fitting.polynomial_fit.cv2.findContours")
+@patch("opendrop_ml.modules.fitting.polynomial_fit.cv2.cvtColor")
+@patch("opendrop_ml.modules.fitting.polynomial_fit.cv2.threshold")
+@patch("opendrop_ml.modules.fitting.polynomial_fit.cv2.findContours")
 def test_extract_edges_CV(mock_findContours, mock_threshold, mock_cvtColor):
     mock_cvtColor.return_value = np.zeros((10, 10))
     mock_threshold.return_value = (None, np.zeros((10, 10)))
@@ -114,8 +114,8 @@ def test_polynomial_fit_errors():
     assert "RMSE" in errors
 
 
-@patch("opendrop-ml.modules.fitting.polynomial_fit.extract_edges_CV")
-@patch("opendrop-ml.modules.fitting.polynomial_fit.prepare_hydrophobic")
+@patch("opendrop_ml.modules.fitting.polynomial_fit.extract_edges_CV")
+@patch("opendrop_ml.modules.fitting.polynomial_fit.prepare_hydrophobic")
 def test_polynomial_fit_img(mock_prepare, mock_extract, sample_data, sample_profile):
     mock_extract.return_value = sample_data
     mock_prepare.return_value = (sample_profile, {0: [0, 0], 1: [4, 0]})

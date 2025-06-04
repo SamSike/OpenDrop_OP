@@ -1,4 +1,4 @@
-from opendrop-ml.views.navigation import create_navigation
+from opendrop_ml.views.navigation import create_navigation
 
 from unittest.mock import MagicMock, patch
 import pytest
@@ -6,12 +6,12 @@ import pytest
 
 @pytest.fixture
 def app():
-    with patch("opendrop-ml.views.navigation.CTk", return_value=MagicMock(name="MockCTk")), patch(
-        "opendrop-ml.views.navigation.CTkFrame", return_value=MagicMock(name="MockFrame")
+    with patch("opendrop_ml.views.navigation.CTk", return_value=MagicMock(name="MockCTk")), patch(
+        "opendrop_ml.views.navigation.CTkFrame", return_value=MagicMock(name="MockFrame")
     ), patch(
-        "opendrop-ml.views.navigation.CTkLabel", return_value=MagicMock(name="MockLabel")
+        "opendrop_ml.views.navigation.CTkLabel", return_value=MagicMock(name="MockLabel")
     ), patch(
-        "opendrop-ml.views.navigation.CTkProgressBar",
+        "opendrop_ml.views.navigation.CTkProgressBar",
         return_value=MagicMock(name="MockProgressBar"),
     ):
         yield MagicMock(name="App")

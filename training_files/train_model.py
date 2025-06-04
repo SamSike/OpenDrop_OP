@@ -1,5 +1,5 @@
 # repeat the above but on a fraction of the contour models data
-from opendrop-ml.utils.os import resource_path
+from opendrop_ml.utils.os import resource_path
 
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential

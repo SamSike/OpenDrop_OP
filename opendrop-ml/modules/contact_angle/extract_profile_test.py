@@ -1,10 +1,10 @@
-from opendrop-ml.modules.contact_angle.extract_profile import (
+from opendrop_ml.modules.contact_angle.extract_profile import (
     extract_drop_profile,
     detect_edges,
     prepare_hydrophobic,
 )
 from unittest.mock import patch
-from opendrop-ml.utils.enums import ThresholdSelect
+from opendrop_ml.utils.enums import ThresholdSelect
 
 # from unittest.mock import patch
 import matplotlib.pyplot as plt

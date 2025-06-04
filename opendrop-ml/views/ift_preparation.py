@@ -1,12 +1,12 @@
-from opendrop-ml.views.component.preparation import (
+from opendrop_ml.views.component.preparation import (
     create_plotting_checklist,
     create_analysis_checklist_ift,
     create_user_input_fields_ift,
 )
-from opendrop-ml.views.component.imageProcessing import ImageApp
-from opendrop-ml.views.helper.style import set_light_only_color
-from opendrop-ml.modules.ift.ift_data_processor import IftDataProcessor
-from opendrop-ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup
+from opendrop_ml.views.component.imageProcessing import ImageApp
+from opendrop_ml.views.helper.style import set_light_only_color
+from opendrop_ml.modules.ift.ift_data_processor import IftDataProcessor
+from opendrop_ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup
 
 import customtkinter as ctk
 

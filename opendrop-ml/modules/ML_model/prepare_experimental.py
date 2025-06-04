@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from opendrop-ml.utils.config import CV2_VERSION
+from opendrop_ml.utils.config import CV2_VERSION
 
 from scipy import misc, ndimage  # for tilt_correction
 from sklearn.cluster import OPTICS  # for clustering algorithm
@@ -2448,7 +2448,7 @@ def experimental_prediction(
 
 
 if 0:
-    from opendrop-ml.utils.os import resource_path
+    from opendrop_ml.utils.os import resource_path
 
     IMG_PATH = resource_path("../../RICOphobic_cropped.png")
     img = cv2.imread(IMG_PATH)

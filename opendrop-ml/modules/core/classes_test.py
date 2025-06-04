@@ -1,4 +1,4 @@
-from opendrop-ml.modules.core.classes import (
+from opendrop_ml.modules.core.classes import (
     Tolerances,
     ExperimentalSetup,
     ExperimentalDrop,

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
-from opendrop-ml.modules.core.classes import ExperimentalDrop
-from opendrop-ml.utils.config import LEFT_ANGLE, RIGHT_ANGLE
-from opendrop-ml.utils.enums import FittingMethod
+from opendrop_ml.modules.core.classes import ExperimentalDrop
+from opendrop_ml.utils.config import LEFT_ANGLE, RIGHT_ANGLE
+from opendrop_ml.utils.enums import FittingMethod
 
 # from __future__ import print_function
 
@@ -16,7 +16,7 @@ def perform_fits(
     yl=False,
 ):
     if tangent == True:
-        from opendrop-ml.modules.fitting.polynomial_fit import polynomial_fit
+        from opendrop_ml.modules.fitting.polynomial_fit import polynomial_fit
 
         tangent_angles, tangent_CPs, tangent_lines, tangent_errors, tangent_timings = (
             polynomial_fit(experimental_drop.drop_contour, polynomial_degree=1)
@@ -42,7 +42,7 @@ def perform_fits(
         ] = tangent_timings
 
     if polynomial == True:
-        from opendrop-ml.modules.fitting.polynomial_fit import polynomial_fit
+        from opendrop_ml.modules.fitting.polynomial_fit import polynomial_fit
 
         (
             polynomial_angles,
@@ -72,7 +72,7 @@ def perform_fits(
         ] = polynomial_timings
 
     if circle == True:
-        from opendrop-ml.modules.fitting.circular_fit import circular_fit
+        from opendrop_ml.modules.fitting.circular_fit import circular_fit
 
         (
             circle_angles,
@@ -106,7 +106,7 @@ def perform_fits(
         ] = circle_timings
 
     if ellipse == True:
-        from opendrop-ml.modules.fitting.ellipse_fit import ellipse_fit
+        from opendrop_ml.modules.fitting.ellipse_fit import ellipse_fit
 
         (
             ellipse_angles,
@@ -150,7 +150,7 @@ def perform_fits(
             )
 
     if yl:
-        from opendrop-ml.modules.fitting.BA_fit import yl_fit
+        from opendrop_ml.modules.fitting.BA_fit import yl_fit
 
         (
             yl_angles,

@@ -1,4 +1,4 @@
-from opendrop-ml.utils.image_handler import ImageHandler
+from opendrop_ml.utils.image_handler import ImageHandler
 
 # from PIL import ImageTk
 from PIL.Image import Image, open

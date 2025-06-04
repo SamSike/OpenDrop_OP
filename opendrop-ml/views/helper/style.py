@@ -1,6 +1,6 @@
 # style.py
 
-from opendrop-ml.views.helper.theme import get_appearance_mode, LIGHT_MODE
+from opendrop_ml.views.helper.theme import get_appearance_mode, LIGHT_MODE
 
 # This is for light mode. In dark mode, use the default color
 APP_COLORS = {

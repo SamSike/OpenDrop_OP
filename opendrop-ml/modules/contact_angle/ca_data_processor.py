@@ -1,16 +1,16 @@
-from opendrop-ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup, DropData
-from opendrop-ml.modules.image.read_image import get_image
-from opendrop-ml.modules.image.select_regions import (
+from opendrop_ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup, DropData
+from opendrop_ml.modules.image.read_image import get_image
+from opendrop_ml.modules.image.select_regions import (
     set_drop_region,
     set_surface_line,
     correct_tilt,
     # run_set_surface_line
 )
-from opendrop-ml.modules.contact_angle.extract_profile import extract_drop_profile
-from opendrop-ml.modules.fitting.fits import perform_fits
-from opendrop-ml.utils.enums import FittingMethod, ThresholdSelect
-from opendrop-ml.utils.config import LEFT_ANGLE, RIGHT_ANGLE
-from opendrop-ml.utils.os import resource_path
+from opendrop_ml.modules.contact_angle.extract_profile import extract_drop_profile
+from opendrop_ml.modules.fitting.fits import perform_fits
+from opendrop_ml.utils.enums import FittingMethod, ThresholdSelect
+from opendrop_ml.utils.config import LEFT_ANGLE, RIGHT_ANGLE
+from opendrop_ml.utils.os import resource_path
 
 from typing import Callable, Dict
 import numpy as np
@@ -94,7 +94,7 @@ class CaDataProcessor:
                     )
                 if analysis_methods[FittingMethod.ML_MODEL]:
 
-                    from opendrop-ml.modules.ML_model.prepare_experimental import (
+                    from opendrop_ml.modules.ML_model.prepare_experimental import (
                         prepare4model_v03,
                         experimental_pred,
                     )

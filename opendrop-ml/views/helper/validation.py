@@ -1,6 +1,6 @@
-from opendrop-ml.utils.enums import ThresholdSelect, RegionSelect
-from opendrop-ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup
-from opendrop-ml.modules.ift.ift_data_processor import IftDataProcessor
+from opendrop_ml.utils.enums import ThresholdSelect, RegionSelect
+from opendrop_ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup
+from opendrop_ml.modules.ift.ift_data_processor import IftDataProcessor
 
 # frame_interval
 

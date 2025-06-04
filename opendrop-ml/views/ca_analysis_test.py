@@ -1,5 +1,5 @@
-from opendrop-ml.views.ca_analysis import CaAnalysis, extract_method
-from opendrop-ml.utils.enums import FittingMethod
+from opendrop_ml.views.ca_analysis import CaAnalysis, extract_method
+from opendrop_ml.utils.enums import FittingMethod
 
 from unittest.mock import MagicMock
 from PIL import Image

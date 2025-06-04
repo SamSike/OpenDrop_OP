@@ -1,4 +1,4 @@
-from opendrop-ml.modules.fitting.BA_fit import (
+from opendrop_ml.modules.fitting.BA_fit import (
     cluster_optics,
     distance1,
     dist,
@@ -66,7 +66,7 @@ def test_optimized_path(sample_data):
         assert distance1(path[i - 1], path[i]) < 5
 
 
-@patch("opendrop-ml.modules.fitting.BA_fit.plt.show")
+@patch("opendrop_ml.modules.fitting.BA_fit.plt.show")
 def test_prepare_hydrophobic(mock_show, sample_profile):
     profile, CPs = prepare_hydrophobic(sample_profile, display=True)
     assert isinstance(profile, np.ndarray)
@@ -79,7 +79,7 @@ def test_bashforth_adams():
     assert len(result) == 2
 
 
-@patch("opendrop-ml.modules.fitting.BA_fit.solve_ivp")
+@patch("opendrop_ml.modules.fitting.BA_fit.solve_ivp")
 def test_sim_bashforth_adams(mock_solve_ivp):
     mock_solve_ivp.return_value = MagicMock(
         t=np.array([0, 1]), y=np.array([[1, 1], [2, 2]])
@@ -90,7 +90,7 @@ def test_sim_bashforth_adams(mock_solve_ivp):
     assert isinstance(Bo, float)
 
 
-@patch("opendrop-ml.modules.fitting.BA_fit.opt.minimize")
+@patch("opendrop_ml.modules.fitting.BA_fit.opt.minimize")
 def test_fit_bashforth_adams(mock_minimize, sample_profile):
     mock_minimize.return_value = MagicMock(x=[1, 1])
     result = fit_bashforth_adams(sample_profile)
@@ -102,7 +102,7 @@ def test_calculate_angle():
     assert angle == pytest.approx(90.0)
 
 
-@patch("opendrop-ml.modules.fitting.BA_fit.opt.minimize")
+@patch("opendrop_ml.modules.fitting.BA_fit.opt.minimize")
 def test_fit_circle(mock_minimize, sample_profile):
     mock_minimize.return_value = {"x": [0, 0, 1], "fun": 0.1}
     result = fit_circle(sample_profile)
@@ -133,14 +133,14 @@ def test_find_intersection():
 #     assert np.array_equal(contours[0], np.array([[0, 0], [1, 1]]))
 
 
-@patch("opendrop-ml.modules.fitting.BA_fit.plt.show")
-@patch("opendrop-ml.modules.fitting.BA_fit.fit_circle", return_value={"x": [0, 0, 1], "fun": 0.1})
-@patch("opendrop-ml.modules.fitting.BA_fit.find_intersection", return_value=(0.5, 0.5))
-@patch("opendrop-ml.modules.fitting.BA_fit.generate_circle_vectors", return_value=([1, 0], [0, 1]))
-@patch("opendrop-ml.modules.fitting.BA_fit.calculate_angle", return_value=90)
-@patch("opendrop-ml.modules.fitting.BA_fit.fit_bashforth_adams", return_value=MagicMock(x=[1, 1]))
+@patch("opendrop_ml.modules.fitting.BA_fit.plt.show")
+@patch("opendrop_ml.modules.fitting.BA_fit.fit_circle", return_value={"x": [0, 0, 1], "fun": 0.1})
+@patch("opendrop_ml.modules.fitting.BA_fit.find_intersection", return_value=(0.5, 0.5))
+@patch("opendrop_ml.modules.fitting.BA_fit.generate_circle_vectors", return_value=([1, 0], [0, 1]))
+@patch("opendrop_ml.modules.fitting.BA_fit.calculate_angle", return_value=90)
+@patch("opendrop_ml.modules.fitting.BA_fit.fit_bashforth_adams", return_value=MagicMock(x=[1, 1]))
 @patch(
-    "opendrop-ml.modules.fitting.BA_fit.sim_bashforth_adams",
+    "opendrop_ml.modules.fitting.BA_fit.sim_bashforth_adams",
     return_value=(np.array([0, 90]), np.array([[0, 0], [1, 1]]), 1.0),
 )
 def test_yl_fit(

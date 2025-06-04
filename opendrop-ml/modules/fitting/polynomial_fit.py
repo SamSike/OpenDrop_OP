@@ -9,7 +9,7 @@ conan-ML_cv1.1/modules/select_regions.py"""
 
 # Polynomial fit from the most recent version of conan - conan-ML_v1.1/modules/select_regions.py
 
-from opendrop-ml.utils.config import CV2_VERSION
+from opendrop_ml.utils.config import CV2_VERSION
 
 from sklearn.cluster import OPTICS  # for clustering algorithm
 
@@ -1210,7 +1210,7 @@ def polynomial_fit(profile, num_points=15, polynomial_degree=2, display=False):
 
 
 if 0:
-    from opendrop-ml.utils.os import resource_path
+    from opendrop_ml.utils.os import resource_path
 
     IMG_PATH = resource_path("../../RICOphobic_cropped.png")
     img = cv2.imread(IMG_PATH)

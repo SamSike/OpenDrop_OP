@@ -9,7 +9,7 @@ followed by cropping of the image to isolate the drop. Tilt correction is then
 performed using the identified contact points of the drop.
 """
 
-from opendrop-ml.modules.fitting.BA_fit import CV2_VERSION
+from opendrop_ml.modules.fitting.BA_fit import CV2_VERSION
 
 from sklearn.cluster import OPTICS  # for clustering algorithm
 from scipy import misc, ndimage  # for tilt_correction

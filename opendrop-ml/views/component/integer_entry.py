@@ -1,4 +1,4 @@
-from opendrop-ml.utils.validators import validate_int
+from opendrop_ml.utils.validators import validate_int
 
 # import tkinter as tk
 import customtkinter as ctk

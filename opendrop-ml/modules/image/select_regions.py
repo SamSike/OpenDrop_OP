@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from opendrop-ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup
-from opendrop-ml.modules.preprocessing.preprocessing import (
+from opendrop_ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup
+from opendrop_ml.modules.preprocessing.preprocessing import (
     prepare_hydrophobic,
     tilt_correction,
 )
-from opendrop-ml.utils.geometry import Rect2
-from opendrop-ml.utils.enums import FittingMethod, RegionSelect, ThresholdSelect
+from opendrop_ml.utils.geometry import Rect2
+from opendrop_ml.utils.enums import FittingMethod, RegionSelect, ThresholdSelect
 
-# from opendrop-ml.utils.keymap import *
+# from opendrop_ml.utils.keymap import *
 
 from typing import List, Tuple
 import cv2
@@ -288,7 +288,7 @@ def set_drop_region(
     screen_position = set_screen_position(screen_size)
 
     if experimental_setup.drop_id_method == RegionSelect.AUTOMATED:
-        from opendrop-ml.modules.preprocessing.preprocessing import auto_crop
+        from opendrop_ml.modules.preprocessing.preprocessing import auto_crop
 
         experimental_drop.cropped_image, (left, right, top, bottom) = auto_crop(
             experimental_drop.image
@@ -895,7 +895,7 @@ def user_line(
                 or methods_boole[FittingMethod.CIRCLE_FIT]
                 or methods_boole[FittingMethod.ELLIPSE_FIT]
             ):
-                from opendrop-ml.modules.fitting.fits import perform_fits
+                from opendrop_ml.modules.fitting.fits import perform_fits
 
                 perform_fits(
                     experimental_drop,

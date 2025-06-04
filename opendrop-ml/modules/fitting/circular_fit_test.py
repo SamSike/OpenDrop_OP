@@ -1,4 +1,4 @@
-from opendrop-ml.modules.fitting.circular_fit import (
+from opendrop_ml.modules.fitting.circular_fit import (
     circular_fit,
     circular_fit_img,
     extract_edges_cv,

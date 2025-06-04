@@ -1,16 +1,16 @@
-# from opendrop-ml.modules.image.read_image import get_image
-from opendrop-ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup
+# from opendrop_ml.modules.image.read_image import get_image
+from opendrop_ml.modules.core.classes import ExperimentalDrop, ExperimentalSetup
 
-# from opendrop-ml.views.component.check_button import CheckButton
-from opendrop-ml.views.helper.style import set_light_only_color
-from opendrop-ml.utils.image_handler import ImageHandler
+# from opendrop_ml.views.component.check_button import CheckButton
+from opendrop_ml.views.helper.style import set_light_only_color
+from opendrop_ml.utils.image_handler import ImageHandler
 
 from PIL import Image  # , ImageTk
 import customtkinter as ctk
 import os
 
-# from opendrop-ml.modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt,user_roi
-# from opendrop-ml.modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
+# from opendrop_ml.modules.image.select_regions import set_drop_region,set_surface_line, correct_tilt,user_roi
+# from opendrop_ml.modules.core.classes import ExperimentalSetup, ExperimentalDrop, DropData, Tolerances
 # from tkinter import messagebox
 
 

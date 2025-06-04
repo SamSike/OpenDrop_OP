@@ -7,9 +7,9 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "opendrop-ml"
+name = "opendrop_ml"
 version = "4.0.0"
-description = "OpenDrop-ML is an open-source, cross-platform tool for analyzing liquid droplets in surface science using contact angle and pendant drop methods, integrating classical geometric fitting with machine learning for flexible, automated, high-throughput image processing."
+description = "opendrop_ml is an open-source, cross-platform tool for analyzing liquid droplets in surface science using contact angle and pendant drop methods, integrating classical geometric fitting with machine learning for flexible, automated, high-throughput image processing."
 authors = [
     { name = "Sameer Sikka", email = "ssikka@student.unimelb.edu.au" },
     { name = "Ahmed AlMutairi", email = "ahmed.almutairi@student.unimelb.edu.au" },
@@ -93,4 +93,4 @@ dependencies = [
 requires-python = ">=3.8.0"
 
 [project.scripts]
-opendrop = "opendrop-ml.main:main"
+opendrop = "opendrop_ml.main:main"
