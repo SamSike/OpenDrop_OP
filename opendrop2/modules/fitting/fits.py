@@ -117,33 +117,39 @@ def perform_fits(
             ellipse_errors,
             ellipse_timings,
         ) = ellipse_fit(experimental_drop.drop_contour)
-        experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT] = {}
-        experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][LEFT_ANGLE] = (
-            ellipse_angles[0]
-        )
-        experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][RIGHT_ANGLE] = (
-            ellipse_angles[1]
-        )
-        experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-            "baseline intercepts"
-        ] = ellipse_intercepts
-        experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-            "ellipse center"
-        ] = ellipse_center
-        experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-            "ellipse a and b"
-        ] = ellipse_ab
-        experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-            "ellipse rotation"
-        ] = ellipse_rotation
-        experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-            "errors"
-        ] = ellipse_errors
-        experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
-            "timings"
-        ] = ellipse_timings
 
-    if yl == True:
+        if ellipse_angles and len(ellipse_angles) == 2:
+            experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT] = {}
+            experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][LEFT_ANGLE] = (
+                ellipse_angles[0]
+            )
+            experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][RIGHT_ANGLE] = (
+                ellipse_angles[1]
+            )
+            experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
+                "baseline intercepts"
+            ] = ellipse_intercepts
+            experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
+                "ellipse center"
+            ] = ellipse_center
+            experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
+                "ellipse a and b"
+            ] = ellipse_ab
+            experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
+                "ellipse rotation"
+            ] = ellipse_rotation
+            experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
+                "errors"
+            ] = ellipse_errors
+            experimental_drop.contact_angles[FittingMethod.ELLIPSE_FIT][
+                "timings"
+            ] = ellipse_timings
+        else:
+            print(
+                "Warning: ellipse_fit failed or returned incomplete results. Skipping ELLIPSE_FIT."
+            )
+
+    if yl:
         from opendrop2.modules.fitting.BA_fit import yl_fit
 
         (

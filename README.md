@@ -9,7 +9,6 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 - [OpenDrop-ML](#opendrop-ml)
 - [Table of Contents](#table-of-contents)
 - [Features](#features)
-- [Code Structure Overview](#code-structure-overview)
 - [Quick Start Guide for Windows and Linux](#quick-start-guide-for-windows-and-linux)
   - [1. Install Python](#1-install-python)
     - [Check if Python is Already Installed](#check-if-python-is-already-installed)
@@ -29,15 +28,17 @@ Current ML implementation is optimized for high angle systems. For lower angle o
   - [4. Run the Application](#4-run-the-application)
   - [Troubleshooting:](#troubleshooting)
     - [1. SUNDIALS:Architecture Mismatch (macOS)](#1-sundialsarchitecture-mismatch-macos)
-    - [✅ Fix Steps](#-fix-steps)
+    - [Fix Steps](#fix-steps)
     - [2. Boost: File not found](#2-boost-file-not-found)
-    - [✅ Fix Steps](#-fix-steps-1)
+    - [Fix Steps](#fix-steps-1)
     - [3. Check Build Library](#3-check-build-library)
     - [Boost](#boost)
     - [About SUNDIALS](#about-sundials)
-    - [✅ You can skip this step if:](#-you-can-skip-this-step-if)
-    - [⚠️ You must build manually with CMake if:](#️-you-must-build-manually-with-cmake-if)
+    - [You can skip this step if:](#you-can-skip-this-step-if)
+    - [You must build manually with CMake if:](#you-must-build-manually-with-cmake-if)
 - [User Configuration Guide](#user-configuration-guide)
+  - [File Structure Example](#file-structure-example)
+  - [Allowed Values](#allowed-values)
   - [File Structure Example](#file-structure-example)
   - [Allowed Values](#allowed-values)
     - [Drop/Needle Region Methods](#dropneedle-region-methods)
@@ -65,27 +66,6 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 - User-friendly GUI built with CustomTkinter
 - Modular Backend for easy customization and extension
 
-# Code Structure Overview
-
-```
-OpenDrop_OP/
-├── modules/                    # Core backend logic
-│   ├── contact_angle/          # CA specific processing
-│   ├── core/                   # Core classes (ExperimentalSetup, DropData)
-│   ├── fitting/                # Fitting algorithms (BA_fit, ellipse_fit, etc.)
-│   ├── ift/                    # IFT specific processing, including Cython extensions
-│   │   ├── younglaplace/       # Young-Laplace fitting
-│   │   └── hough/              # Hough transform utilities
-│   ├── image/                  # Image processing utilities
-│   ├── ML_model/               # TensorFlow model, input-output conversion (Conan-ML)
-│   └── preprocessing/          # Image preprocessing steps
-├── views/                      # Frontend UI (CustomTkinter)
-│   └── component/              # Reusable UI widgets
-├── utils/                      # Helper code (config, validation, image IO, enums)
-├── assets/                     # Static assets like images and fonts
-├── dependencies/               # External library dependencies for C++ modules
-└── training files/             # ML training scripts and data
-```
 
 # Quick Start Guide for Windows and Linux
 
@@ -157,7 +137,7 @@ source venv/bin/activate
 
 Once activated, your shell should show `(venv)` at the beginning of the prompt.
 
-> ⚠️ **Note**: If you choose to use the virtual environment, make sure to activate it every time you want to run the application.
+> **Note**: If you choose to use the virtual environment, make sure to activate it every time you want to run the application.
 
 To deactivate the environment at any time:
 
@@ -232,7 +212,7 @@ Make sure you're in the root folder of the application, then run:
 pip install -r requirements.txt
 ```
 
-> ⚠️ **Note**: If you choose to use the virtual environment, make sure to activate it every time you want to run the application. If it is activate, `(venv)` will show at the beginning of the prompt.
+> **Note**: If you choose to use the virtual environment, make sure to activate it every time you want to run the application. If it is activate, `(venv)` will show at the beginning of the prompt.
 
 To deactivate the environment at any time:
 
@@ -270,16 +250,16 @@ ImportError: ... incompatible architecture (have 'x86_64', need 'arm64e' or 'arm
 
 This means `.so` files were built under the wrong architecture.
 
-### ✅ Fix Steps
+### Fix Steps
 
 ```bash
 python setup.py clean --all
-rm -rf build modules/ift/**/**/*.so
+rm -rf build opendrop2/modules/ift/**/**/*.so
 python setup.py build_ext --inplace
 python -m opendrop2.main
 ```
 
-💡 **Tip**: Always recompile if switching between Intel and Apple Silicon.
+**Tip**: Always recompile if switching between Intel and Apple Silicon.
 
 ### 2. Boost: File not found
 
@@ -290,7 +270,7 @@ fatal error: 'boost/math/differentiation/autodiff.hpp' file not found
 #include <boost/math/differentiation/autodiff.hpp>
 ```
 
-### ✅ Fix Steps
+### Fix Steps
 
 1. Use Pre-included Dependencies (Preferred)
 
@@ -364,7 +344,7 @@ They're on a different architecture (e.g., you're Intel, they're Apple Silicon),
 Or if .a files are missing or broken,
 Then they must recompile using CMake.
 
-### ✅ You can skip this step if:
+### You can skip this step if:
 
 The correct .a static libraries already exist for your architecture
 Files like the following are present:
@@ -372,7 +352,7 @@ libsundials_arkode.a
 libsundials_nvecserial.a
 libsundials_core.a
 
-### ⚠️ You must build manually with CMake if:
+### You must build manually with CMake if:
 
 You're on a different architecture than the one the libraries were built for
 The .a files are missing or broken
@@ -410,7 +390,7 @@ If you encounter errors, verify:
 
 # User Configuration Guide
 
-[user_config.yaml](./user_config.yaml) is a YAML-based configuration file that lets you **predefine all key parameters** for your experiment, including:
+[user_config.yaml](./opendrop2/user_config.yaml) is a YAML-based configuration file that lets you **predefine all key parameters** for your experiment, including:
 
 - Image processing methods
 - Physical properties
@@ -511,62 +491,29 @@ After starting the application:
 
 1. Select one of the functions: Contact Angle or Interfacial Tension
 
-![Main Menu](./assets/main_menu.png)
+![Main Menu](./opendrop2/assets/main_menu.png)
 
 2. Upload Image(s)
 
-![Aquisition_1](./assets/ca_aquisition_1.png)
-![Aquisition_2](./assets/ca_aquisition_2.png)
+![Aquisition_1](./opendrop2/assets/ca_aquisition_1.png)
+![Aquisition_2](./opendrop2/assets/ca_aquisition_2.png)
 
 3. Fill in user input. Note that the sample image is for contact angle, but the process is similar for interfacial tension.
 
-![Preparation](./assets/ca_preparation.png)
+![Preparation](./opendrop2/assets/ca_preparation.png)
 
 4. Click 'next' to view the result!
 
-![Analysis](./assets/ca_analysis.png)
+![Analysis](./opendrop2/assets/ca_analysis.png)
 
 5. Optionally save the result to a CSV file.
 
-![Output](./assets/output.png)
+![Output](./opendrop2/assets/output.png)
 
-# Developer & Contributor Guide
-
-## Linting
-
-Install pre commit linter to automatically lint (beautify) your files before every commit:
-
-```
-pre-commit install
-```
-
-The first time running may take a few minutes. Run manually:
-
-```
-pre-commit run --all-files
-```
-
-## Modular Design
-
-OpenDrop-ML emphasizes extensibility:
-
-Add a new fitting method: See modules/fits.py
-
-Add a UI component: See views/component/
-
-Add a page: Update views/function_window.py
-
-## Backend & UI Extensions
-
-Refer to:
-
-“Add Backend Module Steps – Guide to adding new models”
-
-“Add Frontend Module Steps – UI integration tutorial”
 
 # High-Level Architecture Diagram
 
-![High-Level Project Plan](./assets/high-level-project-diagram.png)
+![High-Level Project Plan](./opendrop2/assets/high-level-project-diagram.png)
 
 # Unit tests
 
