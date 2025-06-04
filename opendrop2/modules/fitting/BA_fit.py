@@ -1263,7 +1263,7 @@ def analyze_frame(img, lim=10, fit_type=FitType.BASHFORTH_ADAMS, display=False):
 
         v1, v2 = generate_circle_vectors([x_t, y_t])
 
-        ϕ = {i: calculate_angle(v1, v2) for i in ["left", "right"]}
+        phi = {i: calculate_angle(v1, v2) for i in ["left", "right"]}
         if fit_type == "circular":
             baseline_width = 2 * x_t
 
@@ -1316,17 +1316,17 @@ def analyze_frame(img, lim=10, fit_type=FitType.BASHFORTH_ADAMS, display=False):
             if display:
                 print("Running Bashforth-Adams fit...\n")
             cap_length, curv = fit_bashforth_adams(points).x
-            θs, pred, Bo = sim_bashforth_adams(h, cap_length, curv, profile.shape[0])
-            ϕ["left"] = -np.min(θs)
-            ϕ["right"] = np.max(θs)
+            thetas, pred, Bo = sim_bashforth_adams(h, cap_length, curv, profile.shape[0])
+            phi["left"] = -np.min(thetas)
+            phi["right"] = np.max(thetas)
 
-            θ = (ϕ["left"] + ϕ["right"]) / 2
+            theta = (phi["left"] + phi["right"]) / 2
 
-            R0 = pred[np.argmax(θs), 0] - pred[np.argmin(θs), 0]
+            R0 = pred[np.argmax(thetas), 0] - pred[np.argmin(thetas), 0]
             baseline_width = R0
 
             P = 2 * cap_length / curv
-            volume = np.pi * R0 * (R0 * h + R0 * P - 2 * np.sin(θ))
+            volume = np.pi * R0 * (R0 * h + R0 * P - 2 * np.sin(theta))
             x = pred[:, 0] + center
             y = np.array(
                 [np.dot(a, np.power(y, range(len(a)))) + y for y in (pred[:, 1] - h)]
@@ -1378,7 +1378,7 @@ def analyze_frame(img, lim=10, fit_type=FitType.BASHFORTH_ADAMS, display=False):
         # plt.plot(fit[:,0],fit[:,1],'-', color='white', linewidth=1)
         plt.title(
             "angle of "
-            + str(ϕ["left"])
+            + str(phi["left"])
             + "\nBond number of "
             + str(Bo)
             + "\nfit RMSE of "
@@ -1397,7 +1397,7 @@ def analyze_frame(img, lim=10, fit_type=FitType.BASHFORTH_ADAMS, display=False):
     timings["analysis time"] = analysis_time
 
     return (
-        (ϕ["left"], ϕ["right"]),
+        (phi["left"], phi["right"]),
         Bo,
         baseline_width,
         volume,
@@ -1483,7 +1483,7 @@ def yl_fit(profile, lim=10, fit_type=FitType.BASHFORTH_ADAMS, display=False):
 
         v1, v2 = generate_circle_vectors([x_t, y_t])
 
-        ϕ = {i: calculate_angle(v1, v2) for i in ["left", "right"]}
+        phi = {i: calculate_angle(v1, v2) for i in ["left", "right"]}
         if fit_type == "circular":
             baseline_width = 2 * x_t
 
@@ -1536,17 +1536,17 @@ def yl_fit(profile, lim=10, fit_type=FitType.BASHFORTH_ADAMS, display=False):
             if display:
                 print("Running Bashforth-Adams fit...\n")
             cap_length, curv = fit_bashforth_adams(points).x
-            θs, pred, Bo = sim_bashforth_adams(h, cap_length, curv, profile.shape[0])
-            ϕ["left"] = -np.min(θs)
-            ϕ["right"] = np.max(θs)
+            thetas, pred, Bo = sim_bashforth_adams(h, cap_length, curv, profile.shape[0])
+            phi["left"] = -np.min(thetas)
+            phi["right"] = np.max(thetas)
 
-            θ = (ϕ["left"] + ϕ["right"]) / 2
+            theta = (phi["left"] + phi["right"]) / 2
 
-            R0 = pred[np.argmax(θs), 0] - pred[np.argmin(θs), 0]
+            R0 = pred[np.argmax(thetas), 0] - pred[np.argmin(thetas), 0]
             baseline_width = R0
 
             P = 2 * cap_length / curv
-            volume = np.pi * R0 * (R0 * h + R0 * P - 2 * np.sin(θ))
+            volume = np.pi * R0 * (R0 * h + R0 * P - 2 * np.sin(theta))
             x = pred[:, 0] + center
             y = np.array(
                 [np.dot(a, np.power(y, range(len(a)))) + y for y in (pred[:, 1] - h)]
@@ -1595,7 +1595,7 @@ def yl_fit(profile, lim=10, fit_type=FitType.BASHFORTH_ADAMS, display=False):
         plt.plot(fit[:, 0], fit[:, 1], ",", color="white", linewidth=2.5)
         plt.title(
             "angle of "
-            + str(ϕ["left"])
+            + str(phi["left"])
             + "\nBond number of "
             + str(Bo)
             + "\nfit RMSE of "
@@ -1613,7 +1613,7 @@ def yl_fit(profile, lim=10, fit_type=FitType.BASHFORTH_ADAMS, display=False):
     timings["analysis time"] = analysis_time
 
     return (
-        (ϕ["left"], ϕ["right"]),
+        (phi["left"], phi["right"]),
         Bo,
         baseline_width,
         volume,
