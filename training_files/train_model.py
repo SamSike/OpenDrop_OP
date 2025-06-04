@@ -1,5 +1,5 @@
 # repeat the above but on a fraction of the contour models data
-from opendrop2.utils.os import resource_path
+from opendrop_ml.utils.os import resource_path
 
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
@@ -102,8 +102,10 @@ def create_model(trial):
     model = Sequential(
         [
             layers.Conv1D(model_width, 3, padding="same", activation="relu"),
-            layers.Conv1D(model_width / 2, 3, padding="same", activation="relu"),
-            layers.Conv1D(model_width / 4, 3, padding="same", activation="relu"),
+            layers.Conv1D(model_width / 2, 3,
+                          padding="same", activation="relu"),
+            layers.Conv1D(model_width / 4, 3,
+                          padding="same", activation="relu"),
             layers.Flatten(),
             layers.Dense(128, activation=CA_activation),
             layers.Dense(1),
@@ -181,7 +183,8 @@ def objective(trial):
         mode="min",
         restore_best_weights=True,
     )
-    floor = EarlyStoppingWhenErrorLow(monitor=monitor, value=baseline, verbose=0)
+    floor = EarlyStoppingWhenErrorLow(
+        monitor=monitor, value=baseline, verbose=0)
 
     history = model.fit(
         train_ds,
@@ -313,7 +316,8 @@ def objective(trial):
         + " and standard deviation is "
         + str.format("{0:.2e}", sigma)
     )
-    write.append("99.7% of errors are between " + str(lower) + " and " + (str(upper)))
+    write.append("99.7% of errors are between " +
+                 str(lower) + " and " + (str(upper)))
     # add a 'best fit' line
     y = (1 / (np.sqrt(2 * np.pi) * sigma)) * np.exp(
         -0.5 * (1 / sigma * (bins - mu)) ** 2
@@ -329,7 +333,8 @@ def objective(trial):
         ax.axvline(mu + (n * 3 * sigma), ymax=0.01 * 0.9, color="r")
     ax.set_xlabel("Error")
     ax.set_ylabel("Frequency")
-    ax.set_title(rf"Histogram of test set error: $\mu$={mu:.2e}, $\sigma$={sigma:.2e}")
+    ax.set_title(
+        rf"Histogram of test set error: $\mu$={mu:.2e}, $\sigma$={sigma:.2e}")
 
     fig.tight_layout()  # Tweak spacing to prevent clipping of ylabel
     plt.savefig(str(score_dir) + "/test_set_spread.png")  # save
@@ -348,8 +353,10 @@ def objective(trial):
 
 def show_result(study):
 
-    pruned_trials = study.get_trials(deepcopy=False, states=[TrialState.PRUNED])
-    complete_trials = study.get_trials(deepcopy=False, states=[TrialState.COMPLETE])
+    pruned_trials = study.get_trials(
+        deepcopy=False, states=[TrialState.PRUNED])
+    complete_trials = study.get_trials(
+        deepcopy=False, states=[TrialState.COMPLETE])
 
     print("Study statistics: ")
     print("  Number of finished trials: ", len(study.trials))
