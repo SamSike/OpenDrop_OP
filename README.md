@@ -6,62 +6,61 @@ Current ML implementation is optimized for high angle systems. For lower angle o
 
 # Table of Contents
 
-- [OpenDrop-ML](#opendrop-ml)
-- [Table of Contents](#table-of-contents)
-- [Features](#features)
-- [Quick Start Guide for Windows and Linux](#quick-start-guide-for-windows-and-linux)
-  - [1. Install Python](#1-install-python)
-    - [Check if Python is Already Installed](#check-if-python-is-already-installed)
-    - [Install Python (if not already installed)](#install-python-if-not-already-installed)
-  - [2. Install C/C++ Build Tools](#2-install-cc-build-tools)
-  - [3. (Optional) Create and Use a Virtual Environment](#3-optional-create-and-use-a-virtual-environment)
-  - [4. Install Python Dependencies](#4-install-python-dependencies)
-  - [5. Build Cython Extensions](#5-build-cython-extensions)
-  - [6. Run the Application](#6-run-the-application)
-- [Quick Start Guide for macOS (Intel \& Apple Silicon)](#quick-start-guide-for-macos-intel--apple-silicon)
-  - [1. Install Python](#1-install-python-1)
-  - [2. Set Up Virtual Environment (Intel \& Apple Silicon)](#2-set-up-virtual-environment-intel--apple-silicon)
-    - [Install Conda or Pyenv](#install-conda-or-pyenv)
-    - [Create Python Environment](#create-python-environment)
-    - [Install Python Dependencies](#install-python-dependencies)
-  - [3. Build Cython Extensions](#3-build-cython-extensions)
-  - [4. Run the Application](#4-run-the-application)
-  - [Troubleshooting:](#troubleshooting)
-    - [1. SUNDIALS:Architecture Mismatch (macOS)](#1-sundialsarchitecture-mismatch-macos)
-    - [Fix Steps](#fix-steps)
-    - [2. Boost: File not found](#2-boost-file-not-found)
-    - [Fix Steps](#fix-steps-1)
-    - [3. Check Build Library](#3-check-build-library)
-    - [Boost](#boost)
-    - [About SUNDIALS](#about-sundials)
-    - [You can skip this step if:](#you-can-skip-this-step-if)
-    - [You must build manually with CMake if:](#you-must-build-manually-with-cmake-if)
-- [User Configuration Guide](#user-configuration-guide)
-  - [File Structure Example](#file-structure-example)
-  - [Allowed Values](#allowed-values)
-  - [File Structure Example](#file-structure-example)
-  - [Allowed Values](#allowed-values)
-    - [Drop/Needle Region Methods](#dropneedle-region-methods)
-    - [Threshold/Baseline Method](#thresholdbaseline-method)
-    - [Edge Detection](#edge-detection)
-    - [Image Source](#image-source)
-  - [Tips](#tips)
-- [Full Workflow](#full-workflow)
-- [High-Level Architecture Diagram](#high-level-architecture-diagram)
-- [Unit tests](#unit-tests)
-- [Appropriate use of ML model in Contact Angle Analysis](#appropriate-use-of-ml-model-in-contact-angle-analysis)
-- [Contact \& Contribution](#contact--contribution)
+-   [OpenDrop-ML](#opendrop-ml)
+-   [Table of Contents](#table-of-contents)
+-   [Features](#features)
+-   [Quick Start Guide for Windows and Linux](#quick-start-guide-for-windows-and-linux)
+    -   [1. Install Python](#1-install-python)
+        -   [Check if Python is Already Installed](#check-if-python-is-already-installed)
+        -   [Install Python (if not already installed)](#install-python-if-not-already-installed)
+    -   [2. Install C/C++ Build Tools](#2-install-cc-build-tools)
+    -   [3. (Optional) Create and Use a Virtual Environment](#3-optional-create-and-use-a-virtual-environment)
+    -   [4. Install Python Dependencies](#4-install-python-dependencies)
+    -   [5. Build Cython Extensions](#5-build-cython-extensions)
+    -   [6. Run the Application](#6-run-the-application)
+-   [Quick Start Guide for macOS (Intel \& Apple Silicon)](#quick-start-guide-for-macos-intel--apple-silicon)
+    -   [1. Install Python](#1-install-python-1)
+    -   [2. Set Up Virtual Environment (Intel \& Apple Silicon)](#2-set-up-virtual-environment-intel--apple-silicon)
+        -   [Install Conda or Pyenv](#install-conda-or-pyenv)
+        -   [Create Python Environment](#create-python-environment)
+        -   [Install Python Dependencies](#install-python-dependencies)
+    -   [3. Build Cython Extensions](#3-build-cython-extensions)
+    -   [4. Run the Application](#4-run-the-application)
+    -   [Troubleshooting:](#troubleshooting)
+        -   [1. SUNDIALS:Architecture Mismatch (macOS)](#1-sundialsarchitecture-mismatch-macos)
+        -   [Fix Steps](#fix-steps)
+        -   [2. Boost: File not found](#2-boost-file-not-found)
+        -   [Fix Steps](#fix-steps-1)
+        -   [3. Check Build Library](#3-check-build-library)
+        -   [Boost](#boost)
+        -   [About SUNDIALS](#about-sundials)
+        -   [You can skip this step if:](#you-can-skip-this-step-if)
+        -   [You must build manually with CMake if:](#you-must-build-manually-with-cmake-if)
+-   [User Configuration Guide](#user-configuration-guide)
+    -   [File Structure Example](#file-structure-example)
+    -   [Allowed Values](#allowed-values)
+    -   [File Structure Example](#file-structure-example)
+    -   [Allowed Values](#allowed-values)
+        -   [Drop/Needle Region Methods](#dropneedle-region-methods)
+        -   [Threshold/Baseline Method](#thresholdbaseline-method)
+        -   [Edge Detection](#edge-detection)
+        -   [Image Source](#image-source)
+    -   [Tips](#tips)
+-   [Full Workflow](#full-workflow)
+-   [High-Level Architecture Diagram](#high-level-architecture-diagram)
+-   [Unit tests](#unit-tests)
+-   [Appropriate use of ML model in Contact Angle Analysis](#appropriate-use-of-ml-model-in-contact-angle-analysis)
+-   [Contact \& Contribution](#contact--contribution)
 
 # Features
 
-- Contact Angle & Pendant Drop Analysis
-- Multiple Fitting Algorithms: Polynomial, circular, elliptical, Young-Laplace
-- Integrated ML Prediction (Conan-ML) for contact angles
-- High-throughput Batch Processing of images & videos
-- Cross-platform Support: Windows, macOS, Linux
-- User-friendly GUI built with CustomTkinter
-- Modular Backend for easy customization and extension
-
+-   Contact Angle & Pendant Drop Analysis
+-   Multiple Fitting Algorithms: Polynomial, circular, elliptical, Young-Laplace
+-   Integrated ML Prediction (Conan-ML) for contact angles
+-   High-throughput Batch Processing of images & videos
+-   Cross-platform Support: Windows, macOS, Linux
+-   User-friendly GUI built with CustomTkinter
+-   Modular Backend for easy customization and extension
 
 # Quick Start Guide for Windows and Linux
 
@@ -101,12 +100,12 @@ Download and install [Python 3.8.10](https://www.python.org/downloads/release/py
 
 ## 2. Install C/C++ Build Tools
 
-- **Windows**:
-  - Download and install [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-  - During installation, select:
-    - "C++ build tools"
-    - Include the "Windows 10 SDK" or "Windows 11 SDK"
-- **Linux**:
+-   **Windows**:
+    -   Download and install [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+    -   During installation, select:
+        -   "C++ build tools"
+        -   Include the "Windows 10 SDK" or "Windows 11 SDK"
+-   **Linux**:
 
 ```bash
 sudo apt install build-essential   # Debian/Ubuntu
@@ -162,7 +161,7 @@ python setup.py build_ext --inplace
 ## 6. Run the Application
 
 ```bash
-python -m opendrop2.main
+python -m opendrop-ml.main
 ```
 
 # Quick Start Guide for macOS (Intel & Apple Silicon)
@@ -181,8 +180,8 @@ If not, install [Python 3.8.10](https://www.python.org/downloads/release/python-
 
 ### Install Conda or Pyenv
 
-- **Apple Silicon**: Install [Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install)
-- **Intel Mac**: Conda optional — can use system Python or [pyenv](https://github.com/pyenv/pyenv)
+-   **Apple Silicon**: Install [Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install)
+-   **Intel Mac**: Conda optional — can use system Python or [pyenv](https://github.com/pyenv/pyenv)
 
 ### Create Python Environment
 
@@ -225,7 +224,7 @@ python setup.py build_ext --inplace
 ## 4. Run the Application
 
 ```bash
-python -m opendrop2.main
+python -m opendrop-ml.main
 ```
 
 ## Troubleshooting:
@@ -250,9 +249,9 @@ This means `.so` files were built under the wrong architecture.
 
 ```bash
 python setup.py clean --all
-rm -rf build opendrop2/modules/ift/**/**/*.so
+rm -rf build opendrop-ml/modules/ift/**/**/*.so
 python setup.py build_ext --inplace
-python -m opendrop2.main
+python -m opendrop-ml.main
 ```
 
 **Tip**: Always recompile if switching between Intel and Apple Silicon.
@@ -277,16 +276,16 @@ You can resolve this issue by locating all .hpp files present in your Boost dire
 
 2. Locate Boost Header Files (If using system-installed Boost)
 
-- Use the following command to find all .hpp files within the Boost directory:
+-   Use the following command to find all .hpp files within the Boost directory:
 
 ```bash
 find /opt/homebrew -name  "*.hpp" | grep boost # Apple Silicon
 find /usr/local -name "*.hpp" | grep boost #Apple Intel
 ```
 
-- Set the BOOST_INCLUDE_DIR Environment Variable
+-   Set the BOOST_INCLUDE_DIR Environment Variable
 
-- Once you have identified the correct path to the Boost headers, set the BOOST_INCLUDE_DIR environment variable to this path.
+-   Once you have identified the correct path to the Boost headers, set the BOOST_INCLUDE_DIR environment variable to this path.
 
 ```bash
 export BOOST_INCLUDE_DIR=/opt/homebrew/Cellar/boost/1.88.0/include/ # Apple Silicon
@@ -300,7 +299,7 @@ export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
 
 ⚙️ Rebuild After Setting Path
 python setup.py build_ext --inplace
-python -m opendrop2.main
+python -m opendrop-ml.main
 ```
 
 ### 3. Check Build Library
@@ -375,23 +374,23 @@ make install
 
 Ensure `.a` files are built in:
 
-- `macos_x86_64/sundials/lib/`
-- or `macos_arm64/sundials/lib/`
+-   `macos_x86_64/sundials/lib/`
+-   or `macos_arm64/sundials/lib/`
 
 If you encounter errors, verify:
 
-- Python version
-- Cython is installed: `pip install cython`
-- C++ compiler is correctly installed
+-   Python version
+-   Cython is installed: `pip install cython`
+-   C++ compiler is correctly installed
 
 # User Configuration Guide
 
-[user_config.yaml](./opendrop2/user_config.yaml) is a YAML-based configuration file that lets you **predefine all key parameters** for your experiment, including:
+[user_config.yaml](./opendrop-ml/user_config.yaml) is a YAML-based configuration file that lets you **predefine all key parameters** for your experiment, including:
 
-- Image processing methods
-- Physical properties
-- Visualization flags
-- File paths and outputs
+-   Image processing methods
+-   Physical properties
+-   Visualization flags
+-   File paths and outputs
 
 You can avoid setting parameters manually in code — just edit the YAML file.
 
@@ -426,15 +425,15 @@ frame_interval: 1
 
 # --- Analysis methods ---
 analysis_methods_ca:
-  TANGENT_FIT: true
-  POLYNOMIAL_FIT: true
-  CIRCLE_FIT: false
-  ELLIPSE_FIT: false
-  YL_FIT: false
-  ML_MODEL: false
+    TANGENT_FIT: true
+    POLYNOMIAL_FIT: true
+    CIRCLE_FIT: false
+    ELLIPSE_FIT: false
+    YL_FIT: false
+    ML_MODEL: false
 
 analysis_methods_pd:
-  INTERFACIAL_TENSION: true
+    INTERFACIAL_TENSION: true
 
 # --- Output ---
 save_images_boole: false
@@ -449,31 +448,31 @@ output_directory: ./outputs/
 
 ### Drop/Needle Region Methods
 
-- `Automated` (default)
-- `User-selected`
+-   `Automated` (default)
+-   `User-selected`
 
 ### Threshold/Baseline Method
 
-- `Automated` (default)
-- `User-selected`
+-   `Automated` (default)
+-   `User-selected`
 
 ### Edge Detection
 
-- `OpenCV`
-- `Subpixel`
-- `Both`
+-   `OpenCV`
+-   `Subpixel`
+-   `Both`
 
 ### Image Source
 
-- `Local images`
+-   `Local images`
 
 ---
 
 ## Tips
 
-- `null` in YAML means the value is left unset (equivalent to `None` in Python).
-- Boolean flags must be `true` / `false` (lowercase YAML syntax).
-- Be sure to match key names and nesting exactly as shown above.
+-   `null` in YAML means the value is left unset (equivalent to `None` in Python).
+-   Boolean flags must be `true` / `false` (lowercase YAML syntax).
+-   Be sure to match key names and nesting exactly as shown above.
 
 # Full Workflow
 
@@ -487,29 +486,28 @@ After starting the application:
 
 1. Select one of the functions: Contact Angle or Interfacial Tension
 
-![Main Menu](./opendrop2/assets/main_menu.png)
+![Main Menu](./opendrop-ml/assets/main_menu.png)
 
 2. Upload Image(s)
 
-![Aquisition_1](./opendrop2/assets/ca_aquisition_1.png)
-![Aquisition_2](./opendrop2/assets/ca_aquisition_2.png)
+![Aquisition_1](./opendrop-ml/assets/ca_aquisition_1.png)
+![Aquisition_2](./opendrop-ml/assets/ca_aquisition_2.png)
 
 3. Fill in user input. Note that the sample image is for contact angle, but the process is similar for interfacial tension.
 
-![Preparation](./opendrop2/assets/ca_preparation.png)
+![Preparation](./opendrop-ml/assets/ca_preparation.png)
 
 4. Click 'next' to view the result!
 
-![Analysis](./opendrop2/assets/ca_analysis.png)
+![Analysis](./opendrop-ml/assets/ca_analysis.png)
 
 5. Optionally save the result to a CSV file.
 
-![Output](./opendrop2/assets/output.png)
-
+![Output](./opendrop-ml/assets/output.png)
 
 # High-Level Architecture Diagram
 
-![High-Level Project Plan](./opendrop2/assets/high-level-project-diagram.png)
+![High-Level Project Plan](./opendrop-ml/assets/high-level-project-diagram.png)
 
 # Unit tests
 
@@ -546,13 +544,13 @@ Current OpenDrop-ML implementation performs best for contact angles above 110°.
 
 Users should validate predictions manually in cases:
 
-- With extreme Bond numbers (>2)
-- With strong surface roughness/reflections
-- Outside of the model's trained contact angle range
+-   With extreme Bond numbers (>2)
+-   With strong surface roughness/reflections
+-   Outside of the model's trained contact angle range
 
 # Contact & Contribution
 
 OpenDrop-ML is an open-source project. Contributions are welcome!
 
-- GitHub: https://github.com/SamSike/OpenDrop_OP
-- For issues, use GitHub issue tracker
+-   GitHub: https://github.com/SamSike/OpenDrop_OP
+-   For issues, use GitHub issue tracker

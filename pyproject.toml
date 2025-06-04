@@ -7,7 +7,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "opendrop2"
+name = "opendrop-ml"
 version = "4.0.0"
 description = "OpenDrop-ML is an open-source, cross-platform tool for analyzing liquid droplets in surface science using contact angle and pendant drop methods, integrating classical geometric fitting with machine learning for flexible, automated, high-throughput image processing."
 authors = [
@@ -93,4 +93,4 @@ dependencies = [
 requires-python = ">=3.8.0"
 
 [project.scripts]
-opendrop = "opendrop2.main:main"
+opendrop = "opendrop-ml.main:main"

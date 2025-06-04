@@ -38,7 +38,7 @@ dependencies_folder_names = [
 def get_project_metadata():
     pyproject = toml.load("pyproject.toml")
     project = pyproject.get("project", {})
-    name = project.get("name", "opendrop2")
+    name = project.get("name", "opendrop-ml")
     version = project.get("version", "0.0.0")
     return name, version
 

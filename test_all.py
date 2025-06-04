@@ -6,8 +6,8 @@ def run_all_pytest():
     root_dir = os.path.dirname(os.path.abspath(__file__))
 
     test_dirs = [
-        os.path.join(root_dir, "opendrop2/modules"),
-        os.path.join(root_dir, "opendrop2/views"),
+        os.path.join(root_dir, "opendrop-ml/modules"),
+        os.path.join(root_dir, "opendrop-ml/views"),
     ]
 
     args = [

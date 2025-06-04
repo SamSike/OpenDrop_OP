@@ -48,10 +48,10 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
-opendrop2-*
+opendrop-ml-*
 
 # Output file
-opendrop2/outputs/
+opendrop-ml/outputs/
 
 # Platform specific
 ## macOS
@@ -80,8 +80,8 @@ dependencies/macos_x86_64/
 dependencies/macos_arm64/
 
 # Shared libraries and binaries
-opendrop2/modules/ift/hough/*.so
-opendrop2/modules/ift/younglaplace/*.so
+opendrop-ml/modules/ift/hough/*.so
+opendrop-ml/modules/ift/younglaplace/*.so
 
 # msi installer files
 *windows-installer.wixobj
