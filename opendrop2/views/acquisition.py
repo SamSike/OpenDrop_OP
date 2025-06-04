@@ -76,15 +76,12 @@ class Acquisition(CTkFrame):
 
         if function_type == FunctionType.CONTACT_ANGLE:
 
-            def update_edgefinder(self, *args):
-                self.user_input_data.edgefinder = self.edgefinder.get_value()
-
             self.edgefinder = OptionMenu(
                 self,
                 image_acquisition_frame,
                 "Edge finder:",
                 EDGEFINDER_OPTIONS,
-                update_edgefinder,
+                self.update_edgefinder,
                 rw=2,
             )
             self.edgefinder.optionmenu.grid_configure(sticky="ew")
