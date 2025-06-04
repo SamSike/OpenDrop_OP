@@ -28,7 +28,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 class TestSelectRegions(unittest.TestCase):
 
-    @patch("modules.preprocessing.preprocessing.auto_crop")
+    @patch("opendrop2.modules.preprocessing.preprocessing.auto_crop")
     def test_set_drop_region_auto(self, mock_auto_crop: MagicMock):
         # Create mock return value
         # Simulate a blank image of size 100x100
@@ -55,8 +55,8 @@ class TestSelectRegions(unittest.TestCase):
         self.assertTrue(np.array_equal(experimental_drop.cropped_image, mock_image))
         self.assertEqual(experimental_setup.drop_region, [(10, 20), (90, 80)])
 
-    @patch("modules.image.select_regions.user_roi")
-    @patch("modules.image.select_regions.image_crop")
+    @patch("opendrop2.modules.image.select_regions.user_roi")
+    @patch("opendrop2.modules.image.select_regions.image_crop")
     def test_set_drop_region_user_selected(
         self, mock_image_crop: MagicMock, mock_user_roi: MagicMock
     ):
@@ -98,8 +98,8 @@ class TestSelectRegions(unittest.TestCase):
 
 class TestSurfaceLine(unittest.TestCase):
 
-    @patch("modules.image.select_regions.prepare_hydrophobic")
-    @patch("modules.preprocessing.preprocessing.optimized_path")
+    @patch("opendrop2.modules.image.select_regions.prepare_hydrophobic")
+    @patch("opendrop2.modules.preprocessing.preprocessing.optimized_path")
     def test_set_surface_line_auto(self, mock_optimized_path, mock_prepare_hydrophobic):
         # Simulate optimized_path return value to ensure enough data points for distance calculation
         mock_optimized_path.return_value = np.array(
@@ -132,7 +132,7 @@ class TestSurfaceLine(unittest.TestCase):
 
 class TestCorrectTilt(unittest.TestCase):
 
-    @patch("modules.image.select_regions.tilt_correction")
+    @patch("opendrop2.modules.image.select_regions.tilt_correction")
     def test_correct_tilt_auto(self, mock_tilt_correction):
         # Create mock return value
         mock_cropped_image = np.zeros((100, 100, 3))
@@ -161,9 +161,9 @@ class TestCorrectTilt(unittest.TestCase):
 
 class TestDrawRectangle(unittest.TestCase):
 
-    @patch("modules.image.select_regions.cv2.rectangle")
+    @patch("opendrop2.modules.image.select_regions.cv2.rectangle")
     @patch.dict(
-        "modules.image.select_regions.__dict__",
+        "opendrop2.modules.image.select_regions.__dict__",
         {"image_TEMP": np.zeros((100, 100, 3)), "img": np.zeros((100, 100, 3))},
     )
     def test_draw_rectangle(self, mock_rectangle):
@@ -203,9 +203,9 @@ class TestDrawRectangle(unittest.TestCase):
 
 class TestDrawLine(unittest.TestCase):
 
-    @patch("modules.image.select_regions.cv2.line")
+    @patch("opendrop2.modules.image.select_regions.cv2.line")
     @patch.dict(
-        "modules.image.select_regions.__dict__",
+        "opendrop2.modules.image.select_regions.__dict__",
         {"image_TEMP": np.zeros((100, 100, 3)), "img": np.zeros((100, 100, 3))},
     )
     def test_draw_line(self, mock_line):
@@ -248,7 +248,7 @@ class TestOptimizedPath(unittest.TestCase):
 
         # Use patch to mock the behavior of distance function
         with patch(
-            "modules.image.select_regions.distance", side_effect=cycle([1])
+            "opendrop2.modules.image.select_regions.distance", side_effect=cycle([1])
         ) as mock_distance:
             result = optimized_path(coords, start)
 

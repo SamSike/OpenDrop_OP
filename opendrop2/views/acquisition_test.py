@@ -25,7 +25,7 @@ def mock_user_input():
 
 @pytest.fixture
 def component(mock_user_input):
-    with patch("views.acquisition.Acquisition.__init__", return_value=None):
+    with patch("opendrop2.views.acquisition.Acquisition.__init__", return_value=None):
         component = Acquisition.__new__(Acquisition)
         component.image_source = MagicMock()
         component.frame_interval = MagicMock()
