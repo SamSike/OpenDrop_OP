@@ -1,119 +1,120 @@
-# Developer Guide: OpenDrop-ML
+# Developer Guide: opendrop_ml
 
 ## Table of Contents
-- [Developer Guide: OpenDrop-ML](#developer-guide-opendrop-ml)
-  - [Table of Contents](#table-of-contents)
-  - [1. Introduction](#1-introduction)
-    - [What You'll Learn](#what-youll-learn)
-  - [2. Setup Instructions](#2-setup-instructions)
-  - [3. Project Structure](#3-project-structure)
-    - [3.1. High-Level Overview](#31-high-level-overview)
-    - [3.2. Directory Structure](#32-directory-structure)
-    - [3.3. Backend Architecture (`modules/`)](#33-backend-architecture-modules)
-      - [Core Components](#core-components)
-      - [Analysis Pipelines](#analysis-pipelines)
-      - [Data Flow](#data-flow)
-    - [3.4. Frontend Architecture (`views/`)](#34-frontend-architecture-views)
-      - [Framework \& Navigation](#framework--navigation)
-      - [Shared State Management](#shared-state-management)
-      - [Workflow Pages](#workflow-pages)
-      - [Reusable Components](#reusable-components)
-  - [4. Contribution Workflow](#4-contribution-workflow)
-    - [4.1. Branching Strategy](#41-branching-strategy)
-      - [Main Branches](#main-branches)
-      - [Development Branches](#development-branches)
-      - [Feature Branch Workflow](#feature-branch-workflow)
-    - [4.2. Pull Request (PR) Process](#42-pull-request-pr-process)
-      - [PR Requirements](#pr-requirements)
-    - [4.3. Code Review Guidelines](#43-code-review-guidelines)
-      - [Review Focus Areas](#review-focus-areas)
-      - [Best Practices](#best-practices)
-  - [5. Coding Standards](#5-coding-standards)
-    - [5.1. Python Style Guide](#51-python-style-guide)
-      - [Core Standards](#core-standards)
-      - [Documentation Requirements](#documentation-requirements)
-      - [Example Docstring](#example-docstring)
-      - [Linting Guide](#linting-guide)
-    - [5.2. Commit Message Convention](#52-commit-message-convention)
-      - [Angular Convention Format](#angular-convention-format)
-      - [Commit Types](#commit-types)
-      - [Examples](#examples)
-    - [5.3. Frontend Standards (CustomTkinter)](#53-frontend-standards-customtkinter)
-      - [UI Guidelines](#ui-guidelines)
-      - [Component Structure](#component-structure)
-  - [6. Testing Procedures](#6-testing-procedures)
-    - [6.1. Testing Overview](#61-testing-overview)
-      - [Framework \& Structure](#framework--structure)
-      - [Test File Examples](#test-file-examples)
-    - [6.2. Writing Tests](#62-writing-tests)
-      - [Test Types](#test-types)
-      - [Naming Conventions](#naming-conventions)
-      - [Example Test Structure](#example-test-structure)
-    - [6.3. Running Tests](#63-running-tests)
-      - [Basic Commands](#basic-commands)
-      - [Specific Test Execution](#specific-test-execution)
-      - [Test Coverage](#test-coverage)
-    - [6.4. Test Development Guidelines](#64-test-development-guidelines)
-      - [Best Practices](#best-practices-1)
-      - [Coverage Goals](#coverage-goals)
-  - [7. Deployment Guidelines](#7-deployment-guidelines)
-    - [7.1. Building Cython Extensions](#71-building-cython-extensions)
-      - [Prerequisites for C++ Modules](#prerequisites-for-c-modules)
-      - [Build Command](#build-command)
-      - [What This Does](#what-this-does)
-    - [7.2. Core Packaging with `setup.py`](#72-core-packaging-with-setuppy)
-      - [Setup.py Responsibilities](#setuppy-responsibilities)
-      - [Platform-Specific Libraries](#platform-specific-libraries)
-      - [Compiler Configuration](#compiler-configuration)
-    - [7.3. Deployment Considerations](#73-deployment-considerations)
-      - [Cross-Platform Builds](#cross-platform-builds)
-      - [Packaging Checklist](#packaging-checklist)
-      - [Common Packaging Tools](#common-packaging-tools)
-      - [Example PyInstaller Command](#example-pyinstaller-command)
-    - [7.4. Testing Packaged Applications](#74-testing-packaged-applications)
-      - [Validation Steps](#validation-steps)
-      - [Platform Testing Matrix](#platform-testing-matrix)
-  - [8. Further Information](#8-further-information)
-    - [8.1. Configuration \& Customization](#81-configuration--customization)
-    - [8.2. Resources \& Support](#82-resources--support)
-      - [Documentation](#documentation)
-      - [Troubleshooting](#troubleshooting)
-      - [Quick Navigation](#quick-navigation)
+
+-   [Developer Guide: opendrop_ml](#developer-guide-opendrop_ml)
+    -   [Table of Contents](#table-of-contents)
+    -   [1. Introduction](#1-introduction)
+        -   [What You'll Learn](#what-youll-learn)
+    -   [2. Setup Instructions](#2-setup-instructions)
+    -   [3. Project Structure](#3-project-structure)
+        -   [3.1. High-Level Overview](#31-high-level-overview)
+        -   [3.2. Directory Structure](#32-directory-structure)
+        -   [3.3. Backend Architecture (`modules/`)](#33-backend-architecture-modules)
+            -   [Core Components](#core-components)
+            -   [Analysis Pipelines](#analysis-pipelines)
+            -   [Data Flow](#data-flow)
+        -   [3.4. Frontend Architecture (`views/`)](#34-frontend-architecture-views)
+            -   [Framework \& Navigation](#framework--navigation)
+            -   [Shared State Management](#shared-state-management)
+            -   [Workflow Pages](#workflow-pages)
+            -   [Reusable Components](#reusable-components)
+    -   [4. Contribution Workflow](#4-contribution-workflow)
+        -   [4.1. Branching Strategy](#41-branching-strategy)
+            -   [Main Branches](#main-branches)
+            -   [Development Branches](#development-branches)
+            -   [Feature Branch Workflow](#feature-branch-workflow)
+        -   [4.2. Pull Request (PR) Process](#42-pull-request-pr-process)
+            -   [PR Requirements](#pr-requirements)
+        -   [4.3. Code Review Guidelines](#43-code-review-guidelines)
+            -   [Review Focus Areas](#review-focus-areas)
+            -   [Best Practices](#best-practices)
+    -   [5. Coding Standards](#5-coding-standards)
+        -   [5.1. Python Style Guide](#51-python-style-guide)
+            -   [Core Standards](#core-standards)
+            -   [Documentation Requirements](#documentation-requirements)
+            -   [Example Docstring](#example-docstring)
+            -   [Linting Guide](#linting-guide)
+        -   [5.2. Commit Message Convention](#52-commit-message-convention)
+            -   [Angular Convention Format](#angular-convention-format)
+            -   [Commit Types](#commit-types)
+            -   [Examples](#examples)
+        -   [5.3. Frontend Standards (CustomTkinter)](#53-frontend-standards-customtkinter)
+            -   [UI Guidelines](#ui-guidelines)
+            -   [Component Structure](#component-structure)
+    -   [6. Testing Procedures](#6-testing-procedures)
+        -   [6.1. Testing Overview](#61-testing-overview)
+            -   [Framework \& Structure](#framework--structure)
+            -   [Test File Examples](#test-file-examples)
+        -   [6.2. Writing Tests](#62-writing-tests)
+            -   [Test Types](#test-types)
+            -   [Naming Conventions](#naming-conventions)
+            -   [Example Test Structure](#example-test-structure)
+        -   [6.3. Running Tests](#63-running-tests)
+            -   [Basic Commands](#basic-commands)
+            -   [Specific Test Execution](#specific-test-execution)
+            -   [Test Coverage](#test-coverage)
+        -   [6.4. Test Development Guidelines](#64-test-development-guidelines)
+            -   [Best Practices](#best-practices-1)
+            -   [Coverage Goals](#coverage-goals)
+    -   [7. Deployment Guidelines](#7-deployment-guidelines)
+        -   [7.1. Building Cython Extensions](#71-building-cython-extensions)
+            -   [Prerequisites for C++ Modules](#prerequisites-for-c-modules)
+            -   [Build Command](#build-command)
+            -   [What This Does](#what-this-does)
+        -   [7.2. Core Packaging with `setup.py`](#72-core-packaging-with-setuppy)
+            -   [Setup.py Responsibilities](#setuppy-responsibilities)
+            -   [Platform-Specific Libraries](#platform-specific-libraries)
+            -   [Compiler Configuration](#compiler-configuration)
+        -   [7.3. Deployment Considerations](#73-deployment-considerations)
+            -   [Cross-Platform Builds](#cross-platform-builds)
+            -   [Packaging Checklist](#packaging-checklist)
+            -   [Common Packaging Tools](#common-packaging-tools)
+            -   [Example PyInstaller Command](#example-pyinstaller-command)
+        -   [7.4. Testing Packaged Applications](#74-testing-packaged-applications)
+            -   [Validation Steps](#validation-steps)
+            -   [Platform Testing Matrix](#platform-testing-matrix)
+    -   [8. Further Information](#8-further-information)
+        -   [8.1. Configuration \& Customization](#81-configuration--customization)
+        -   [8.2. Resources \& Support](#82-resources--support)
+            -   [Documentation](#documentation)
+            -   [Troubleshooting](#troubleshooting)
+            -   [Quick Navigation](#quick-navigation)
 
 ---
 
 ## 1. Introduction
 
-Welcome to the **OpenDrop-ML Developer Guide**!
+Welcome to the **opendrop_ml Developer Guide**!
 
-**OpenDrop-ML** is an open-source, cross-platform software for analyzing liquid droplets in surface science using contact angle and pendant drop (interfacial tension) methods. It integrates classical computer vision techniques with machine learning (ML)-based analysis (Conan-ML), offering both flexibility and automation for scientific users.
+**opendrop_ml** is an open-source, cross-platform software for analyzing liquid droplets in surface science using contact angle and pendant drop (interfacial tension) methods. It integrates classical computer vision techniques with machine learning (ML)-based analysis (Conan-ML), offering both flexibility and automation for scientific users.
 
 ### What You'll Learn
 
 This guide provides all the necessary information for developers to:
 
-- Set up their development environment
-- Understand the project architecture
-- Contribute effectively to the codebase
-- Adhere to project standards and best practices
+-   Set up their development environment
+-   Understand the project architecture
+-   Contribute effectively to the codebase
+-   Adhere to project standards and best practices
 
 ## 2. Setup Instructions
 
-Setting up the development environment for OpenDrop-ML involves installing Python, cloning the repository, and installing dependencies. Please check the installation guide in [README file](./README.md).
+Setting up the development environment for opendrop_ml involves installing Python, cloning the repository, and installing dependencies. Please check the installation guide in [README file](./README.md).
 
 ## 3. Project Structure
 
-OpenDrop-ML follows a **modular architecture** to separate concerns and facilitate extensibility.
+opendrop_ml follows a **modular architecture** to separate concerns and facilitate extensibility.
 
 ### 3.1. High-Level Overview
 
-![High-Level Architecture](opendrop2/assets/high-level-project-diagram.png)
+![High-Level Architecture](opendrop_ml/assets/high-level-project-diagram.png)
 
 The project is primarily divided into:
 
-- **Backend Logic** (`modules/`)
-- **Frontend UI** (`views/`)
-- **Utility Functions** (`utils/`)
+-   **Backend Logic** (`modules/`)
+-   **Frontend UI** (`views/`)
+-   **Utility Functions** (`utils/`)
 
 The test modules follow the same folder structure. The `tests/` folder is located in the project root folder.
 
@@ -121,7 +122,7 @@ The test modules follow the same folder structure. The `tests/` folder is locate
 
 ```
 OpenDrop_OP/
-├── opendrop2/                  # Main Python package containing all logic and UI
+├── opendrop_ml/                  # Main Python package containing all logic and UI
 │   ├── modules/                # Core backend logic, organized by functionality
 │   │   ├── contact_angle/      # CA specific processing
 │   │   ├── core/               # Core classes (ExperimentalSetup, DropData)
@@ -139,7 +140,7 @@ OpenDrop_OP/
 │   ├── assets/                 # Static assets like images and fonts
 │   ├── experimental_data_set/  # Example input images for testing and demonstration
 │   ├── dependencies/           # External library dependencies for C++ modules
-│   ├── main.py                 # Main entry point for launching the OpenDrop-ML GUI
+│   ├── main.py                 # Main entry point for launching the opendrop_ml GUI
 │   └── user_config.yaml        # User-specific configuration and preferences
 ├── pyproject.toml              # Build system and metadata (PEP 518); modern alternative to setup.py
 ├── setup.py                    # Python package installer script
@@ -166,9 +167,9 @@ OpenDrop_OP/
 
 #### Analysis Pipelines
 
-- **Contact Angle**: `modules/contact_angle/` handles CA-specific processing
-- **Interfacial Tension**: `modules/ift/` handles IFT-specific processing with C++/Cython extensions
-- **Machine Learning**: `modules/ML_model/` contains TensorFlow models for Conan-ML
+-   **Contact Angle**: `modules/contact_angle/` handles CA-specific processing
+-   **Interfacial Tension**: `modules/ift/` handles IFT-specific processing with C++/Cython extensions
+-   **Machine Learning**: `modules/ML_model/` contains TensorFlow models for Conan-ML
 
 #### Data Flow
 
@@ -180,15 +181,15 @@ Image Acquisition → Preprocessing → Contour Extraction → Fitting → Resul
 
 #### Framework & Navigation
 
-- **Framework**: Built with **CustomTkinter** (themed extension of Tkinter)
-- **Navigation Controller**: `views/function_window.py` manages page transitions using `show_frame()`
-- **Page Structure**: All UI pages are subclasses of `CTkFrame`
+-   **Framework**: Built with **CustomTkinter** (themed extension of Tkinter)
+-   **Navigation Controller**: `views/function_window.py` manages page transitions using `show_frame()`
+-   **Page Structure**: All UI pages are subclasses of `CTkFrame`
 
 #### Shared State Management
 
-- **Global State**: `user_input_data` object passed across all pages
-- **Contains**: Input paths, selected methods, parameters
-- **Instantiated in**: `function_window.py`
+-   **Global State**: `user_input_data` object passed across all pages
+-   **Contains**: Input paths, selected methods, parameters
+-   **Instantiated in**: `function_window.py`
 
 #### Workflow Pages
 
@@ -201,8 +202,8 @@ Image Acquisition → Preprocessing → Contour Extraction → Fitting → Resul
 
 #### Reusable Components
 
-- **Location**: `views/component/`
-- **Examples**: Custom entry fields, validation widgets, common UI patterns
+-   **Location**: `views/component/`
+-   **Examples**: Custom entry fields, validation widgets, common UI patterns
 
 ## 4. Contribution Workflow
 
@@ -236,27 +237,27 @@ We use a **develop-centric branching model** for development and collaboration.
 
 #### PR Requirements
 
-- [ ] Code follows project style guidelines
-- [ ] Clear PR description with linked GitHub issue(s)
-- [ ] All tests pass locally
-- [ ] At least one reviewer assigned
-- [ ] Review comments addressed
+-   [ ] Code follows project style guidelines
+-   [ ] Clear PR description with linked GitHub issue(s)
+-   [ ] All tests pass locally
+-   [ ] At least one reviewer assigned
+-   [ ] Review comments addressed
 
 ### 4.3. Code Review Guidelines
 
 #### Review Focus Areas
 
-- **Correctness**: Logic and functionality
-- **Standards**: Adherence to coding guidelines
-- **Performance**: Efficiency considerations
-- **Maintainability**: Code clarity and documentation
+-   **Correctness**: Logic and functionality
+-   **Standards**: Adherence to coding guidelines
+-   **Performance**: Efficiency considerations
+-   **Maintainability**: Code clarity and documentation
 
 #### Best Practices
 
-- Provide **constructive feedback**
-- Focus on **code, not the person**
-- Suggest **specific improvements**
-- Approve when standards are met
+-   Provide **constructive feedback**
+-   Focus on **code, not the person**
+-   Suggest **specific improvements**
+-   Approve when standards are met
 
 ## 5. Coding Standards
 
@@ -274,9 +275,9 @@ Adherence to coding standards is crucial for maintaining **code quality** and **
 
 #### Documentation Requirements
 
-- **Docstrings**: Required for all modules, classes, functions, and methods
-- **Style**: Use [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html) for docstrings
-- **Comments**: Explain complex or non-obvious code sections
+-   **Docstrings**: Required for all modules, classes, functions, and methods
+-   **Style**: Use [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html) for docstrings
+-   **Comments**: Explain complex or non-obvious code sections
 
 #### Example Docstring
 
@@ -347,10 +348,10 @@ Addresses #55, #57
 
 #### UI Guidelines
 
-- **Naming**: Use consistent naming conventions for UI elements
-- **Separation**: Keep UI logic separate from business logic
-- **Reusability**: Use shared components from `views/component/`
-- **Responsiveness**: Design for different screen sizes
+-   **Naming**: Use consistent naming conventions for UI elements
+-   **Separation**: Keep UI logic separate from business logic
+-   **Reusability**: Use shared components from `views/component/`
+-   **Responsiveness**: Design for different screen sizes
 
 #### Component Structure
 
@@ -370,7 +371,7 @@ class MyCustomWidget(ctk.CTkFrame):
 
 ## 6. Testing Procedures
 
-Comprehensive testing ensures the **reliability** and **stability** of OpenDrop-ML. We use `pytest` as our testing framework.
+Comprehensive testing ensures the **reliability** and **stability** of opendrop_ml. We use `pytest` as our testing framework.
 
 > **Primary Reference**: See `TESTING.md` for complete testing instructions.
 
@@ -388,13 +389,13 @@ Comprehensive testing ensures the **reliability** and **stability** of OpenDrop-
 #### Test File Examples
 
 ```
-opendrop2/modules/fitting/
+opendrop_ml/modules/fitting/
 ├── fits.py
 ├── fits_test.py
 ├── BA_fit.py
 └── BA_fit_test.py
 
-opendrop2/views/
+opendrop_ml/views/
 ├── acquisition.py
 └── acquisition_test.py
 ```
@@ -412,8 +413,8 @@ opendrop2/views/
 
 #### Naming Conventions
 
-- **Files**: `test_*.py` or `*_test.py`
-- **Functions**: Prefix with `test_`
+-   **Files**: `test_*.py` or `*_test.py`
+-   **Functions**: Prefix with `test_`
 
 #### Example Test Structure
 
@@ -484,21 +485,21 @@ pytest --cov=modules --cov=views --cov-report=term-missing
 
 #### Best Practices
 
-- **Focus**: Each test should verify one specific behavior
-- **Documentation**: Use descriptive test names and docstrings
-- **Fixtures**: Use pytest fixtures for test data setup
-- **Independence**: Tests should not depend on each other
-- **Mock External Dependencies**: Isolate units under test
+-   **Focus**: Each test should verify one specific behavior
+-   **Documentation**: Use descriptive test names and docstrings
+-   **Fixtures**: Use pytest fixtures for test data setup
+-   **Independence**: Tests should not depend on each other
+-   **Mock External Dependencies**: Isolate units under test
 
 #### Coverage Goals
 
-- **Target**: Aim for high test coverage (>80%)
-- **Priority**: Focus on critical paths and complex algorithms
-- **Documentation**: Include coverage reports in PRs
+-   **Target**: Aim for high test coverage (>80%)
+-   **Priority**: Focus on critical paths and complex algorithms
+-   **Documentation**: Include coverage reports in PRs
 
 ## 7. Deployment Guidelines
 
-This section outlines the steps for **building**, **packaging**, and **deploying** the OpenDrop-ML project.
+This section outlines the steps for **building**, **packaging**, and **deploying** the opendrop_ml project.
 
 > **Note**: Information based on `setup.py` and Python best practices. May require expansion for specific deployment targets.
 
@@ -522,9 +523,9 @@ python setup.py build_ext --inplace
 
 #### What This Does
 
-- Compiles `.pyx` files → C/C++ → Python extensions
-- Output: `.pyd` (Windows) or `.so` (Linux/macOS) files
-- Location: Placed in `modules/ift/younglaplace/` directory
+-   Compiles `.pyx` files → C/C++ → Python extensions
+-   Output: `.pyd` (Windows) or `.so` (Linux/macOS) files
+-   Location: Placed in `modules/ift/younglaplace/` directory
 
 > **Important**: Ensure C++ dependencies are correctly installed per `setup.py` configurations for your OS.
 
@@ -553,9 +554,9 @@ dependencies/
 
 #### Compiler Configuration
 
-- **C++ Standard**: `-std=c++17`
-- **Include Paths**: Cython source, SUNDIALS, Boost headers
-- **Library Linking**: OS-specific static/dynamic libraries
+-   **C++ Standard**: `-std=c++17`
+-   **Include Paths**: Cython source, SUNDIALS, Boost headers
+-   **Library Linking**: OS-specific static/dynamic libraries
 
 ### 7.3. Deployment Considerations
 
@@ -571,11 +572,11 @@ dependencies/
 
 #### Packaging Checklist
 
-- [ ] **Python Dependencies**: Bundle all `requirements.txt` packages
-- [ ] **C++ Extensions**: Include compiled `.pyx, .hpp, .pyd`/`.so` files from build step
-- [ ] **ML Models**: Include TensorFlow SavedModel from `modules/ML_model/`
-- [ ] **Assets**: Include fonts, images from `assets/` directory
-- [ ] **Configuration**: Include `user_config.yaml` defaults
+-   [ ] **Python Dependencies**: Bundle all `requirements.txt` packages
+-   [ ] **C++ Extensions**: Include compiled `.pyx, .hpp, .pyd`/`.so` files from build step
+-   [ ] **ML Models**: Include TensorFlow SavedModel from `modules/ML_model/`
+-   [ ] **Assets**: Include fonts, images from `assets/` directory
+-   [ ] **Configuration**: Include `user_config.yaml` defaults
 
 #### Common Packaging Tools
 
@@ -626,9 +627,9 @@ Eensure the `/` is the correct one for your platform. A platform independant pyi
 
 #### Documentation
 
-- **Main Guide**: This Developer Guide (comprehensive reference)
-- **User Guide**: `README.md` (end-user instructions)
-- **Testing**: `TESTING.md` (testing procedures)
+-   **Main Guide**: This Developer Guide (comprehensive reference)
+-   **User Guide**: `README.md` (end-user instructions)
+-   **Testing**: `TESTING.md` (testing procedures)
 
 #### Troubleshooting
 
@@ -639,12 +640,12 @@ Eensure the `/` is the correct one for your platform. A platform independant pyi
 
 #### Quick Navigation
 
-- [Setup Instructions](#2-setup-instructions) - Get started quickly
-- [Project Structure](#3-project-structure) - Understand the codebase
-- [Testing Procedures](#6-testing-procedures) - Run and write tests
+-   [Setup Instructions](#2-setup-instructions) - Get started quickly
+-   [Project Structure](#3-project-structure) - Understand the codebase
+-   [Testing Procedures](#6-testing-procedures) - Run and write tests
 
 ---
 
-This Developer Guide serves as your **primary reference** for contributing to OpenDrop-ML.
+This Developer Guide serves as your **primary reference** for contributing to opendrop_ml.
 
 ---

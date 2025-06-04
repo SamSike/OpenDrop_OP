@@ -14,7 +14,7 @@ Usage:
 # setup for hpp/cpp
 
 # Module paths
-BASE_DIR = "opendrop2"
+BASE_DIR = "opendrop_ml"
 IFT_DIR = os.path.join(BASE_DIR, "modules", "ift")
 YOUNGLAPLACE_DIR = os.path.join(IFT_DIR, "younglaplace")
 INCLUDE_DIR = os.path.join(IFT_DIR, "include")
@@ -113,7 +113,7 @@ if os.environ.get("OPENDROP_SUPPRESS_WARNINGS") == "1":
 # Cython extension definitions
 ext_modules = [
     Extension(
-        name="opendrop2.modules.ift.younglaplace.shape",
+        name="opendrop_ml.modules.ift.younglaplace.shape",
         sources=[os.path.join(YOUNGLAPLACE_DIR, "shape.pyx")],
         language="c++",
         include_dirs=[YOUNGLAPLACE_DIR, INCLUDE_DIR,
@@ -123,7 +123,7 @@ ext_modules = [
         define_macros=[("SUNDIALS_STATIC", 1)],
     ),
     Extension(
-        name="opendrop2.modules.ift.hough.hough",
+        name="opendrop_ml.modules.ift.hough.hough",
         sources=[os.path.join(IFT_DIR, "hough", "hough.pyx")],
         language="c++",
         include_dirs=[os.path.join(IFT_DIR, "hough")],
@@ -141,7 +141,7 @@ def all_files_recursive(directory):
 
 
 setup(
-    name="opendrop2",
+    name="opendrop_ml",
     version="4.0.0",
     packages=find_packages(),
     ext_modules=cythonize(
@@ -151,7 +151,7 @@ setup(
     ),
     # non python files that need to be compiled
     package_data={
-        "opendrop2": [
+        "opendrop_ml": [
             "user_config.yaml",
             os.path.join("modules", "ift", "younglaplace", "shape.pyx"),
             os.path.join("modules", "ift", "hough", "hough.pyx"),

@@ -1,4 +1,4 @@
-from opendrop2.utils.os import resource_path
+from opendrop_ml.utils.os import resource_path
 
 from matplotlib import pyplot as plt
 import datetime

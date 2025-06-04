@@ -2,14 +2,14 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 
   <!-- UPGRADECODE UNIQUE TO OPENDROP --> <!-- UPDATE VERSION NUMBER FOR NEW RELEASE -->
-  <Product Id="*" Name="OpenDrop" Language="1033" Version="4.0.0.0" Manufacturer="jdber1" UpgradeCode="b97a66f0-acc8-4f83-939a-8872612d6d2c">
+  <Product Id="*" Name="OpenDrop" Language="1033" Version="1.0.0.0" Manufacturer="jdber1" UpgradeCode="d7b5b9ed-3726-475e-b81a-3c33371773e1">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
     <!-- CREATES BUILD FILE -->
     <Media Id="1" Cabinet="OpenDrop.cab" EmbedCab="yes" />
 
     <!-- USES ICON FILE -->
-    <Icon Id="OpenDropIcon" SourceFile="opendrop2/assets/opendrop.ico" />
+    <Icon Id="OpenDropIcon" SourceFile="opendrop_ml/assets/opendrop.ico" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
